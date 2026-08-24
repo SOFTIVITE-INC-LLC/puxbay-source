@@ -67,7 +67,7 @@ export class Register {
       this.auth.registerAndLogin(payload).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/dashboard']);
+          window.location.href = 'https://' + formVal.subdomain + '.puxbay.com/login';
         },
         error: (err) => {
           this.isLoading.set(false);
