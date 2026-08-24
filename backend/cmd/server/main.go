@@ -14,7 +14,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 
-	"github.com/softivite/puxbay/internal/admin"
+
 	"github.com/softivite/puxbay/internal/config"
 	"github.com/softivite/puxbay/internal/database"
 	"github.com/softivite/puxbay/internal/logger"
@@ -273,10 +273,7 @@ func main() {
 	// 5. Setup router
 	r := router.Setup(cfg, db, hub)
 
-	// 5. Setup GoAdmin
-	if err := admin.Setup(r, cfg); err != nil {
-		log.Fatalf("Failed to setup GoAdmin: %v", err)
-	}
+
 
 	// 6. Setup Asynq Worker Server
 	workerServer := workers.NewWorkerServer(cfg, db)
