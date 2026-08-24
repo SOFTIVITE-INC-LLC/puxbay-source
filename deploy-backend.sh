@@ -245,35 +245,35 @@ server {
     ssl_certificate /etc/nginx/ssl/$DOMAIN/cert.pem;
     ssl_certificate_key /etc/nginx/ssl/$DOMAIN/key.pem;
 
-    # CORS headers at Nginx level — ensures error responses (502/504) still
-    # include CORS headers so the browser reports the real error, not a
-    # misleading "CORS policy" message.
-    set \$cors_origin "";
-    if (\$http_origin ~* "^https://(www\.)?puxbay\.com$") {
-        set \$cors_origin \$http_origin;
-    }
-    if (\$http_origin ~* "^https://[a-zA-Z0-9-]+\.puxbay\.com$") {
-        set \$cors_origin \$http_origin;
-    }
+    location / {
+        # Determine the allowed CORS origin (puxbay.com + all tenant subdomains)
+        # set/add_header must be inside location, not at server level
+        set \$cors_origin "";
+        if (\$http_origin ~* "^https://(www\.)?puxbay\.com$") {
+            set \$cors_origin \$http_origin;
+        }
+        if (\$http_origin ~* "^https://[a-zA-Z0-9-]+\.puxbay\.com$") {
+            set \$cors_origin \$http_origin;
+        }
 
-    # Always add CORS headers (the Go app adds its own on success,
-    # but Nginx covers the error/timeout cases)
-    add_header Access-Control-Allow-Origin \$cors_origin always;
-    add_header Access-Control-Allow-Credentials "true" always;
-    add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
-    add_header Access-Control-Allow-Headers "Origin, Content-Type, Authorization, Accept, X-Tenant-ID, X-Tenant-Subdomain, X-CSRF-Token, X-Session-ID, Idempotency-Key, X-Branch-ID" always;
+        # Handle OPTIONS preflight at Nginx level — covers cases where the
+        # backend is unreachable (502/504) and can't add its own CORS headers
+        if (\$request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin \$cors_origin always;
+            add_header Access-Control-Allow-Credentials "true" always;
+            add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "Origin, Content-Type, Authorization, Accept, X-Tenant-ID, X-Tenant-Subdomain, X-CSRF-Token, X-Session-ID, Idempotency-Key, X-Branch-ID" always;
+            add_header Access-Control-Max-Age 86400 always;
+            return 204;
+        }
 
-    # Handle preflight OPTIONS at Nginx level as a fallback
-    if (\$request_method = 'OPTIONS') {
+        # For all other methods: add CORS headers so error responses (502/504)
+        # still carry them — Go adds its own on success (no conflict)
         add_header Access-Control-Allow-Origin \$cors_origin always;
         add_header Access-Control-Allow-Credentials "true" always;
         add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
         add_header Access-Control-Allow-Headers "Origin, Content-Type, Authorization, Accept, X-Tenant-ID, X-Tenant-Subdomain, X-CSRF-Token, X-Session-ID, Idempotency-Key, X-Branch-ID" always;
-        add_header Access-Control-Max-Age 86400 always;
-        return 204;
-    }
 
-    location / {
         proxy_pass http://localhost:5000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
