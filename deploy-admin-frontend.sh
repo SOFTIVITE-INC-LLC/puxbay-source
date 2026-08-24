@@ -7,7 +7,7 @@ set -e
 # Configuration
 APP_NAME="puxbay-admin"
 BUILD_DIR="/opt/puxbay/admin-build"
-WEB_DIR="/var/www/admin-frontend"
+WEB_DIR="/var/www/admin-puxbay"
 USER="softivite"
 GROUP="www-data"
 

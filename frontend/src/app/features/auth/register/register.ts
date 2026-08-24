@@ -81,7 +81,7 @@ export class Register {
                 }
                 const newHostname = parts.join('.');
                 const port = window.location.port ? `:${window.location.port}` : '';
-                window.location.href = `${window.location.protocol}//${newHostname}${port}/dashboard`;
+                window.location.href = `https://${formVal.subdomain}.puxbay.com/dashboard`;
                 return;
               }
             }
