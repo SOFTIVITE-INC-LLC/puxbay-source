@@ -162,7 +162,7 @@ echo -e "${YELLOW}Downloading Go modules...${NC}"
 sudo -u $USER /usr/local/go/bin/go mod tidy
 
 echo -e "${YELLOW}Building the Go application...${NC}"
-sudo -u $USER /usr/local/go/bin/go build -o bin/server main.go
+sudo -u $USER /usr/local/go/bin/go build -o bin/server cmd/server/main.go
 
 echo ""
 echo -e "${YELLOW}Do you want to run database migrations?${NC}"
