@@ -58,7 +58,7 @@ export class Login {
               if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
                 const parts = hostname.split('.');
                 const currentSubdomain = (parts.length >= 2 && parts[0] !== 'www' && parts[0] !== 'api') ? parts[0] : null;
-                
+
                 if (currentSubdomain !== userSubdomain) {
                   if (currentSubdomain) {
                     parts[0] = userSubdomain;
@@ -67,7 +67,7 @@ export class Login {
                   }
                   const newHostname = parts.join('.');
                   const port = window.location.port ? `:${window.location.port}` : '';
-                  window.location.href = `${window.location.protocol}//${newHostname}${port}${targetPath}`;
+                  window.location.href = `https://${userSubdomain}.puxbay.com/dashboard`;
                   return;
                 }
               }
