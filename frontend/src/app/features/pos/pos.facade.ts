@@ -50,10 +50,10 @@ export class PosFacade {
   printerPort: any = null;
   shiftStatus = signal<'open' | 'closed'>('closed');
   shiftDetails = signal<any>(null);
-  
+
   // Kitchen Dispatch
   isSentToKitchen = signal(false);
-  
+
   // Loyalty
   loyaltyPoints = signal(0);
   pointsRedeemed = signal(0);
@@ -69,7 +69,7 @@ export class PosFacade {
   constructor() {
     window.addEventListener('online', () => this.isOffline.set(false));
     window.addEventListener('offline', () => this.isOffline.set(true));
-    
+
     if (document.documentElement.classList.contains('dark')) {
       this.theme.set('dark');
     }
@@ -94,7 +94,7 @@ export class PosFacade {
   }
 
   init() {
-    this.catalogService.getProducts({ limit: 10000 }).subscribe(res => {
+    this.catalogService.getProducts({ limit: -1 }).subscribe(res => {
       // Cache products for offline use
       if (navigator.onLine && res?.data?.length) {
         this.offlineDb.cacheProducts(res.data.map((p: any) => ({
@@ -104,11 +104,11 @@ export class PosFacade {
           image_url: p.image_url, category: p.category,
           track_inventory: p.track_inventory, is_active: p.is_active,
           branch_id: p.branch_id, cached_at: Date.now(),
-        }))).catch(() => {});
+        }))).catch(() => { });
       }
     });
-    this.customerService.getCustomers().subscribe();
-    this.categoryService.getCategories().subscribe();
+    this.customerService.getCustomers({ limit: -1 }).subscribe();
+    this.categoryService.getCategories({ limit: -1 }).subscribe();
     this.settingsService.getSettings().subscribe();
     // On reconnect, attempt to sync any queued offline orders
     window.addEventListener('online', () => this._syncOfflineOrders(), { once: false });
@@ -140,15 +140,15 @@ export class PosFacade {
       return sum + item.discount;
     }, 0);
   });
-  
+
   // PROMO ENGINE: Dynamic settings
   readonly promoThreshold = computed(() => this.settingsService.settings()?.promo_threshold || 100);
   readonly promoPercent = computed(() => this.settingsService.settings()?.promo_discount_percent || 10);
   readonly autoPromoDiscount = computed(() => {
-     if (!this.isAutoPromoEnabled()) return 0;
-     const threshold = this.promoThreshold();
-     const percent = this.promoPercent();
-     return (this.cartSubtotal() > threshold && percent > 0) ? this.cartSubtotal() * (percent / 100) : 0;
+    if (!this.isAutoPromoEnabled()) return 0;
+    const threshold = this.promoThreshold();
+    const percent = this.promoPercent();
+    return (this.cartSubtotal() > threshold && percent > 0) ? this.cartSubtotal() * (percent / 100) : 0;
   });
 
   readonly cartDiscountTotal = computed(() => this.rawDiscountTotal() + this.autoPromoDiscount() + this.pointsRedeemed());
@@ -180,7 +180,7 @@ export class PosFacade {
     if (rounded50 > total && !options.includes(rounded50)) options.push(rounded50);
     const rounded100 = Math.ceil(total / 100) * 100;
     if (rounded100 > total && !options.includes(rounded100)) options.push(rounded100);
-    return options.sort((a,b) => a-b);
+    return options.sort((a, b) => a - b);
   });
 
   // --- ACTIONS ---
@@ -196,7 +196,7 @@ export class PosFacade {
 
   toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(() => { });
     } else if (document.exitFullscreen) {
       document.exitFullscreen();
     }
@@ -276,10 +276,10 @@ export class PosFacade {
 
   clearCart() {
     if (this.isSentToKitchen()) {
-       // Require void pin
-       this.voidPin.set(''); // reset PIN when opening modal
-       this.isVoidModalOpen.set(true);
-       return;
+      // Require void pin
+      this.voidPin.set(''); // reset PIN when opening modal
+      this.isVoidModalOpen.set(true);
+      return;
     }
     this.resetCartState();
   }
@@ -307,12 +307,12 @@ export class PosFacade {
 
   verifyVoid() {
     if (this.voidPin() === '1234') {
-       this.toastr.success('Manager override approved. Cart voided.');
-       this.resetCartState();
-       this.isVoidModalOpen.set(false);
+      this.toastr.success('Manager override approved. Cart voided.');
+      this.resetCartState();
+      this.isVoidModalOpen.set(false);
     } else {
-       this.toastr.error('Invalid Manager PIN');
-       this.voidPin.set('');
+      this.toastr.error('Invalid Manager PIN');
+      this.voidPin.set('');
     }
   }
 
@@ -354,9 +354,9 @@ export class PosFacade {
     if (amount <= 0) return;
     const existing = this.payments().find(p => p.method === method);
     if (existing) {
-       this.payments.update(p => p.map(x => x.method === method ? { ...x, amount: x.amount + amount } : x));
+      this.payments.update(p => p.map(x => x.method === method ? { ...x, amount: x.amount + amount } : x));
     } else {
-       this.payments.update(p => [...p, { method, amount }]);
+      this.payments.update(p => [...p, { method, amount }]);
     }
   }
 
@@ -366,8 +366,8 @@ export class PosFacade {
 
   processCheckout() {
     if (this.amountPaid() < this.cartTotal()) {
-       this.toastr.error('Insufficient payment amount');
-       return;
+      this.toastr.error('Insufficient payment amount');
+      return;
     }
 
     const orderItems = this.cart().map(item => {

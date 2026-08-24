@@ -19,9 +19,9 @@ export class CategoryService {
   categories = signal<Category[]>([]);
   loading = signal<boolean>(false);
 
-  getCategories(): Observable<Category[]> {
+  getCategories(params?: any): Observable<Category[]> {
     this.loading.set(true);
-    return this.api.get<Category[]>(this.baseUrl).pipe(
+    return this.api.get<Category[]>(this.baseUrl, { params }).pipe(
       tap(res => {
         this.categories.set(res || []);
         this.loading.set(false);
