@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, tap, catchError, of, throwError, from, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -16,7 +17,8 @@ export interface ApiOptions {
 export class ApiService {
   private http = inject(HttpClient);
   private offlineService = inject(OfflineService);
-  private apiUrl = environment.apiUrl;
+  private platformId = inject(PLATFORM_ID);
+  private apiUrl = isPlatformServer(this.platformId) && environment.production ? 'http://localhost:5000/api/v1' : environment.apiUrl;
   private cache = new Map<string, { data: any, timestamp: number }>();
   private CACHE_TTL = 5000;
 

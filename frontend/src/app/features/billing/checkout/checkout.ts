@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BillingService, Plan } from '../../../core/services/billing.service';
+import { PricingService } from '../../../core/services/pricing.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { AlertService } from '../../../core/services/alert.service';
 
@@ -14,13 +15,14 @@ import { AlertService } from '../../../core/services/alert.service';
 })
 export class Checkout implements OnInit {
   private billingService = inject(BillingService);
+  private pricingService = inject(PricingService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private alertService = inject(AlertService);
 
   planId = signal<string | null>(null);
   billingCycle = signal<'monthly' | 'yearly'>('monthly');
-  plan = signal<Plan | null>(null);
+  plan = signal<any | null>(null);
   
   promoCode = signal('');
   promoLoading = signal(false);
@@ -65,9 +67,9 @@ export class Checkout implements OnInit {
       return;
     }
 
-    this.billingService.listPlans().subscribe({
-      next: (res) => {
-        const found = res.plans.find(p => String(p.id) === String(this.planId()));
+    this.pricingService.getPublicPricingPlans().subscribe({
+      next: (plans) => {
+        const found = plans.find(p => String(p.id) === String(this.planId()));
         if (found) {
           this.plan.set(found);
         } else {
