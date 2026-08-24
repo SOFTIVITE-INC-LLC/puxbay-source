@@ -45,13 +45,34 @@ export class Login {
           const branchId = user?.branch_id;
 
           const navigate = () => {
+            let targetPath = '/dashboard';
             if (role === 'sales') {
-              this.router.navigate(['/pos']);
+              targetPath = '/pos';
             } else if (role === 'supplier') {
-              this.router.navigate(['/b2b']);
-            } else {
-              this.router.navigate(['/dashboard']);
+              targetPath = '/b2b';
             }
+
+            const userSubdomain = user?.subdomain;
+            if (userSubdomain && typeof window !== 'undefined') {
+              const hostname = window.location.hostname;
+              if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                const parts = hostname.split('.');
+                const currentSubdomain = (parts.length >= 2 && parts[0] !== 'www' && parts[0] !== 'api') ? parts[0] : null;
+                
+                if (currentSubdomain !== userSubdomain) {
+                  if (currentSubdomain) {
+                    parts[0] = userSubdomain;
+                  } else {
+                    parts.unshift(userSubdomain);
+                  }
+                  const newHostname = parts.join('.');
+                  const port = window.location.port ? `:${window.location.port}` : '';
+                  window.location.href = `${window.location.protocol}//${newHostname}${port}${targetPath}`;
+                  return;
+                }
+              }
+            }
+            this.router.navigate([targetPath]);
           };
 
           if (branchId) {

@@ -67,7 +67,26 @@ export class Register {
       this.auth.registerAndLogin(payload).subscribe({
         next: () => {
           this.isLoading.set(false);
-          window.location.href = 'https://' + formVal.subdomain + '.puxbay.com/login';
+          if (typeof window !== 'undefined') {
+            const hostname = window.location.hostname;
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+              const parts = hostname.split('.');
+              const currentSubdomain = (parts.length >= 2 && parts[0] !== 'www' && parts[0] !== 'api') ? parts[0] : null;
+              
+              if (currentSubdomain !== formVal.subdomain) {
+                if (currentSubdomain) {
+                  parts[0] = formVal.subdomain as string;
+                } else {
+                  parts.unshift(formVal.subdomain as string);
+                }
+                const newHostname = parts.join('.');
+                const port = window.location.port ? `:${window.location.port}` : '';
+                window.location.href = `${window.location.protocol}//${newHostname}${port}/dashboard`;
+                return;
+              }
+            }
+          }
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
           this.isLoading.set(false);
