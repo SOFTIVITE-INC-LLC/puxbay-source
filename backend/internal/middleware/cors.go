@@ -31,6 +31,11 @@ func CORSMiddleware(cfg *config.CORSConfig) gin.HandlerFunc {
 				if origin == allowed {
 					return true
 				}
+
+				if strings.Contains(origin, "puxbay.com") || strings.Contains(origin, ".puxbay.com") {
+					return true
+				}
+
 				// Subdomain match (e.g. if allowed is "https://puxbay.com", allow "https://tenant1.puxbay.com")
 				allowedDomain := strings.TrimPrefix(allowed, "https://")
 				allowedDomain = strings.TrimPrefix(allowedDomain, "http://")
