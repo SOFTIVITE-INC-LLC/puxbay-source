@@ -1,0 +1,34 @@
+<div class="fixed bottom-6 left-6 z-[90] transition-all duration-500 ease-out pointer-events-none"
+     [class.translate-y-0]="isVisible()"
+     [class.opacity-100]="isVisible()"
+     [class.translate-y-12]="!isVisible()"
+     [class.opacity-0]="!isVisible()">
+  
+  @if (currentNotification()) {
+    <div class="bg-white dark:bg-zinc-900/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl p-3 sm:p-4 shadow-2xl flex items-center gap-4 max-w-sm w-full pointer-events-auto group">
+      
+      <!-- Product Image -->
+      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 flex-shrink-0">
+        <img [src]="currentNotification()!.image" alt="Product" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Details -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sm font-bold text-slate-900 dark:text-white">{{ currentNotification()!.name }}</span>
+          <span class="text-xs text-slate-400 dark:text-zinc-500">in {{ currentNotification()!.location }}</span>
+        </div>
+        <p class="text-xs sm:text-sm text-indigo-300 font-medium truncate">Purchased {{ currentNotification()!.product }}</p>
+        <p class="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+          <span class="material-symbols-outlined !text-[12px] text-emerald-500">verified</span>
+          Verified Buyer &bull; {{ currentNotification()!.timeAgo }}
+        </p>
+      </div>
+
+      <!-- Close button (visible on hover) -->
+      <button (click)="close()" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-100 dark:bg-zinc-800/50 flex items-center justify-center text-slate-500 dark:text-zinc-400 opacity-0 group-hover:opacity-100 transition-all hover:text-slate-900 dark:text-white hover:bg-zinc-700">
+        <span class="material-symbols-outlined !text-[14px]">close</span>
+      </button>
+    </div>
+  }
+</div>

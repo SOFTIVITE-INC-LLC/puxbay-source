@@ -1,0 +1,346 @@
+<div class="h-full flex flex-col p-3 md:p-6 space-y-4 md:space-y-6 w-full mx-auto text-zinc-900 dark:text-white">
+
+  <!-- ── Page Header ── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 to-zinc-900 dark:from-zinc-300 dark:to-white">
+        Branch Settings
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Configure settings for <strong class="text-zinc-700 dark:text-zinc-300">{{ branchService.activeBranch()?.name }}</strong>.
+      </p>
+    </div>
+
+    <!-- Save feedback -->
+    @if (saved()) {
+      <div class="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 rounded-xl text-sm font-bold animate-fade-in">
+        <span class="material-symbols-outlined !text-[18px]">check_circle</span>
+        Settings saved!
+      </div>
+    }
+  </div>
+
+  @if (branchService.activeBranch(); as branch) {
+    <div class="flex flex-col md:flex-row gap-8 items-start">
+
+      <!-- ── Sidebar Tabs ── -->
+      <div class="w-full md:w-64 flex-shrink-0 flex flex-col gap-1">
+        @for (tab of [
+          { id: 'general',    icon: 'info',        label: 'General Info' },
+          { id: 'appearance', icon: 'palette',      label: 'Appearance' },
+          { id: 'pos',        icon: 'receipt_long', label: 'POS & Receipts' },
+          { id: 'inventory',  icon: 'inventory_2',  label: 'Inventory' }
+        ]; track tab.id) {
+          <button
+            (click)="activeTab.set($any(tab.id))"
+            [class.bg-gradient-to-r]="activeTab() === tab.id"
+            [class.from-indigo-500/10]="activeTab() === tab.id"
+            [class.to-purple-500/10]="activeTab() === tab.id"
+            [class.shadow-sm]="activeTab() === tab.id"
+            [class.text-indigo-600]="activeTab() === tab.id"
+            [class.dark:text-indigo-400]="activeTab() === tab.id"
+            [class.font-bold]="activeTab() === tab.id"
+            [class.border-l-4]="activeTab() === tab.id"
+            [class.border-indigo-500]="activeTab() === tab.id"
+            class="px-4 py-3 rounded-r-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-all text-left w-full border-l-4 border-transparent"
+          >
+            <span class="material-symbols-outlined !text-[20px]">{{ tab.icon }}</span>
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+
+      <!-- ── Content Panel ── -->
+      <div class="flex-1 w-full glass-panel rounded-3xl border border-white/20 dark:border-zinc-800/50 shadow-2xl bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl overflow-hidden min-h-[500px]">
+
+        <!-- ── General Info ── -->
+        @if (activeTab() === 'general') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h2 class="text-xl font-black tracking-tight mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-500">storefront</span>
+                General Info
+              </h2>
+              <p class="text-sm text-zinc-500 font-bold">Basic branch identity and contact details.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Branch Name</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">store</span>
+                    <input type="text" [value]="form().name || ''" (input)="form.update(f => ({...f, name: $any($event.target).value}))"
+                      placeholder="Main Branch" class="input-premium" />
+                  </div>
+                </div>
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Branch Type</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">category</span>
+                    <select [value]="form().branch_type || 'retail'" (change)="form.update(f => ({...f, branch_type: $any($event.target).value}))"
+                      class="select-premium">
+                      <option value="retail">Retail</option>
+                      <option value="wholesale">Wholesale</option>
+                      <option value="warehouse">Warehouse</option>
+                    </select>
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+                <div class="md:col-span-2 relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Address</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">location_on</span>
+                    <input type="text" [value]="form().address || ''" (input)="form.update(f => ({...f, address: $any($event.target).value}))"
+                      placeholder="123 Market Street, Accra" class="input-premium" />
+                  </div>
+                </div>
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Phone Number</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">call</span>
+                    <input type="tel" [value]="form().phone || ''" (input)="form.update(f => ({...f, phone: $any($event.target).value}))"
+                      placeholder="+233 20 000 0000" class="input-premium" />
+                  </div>
+                </div>
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Currency</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">payments</span>
+                    <select [value]="form().currency_code || 'GHS'" (change)="onCurrencyChange($any($event.target).value)"
+                      class="select-premium">
+                      @for (c of currencies; track c.code) {
+                        <option [value]="c.code">{{ c.label }}</option>
+                      }
+                    </select>
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 flex justify-end">
+                <button (click)="save()" [disabled]="saving()"
+                  class="px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                  @if (saving()) { <span class="animate-spin material-symbols-outlined !text-[18px]">progress_activity</span> }
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ── Appearance ── -->
+        @if (activeTab() === 'appearance') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h2 class="text-xl font-black tracking-tight mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-500">palette</span>
+                Appearance
+              </h2>
+              <p class="text-sm text-zinc-500 font-bold">Customize branding colors for this branch.</p>
+            </div>
+            <div class="p-8 space-y-8 bg-white/20 dark:bg-black/10">
+
+              <div class="space-y-5">
+                <h3 class="text-xs font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2 pl-1">
+                  Brand Color
+                </h3>
+
+                <div class="flex items-center gap-6 p-6 rounded-3xl bg-white/50 dark:bg-black/30 border border-zinc-200/50 dark:border-white/5 shadow-sm">
+                  <!-- Color picker -->
+                  <div class="relative shrink-0">
+                    <input
+                      type="color"
+                      [value]="form().primary_color || '#4f46e5'"
+                      (input)="form.update(f => ({...f, primary_color: $any($event.target).value}))"
+                      class="w-24 h-24 rounded-2xl cursor-pointer border-[6px] border-white dark:border-zinc-800 shadow-xl p-1 bg-transparent hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <div>
+                    <p class="font-black text-zinc-900 dark:text-white text-xl">Primary Color</p>
+                    <p class="text-sm text-zinc-500 font-bold mt-1">Used on receipts, kiosk displays, and storefront headers.</p>
+                    <code class="mt-3 inline-block px-4 py-1.5 bg-zinc-100/80 dark:bg-zinc-800/80 rounded-xl text-sm font-mono font-black shadow-inner">
+                      {{ form().primary_color || '#4f46e5' }}
+                    </code>
+                  </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="p-6 rounded-3xl border border-zinc-200/50 dark:border-white/5 bg-white/30 dark:bg-black/20 mt-4 space-y-4">
+                  <p class="text-xs font-black uppercase tracking-widest text-zinc-400 pl-1">Preview</p>
+                  <div class="h-14 rounded-2xl flex items-center px-6 text-white font-black text-sm shadow-lg transition-colors"
+                    [style.background-color]="form().primary_color || '#4f46e5'">
+                    <span class="material-symbols-outlined !text-[20px] mr-2">storefront</span>
+                    {{ branchService.activeBranch()?.name }} — POS Header
+                  </div>
+                  <div class="flex gap-4">
+                    <button class="px-8 py-3.5 rounded-2xl text-white text-sm font-black shadow-lg transition-colors hover:opacity-90"
+                      [style.background-color]="form().primary_color || '#4f46e5'">Checkout</button>
+                    <div class="px-6 py-3.5 rounded-2xl text-sm font-black border-[3px] flex items-center gap-2 transition-colors cursor-pointer"
+                      [style.border-color]="form().primary_color || '#4f46e5'"
+                      [style.color]="form().primary_color || '#4f46e5'">
+                      <span class="material-symbols-outlined !text-[20px]">shopping_cart</span>
+                      View Cart
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 flex justify-end">
+                <button (click)="save()" [disabled]="saving()"
+                  class="px-8 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                  @if (saving()) { <span class="animate-spin material-symbols-outlined !text-[18px]">progress_activity</span> }
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ── POS & Receipts ── -->
+        @if (activeTab() === 'pos') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h2 class="text-xl font-black tracking-tight mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-rose-500">receipt_long</span>
+                POS & Receipts
+              </h2>
+              <p class="text-sm text-zinc-500 font-bold">Customize receipt messages printed at checkout.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+
+              <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Receipt Header</label>
+                <textarea
+                  rows="3"
+                  [value]="form().receipt_header || ''"
+                  (input)="form.update(f => ({...f, receipt_header: $any($event.target).value}))"
+                  placeholder="Welcome to our store!&#10;Thank you for choosing us."
+                  class="textarea-premium"
+                ></textarea>
+                <p class="text-[11px] font-bold text-zinc-500 mt-1 pl-1">Shown at the top of every printed receipt.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Receipt Footer</label>
+                <textarea
+                  rows="3"
+                  [value]="form().receipt_footer || ''"
+                  (input)="form.update(f => ({...f, receipt_footer: $any($event.target).value}))"
+                  placeholder="No returns after 30 days.&#10;Visit us at store.example.com"
+                  class="textarea-premium"
+                ></textarea>
+                <p class="text-[11px] font-bold text-zinc-500 mt-1 pl-1">Shown at the bottom of every printed receipt.</p>
+              </div>
+
+              <!-- Receipt Preview -->
+              <div class="mt-6">
+                <p class="text-xs font-black uppercase tracking-widest text-zinc-400 mb-3 pl-1 flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[16px]">visibility</span>
+                  Receipt Preview
+                </p>
+                <div class="p-8 rounded-3xl bg-white dark:bg-[#1a1b1e] border-2 border-dashed border-zinc-200 dark:border-zinc-800 font-mono text-sm text-zinc-700 dark:text-zinc-300 shadow-xl max-w-sm mx-auto">
+                  <div class="text-center border-b-2 border-dashed border-zinc-200 dark:border-zinc-800 pb-4">
+                    <p class="font-black text-lg mb-1" [style.color]="form().primary_color || '#4f46e5'">{{ branchService.activeBranch()?.name }}</p>
+                    <p class="text-[11px] text-zinc-500">{{ form().address || 'Branch Address' }}</p>
+                    <p class="text-[11px] text-zinc-500">{{ form().phone || 'Phone Number' }}</p>
+                  </div>
+                  @if (form().receipt_header) {
+                    <div class="border-b-2 border-dashed border-zinc-200 dark:border-zinc-800 py-4 text-center whitespace-pre-line text-xs font-bold opacity-80">
+                      {{ form().receipt_header }}
+                    </div>
+                  }
+                  <div class="text-[11px] font-bold space-y-2 border-b-2 border-dashed border-zinc-200 dark:border-zinc-800 py-4">
+                    <div class="flex justify-between"><span>Item A × 2</span><span>{{ form().currency_symbol || 'GH₵' }}20.00</span></div>
+                    <div class="flex justify-between"><span>Item B × 1</span><span>{{ form().currency_symbol || 'GH₵' }}15.00</span></div>
+                  </div>
+                  <div class="flex justify-between font-black text-base py-4">
+                    <span>TOTAL</span><span>{{ form().currency_symbol || 'GH₵' }}35.00</span>
+                  </div>
+                  @if (form().receipt_footer) {
+                    <div class="border-t-2 border-dashed border-zinc-200 dark:border-zinc-800 pt-4 text-center whitespace-pre-line text-[11px] font-bold text-zinc-400">
+                      {{ form().receipt_footer }}
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="pt-4 flex justify-end">
+                <button (click)="save()" [disabled]="saving()"
+                  class="px-8 py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black rounded-xl shadow-lg shadow-rose-500/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                  @if (saving()) { <span class="animate-spin material-symbols-outlined !text-[18px]">progress_activity</span> }
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ── Inventory ── -->
+        @if (activeTab() === 'inventory') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h2 class="text-xl font-black tracking-tight mb-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500">inventory_2</span>
+                Inventory Settings
+              </h2>
+              <p class="text-sm text-zinc-500 font-bold">Thresholds and alerts for stock management.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+
+              <div class="p-6 bg-amber-50/80 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-800/50 rounded-3xl flex items-start gap-4 shadow-sm backdrop-blur-sm">
+                <span class="material-symbols-outlined text-amber-500 !text-[28px] flex-shrink-0 mt-0.5">warning</span>
+                <div>
+                  <h4 class="font-black text-amber-800 dark:text-amber-300 text-base">Low Stock Threshold</h4>
+                  <p class="text-[13px] text-amber-700 dark:text-amber-400 mt-1.5 font-bold leading-relaxed">
+                    Products with stock at or below this number will be flagged as "Low Stock" in the inventory dashboard and trigger alerts.
+                  </p>
+                </div>
+              </div>
+
+              <div class="max-w-xs mt-6">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-3 pl-1">Threshold (units)</label>
+                <div class="flex items-center gap-4">
+                  <button
+                    (click)="form.update(f => ({...f, low_stock_threshold: Math.max(0, (f.low_stock_threshold ?? 10) - 1)}))"
+                    class="w-14 h-14 rounded-2xl bg-white/80 dark:bg-black/30 hover:bg-white dark:hover:bg-black/50 border border-zinc-200/80 dark:border-zinc-700/50 flex items-center justify-center font-black text-xl transition-all shadow-sm text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/50 hover:shadow-indigo-500/10">
+                    −
+                  </button>
+                  <div class="relative flex-1">
+                    <input
+                      type="number"
+                      [value]="form().low_stock_threshold ?? 10"
+                      (input)="form.update(f => ({...f, low_stock_threshold: +$any($event.target).value}))"
+                      min="0"
+                      class="w-full text-center px-4 py-4 bg-white/80 dark:bg-black/30 border border-zinc-200/80 dark:border-zinc-700/50 rounded-2xl focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 transition-all font-black text-xl shadow-sm text-zinc-900 dark:text-white"
+                    />
+                  </div>
+                  <button
+                    (click)="form.update(f => ({...f, low_stock_threshold: (f.low_stock_threshold ?? 10) + 1}))"
+                    class="w-14 h-14 rounded-2xl bg-white/80 dark:bg-black/30 hover:bg-white dark:hover:bg-black/50 border border-zinc-200/80 dark:border-zinc-700/50 flex items-center justify-center font-black text-xl transition-all shadow-sm text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/50 hover:shadow-indigo-500/10">
+                    +
+                  </button>
+                </div>
+                <p class="text-[11px] font-bold text-zinc-500 mt-4 pl-1">Current threshold: <strong class="text-zinc-700 dark:text-zinc-300">{{ form().low_stock_threshold ?? 10 }} units</strong></p>
+              </div>
+
+              <div class="pt-6 flex justify-end">
+                <button (click)="save()" [disabled]="saving()"
+                  class="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black rounded-xl shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                  @if (saving()) { <span class="animate-spin material-symbols-outlined !text-[18px]">progress_activity</span> }
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col items-center justify-center py-24 text-zinc-400 gap-4">
+      <span class="material-symbols-outlined !text-[64px]">store</span>
+      <p class="text-lg font-bold">No active branch selected.</p>
+      <p class="text-sm">Please select a branch from the Branches page first.</p>
+    </div>
+  }
+</div>

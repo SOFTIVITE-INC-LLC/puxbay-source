@@ -1,0 +1,128 @@
+<div class="min-h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-slate-50 dark:bg-zinc-950">
+  <div class="w-full max-w-5xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] p-3 sm:p-4 shadow-2xl flex flex-col md:flex-row-reverse gap-6 md:gap-12 animate-fade-in relative overflow-hidden">
+    
+    <!-- Right Hero Side -->
+    <div class="hidden md:flex flex-col justify-between w-1/2 bg-slate-100 dark:bg-zinc-950 rounded-[2rem] p-10 relative overflow-hidden group">
+      <!-- Background Image -->
+      <img src="/images/auth_hero.png" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-80 dark:opacity-60 mix-blend-multiply dark:mix-blend-lighten group-hover:scale-105 transition-transform duration-1000 ease-in-out" style="transform: scaleX(-1);">
+      
+      <!-- Overlays -->
+      <div class="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-indigo-900/40 to-transparent dark:from-zinc-950/90 dark:via-zinc-950/40"></div>
+      
+      <!-- Content -->
+      <div class="relative z-10 flex justify-end">
+        <a routerLink="/store" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-sm transition-colors">
+          Back to Store
+          <span class="material-symbols-outlined !text-[18px]">arrow_forward</span>
+        </a>
+      </div>
+      
+      <div class="relative z-10 mt-auto text-right">
+        <h2 class="text-4xl font-black text-white mb-4 leading-tight tracking-tight">Unlock exclusive perks.</h2>
+        <p class="text-indigo-100 dark:text-zinc-300 font-medium max-w-sm ml-auto">Create an account to track your orders, save your wishlist, and enjoy member-only discounts.</p>
+        
+        <div class="flex justify-end mt-8 gap-4">
+           <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center">
+             <span class="block text-2xl font-black text-white">20%</span>
+             <span class="text-[10px] uppercase font-bold tracking-widest text-indigo-200">First Order</span>
+           </div>
+           <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center">
+             <span class="block text-2xl font-black text-white"><span class="material-symbols-outlined">local_shipping</span></span>
+             <span class="text-[10px] uppercase font-bold tracking-widest text-indigo-200">Free Ship</span>
+           </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Left Form Side -->
+    <div class="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 lg:px-16">
+      
+      <!-- Mobile back button -->
+      <a routerLink="/store" class="md:hidden inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white font-bold text-sm transition-colors mb-8 self-start">
+        <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
+        Back
+      </a>
+
+      <div class="mb-10 text-center md:text-left">
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Create Account</h1>
+        <p class="text-slate-500 dark:text-zinc-400 font-medium">Join us today to track orders & save preferences.</p>
+      </div>
+      
+      <form (ngSubmit)="onSubmit()" class="space-y-5">
+        
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider pl-1">Full Name</label>
+          <div class="relative group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+              <span class="material-symbols-outlined !text-[20px]">person</span>
+            </span>
+            <input type="text" [(ngModel)]="name" name="name" required
+                   class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
+                   placeholder="John Doe">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider pl-1">Email Address</label>
+          <div class="relative group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+              <span class="material-symbols-outlined !text-[20px]">mail</span>
+            </span>
+            <input type="email" [(ngModel)]="email" name="email" required
+                   class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
+                   placeholder="you@example.com">
+          </div>
+        </div>
+        
+        <div class="space-y-1">
+          <div class="flex justify-between items-end pl-1">
+            <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">Password (Min 6 chars)</label>
+          </div>
+          <div class="relative group">
+            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+              <span class="material-symbols-outlined !text-[20px]">lock</span>
+            </span>
+            <input type="password" [(ngModel)]="password" name="password" required minlength="6"
+                   class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
+                   placeholder="••••••••">
+          </div>
+        </div>
+        
+        <button type="submit" [disabled]="isLoading || !name || !email || !password || password.length < 6"
+                class="w-full py-4 mt-8 rounded-2xl font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+          @if (isLoading) {
+            <span class="material-symbols-outlined animate-spin !text-[20px]">progress_activity</span>
+            Creating account...
+          } @else {
+            Create Account
+            <span class="material-symbols-outlined !text-[20px]">person_add</span>
+          }
+        </button>
+      </form>
+      
+      <!-- Separator -->
+      <div class="flex items-center gap-4 my-8">
+        <div class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></div>
+        <span class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-widest">Or continue with</span>
+        <div class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></div>
+      </div>
+      
+      <!-- Social Logins -->
+      <div class="grid grid-cols-2 gap-4">
+        <button class="w-full py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 flex items-center justify-center gap-2 text-slate-700 dark:text-white font-bold transition-colors">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
+          Google
+        </button>
+        <button class="w-full py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-slate-100 flex items-center justify-center gap-2 font-bold transition-colors">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.8 1.58.01 2.92.74 3.69 1.92-3.1 1.76-2.58 5.86.37 7.08-.75 1.76-1.58 3.01-2.72 4.14v-.17zm-3.8-19.12c-.12 2.2-1.74 3.86-3.8 3.84-.2-2.3 1.61-4 3.8-3.84z"/></svg>
+          Apple
+        </button>
+      </div>
+      
+      <p class="text-center text-slate-500 dark:text-zinc-400 mt-10 font-medium">
+        Already have an account? 
+        <a routerLink="/store/login" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-black transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

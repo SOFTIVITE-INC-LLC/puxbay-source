@@ -1,0 +1,168 @@
+<div class="p-8 max-w-6xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex justify-between items-start mb-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Legal Documents</h1>
+      <p class="text-slate-500 mt-1">Manage public-facing legal pages. Changes are reflected immediately on the website.</p>
+    </div>
+    <a href="/" target="_blank" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition cursor-pointer">
+      <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+      View Live Site
+    </a>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="flex justify-center p-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="grid grid-cols-12 gap-6">
+
+      <!-- Left: Tab Switcher -->
+      <div class="col-span-12 lg:col-span-3">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+          @for (tab of tabs; track tab.type) {
+            <button
+              (click)="setTab(tab.type)"
+              class="w-full flex items-start gap-3 px-4 py-4 text-left transition-all border-b border-slate-100 last:border-0 cursor-pointer"
+              [class.bg-indigo-50]="activeTab() === tab.type"
+              [class.border-l-4]="activeTab() === tab.type"
+              [class.border-l-indigo-500]="activeTab() === tab.type">
+              <span class="material-symbols-outlined text-[20px] mt-0.5"
+                    [class.text-indigo-600]="activeTab() === tab.type"
+                    [class.text-slate-400]="activeTab() !== tab.type">{{ tab.icon }}</span>
+              <div>
+                <p class="text-sm font-bold" [class.text-indigo-700]="activeTab() === tab.type" [class.text-slate-700]="activeTab() !== tab.type">
+                  {{ tab.label }}
+                </p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full"
+                        [class.bg-emerald-500]="hasContent(tab.type)"
+                        [class.bg-amber-400]="!hasContent(tab.type)"></span>
+                  <p class="text-[10px] font-semibold"
+                     [class.text-emerald-600]="hasContent(tab.type)"
+                     [class.text-amber-600]="!hasContent(tab.type)">
+                    {{ hasContent(tab.type) ? 'Published' : 'Empty' }}
+                  </p>
+                </div>
+              </div>
+            </button>
+          }
+        </div>
+
+        <!-- Last Updated Info -->
+        <div class="mt-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Document Info</h3>
+          @for (tab of tabs; track tab.type) {
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-medium text-slate-500">{{ tab.label }}</span>
+              <span class="text-xs font-semibold text-slate-700">v{{ docs()[tab.type].version || '1.0' }}</span>
+            </div>
+          }
+          <div class="pt-2 border-t border-slate-100">
+            <p class="text-[11px] text-slate-400">Last saved: {{ getLastUpdated(activeTab()) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Editor -->
+      <div class="col-span-12 lg:col-span-9">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+          <!-- Editor Header -->
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-600">{{ tabs[tabs.findIndex(t => t.type === activeTab())].icon }}</span>
+              <div>
+                <h2 class="font-bold text-slate-900">{{ currentDoc().title }}</h2>
+                <p class="text-xs text-slate-500">{{ tabs[tabs.findIndex(t => t.type === activeTab())].description }}</p>
+              </div>
+            </div>
+
+            <!-- Version + Effective Date -->
+            <div class="flex items-center gap-3">
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Version</label>
+                <input type="text"
+                       [value]="currentDoc().version"
+                       (input)="updateField('version', $any($event.target).value)"
+                       placeholder="1.0"
+                       class="w-20 px-3 py-1.5 text-sm font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Effective Date</label>
+                <input type="date"
+                       [value]="currentDoc().effective_date ? currentDoc().effective_date!.split('T')[0] : ''"
+                       (input)="updateField('effective_date', $any($event.target).value)"
+                       class="px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+            </div>
+          </div>
+
+          <!-- Title Field -->
+          <div class="px-6 pt-5 pb-3">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Page Title</label>
+            <input type="text"
+                   [value]="currentDoc().title"
+                   (input)="updateField('title', $any($event.target).value)"
+                   placeholder="e.g. Terms of Service"
+                   class="w-full px-4 py-2.5 text-base font-bold border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900">
+          </div>
+
+          <!-- Content Textarea -->
+          <div class="px-6 pb-4">
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">Content</label>
+              <span class="text-xs text-slate-400">{{ charCount() | number }} characters</span>
+            </div>
+            <textarea
+              [value]="currentDoc().content"
+              (input)="updateField('content', $any($event.target).value)"
+              rows="22"
+              placeholder="Write your legal document content here. Supports plain text. HTML tags like <h2>, <p>, <ul>, <li>, <strong>, and <a> are rendered on the public page."
+              class="w-full px-4 py-3 text-sm leading-relaxed border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-700 resize-y font-mono"></textarea>
+            <p class="text-xs text-slate-400 mt-1">
+              Tip: Use HTML tags like <code class="bg-slate-100 px-1 rounded">&lt;h2&gt;</code>, <code class="bg-slate-100 px-1 rounded">&lt;p&gt;</code>, <code class="bg-slate-100 px-1 rounded">&lt;ul&gt;&lt;li&gt;</code>, <code class="bg-slate-100 px-1 rounded">&lt;strong&gt;</code> to format content.
+            </p>
+          </div>
+
+          <!-- Footer: Alerts + Save -->
+          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
+            <div class="flex-1">
+              @if (saveSuccess() === activeTab()) {
+                <div class="flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
+                  <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                  <span class="text-sm font-semibold">Saved and live on the website!</span>
+                </div>
+              }
+              @if (saveError()) {
+                <div class="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+                  <span class="material-symbols-outlined text-[18px]">error</span>
+                  <span class="text-sm font-semibold">{{ saveError() }}</span>
+                </div>
+              }
+            </div>
+            <button
+              (click)="save()"
+              [disabled]="isSaving()"
+              class="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition shadow-sm cursor-pointer text-sm">
+              @if (isSaving()) {
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Saving...
+              } @else {
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                Save & Publish
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

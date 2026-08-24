@@ -1,0 +1,701 @@
+<div class="h-full flex flex-col p-6 gap-6 max-w-7xl mx-auto text-zinc-900 dark:text-white overflow-auto">
+
+  <!-- Ambient glows -->
+  <div class="fixed top-0 right-0 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- ── Header ───────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500">
+        Reports &amp; Analytics
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1.5 text-base">
+        Deep-dive into your sales trends, category performance, and revenue flow.
+      </p>
+    </div>
+
+    @if (activeTab() === 'builder' && customReport()?.rows?.length) {
+      <button (click)="exportCustomCSV()"
+        class="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
+        <span class="material-symbols-outlined !text-[18px]">download</span>
+        Export Custom Report
+      </button>
+    } @else {
+      <button (click)="exportTopProductsCSV()"
+        class="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
+        <span class="material-symbols-outlined !text-[18px]">download</span>
+        Export Top Products
+      </button>
+    }
+  </div>
+
+  <!-- ── Controls Row ─────────────────────────────────────────── -->
+  <div class="flex flex-wrap gap-3 items-center">
+    <!-- Period pills -->
+    <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl">
+      @for (p of periods; track p.id) {
+        <button (click)="setPeriod(p.id)"
+          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all"
+          [class.bg-gradient-to-r]="activePeriod() === p.id"
+          [class.from-teal-600]="activePeriod() === p.id"
+          [class.to-cyan-600]="activePeriod() === p.id"
+          [class.text-white]="activePeriod() === p.id"
+          [class.shadow-sm]="activePeriod() === p.id"
+          [class.text-zinc-500]="activePeriod() !== p.id"
+          [class.dark:text-zinc-400]="activePeriod() !== p.id">
+          {{ p.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Date range pickers -->
+    <div class="flex items-center gap-2 px-4 py-2.5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm font-medium">
+      <span class="material-symbols-outlined !text-[16px] text-zinc-400">calendar_today</span>
+      <input type="date" [ngModel]="dateRange().from"
+        (ngModelChange)="dateRange.update(d => ({...d, from: $event})); loadData()"
+        class="bg-transparent border-none focus:outline-none text-sm dark:text-white cursor-pointer">
+      <span class="text-zinc-400 font-light">→</span>
+      <input type="date" [ngModel]="dateRange().to"
+        (ngModelChange)="dateRange.update(d => ({...d, to: $event})); loadData()"
+        class="bg-transparent border-none focus:outline-none text-sm dark:text-white cursor-pointer">
+    </div>
+  </div>
+
+  <!-- ── Tabs ─────────────────────────────────────────────────── -->
+  <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl w-fit overflow-x-auto">
+    @for (tab of tabs; track tab.id) {
+      <button (click)="activeTab.set(tab.id)"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0"
+        [class.bg-gradient-to-r]="activeTab() === tab.id"
+        [class.from-teal-600]="activeTab() === tab.id"
+        [class.to-cyan-600]="activeTab() === tab.id"
+        [class.text-white]="activeTab() === tab.id"
+        [class.shadow-md]="activeTab() === tab.id"
+        [class.text-zinc-500]="activeTab() !== tab.id"
+        [class.dark:text-zinc-400]="activeTab() !== tab.id">
+        <span class="material-symbols-outlined !text-[16px]">{{ tab.icon }}</span>
+        <span class="hidden sm:inline">{{ tab.label }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="flex-1 flex flex-col items-center justify-center gap-4 py-20">
+      <div class="w-14 h-14 rounded-full border-2 border-teal-500/20 border-t-teal-500 animate-spin"></div>
+      <p class="text-zinc-500 text-sm">Loading analytics data…</p>
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- OVERVIEW TAB                                                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'overview') {
+    <!-- Top Highlights: Sales Goal & AI Insights -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      
+      <!-- Sales Goal Ring -->
+      @if (salesGoal()) {
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm flex items-center justify-between">
+          <div>
+            <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Monthly Sales Goal</h3>
+            <p class="text-3xl font-black text-teal-600 dark:text-teal-400">{{ salesGoal()!.current | appCurrency }}</p>
+            <p class="text-sm text-zinc-500 mt-1">Goal: {{ salesGoal()!.goal | appCurrency }}</p>
+          </div>
+          <!-- Circular Progress -->
+          <div class="relative w-24 h-24 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
+              <path class="text-zinc-200 dark:text-zinc-800" stroke-width="3" stroke="currentColor" fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+              <path class="text-teal-500 transition-all duration-1000 ease-out" stroke-width="3" stroke-dasharray="100, 100" stroke-linecap="round" stroke="currentColor" fill="none"
+                [attr.stroke-dasharray]="salesGoal()!.progress + ', 100'"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            </svg>
+            <div class="absolute text-sm font-black">{{ salesGoal()!.progress | number:'1.0-0' }}%</div>
+          </div>
+        </div>
+      }
+
+      <!-- AI Insights -->
+      <div class="lg:col-span-2 bg-gradient-to-r from-sky-500/10 to-teal-500/10 dark:from-sky-500/5 dark:to-teal-500/5 rounded-2xl border border-sky-500/20 p-5 shadow-sm">
+        <div class="flex gap-3 mb-3">
+          <span class="material-symbols-outlined text-teal-500 animate-pulse">auto_awesome</span>
+          <h3 class="font-bold">AI Insights</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          @for (msg of insights; track msg) {
+            <div class="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+              <span class="material-symbols-outlined !text-[16px] text-teal-500 shrink-0 mt-0.5">check_circle</span>
+              <p>{{ msg }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Revenue -->
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm group hover:shadow-lg transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Revenue</p>
+          <div class="w-8 h-8 bg-teal-100 dark:bg-teal-900/40 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px] text-teal-600 dark:text-teal-400">payments</span>
+          </div>
+        </div>
+        <p class="text-3xl font-black tracking-tight">{{ salesTrends()?.current_revenue | appCurrency }}</p>
+        @if (salesTrends()?.revenue_growth != null) {
+          <p class="text-sm mt-2 flex items-center gap-1 font-semibold"
+            [class.text-emerald-500]="growthPositive"
+            [class.text-rose-500]="!growthPositive">
+            <span class="material-symbols-outlined !text-[14px]">{{ growthPositive ? 'trending_up' : 'trending_down' }}</span>
+            {{ salesTrends().revenue_growth | number:'1.1-1' }}% vs prior period
+          </p>
+        }
+      </div>
+
+      <!-- Orders -->
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Orders</p>
+          <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px] text-blue-600 dark:text-blue-400">receipt_long</span>
+          </div>
+        </div>
+        <p class="text-3xl font-black tracking-tight">{{ salesTrends()?.current_orders | number }}</p>
+        <p class="text-sm mt-2 text-zinc-400">transactions processed</p>
+      </div>
+
+      <!-- AOV -->
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Avg Order Value</p>
+          <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px] text-purple-600 dark:text-purple-400">shopping_bag</span>
+          </div>
+        </div>
+        <p class="text-3xl font-black tracking-tight">{{ avgOrderValue | appCurrency }}</p>
+        <p class="text-sm mt-2 text-zinc-400">per transaction</p>
+      </div>
+
+      <!-- Prior Period -->
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Prior Period</p>
+          <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px] text-orange-600 dark:text-orange-400">history</span>
+          </div>
+        </div>
+        <p class="text-3xl font-black tracking-tight text-zinc-400">{{ salesTrends()?.previous_revenue | appCurrency }}</p>
+        <p class="text-sm mt-2 text-zinc-400">comparison baseline</p>
+      </div>
+    </div>
+
+    <!-- Daily Revenue Bar Chart -->
+    @if (salesTrends()?.daily_data?.length) {
+      <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-bold text-lg flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">bar_chart</span>
+            Daily Revenue
+          </h2>
+          <span class="text-sm text-zinc-400">{{ salesTrends().daily_data.length }} days</span>
+        </div>
+        <div class="flex items-end gap-0.5 h-44 overflow-x-auto pb-6 relative">
+          <!-- Y-axis baseline -->
+          <div class="absolute bottom-6 left-0 right-0 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+          @for (day of salesTrends().daily_data; track day.date) {
+            <div class="flex flex-col items-center justify-end gap-1 flex-1 min-w-[20px] h-full group/bar relative">
+              <!-- Tooltip -->
+              <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-zinc-900 dark:bg-zinc-700 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl">
+                {{ day.date | date:'MMM d' }}<br>
+                {{ day.revenue | appCurrency }}
+              </div>
+              <div class="w-full rounded-t-md bg-gradient-to-t from-teal-600 to-cyan-400 transition-all hover:from-teal-500 hover:to-cyan-300"
+                [style.height.%]="barHeight(day.revenue)"></div>
+            </div>
+          }
+        </div>
+        <!-- X-axis labels (sampled to avoid overflow) -->
+        <div class="flex gap-0.5 mt-1 overflow-hidden">
+          @for (day of salesTrends().daily_data; track day.date; let i = $index) {
+            <div class="flex-1 min-w-[20px] text-center">
+              @if (i % 5 === 0) {
+                <span class="text-[9px] text-zinc-400">{{ day.date | date:'d/M' }}</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Top Products -->
+    @if (topProducts().by_revenue?.length) {
+      <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="font-bold text-lg flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">leaderboard</span>
+            Top Products by Revenue
+          </h2>
+          <span class="text-sm text-zinc-400">{{ ((topProducts().by_revenue || []) | slice:0:10).length }} products</span>
+        </div>
+        <div class="space-y-3.5">
+          @for (p of (topProducts().by_revenue || []) | slice:0:10; track p.product_id; let i = $index) {
+            <div class="flex items-center gap-4 group">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0"
+                [class.bg-gradient-to-br]="i < 3"
+                [class.from-amber-400]="i === 0"
+                [class.to-orange-500]="i === 0"
+                [class.from-slate-300]="i === 1"
+                [class.to-slate-400]="i === 1"
+                [class.from-amber-600]="i === 2"
+                [class.to-amber-700]="i === 2"
+                [class.text-white]="i < 3"
+                [class.bg-zinc-100]="i >= 3"
+                [class.dark:bg-zinc-800]="i >= 3"
+                [class.text-zinc-500]="i >= 3">
+                {{ i + 1 }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between mb-1.5">
+                  <span class="text-sm font-semibold truncate">{{ p.name }}</span>
+                  <span class="text-sm font-black text-teal-600 dark:text-teal-400 ml-2 shrink-0">{{ p.revenue | appCurrency }}</span>
+                </div>
+                <div class="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-400 transition-all"
+                    [style.width.%]="(p.revenue / ((topProducts().by_revenue || [])[0]?.revenue || 1)) * 100"></div>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1">{{ p.quantity | number }} units sold</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!salesTrends() && !isLoading()) {
+      <div class="flex-1 flex flex-col items-center justify-center gap-4 py-24 text-center">
+        <div class="w-20 h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+          <span class="material-symbols-outlined !text-[40px] text-teal-400">bar_chart</span>
+        </div>
+        <h3 class="text-xl font-bold">No Data for Selected Period</h3>
+        <p class="text-zinc-500 max-w-sm">Try selecting a wider date range to see sales trends and analytics.</p>
+      </div>
+    }
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- HEATMAP TAB                                                  -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'heatmap') {
+    <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm overflow-x-auto">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="font-bold text-lg flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">grid_on</span>
+            Sales Heatmap
+          </h2>
+          <p class="text-sm text-zinc-400 mt-0.5">Revenue intensity by hour of day and day of week</p>
+        </div>
+        <!-- Legend -->
+        <div class="flex items-center gap-2 text-xs text-zinc-400">
+          <span>Low</span>
+          <div class="flex gap-0.5">
+            @for (s of [0.1,0.3,0.5,0.7,1.0]; track s) {
+              <div class="w-5 h-4 rounded-sm" [style.background-color]="'rgba(20,184,166,' + s + ')'"></div>
+            }
+          </div>
+          <span>High</span>
+        </div>
+      </div>
+
+      @if (heatmapData().length > 0) {
+        <div class="flex flex-col gap-1 min-w-max">
+          <!-- Hour labels (Top row) -->
+          <div class="flex gap-1 pl-12 pb-1">
+            @for (h of hours; track h) {
+              <div class="w-8 text-[10px] text-zinc-400 font-medium flex items-center justify-center">
+                @if (h % 3 === 0) { {{ h }}h }
+              </div>
+            }
+          </div>
+          <!-- Grid (Rows = Days) -->
+          @for (day of days; track day; let di = $index) {
+            <div class="flex items-center gap-1">
+              <div class="w-12 text-[10px] text-zinc-400 font-semibold text-right pr-2 uppercase tracking-wider">{{ day }}</div>
+              @for (h of hours; track h) {
+                @let d = getHeatmapDataAt(di, h);
+                <div class="w-8 h-8 rounded-md transition-all duration-300 cursor-pointer hover:scale-110 hover:z-10 hover:shadow-lg border border-zinc-200/50 dark:border-zinc-800"
+                  [style.background-color]="d.intensity > 0 ? 'rgba(20, 184, 166, ' + d.intensity + ')' : 'transparent'"
+                  [title]="day + ' ' + h + ':00 — ' + (d.revenue > 0 ? (d.revenue | appCurrency) : 'No data')">
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-16">
+          <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700">grid_on</span>
+          <p class="font-semibold mt-3 text-zinc-500">No heatmap data available</p>
+          <p class="text-sm text-zinc-400 mt-1">Sales activity data will appear here once transactions are recorded.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- CATEGORIES TAB                                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'categories') {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Revenue by Category -->
+      @if (revenueBreakdown()?.by_category?.length) {
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+          <h2 class="font-bold text-lg mb-5 flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">category</span>
+            Revenue by Category
+          </h2>
+          <div class="space-y-4">
+            @for (cat of revenueBreakdown().by_category; track cat.name; let i = $index) {
+              @let pct = catPct(cat.revenue);
+              <div class="group">
+                <div class="flex justify-between items-center mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full" [style.background-color]="'hsl(' + (i * 47) + ', 70%, 55%)'"></div>
+                    <span class="text-sm font-semibold">{{ cat.name }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-zinc-400">{{ pct | number:'1.1-1' }}%</span>
+                    <span class="text-sm font-black text-teal-600 dark:text-teal-400">{{ cat.revenue | appCurrency }}</span>
+                  </div>
+                </div>
+                <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all"
+                    [style.width.%]="pct"
+                    [style.background-color]="'hsl(' + (i * 47) + ', 70%, 55%)'"></div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Revenue by Payment Method -->
+      @if (revenueBreakdown()?.by_payment_method?.length) {
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+          <h2 class="font-bold text-lg mb-5 flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-indigo-500">payments</span>
+            Revenue by Payment Method
+          </h2>
+          <div class="space-y-4">
+            @for (pm of revenueBreakdown().by_payment_method; track pm.method; let i = $index) {
+              @let pct = pmPct(pm.revenue);
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
+                      <span class="material-symbols-outlined !text-[14px] text-indigo-500">
+                        {{ pm.method === 'cash' ? 'money' : pm.method === 'card' ? 'credit_card' : 'smartphone' }}
+                      </span>
+                    </div>
+                    <span class="text-sm font-semibold capitalize">{{ pm.method }}</span>
+                  </div>
+                  <div class="flex flex-col items-end">
+                    <span class="text-sm font-black">{{ pm.revenue | appCurrency }}</span>
+                    <span class="text-xs text-zinc-400">{{ pm.count }} transactions</span>
+                  </div>
+                </div>
+                <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
+                    [style.width.%]="pct"></div>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1">{{ pct | number:'1.1-1' }}% of total</p>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Empty state if no breakdown data -->
+      @if (!revenueBreakdown()?.by_category?.length && !revenueBreakdown()?.by_payment_method?.length) {
+        <div class="col-span-2 text-center py-20">
+          <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700">pie_chart</span>
+          <p class="font-semibold mt-3 text-zinc-500">No category data yet</p>
+          <p class="text-sm text-zinc-400 mt-1">Category and payment breakdowns will appear as sales are recorded.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- STAFF PERFORMANCE TAB                                        -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'staff') {
+    <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="font-bold text-lg flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">emoji_events</span>
+            Staff Performance Leaderboard
+          </h2>
+          <p class="text-sm text-zinc-400">Track revenue generated by employees.</p>
+        </div>
+      </div>
+
+      @if (staffPerformance().length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left">Rank</th>
+                <th class="px-6 py-3 text-left">Staff Member</th>
+                <th class="px-6 py-3 text-right">Orders Handled</th>
+                <th class="px-6 py-3 text-right">Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+              @for (staff of staffPerformance(); track staff.staff_id; let i = $index) {
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                  <td class="px-6 py-3.5">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black"
+                      [class.bg-amber-400]="i === 0" [class.text-white]="i === 0"
+                      [class.bg-slate-300]="i === 1" [class.text-white]="i === 1"
+                      [class.bg-amber-600]="i === 2" [class.text-white]="i === 2"
+                      [class.bg-zinc-100]="i > 2" [class.dark:bg-zinc-800]="i > 2" [class.text-zinc-500]="i > 2">
+                      {{ i + 1 }}
+                    </div>
+                  </td>
+                  <td class="px-6 py-3.5 font-medium flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-600 flex items-center justify-center font-bold">
+                      {{ staff.staff_name.charAt(0) }}
+                    </div>
+                    {{ staff.staff_name }}
+                  </td>
+                  <td class="px-6 py-3.5 text-right font-semibold text-zinc-600 dark:text-zinc-400">{{ staff.orders_count }}</td>
+                  <td class="px-6 py-3.5 text-right font-black text-teal-600 dark:text-teal-400">{{ staff.revenue | appCurrency }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="text-center py-16">
+          <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700">group_off</span>
+          <p class="font-semibold mt-3 text-zinc-500">No staff performance data</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- CUSTOM BUILDER TAB                                           -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'builder') {
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      
+      <!-- Builder Controls (Left Sidebar) -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
+          <h3 class="font-bold mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2">Dimensions (Rows)</h3>
+          <div class="space-y-2">
+            @for (dim of ['date', 'payment_method', 'staff']; track dim) {
+              <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/40 p-1.5 rounded-lg transition-colors">
+                <input type="checkbox" [checked]="reportForm().dimensions.includes(dim)" (change)="toggleDimension(dim)" class="accent-teal-500 rounded text-teal-500 focus:ring-teal-500">
+                <span class="capitalize">{{ dim.replace('_', ' ') }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
+          <h3 class="font-bold mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2">Metrics (Columns)</h3>
+          <div class="space-y-2">
+            @for (met of ['revenue', 'orders', 'discounts', 'tax']; track met) {
+              <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/40 p-1.5 rounded-lg transition-colors">
+                <input type="checkbox" [checked]="reportForm().metrics.includes(met)" (change)="toggleMetric(met)" class="accent-teal-500 rounded text-teal-500 focus:ring-teal-500">
+                <span class="capitalize">{{ met }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <button (click)="generateCustomReport()" [disabled]="isBuildingReport()"
+          class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-zinc-800 to-zinc-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50">
+          <span class="material-symbols-outlined !text-[18px]">play_arrow</span>
+          {{ isBuildingReport() ? 'Running Query...' : 'Run Report' }}
+        </button>
+      </div>
+
+      <!-- Builder Results (Right Area) -->
+      <div class="lg:col-span-3">
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm h-full flex flex-col">
+          @if (customReport()) {
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold text-lg flex items-center gap-2">
+                <span class="material-symbols-outlined !text-[20px] text-teal-500">table_view</span>
+                Report Results
+              </h2>
+              <span class="text-sm text-zinc-400">{{ customReport()!.rows.length }} rows returned</span>
+            </div>
+            
+            @if (customReport()!.rows.length > 0) {
+              <div class="overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded-xl">
+                <table class="w-full text-sm whitespace-nowrap">
+                  <thead>
+                    <tr class="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-800">
+                      @for (header of customReport()!.headers; track header) {
+                        <th class="px-6 py-3 text-left border-r border-zinc-200 dark:border-zinc-800 last:border-0">{{ header.replace('_', ' ') }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                    @for (row of customReport()!.rows; track $index) {
+                      <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                        @for (header of customReport()!.headers; track header) {
+                          <td class="px-6 py-3 font-medium border-r border-zinc-100 dark:border-zinc-800 last:border-0">
+                            <!-- Try to format as currency if it looks like a metric, otherwise plain text -->
+                            @if (['revenue', 'discounts', 'tax'].includes(header)) {
+                              {{ row[header] | appCurrency }}
+                            } @else {
+                              {{ row[header] }}
+                            }
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="flex-1 flex flex-col items-center justify-center gap-2 py-16 text-center">
+                <span class="material-symbols-outlined !text-[48px] text-zinc-300">search_off</span>
+                <p class="font-semibold text-zinc-500">No results found for your query.</p>
+              </div>
+            }
+          } @else {
+            <div class="flex-1 flex flex-col items-center justify-center gap-4 py-24 text-center">
+              <div class="w-20 h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined !text-[40px] text-teal-400">tune</span>
+              </div>
+              <h3 class="text-xl font-bold">Custom Report Builder</h3>
+              <p class="text-zinc-500 max-w-sm">Select dimensions and metrics on the left, then click "Run Report" to generate dynamic data tables.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- CASH FLOW TAB                                                -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  @if (!isLoading() && activeTab() === 'cashflow') {
+    @if (cashflowRows.length > 0) {
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Cumulative Revenue</p>
+          <p class="text-3xl font-black text-teal-600 dark:text-teal-400">{{ cashflowMax | appCurrency }}</p>
+          <p class="text-sm text-zinc-400 mt-1">over selected period</p>
+        </div>
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Best Single Day</p>
+          <p class="text-3xl font-black">{{ dailyMax | appCurrency }}</p>
+          <p class="text-sm text-zinc-400 mt-1">peak revenue day</p>
+        </div>
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Daily Average</p>
+          <p class="text-3xl font-black">{{ (cashflowMax / cashflowRows.length) | appCurrency }}</p>
+          <p class="text-sm text-zinc-400 mt-1">revenue per day</p>
+        </div>
+      </div>
+
+      <!-- Cumulative Flow Chart -->
+      <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-bold text-lg flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px] text-teal-500">waterfall_chart</span>
+            Cumulative Cash Flow
+          </h2>
+          <span class="text-sm text-zinc-400">{{ cashflowRows.length }} days</span>
+        </div>
+        <div class="relative h-52">
+          <!-- Y-axis line -->
+          <div class="absolute left-0 bottom-0 top-0 w-px bg-zinc-200 dark:bg-zinc-800"></div>
+          <!-- X-axis line -->
+          <div class="absolute left-0 right-0 bottom-0 h-px bg-zinc-200 dark:bg-zinc-800"></div>
+          <!-- Area chart using flex bars -->
+          <div class="absolute inset-0 flex items-end gap-0.5 pl-2">
+            @for (row of cashflowRows; track row.date) {
+              <div class="flex-1 flex flex-col justify-end items-center h-full group/cf relative">
+                <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-zinc-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover/cf:opacity-100 transition-opacity pointer-events-none z-10">
+                  {{ row.date | date:'MMM d' }}<br>Cumulative: {{ row.cumulative | appCurrency }}
+                </div>
+                <div class="w-full rounded-t-sm bg-gradient-to-t from-teal-700 to-teal-400 opacity-80"
+                  [style.height.%]="(row.cumulative / cashflowMax) * 100"></div>
+              </div>
+            }
+          </div>
+          <!-- Overlay area gradient -->
+          <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(20,184,166,0.3)" />
+                <stop offset="100%" stop-color="rgba(20,184,166,0)" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Daily Breakdown Table -->
+      <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+          <h2 class="font-bold text-base flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[18px] text-teal-500">table_chart</span>
+            Daily Breakdown
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left">Date</th>
+                <th class="px-6 py-3 text-right">Revenue</th>
+                <th class="px-6 py-3 text-right">Orders</th>
+                <th class="px-6 py-3 text-right">Cumulative</th>
+                <th class="px-6 py-3 text-right">% of Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+              @for (row of cashflowRows; track row.date) {
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                  <td class="px-6 py-3.5 font-medium">{{ row.date | date:'EEE, MMM d' }}</td>
+                  <td class="px-6 py-3.5 text-right font-semibold text-teal-600 dark:text-teal-400">{{ row.revenue | appCurrency }}</td>
+                  <td class="px-6 py-3.5 text-right text-zinc-600 dark:text-zinc-400">{{ row.orders | number }}</td>
+                  <td class="px-6 py-3.5 text-right font-semibold">{{ row.cumulative | appCurrency }}</td>
+                  <td class="px-6 py-3.5 text-right text-zinc-400 text-xs">{{ (row.cumulative / cashflowMax * 100) | number:'1.1-1' }}%</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="flex-1 flex flex-col items-center justify-center gap-4 py-24 text-center">
+        <div class="w-20 h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+          <span class="material-symbols-outlined !text-[40px] text-teal-400">waterfall_chart</span>
+        </div>
+        <h3 class="text-xl font-bold">No Cash Flow Data</h3>
+        <p class="text-zinc-500 max-w-sm">Select a date range that contains sales data to view cumulative cash flow analysis.</p>
+      </div>
+    }
+  }
+
+</div>

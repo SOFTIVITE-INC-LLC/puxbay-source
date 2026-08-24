@@ -1,0 +1,784 @@
+<aside
+  class="h-full flex flex-col bg-white/70 dark:bg-black/40 backdrop-blur-2xl transition-all duration-300 ease-in-out font-outfit relative z-50 border-r border-slate-200/50 dark:border-white/10 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.5)] w-64"
+  [class.md:w-64]="!isCollapsed"
+  [class.md:w-[80px]]="isCollapsed"
+>
+  <!-- ── Logo Area ── -->
+  <div
+    class="h-16 flex items-center px-5 border-b border-slate-200/50 dark:border-white/10 relative overflow-hidden flex-shrink-0 bg-white/30 dark:bg-white/5 backdrop-blur-md"
+  >
+    <!-- Subtle Glow -->
+    <div
+      class="absolute -top-10 -left-10 w-32 h-32 bg-indigo-500/30 rounded-full blur-3xl pointer-events-none transition-opacity duration-300"
+      [class.opacity-0]="isCollapsed"
+    ></div>
+
+    <div
+      class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[1.5px] shadow-lg shadow-indigo-500/20 flex-shrink-0 cursor-pointer hover:scale-105 transition-all"
+      [class.mx-auto]="isCollapsed"
+    >
+      <div class="w-full h-full bg-[#05070f] rounded-[10px] flex items-center justify-center">
+        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div
+      class="ml-3 flex flex-col overflow-hidden transition-all duration-300"
+      [class.opacity-0]="isCollapsed"
+      [class.w-0]="isCollapsed"
+    >
+      <span class="text-[17px] font-black text-slate-900 dark:text-white tracking-tight truncate">{{
+        storeName || 'Puxbay'
+      }}</span>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <span
+          class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+        ></span>
+        <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest"
+          >Online</span
+        >
+      </div>
+    </div>
+    
+    <!-- Mobile Close Button (hidden on desktop) -->
+    <button
+      (click)="onToggle()"
+      class="ml-auto lg:hidden text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/5 p-2 rounded-lg transition-colors flex-shrink-0"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- ── Navigation ── -->
+  <nav
+    class="flex-1 flex flex-col py-4 px-3 overflow-y-auto overflow-x-hidden sidebar-scroll gap-1"
+  >
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SUPPLIER ROLE: Dedicated minimal nav                -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    @if (userRole() === 'supplier') {
+      <div class="px-3 py-2 mt-2 mb-1" [class.hidden]="isCollapsed">
+        <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+          Supplier Portal
+        </p>
+      </div>
+      <a
+        routerLink="/suppliers"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'My Profile' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">storefront</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">My Profile</span>
+      </a>
+      <a
+        routerLink="/orders"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'Purchase Orders' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">receipt_long</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">Purchase Orders</span>
+      </a>
+      <a
+        routerLink="/b2b"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'B2B Portal' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">handshake</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">B2B Portal</span>
+      </a>
+      <a
+        routerLink="/notifications"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'Notifications' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">notifications</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">Notifications</span>
+      </a>
+      <a
+        routerLink="/profile"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'Profile' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">account_circle</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">My Account</span>
+      </a>
+      <a
+        routerLink="/suppliers/credit"
+        routerLinkActive="nav-link-active"
+        class="nav-link-premium group"
+        [title]="isCollapsed ? 'Credit History' : ''"
+      >
+        <span class="material-symbols-outlined nav-icon">credit_score</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">Credit History</span>
+      </a>
+    }
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ALL OTHER ROLES                                     -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    @if (userRole() !== 'supplier') {
+
+      <!-- ─── COMPANY / HQ MODE ──────────────────────── -->
+      @if (!branchService.activeBranch()) {
+
+        <!-- Administration Section (admin/superadmin only) -->
+        @if (userRole() === 'admin' || userRole() === 'superadmin') {
+          <div class="px-3 py-2 mt-2 mb-1" [class.hidden]="isCollapsed">
+            <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+              Administration
+            </p>
+          </div>
+          <a
+            routerLink="/staff"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Staff Registry' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">badge</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Staff Registry</span>
+          </a>
+          <a
+            routerLink="/hr"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Human Resources' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">people_alt</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Human Resources</span>
+          </a>
+          <a
+            routerLink="/security"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Roles & Permissions' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">admin_panel_settings</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Roles & Permissions</span>
+          </a>
+          <a
+            routerLink="/billing"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Billing' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">credit_card</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Billing</span>
+          </a>
+          <a
+            routerLink="/settings"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Settings' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">settings</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Global Settings</span>
+          </a>
+          <a
+            routerLink="/settings/domains"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Custom Domains' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">language</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Custom Domains</span>
+          </a>
+          <a
+            routerLink="/enterprise/command-center"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Command Center' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">corporate_fare</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Command Center</span>
+          </a>
+          <a
+            routerLink="/enterprise/price-sync"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Global Price Sync' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">price_change</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Global Price Sync</span>
+          </a>
+          <a
+            routerLink="/kiosk"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Kiosk Mode' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">touch_app</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Kiosk Mode</span>
+          </a>
+        }
+
+        <!-- Company Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Company</p>
+        </div>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Dashboard' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">dashboard</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Dashboard</span>
+        </a>
+        <a
+          routerLink="/notifications"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Notifications' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">notifications</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Notifications</span>
+        </a>
+        <a
+          routerLink="/branches"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Branches' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">store</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Branches</span>
+        </a>
+        <a
+          routerLink="/inventory"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Master Products' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">inventory_2</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Master Products</span>
+        </a>
+        <a
+          routerLink="/inventory/supply-chain"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Supply Chain' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_tree</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Supply Chain</span>
+        </a>
+        <a
+          routerLink="/suppliers"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Suppliers' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">local_shipping</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Suppliers</span>
+        </a>
+        <a
+          routerLink="/customers"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Customers' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">groups</span>
+        <span class="nav-label" [class.hidden]="isCollapsed">CRM & Helpdesk</span>
+        </a>
+        <a
+          routerLink="/delivery"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Fleet & Delivery' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">local_shipping</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Fleet & Delivery</span>
+        </a>
+        <a
+          routerLink="/returns"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Returns' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">assignment_return</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Returns</span>
+        </a>
+
+        <!-- Commerce Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Commerce</p>
+        </div>
+        <a
+          routerLink="/storefront"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Storefront' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">storefront</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Storefront</span>
+        </a>
+        <a
+          routerLink="/services"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Services' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">home_repair_service</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Services</span>
+        </a>
+        <a
+          routerLink="/fb"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Food & Beverage' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">restaurant</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Food & Beverage</span>
+        </a>
+        <a
+          routerLink="/gift-cards"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Gift Cards' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">card_giftcard</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Gift Cards</span>
+        </a>
+        <a
+          routerLink="/payment-methods"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Payment Methods' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">payments</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Payment Methods</span>
+        </a>
+        <a
+          routerLink="/cash-drawers"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Cash Drawers' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">point_of_sale</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Cash Drawers</span>
+        </a>
+        <a
+          routerLink="/wallet"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Wallet' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_balance_wallet</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Wallet</span>
+        </a>
+
+        <!-- Growth Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Growth</p>
+        </div>
+        <a
+          routerLink="/marketing"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Marketing' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">campaign</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Marketing</span>
+        </a>
+        <a
+          routerLink="/b2b"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'B2B' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">handshake</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">B2B</span>
+        </a>
+        <a
+          routerLink="/feedback"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Feedback' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">rate_review</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Feedback</span>
+        </a>
+        <a
+          routerLink="/content"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Content' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">article</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Content</span>
+        </a>
+
+        <!-- Analytics & Finance Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Analytics & Finance</p>
+        </div>
+        <a
+          routerLink="/intelligence"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Intelligence' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">auto_awesome</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Intelligence</span>
+        </a>
+        <a
+          routerLink="/reports"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Reports' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">insert_chart</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Reports</span>
+        </a>
+        <a
+          routerLink="/financial"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Financials' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_balance</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Financials</span>
+        </a>
+
+        <!-- Developer Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Developer</p>
+        </div>
+        <a
+          routerLink="/integration"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Integrations' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">extension</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Integrations</span>
+        </a>
+        <a
+          routerLink="/webhooks"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Webhooks' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">webhook</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Webhooks</span>
+        </a>
+        <a
+          routerLink="/terminal"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Terminal' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">terminal</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Terminal</span>
+        </a>
+
+        <!-- Account Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Account</p>
+        </div>
+        <a
+          routerLink="/profile"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'My Profile' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_circle</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">My Profile</span>
+        </a>
+      }
+
+      <!-- ─── BRANCH MODE ─────────────────────────────── -->
+      @if (branchService.activeBranch()) {
+
+        <!-- Exit Branch Button — visible in both states -->
+        <div class="px-2 py-2 mb-1">
+          <button
+            (click)="exitBranch()"
+            [title]="isCollapsed ? 'Exit Branch' : ''"
+            class="w-full flex items-center gap-2 text-[11px] font-bold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 px-3 py-2.5 rounded-xl uppercase tracking-widest transition-all"
+            [class.justify-center]="isCollapsed"
+            [class.justify-center]="!isCollapsed"
+          >
+            <span class="material-symbols-outlined !text-[14px] flex-shrink-0">arrow_back</span>
+            <span [class.hidden]="isCollapsed">Exit Branch</span>
+          </button>
+        </div>
+
+        <!-- Branch Name Label -->
+        <div class="px-3 py-1 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest truncate">
+            {{ branchService.activeBranch()?.name }}
+          </p>
+        </div>
+
+        <!-- Sales Operations -->
+        <div class="px-3 py-2 mt-1 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Overview</p>
+        </div>
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Dashboard' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">dashboard</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Dashboard</span>
+        </a>
+        <a
+          routerLink="/fb"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Kanban Board' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">view_kanban</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Kanban Board</span>
+        </a>
+
+        }
+
+        <!-- Sales Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Sales</p>
+        </div>
+        <a
+          routerLink="/pos"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Point of Sale' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">point_of_sale</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Point of Sale</span>
+        </a>
+        <a
+          routerLink="/orders"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Orders' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">receipt_long</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Orders</span>
+        </a>
+        <a
+          routerLink="/returns"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Returns' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">assignment_return</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Returns</span>
+        </a>
+        <a
+          routerLink="/customers"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Customers' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">groups</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">CRM & Helpdesk</span>
+        </a>
+        <a
+          routerLink="/delivery"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Fleet & Delivery' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">local_shipping</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Fleet & Delivery</span>
+        </a>
+        <a
+          routerLink="/cash-drawers"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Cash Drawers' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">payments</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Cash Drawers</span>
+        </a>
+
+        <!-- Stock Section -->
+        @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Stock</p>
+        </div>
+        <a
+          routerLink="/inventory"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Products' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">inventory_2</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Products</span>
+        </a>
+        <a
+          routerLink="/categories"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Categories' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">category</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Categories</span>
+        </a>
+        <a
+          routerLink="/inventory/supply-chain"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Supply Chain' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_tree</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Supply Chain</span>
+        </a>
+
+        }
+
+        <!-- Management Section -->
+        @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Management</p>
+        </div>
+        <a
+          routerLink="/staff"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Staff' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">badge</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Staff</span>
+        </a>
+        <a
+          routerLink="/hr/attendance"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Attendance' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">access_time</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Attendance</span>
+        </a>
+        <a
+          routerLink="/notifications"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Notifications' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">notifications</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Notifications</span>
+        </a>
+        <a
+          routerLink="/feedback"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Feedback' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">rate_review</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Feedback</span>
+        </a>
+
+        }
+
+        <!-- Analytics & Growth Section -->
+        @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Analytics & Growth</p>
+        </div>
+        <a
+          routerLink="/financial"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Financials' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_balance</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Financials</span>
+        </a>
+        <a
+          routerLink="/intelligence"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Intelligence' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">auto_awesome</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Intelligence</span>
+        </a>
+        <a
+          routerLink="/marketing"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Marketing' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">campaign</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Marketing</span>
+        </a>
+        <a
+          routerLink="/reports"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'Reports' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">insert_chart</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">Reports</span>
+        </a>
+
+        }
+
+        <!-- Account Section -->
+        <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
+          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Account</p>
+        </div>
+        <a
+          routerLink="/profile"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'My Profile' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">account_circle</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">My Profile</span>
+        </a>
+        @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
+          <a
+            routerLink="/branch-settings"
+            routerLinkActive="nav-link-active"
+            class="nav-link-premium group"
+            [title]="isCollapsed ? 'Branch Settings' : ''"
+          >
+            <span class="material-symbols-outlined nav-icon">tune</span>
+            <span class="nav-label" [class.hidden]="isCollapsed">Branch Settings</span>
+          </a>
+        }
+      }
+  </nav>
+
+  <!-- ── Bottom Actions (Logout & Collapse) ── -->
+  <div class="p-3 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 flex flex-col gap-2">
+    <!-- Logout Button -->
+    <button
+      (click)="logout()"
+      [title]="isCollapsed ? 'Sign Out Securely' : ''"
+      class="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 text-slate-500 dark:text-slate-400 transition-all border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
+    >
+      <span class="material-symbols-outlined !text-[18px]">logout</span>
+      <span class="text-[13px] font-bold" [class.hidden]="isCollapsed">Sign Out</span>
+    </button>
+    
+    <!-- Collapse Button -->
+    <button
+      (click)="onToggle()"
+      class="w-full flex items-center justify-center p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10 shadow-sm"
+      [title]="isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'"
+    >
+      <span
+        class="material-symbols-outlined !text-[18px] transition-transform duration-300"
+        [class.rotate-180]="isCollapsed"
+        >chevron_left</span
+      >
+    </button>
+  </div>
+</aside>

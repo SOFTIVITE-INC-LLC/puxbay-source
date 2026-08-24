@@ -1,0 +1,413 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-[1400px] mx-auto text-zinc-900 dark:text-white" style="font-family: 'Outfit', sans-serif;">
+
+  <!-- ── Hero Header ── -->
+  <div class="relative overflow-hidden rounded-3xl p-8 bg-zinc-950 text-white shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-br from-violet-900/60 via-indigo-900/40 to-zinc-950"></div>
+    <div class="absolute -top-20 -right-20 w-72 h-72 bg-violet-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-16 left-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-2xl bg-violet-500/20 border border-violet-500/40 flex items-center justify-center text-violet-400">
+            <span class="material-symbols-outlined !text-[22px]">account_balance_wallet</span>
+          </div>
+          <span class="text-xs font-black uppercase tracking-[0.25em] text-violet-400">Fintech</span>
+        </div>
+        <h1 class="text-4xl font-black tracking-tight">Customer Wallet</h1>
+        <p class="text-zinc-400 mt-1 font-medium">Manage store credit, loyalty points, and gift cards.</p>
+      </div>
+      <!-- Quick Stats (when customer is loaded) -->
+      @if (walletSvc.dashboard(); as dash) {
+        <div class="flex flex-wrap gap-4">
+          <div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-center backdrop-blur-sm min-w-[100px]">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Loyalty</p>
+            <p class="text-2xl font-black text-amber-400">{{ dash.customer.loyalty_pts | number }}</p>
+            <p class="text-[10px] text-zinc-500 mt-0.5">pts</p>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-center backdrop-blur-sm min-w-[100px]">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Store Credit</p>
+            <p class="text-2xl font-black text-emerald-400">{{ dash.customer.store_credit | appCurrency }}</p>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-center backdrop-blur-sm min-w-[100px]">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Lifetime Value</p>
+            <p class="text-2xl font-black text-violet-400">{{ dash.customer.total_spend | appCurrency }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Tab Navigation ── -->
+  <div class="flex flex-wrap gap-3 p-1.5 glass rounded-2xl w-fit shadow-sm">
+    @for (tab of [
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+      { id: 'lookup', label: 'Customer Lookup', icon: 'person_search' }
+    ]; track tab.id) {
+      <button (click)="activeTab.set($any(tab.id))"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200"
+              [class.bg-white]="activeTab() === tab.id"
+              [class.dark:bg-zinc-800]="activeTab() === tab.id"
+              [class.shadow-md]="activeTab() === tab.id"
+              [class.text-violet-600]="activeTab() === tab.id"
+              [class.dark:text-violet-400]="activeTab() === tab.id"
+              [class.text-zinc-500]="activeTab() !== tab.id"
+              [class.hover:text-zinc-700]="activeTab() !== tab.id">
+        <span class="material-symbols-outlined !text-[18px]">{{ tab.icon }}</span>
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- ── DASHBOARD TAB ── -->
+  @if (activeTab() === 'dashboard') {
+    @if (!walletSvc.dashboard()) {
+      <!-- No customer selected — customer list -->
+      <div class="glass rounded-3xl p-8 shadow-xl">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-2xl bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[20px]">group</span>
+          </div>
+          <h2 class="text-xl font-black">Select a Customer</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          @for (c of customerSvc.customers(); track c.id) {
+            <button (click)="selectCustomer(c.id)"
+                    class="text-left p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 hover:border-violet-400/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-indigo-600 text-white flex items-center justify-center font-black text-sm">
+                  {{ c.name[0] || '?' }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-black truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{{ c.name }}</p>
+                  <p class="text-xs text-zinc-500 truncate">{{ c.phone ?? c.email ?? '—' }}</p>
+                </div>
+                <div class="text-xs font-bold text-amber-500">{{ c.loyalty_pts | number }} pts</div>
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    } @else if (walletSvc.loading()) {
+      <div class="flex justify-center items-center py-24">
+        <div class="w-12 h-12 rounded-full border-4 border-violet-500/20 border-t-violet-500 animate-spin"></div>
+      </div>
+    } @else {
+      <!-- Customer Wallet Dashboard -->
+      @if (walletSvc.dashboard(); as dash) {
+        <!-- Customer card + actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Credit Card Widget -->
+          <div class="lg:col-span-1 space-y-4">
+            <div class="relative w-full rounded-3xl card-gradient p-7 text-white shadow-2xl shadow-violet-500/30 overflow-hidden">
+              <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+              <div class="absolute bottom-0 left-0 w-32 h-32 bg-indigo-300/10 rounded-full blur-2xl -ml-8 -mb-8"></div>
+              <div class="relative z-10 flex flex-col h-full justify-between gap-8">
+                <div class="flex justify-between items-center">
+                  <span class="font-black uppercase tracking-[0.2em] text-[10px] text-white/70">Store Wallet</span>
+                  <span class="material-symbols-outlined !text-[24px] text-white/60">account_balance_wallet</span>
+                </div>
+                <div>
+                  <div class="w-12 h-8 rounded-md bg-white/20 backdrop-blur-sm mb-5 flex items-end justify-start p-1">
+                    <div class="flex gap-1"><div class="w-3 h-3 rounded-full bg-yellow-300/80"></div><div class="w-3 h-3 rounded-full bg-yellow-200/40"></div></div>
+                  </div>
+                  <h2 class="text-5xl font-black tracking-tight">{{ dash.customer.store_credit | appCurrency }}</h2>
+                  <p class="text-white/60 text-sm mt-1 font-medium">Store Credit Balance</p>
+                </div>
+                <div class="flex justify-between items-end">
+                  <div>
+                    <p class="text-[10px] text-white/50 font-black uppercase tracking-widest">Cardholder</p>
+                    <p class="font-black text-lg">{{ dash.customer.name }}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-[10px] text-white/50 font-black uppercase tracking-widest">Loyalty Pts</p>
+                    <p class="font-black text-lg text-amber-300">{{ dash.customer.loyalty_pts | number }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-3 gap-3">
+              <button (click)="isLoyaltyModalOpen.set(true)"
+                      class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/10 hover:border-amber-400/50 hover:shadow-lg transition-all group">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined !text-[20px]">stars</span>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Loyalty</p>
+              </button>
+              <button (click)="isCreditModalOpen.set(true)"
+                      class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/10 hover:border-emerald-400/50 hover:shadow-lg transition-all group">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined !text-[20px]">paid</span>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Credit</p>
+              </button>
+              <button (click)="isGiftCardModalOpen.set(true)"
+                      class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/60 dark:border-white/10 hover:border-violet-400/50 hover:shadow-lg transition-all group">
+                <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined !text-[20px]">card_giftcard</span>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Gift Card</p>
+              </button>
+            </div>
+
+            <!-- Gift Cards -->
+            @if (dash.gift_cards.length > 0) {
+              <div class="glass rounded-2xl p-5">
+                <h3 class="text-sm font-black uppercase tracking-widest text-zinc-500 mb-4">Active Gift Cards</h3>
+                <div class="space-y-3">
+                  @for (gc of dash.gift_cards; track gc.id) {
+                    <div class="flex items-center justify-between bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 rounded-xl px-4 py-3">
+                      <div>
+                        <p class="font-mono font-bold text-sm text-violet-700 dark:text-violet-400">{{ gc.code }}</p>
+                        <p class="text-xs text-zinc-500">{{ gc.is_active ? 'Active' : 'Expired' }}</p>
+                      </div>
+                      <p class="text-lg font-black text-violet-700 dark:text-violet-300">{{ gc.balance | appCurrency }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Change customer button -->
+            <button (click)="walletSvc.dashboard.set(null); selectedCustomerId.set(null)"
+                    class="w-full py-3 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 font-bold text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-white hover:border-zinc-300 dark:hover:border-white/20 transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined !text-[18px]">swap_horiz</span>
+              Switch Customer
+            </button>
+          </div>
+
+          <!-- Right: Transaction / Loyalty History -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Recent Orders -->
+            <div class="glass rounded-3xl overflow-hidden shadow-xl">
+              <div class="px-6 py-4 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center">
+                <h3 class="font-black text-base flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px] text-violet-500">receipt_long</span>
+                  Recent Orders
+                </h3>
+                <span class="text-xs font-bold text-zinc-400">{{ dash.recent_orders.length }} orders</span>
+              </div>
+              @if (dash.recent_orders.length > 0) {
+                <div class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+                  @for (order of dash.recent_orders; track order.id) {
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                      <div class="flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                          <span class="material-symbols-outlined !text-[16px]">shopping_bag</span>
+                        </div>
+                        <div>
+                          <p class="font-bold text-sm font-mono">{{ order.order_number }}</p>
+                          <p class="text-xs text-zinc-500">{{ formatDate(order.created_at) }} · {{ order.payment_method }}</p>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-black">{{ order.total | appCurrency }}</p>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                              [class.bg-emerald-100]="order.status === 'completed'"
+                              [class.text-emerald-700]="order.status === 'completed'"
+                              [class.dark:bg-emerald-500/10]="order.status === 'completed'"
+                              [class.dark:text-emerald-400]="order.status === 'completed'"
+                              [class.bg-rose-100]="order.status === 'cancelled'"
+                              [class.text-rose-700]="order.status === 'cancelled'">
+                          {{ order.status }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="py-12 text-center text-zinc-400">
+                  <span class="material-symbols-outlined !text-5xl mb-3 block">receipt_long</span>
+                  <p class="font-bold">No orders yet</p>
+                </div>
+              }
+            </div>
+
+            <!-- Loyalty History -->
+            <div class="glass rounded-3xl overflow-hidden shadow-xl">
+              <div class="px-6 py-4 border-b border-zinc-200/50 dark:border-zinc-800/50">
+                <h3 class="font-black text-base flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px] text-amber-500">stars</span>
+                  Loyalty History
+                </h3>
+              </div>
+              @if (dash.loyalty_history.length > 0) {
+                <div class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+                  @for (tx of dash.loyalty_history; track tx.id) {
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-zinc-50/50 dark:hover:bg-white/[0.02] transition-colors">
+                      <div class="flex items-center gap-4">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+                             [class.bg-emerald-100]="tx.type === 'earn'"
+                             [class.dark:bg-emerald-500/10]="tx.type === 'earn'"
+                             [class.bg-amber-100]="tx.type === 'redeem'"
+                             [class.dark:bg-amber-500/10]="tx.type === 'redeem'"
+                             [class.bg-blue-100]="tx.type === 'adjust'"
+                             [class.dark:bg-blue-500/10]="tx.type === 'adjust'"
+                             [class.bg-rose-100]="tx.type === 'expire'"
+                             [class.dark:bg-rose-500/10]="tx.type === 'expire'">
+                          <span class="material-symbols-outlined !text-[16px]" [class]="loyaltyTypeColor(tx.type)">{{ loyaltyTypeIcon(tx.type) }}</span>
+                        </div>
+                        <div>
+                          <p class="font-bold text-sm capitalize">{{ tx.type }} Points</p>
+                          <p class="text-xs text-zinc-500">{{ tx.note ?? '—' }} · {{ formatDate(tx.created_at) }}</p>
+                        </div>
+                      </div>
+                      <p class="font-black text-base" [class.text-emerald-600]="tx.points > 0" [class.dark:text-emerald-400]="tx.points > 0" [class.text-rose-500]="tx.points < 0">
+                        {{ tx.points > 0 ? '+' : '' }}{{ tx.points }} pts
+                      </p>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="py-12 text-center text-zinc-400">
+                  <span class="material-symbols-outlined !text-5xl mb-3 block">stars</span>
+                  <p class="font-bold">No loyalty history yet</p>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+  }
+
+  <!-- ── LOOKUP TAB ── -->
+  @if (activeTab() === 'lookup') {
+    <div class="glass rounded-3xl p-8 shadow-xl max-w-xl">
+      <h2 class="text-xl font-black mb-2 flex items-center gap-2">
+        <span class="material-symbols-outlined text-violet-500">person_search</span>
+        Phone Lookup
+      </h2>
+      <p class="text-sm text-zinc-500 mb-6">Enter a customer's phone number to load their wallet.</p>
+      <div class="flex gap-3">
+        <input
+          type="tel"
+          [ngModel]="phoneInput()"
+          (ngModelChange)="phoneInput.set($event)"
+          (keydown.enter)="lookupCustomer()"
+          placeholder="+1 (555) 000-0000"
+          class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 outline-none transition-all text-slate-800 dark:text-white placeholder:text-slate-400"
+        />
+        <button (click)="lookupCustomer()"
+                [disabled]="walletSvc.lookupLoading()"
+                class="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-50">
+          @if (walletSvc.lookupLoading()) {
+            <span class="material-symbols-outlined !text-[18px] animate-spin">refresh</span>
+          } @else {
+            Search
+          }
+        </button>
+      </div>
+      @if (walletSvc.lookupError()) {
+        <p class="mt-4 text-sm font-bold text-rose-500 flex items-center gap-2">
+          <span class="material-symbols-outlined !text-[16px]">error</span>
+          {{ walletSvc.lookupError() }}
+        </p>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- ── Loyalty Adjustment Modal ── -->
+@if (isLoyaltyModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" (click)="isLoyaltyModalOpen.set(false)">
+    <div class="bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200/50 dark:border-white/10" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-slate-200/50 dark:border-white/10 bg-amber-50/50 dark:bg-amber-500/5 flex justify-between items-center">
+        <h2 class="text-lg font-black flex items-center gap-2 text-amber-600 dark:text-amber-400">
+          <span class="material-symbols-outlined !text-[22px]">stars</span> Adjust Loyalty Points
+        </h2>
+        <button (click)="isLoyaltyModalOpen.set(false)" class="w-8 h-8 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Points (+ to add, - to deduct)</label>
+          <input type="number" [ngModel]="loyaltyAdjust().points" (ngModelChange)="loyaltyAdjust.update(v => ({...v, points: +$event}))"
+                 class="w-full px-4 py-3 rounded-xl border border-amber-200/60 dark:border-amber-500/20 bg-amber-50/50 dark:bg-amber-500/5 focus:ring-2 focus:ring-amber-500/50 outline-none font-mono text-amber-700 dark:text-amber-400 text-lg font-black" placeholder="e.g. 100 or -50">
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Reason / Note</label>
+          <input type="text" [ngModel]="loyaltyAdjust().note" (ngModelChange)="loyaltyAdjust.update(v => ({...v, note: $event}))"
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 focus:ring-2 focus:ring-amber-500/50 outline-none text-slate-800 dark:text-white" placeholder="e.g. Birthday bonus">
+        </div>
+        <button (click)="adjustLoyalty()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-amber-500/30">
+          Apply Adjustment
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Store Credit Modal ── -->
+@if (isCreditModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" (click)="isCreditModalOpen.set(false)">
+    <div class="bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200/50 dark:border-white/10" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-slate-200/50 dark:border-white/10 bg-emerald-50/50 dark:bg-emerald-500/5 flex justify-between items-center">
+        <h2 class="text-lg font-black flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+          <span class="material-symbols-outlined !text-[22px]">paid</span> Adjust Store Credit
+        </h2>
+        <button (click)="isCreditModalOpen.set(false)" class="w-8 h-8 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Amount (+ to add, - to deduct)</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-emerald-600 dark:text-emerald-400">$</span>
+            <input type="number" [ngModel]="creditAdjust().amount" (ngModelChange)="creditAdjust.update(v => ({...v, amount: +$event}))"
+                   class="w-full pl-8 pr-4 py-3 rounded-xl border border-emerald-200/60 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-500/5 focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono text-emerald-700 dark:text-emerald-400 text-lg font-black" placeholder="0.00">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Reason / Note</label>
+          <input type="text" [ngModel]="creditAdjust().note" (ngModelChange)="creditAdjust.update(v => ({...v, note: $event}))"
+                 class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 focus:ring-2 focus:ring-emerald-500/50 outline-none text-slate-800 dark:text-white" placeholder="e.g. Return credit">
+        </div>
+        <button (click)="adjustCredit()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-500/30">
+          Apply Adjustment
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Issue Gift Card Modal ── -->
+@if (isGiftCardModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" (click)="isGiftCardModalOpen.set(false)">
+    <div class="bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-200/50 dark:border-white/10" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-slate-200/50 dark:border-white/10 bg-violet-50/50 dark:bg-violet-500/5 flex justify-between items-center">
+        <h2 class="text-lg font-black flex items-center gap-2 text-violet-600 dark:text-violet-400">
+          <span class="material-symbols-outlined !text-[22px]">card_giftcard</span> Issue Gift Card
+        </h2>
+        <button (click)="isGiftCardModalOpen.set(false)" class="w-8 h-8 rounded-xl flex items-center justify-center text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Gift Card Amount</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-violet-600 dark:text-violet-400">$</span>
+            <input type="number" [ngModel]="giftCardAmount()" (ngModelChange)="giftCardAmount.set(+$event)"
+                   class="w-full pl-8 pr-4 py-3 rounded-xl border border-violet-200/60 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-500/5 focus:ring-2 focus:ring-violet-500/50 outline-none font-mono text-violet-700 dark:text-violet-400 text-lg font-black" placeholder="0.00">
+          </div>
+          <div class="flex gap-2 mt-2">
+            @for (amt of [25, 50, 100, 200]; track amt) {
+              <button (click)="giftCardAmount.set(amt)" class="flex-1 py-2 rounded-xl text-xs font-black bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-200/60 dark:border-violet-500/20 hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors">
+                {{ amt | appCurrency }}
+              </button>
+            }
+          </div>
+        </div>
+        <button (click)="issueGiftCard()" [disabled]="giftCardAmount() <= 0"
+                class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-40">
+          Issue Gift Card for {{ giftCardAmount() | appCurrency }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

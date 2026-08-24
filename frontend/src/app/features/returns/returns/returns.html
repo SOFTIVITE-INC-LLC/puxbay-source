@@ -1,0 +1,248 @@
+<div class="min-h-full p-6 md:p-8 space-y-8 font-sans">
+
+  <!-- ── Header ── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+        Returns & Refunds
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+        Manage customer RMAs, approve refunds, and track return history.
+      </p>
+    </div>
+    <button
+      (click)="openNewReturnModal()"
+      class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-xl shadow-lg shadow-rose-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap"
+    >
+      <span class="material-symbols-outlined !text-[20px]">assignment_return</span>
+      New Return
+    </button>
+  </div>
+
+  <!-- ── Stat Cards ── -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <p class="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Total Returns</p>
+      <p class="text-3xl font-black text-zinc-900 dark:text-white">{{ returnService.returns().length }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <p class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pending</p>
+      <p class="text-3xl font-black text-amber-500">{{ pendingCount() }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <p class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-1">Completed</p>
+      <p class="text-3xl font-black text-emerald-500">{{ completedCount() }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <p class="text-xs font-bold uppercase tracking-widest text-rose-500 mb-1">Total Refunded</p>
+      <p class="text-3xl font-black text-rose-500">{{ totalRefunded() | appCurrency }}</p>
+    </div>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-1">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 !text-[20px]">search</span>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search by RMA or order ID..."
+        class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+      />
+    </div>
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event)"
+      class="px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+    >
+      <option value="">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="completed">Completed</option>
+      <option value="rejected">Rejected</option>
+    </select>
+  </div>
+
+  <!-- ── Returns Table ── -->
+  @if (returnService.loading()) {
+    <div class="flex justify-center items-center py-24">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+    </div>
+  }
+
+  @if (!returnService.loading()) {
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead class="text-xs uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+            <tr>
+              <th class="px-6 py-4 font-bold">RMA ID</th>
+              <th class="px-6 py-4 font-bold">Order</th>
+              <th class="px-6 py-4 font-bold">Reason</th>
+              <th class="px-6 py-4 font-bold">Refund Amount</th>
+              <th class="px-6 py-4 font-bold">Status</th>
+              <th class="px-6 py-4 font-bold">Date</th>
+              <th class="px-6 py-4 font-bold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+            @for (ret of filteredReturns(); track ret.id) {
+              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                <td class="px-6 py-4 font-mono font-bold text-rose-500 dark:text-rose-400">
+                  #{{ ret.id | slice: 0 : 8 }}
+                </td>
+                <td class="px-6 py-4 font-mono text-xs text-zinc-500">
+                  #{{ ret.order_id | slice: 0 : 8 }}
+                </td>
+                <td class="px-6 py-4 max-w-[200px]">
+                  <p class="font-semibold text-zinc-900 dark:text-white truncate">{{ ret.reason }}</p>
+                  @if (ret.reason_detail) {
+                    <p class="text-xs text-zinc-400 truncate mt-0.5">{{ ret.reason_detail }}</p>
+                  }
+                </td>
+                <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">
+                  {{ ret.total_refund | appCurrency }}
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="px-2.5 py-1 text-xs font-bold rounded-full uppercase"
+                    [class]="getStatusClass(ret.status)"
+                  >
+                    {{ ret.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-zinc-500 text-xs">
+                  {{ ret.created_at | date: 'mediumDate' }}
+                </td>
+                <td class="px-6 py-4 text-right">
+                  @if (ret.status === 'pending') {
+                    <div class="flex justify-end gap-2">
+                      <button
+                        (click)="approve(ret.id)"
+                        [disabled]="processing() === ret.id"
+                        class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        (click)="reject(ret.id)"
+                        [disabled]="processing() === ret.id"
+                        class="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold rounded-lg hover:bg-zinc-300 transition-colors disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  }
+                  @if (ret.status === 'approved') {
+                    <button
+                      (click)="processRefund(ret.id)"
+                      [disabled]="processing() === ret.id"
+                      class="px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
+                    >
+                      Process Refund
+                    </button>
+                  }
+                  @if (ret.status === 'completed' || ret.status === 'rejected') {
+                    <span class="text-xs text-zinc-400">—</span>
+                  }
+                </td>
+              </tr>
+            }
+            @if (filteredReturns().length === 0) {
+              <tr>
+                <td colspan="7" class="px-6 py-20 text-center">
+                  <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700 block mb-3">assignment_return</span>
+                  <p class="font-bold text-zinc-500">No returns found</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ── New Return Modal ── -->
+  @if (isModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeModal()">
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+        <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-rose-50 dark:bg-rose-900/10">
+          <h2 class="text-xl font-black text-zinc-900 dark:text-white">New Return Request</h2>
+          <button (click)="closeModal()" class="text-zinc-400 hover:text-rose-500 transition-colors">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Order ID</label>
+            <input
+              type="text"
+              [ngModel]="newReturn().order_id"
+              (ngModelChange)="newReturn.update(r => ({...r, order_id: $event}))"
+              placeholder="Paste or type the Order ID"
+              class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Return Reason</label>
+            <select
+              [ngModel]="newReturn().reason"
+              (ngModelChange)="newReturn.update(r => ({...r, reason: $event}))"
+              class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+            >
+              <option value="">Select a reason...</option>
+              <option value="defective">Defective / Damaged</option>
+              <option value="wrong_item">Wrong Item Received</option>
+              <option value="not_as_described">Not as Described</option>
+              <option value="changed_mind">Customer Changed Mind</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Additional Details</label>
+            <textarea
+              [ngModel]="newReturn().reason_detail"
+              (ngModelChange)="newReturn.update(r => ({...r, reason_detail: $event}))"
+              rows="3"
+              placeholder="Optional: describe the issue in detail..."
+              class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+            ></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Refund Method</label>
+              <select
+                [ngModel]="newReturn().refund_method"
+                (ngModelChange)="newReturn.update(r => ({...r, refund_method: $event}))"
+                class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+              >
+                <option value="cash">Cash</option>
+                <option value="card">Card Reversal</option>
+                <option value="store_credit">Store Credit</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Refund Amount</label>
+              <input
+                type="number"
+                [ngModel]="newReturn().refund_amount"
+                (ngModelChange)="newReturn.update(r => ({...r, refund_amount: +$event}))"
+                placeholder="0.00"
+                class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+              />
+            </div>
+          </div>
+          <button
+            (click)="submitNewReturn()"
+            [disabled]="saving()"
+            class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-red-500 text-white font-bold rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
+          >
+            {{ saving() ? 'Submitting...' : 'Submit Return Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

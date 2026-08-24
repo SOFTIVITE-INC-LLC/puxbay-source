@@ -1,0 +1,650 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-pink-500">
+        Marketing Hub
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Manage campaigns, segments, promotions, and customer discounts.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      @if (activeTab() === 'campaigns') {
+        <button (click)="openAddModal()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white rounded-xl shadow-lg shadow-fuchsia-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[20px]">campaign</span> New Campaign
+        </button>
+      }
+      @if (activeTab() === 'segments') {
+        <button (click)="openSegmentModal()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white rounded-xl shadow-lg shadow-fuchsia-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[20px]">group_add</span> New Segment
+        </button>
+      }
+      @if (activeTab() === 'promotions') {
+        <button (click)="openPromoModal()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white rounded-xl shadow-lg shadow-fuchsia-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[20px]">local_offer</span> New Promotion
+        </button>
+      }
+      @if (activeTab() === 'discounts') {
+        <button (click)="openDiscountModal()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white rounded-xl shadow-lg shadow-fuchsia-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[20px]">percent</span> New Discount
+        </button>
+        <button (click)="openRedeemModal()"
+          class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all font-bold whitespace-nowrap shadow-sm">
+          <span class="material-symbols-outlined !text-[20px]">redeem</span> Redeem Points
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-2 bg-slate-100 dark:bg-zinc-800/80 rounded-2xl p-1.5 w-full sm:w-fit overflow-x-auto border border-zinc-200 dark:border-zinc-700/50 no-scrollbar">
+    @for (tab of [
+      {id: 'campaigns', label: 'Campaigns', icon: 'mark_email_read'},
+      {id: 'segments', label: 'Segments', icon: 'group'},
+      {id: 'promotions', label: 'Promotions', icon: 'local_offer'},
+      {id: 'discounts', label: 'Discounts', icon: 'percent'}
+    ]; track tab.id) {
+      <button (click)="activeTab.set($any(tab.id))"
+              [class.bg-white]="activeTab() === tab.id"
+              [class.dark:bg-zinc-900]="activeTab() === tab.id"
+              [class.shadow-sm]="activeTab() === tab.id"
+              [class.text-fuchsia-600]="activeTab() === tab.id"
+              [class.dark:text-fuchsia-400]="activeTab() === tab.id"
+              class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+        <span class="material-symbols-outlined !text-[18px]">{{ tab.icon }}</span>
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- ── CAMPAIGNS TAB ── -->
+  @if (activeTab() === 'campaigns') {
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-fuchsia-100 dark:bg-fuchsia-900/20 rounded-full blur-xl opacity-60"></div>
+        <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+          <span class="material-symbols-outlined !text-[18px]">ads_click</span>
+          <span class="text-xs font-bold uppercase tracking-wider">Total</span>
+        </div>
+        <p class="text-3xl font-black z-10">{{ totalCampaigns() }}</p>
+      </div>
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60"></div>
+        <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+          <span class="material-symbols-outlined !text-[18px]">play_circle</span>
+          <span class="text-xs font-bold uppercase tracking-wider">Active</span>
+        </div>
+        <p class="text-3xl font-black z-10 text-emerald-600 dark:text-emerald-400">{{ activeCampaigns() }}</p>
+      </div>
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-xl opacity-60"></div>
+        <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+          <span class="material-symbols-outlined !text-[18px]">account_balance_wallet</span>
+          <span class="text-xs font-bold uppercase tracking-wider">Total Budget</span>
+        </div>
+        <p class="text-3xl font-black z-10">{{ totalBudget() | appCurrency }}</p>
+      </div>
+      <div class="bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-3xl p-5 flex flex-col gap-2 shadow-lg shadow-fuchsia-500/20 text-white relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/20 rounded-full blur-xl opacity-60"></div>
+        <div class="flex items-center gap-2 text-fuchsia-100 mb-1 z-10">
+          <span class="material-symbols-outlined !text-[18px]">trending_up</span>
+          <span class="text-xs font-bold uppercase tracking-wider">Revenue Generated</span>
+        </div>
+        <p class="text-3xl font-black z-10">{{ totalRevenueGenerated() | appCurrency }}</p>
+      </div>
+    </div>
+
+    <!-- Automations Quick Trigger -->
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">bolt</span> Quick Automation Triggers
+      </h3>
+      <div class="flex flex-wrap gap-3">
+        @for (trigger of [
+          {event: 'birthday', label: 'Birthday Campaigns', icon: 'cake', color: 'from-pink-500 to-rose-500'},
+          {event: 'abandoned_cart', label: 'Abandoned Cart', icon: 'shopping_cart_off', color: 'from-amber-500 to-orange-500'},
+          {event: 'inactive_30d', label: 'Win-Back (30 Days)', icon: 'person_search', color: 'from-sky-500 to-indigo-500'},
+          {event: 'post_purchase', label: 'Post-Purchase', icon: 'thumb_up', color: 'from-emerald-500 to-teal-500'}
+        ]; track trigger.event) {
+          <button (click)="triggerEvent(trigger.event)"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md hover:opacity-90 transition-all bg-gradient-to-r"
+                  [ngClass]="'bg-gradient-to-r ' + trigger.color">
+            <span class="material-symbols-outlined !text-[18px]">{{ trigger.icon }}</span>
+            {{ trigger.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="relative max-w-sm">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
+        <span class="material-symbols-outlined !text-[20px]">search</span>
+      </span>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search campaigns..."
+        class="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-transparent transition-all shadow-sm" />
+    </div>
+
+    @if (marketingService.loading()) {
+      <div class="flex flex-col justify-center items-center py-20 text-fuchsia-600">
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-current border-t-transparent mb-4"></div>
+        <p class="font-semibold animate-pulse">Loading Campaigns...</p>
+      </div>
+    }
+    @if (!marketingService.loading() && filteredCampaigns.length === 0) {
+      <div class="flex flex-col items-center justify-center py-24 text-zinc-400 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800">
+        <span class="material-symbols-outlined !text-[64px] mb-4 opacity-50">campaign</span>
+        <p class="font-bold text-xl mb-1 text-zinc-600 dark:text-zinc-300">No campaigns found</p>
+        <p class="text-sm">Create your first marketing campaign to engage with customers.</p>
+      </div>
+    }
+    @if (!marketingService.loading() && filteredCampaigns.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (campaign of filteredCampaigns; track campaign.id) {
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden relative group hover:shadow-xl transition-all duration-300 flex flex-col">
+            <!-- Card Header -->
+            <div class="p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-gradient-to-br from-fuchsia-50/50 to-transparent dark:from-fuchsia-900/10">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="material-symbols-outlined !text-[20px]"
+                        [class.text-indigo-500]="campaign.type === 'email'"
+                        [class.text-emerald-500]="campaign.type === 'sms'"
+                        [class.text-sky-500]="campaign.type === 'social'">
+                    {{ campaign.type === 'email' ? 'mail' : (campaign.type === 'sms' ? 'sms' : 'share') }}
+                  </span>
+                  <span class="text-xs font-bold uppercase tracking-wider text-zinc-500">{{ campaign.type }}</span>
+                  @if ($any(campaign).is_automated) {
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                      <span class="material-symbols-outlined !text-[12px]">bolt</span> Auto
+                    </span>
+                  }
+                </div>
+                <h3 class="font-bold text-xl text-zinc-900 dark:text-white line-clamp-1 pr-4">{{ campaign.name }}</h3>
+              </div>
+              <div class="flex items-center gap-1">
+                <button (click)="openEditModal(campaign)" class="p-1.5 text-zinc-400 hover:text-fuchsia-500 bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 transition-colors opacity-0 group-hover:opacity-100">
+                  <span class="material-symbols-outlined !text-[16px]">edit</span>
+                </button>
+                <button (click)="deleteCampaign(campaign.id, $event)" class="p-1.5 text-zinc-400 hover:text-rose-500 bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 transition-colors opacity-0 group-hover:opacity-100">
+                  <span class="material-symbols-outlined !text-[16px]">delete</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Analytics Mini-bar -->
+            <div class="flex border-b border-zinc-100 dark:border-zinc-800 text-center divide-x divide-zinc-100 dark:divide-zinc-800 text-xs">
+              <div class="flex-1 p-3">
+                <p class="font-black text-zinc-800 dark:text-white text-base">{{ $any(campaign).open_count || 0 }}</p>
+                <p class="text-zinc-400 font-bold">Opens</p>
+              </div>
+              <div class="flex-1 p-3">
+                <p class="font-black text-zinc-800 dark:text-white text-base">{{ $any(campaign).conversion_count || 0 }}</p>
+                <p class="text-zinc-400 font-bold">Conversions</p>
+              </div>
+              <div class="flex-1 p-3">
+                <p class="font-black text-emerald-600 dark:text-emerald-400 text-base">{{ $any(campaign).revenue_generated || 0 | appCurrency }}</p>
+                <p class="text-zinc-400 font-bold">Revenue</p>
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6 flex-1 flex flex-col gap-3">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Budget</p>
+                  <p class="font-black text-lg text-zinc-900 dark:text-white">{{ campaign.budget | appCurrency }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Status</p>
+                  <span class="px-2.5 py-1 text-xs font-bold rounded-full uppercase"
+                        [class.bg-emerald-100]="campaign.status === 'active'" [class.text-emerald-700]="campaign.status === 'active'"
+                        [class.bg-zinc-100]="campaign.status === 'draft'" [class.text-zinc-600]="campaign.status === 'draft'"
+                        [class.bg-amber-100]="campaign.status === 'paused'" [class.text-amber-700]="campaign.status === 'paused'"
+                        [class.bg-sky-100]="campaign.status === 'sent'" [class.text-sky-700]="campaign.status === 'sent'"
+                        [class.bg-indigo-100]="campaign.status === 'completed'" [class.text-indigo-700]="campaign.status === 'completed'">
+                    {{ campaign.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="p-4 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center gap-2">
+              @if (campaign.status === 'draft' || campaign.status === 'active') {
+                <button (click)="sendCampaign(campaign, $event)"
+                        class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-fuchsia-200 text-fuchsia-700 bg-fuchsia-50 dark:border-fuchsia-800 dark:text-fuchsia-400 dark:bg-fuchsia-900/20 hover:opacity-80 transition-all">
+                  <span class="material-symbols-outlined !text-[16px]">send</span> Send Now
+                </button>
+              }
+              @if (campaign.status === 'active' || campaign.status === 'paused') {
+                <button (click)="toggleCampaignStatus(campaign, $event)"
+                        class="text-xs font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all ml-auto"
+                        [class.border-amber-200]="campaign.status === 'active'" [class.text-amber-700]="campaign.status === 'active'" [class.bg-amber-50]="campaign.status === 'active'"
+                        [class.border-emerald-200]="campaign.status === 'paused'" [class.text-emerald-700]="campaign.status === 'paused'" [class.bg-emerald-50]="campaign.status === 'paused'">
+                  <span class="material-symbols-outlined !text-[16px]">{{ campaign.status === 'active' ? 'pause' : 'play_arrow' }}</span>
+                  {{ campaign.status === 'active' ? 'Pause' : 'Resume' }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ── SEGMENTS TAB ── -->
+  @if (activeTab() === 'segments') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (seg of marketingService.segments(); track seg.id) {
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+          <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-br from-violet-50/50 to-transparent dark:from-violet-900/10 flex justify-between items-start">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-violet-500 mb-1">Customer Segment</p>
+              <h3 class="font-bold text-xl text-zinc-900 dark:text-white">{{ seg.name }}</h3>
+            </div>
+            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button (click)="openSegmentModal(seg)" class="p-1.5 text-zinc-400 hover:text-violet-500 bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 transition-colors">
+                <span class="material-symbols-outlined !text-[16px]">edit</span>
+              </button>
+              <button (click)="deleteSegment(seg.id)" class="p-1.5 text-zinc-400 hover:text-rose-500 bg-white dark:bg-zinc-800 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700 transition-colors">
+                <span class="material-symbols-outlined !text-[16px]">delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-6">
+            <p class="text-sm text-zinc-500 mb-4">{{ seg.description || 'No description provided.' }}</p>
+            @if (seg.criteria_json && seg.criteria_json !== '{}') {
+              <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3 border border-zinc-100 dark:border-zinc-700">
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Criteria</p>
+                <code class="text-xs text-violet-600 dark:text-violet-400 break-all">{{ seg.criteria_json }}</code>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (marketingService.segments().length === 0) {
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-zinc-400 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800">
+          <span class="material-symbols-outlined !text-[64px] mb-4 opacity-50">group</span>
+          <p class="font-bold text-xl mb-1 text-zinc-600 dark:text-zinc-300">No segments yet</p>
+          <p class="text-sm">Create segments to target specific customer groups with personalized campaigns.</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── PROMOTIONS TAB ── -->
+  @if (activeTab() === 'promotions') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (promo of marketingService.promotions(); track promo.id) {
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+          <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-pink-50/50 dark:bg-pink-900/10">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-pink-500 mb-1">{{ promo.type }}</p>
+              <h3 class="font-bold text-xl text-zinc-900 dark:text-white">{{ promo.name }}</h3>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="px-2.5 py-1 text-xs font-bold rounded-full uppercase bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">{{ promo.status }}</span>
+              <button (click)="deletePromotion(promo.id)" class="p-1.5 text-zinc-400 hover:text-rose-500 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 transition-colors opacity-0 group-hover:opacity-100 ml-1">
+                <span class="material-symbols-outlined !text-[16px]">delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-6">
+            <p class="text-sm text-zinc-500 mb-4">{{ promo.description || 'No description provided.' }}</p>
+            <div class="text-xs font-bold text-zinc-400">Starts: {{ promo.start_date | date }}</div>
+            @if (promo.points_required) {
+              <div class="mt-2 flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                <span class="material-symbols-outlined !text-[16px]">stars</span>
+                Requires {{ promo.points_required }} points
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (marketingService.promotions().length === 0) {
+        <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-400 border border-dashed rounded-3xl">
+          <span class="material-symbols-outlined !text-[64px] mb-4 opacity-30 text-pink-500">local_offer</span>
+          <p class="font-bold text-lg">No promotions found</p>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── DISCOUNTS TAB ── -->
+  @if (activeTab() === 'discounts') {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (discount of marketingService.discounts(); track discount.id) {
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+          <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-indigo-50/50 dark:bg-indigo-900/10">
+            <div>
+              <h3 class="font-bold text-xl font-mono text-indigo-600 dark:text-indigo-400">{{ discount.code }}</h3>
+              <p class="text-sm font-medium mt-1">
+                {{ discount.type === 'percentage' ? discount.value + '%' : '$' + discount.value }} off
+              </p>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="px-2.5 py-1 text-xs font-bold rounded-full uppercase bg-emerald-100 text-emerald-700">{{ discount.status }}</span>
+              <button (click)="deleteDiscount(discount.id)" class="p-1.5 text-zinc-400 hover:text-rose-500 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 transition-colors opacity-0 group-hover:opacity-100 ml-1">
+                <span class="material-symbols-outlined !text-[16px]">delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-6 space-y-3">
+            <div class="flex justify-between text-sm">
+              <span class="text-zinc-500">Usage</span>
+              <span class="font-bold">{{ discount.current_uses }} / {{ discount.max_uses || '∞' }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-zinc-500">Min. Order Value</span>
+              <span class="font-bold">{{ discount.min_order_value ? '$' + discount.min_order_value : 'None' }}</span>
+            </div>
+            @if (discount.points_required) {
+              <div class="flex justify-between text-sm">
+                <span class="text-zinc-500">Points Required</span>
+                <span class="font-bold flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                  <span class="material-symbols-outlined !text-[14px]">stars</span>
+                  {{ discount.points_required }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (marketingService.discounts().length === 0) {
+        <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-400 border border-dashed rounded-3xl">
+          <span class="material-symbols-outlined !text-[64px] mb-4 opacity-30 text-indigo-500">percent</span>
+          <p class="font-bold text-lg">No discount codes found</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Campaign Modal -->
+@if (isModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeModal()">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30 sticky top-0">
+        <h2 class="text-xl font-black tracking-tight flex items-center gap-2">
+          <span class="material-symbols-outlined text-fuchsia-500">campaign</span> {{ modalTitle() }}
+        </h2>
+        <button (click)="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-5 overflow-y-auto">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Campaign Name <span class="text-rose-500">*</span></label>
+          <input type="text" [ngModel]="currentCampaign().name" (ngModelChange)="currentCampaign.update(c => ({...c, name: $event}))"
+            placeholder="e.g. Summer Sale 2026"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Subject Line</label>
+          <input type="text" [ngModel]="$any(currentCampaign()).subject" (ngModelChange)="currentCampaign.update(c => ({...c, subject: $event}))"
+            placeholder="e.g. 🔥 Exclusive Deal Inside!"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Channel</label>
+            <div class="relative">
+              <select [ngModel]="currentCampaign().type" (ngModelChange)="currentCampaign.update(c => ({...c, type: $event}))"
+                class="w-full p-3 pr-10 appearance-none rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all">
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="social">Social Media</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">expand_more</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Status</label>
+            <div class="relative">
+              <select [ngModel]="currentCampaign().status" (ngModelChange)="currentCampaign.update(c => ({...c, status: $event}))"
+                class="w-full p-3 pr-10 appearance-none rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all">
+                <option value="draft">Draft</option>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segment -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Target Segment</label>
+          <div class="relative">
+            <select [ngModel]="$any(currentCampaign()).segment_id" (ngModelChange)="currentCampaign.update(c => ({...c, segment_id: $event}))"
+              class="w-full p-3 pr-10 appearance-none rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all">
+              <option value="">All Customers</option>
+              @for (seg of marketingService.segments(); track seg.id) {
+                <option [value]="seg.id">{{ seg.name }}</option>
+              }
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Automation -->
+        <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 space-y-3">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" [ngModel]="$any(currentCampaign()).is_automated" (ngModelChange)="currentCampaign.update(c => ({...c, is_automated: $event}))"
+              class="w-4 h-4 text-amber-500 rounded focus:ring-amber-500">
+            <span class="text-sm font-bold text-amber-800 dark:text-amber-300">Enable Automation (Event-Triggered)</span>
+          </label>
+          @if ($any(currentCampaign()).is_automated) {
+            <div class="relative">
+              <select [ngModel]="$any(currentCampaign()).trigger_event" (ngModelChange)="currentCampaign.update(c => ({...c, trigger_event: $event}))"
+                class="w-full p-3 pr-10 appearance-none rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-amber-500/50 outline-none transition-all">
+                <option value="manual">Manual Only</option>
+                <option value="birthday">Customer Birthday</option>
+                <option value="abandoned_cart">Abandoned Cart</option>
+                <option value="inactive_30d">Inactive 30 Days</option>
+                <option value="post_purchase">Post Purchase</option>
+              </select>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">expand_more</span>
+            </div>
+          }
+        </div>
+
+        <!-- Message Body -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Message Body (HTML supported)</label>
+          <textarea [ngModel]="$any(currentCampaign()).message" (ngModelChange)="currentCampaign.update(c => ({...c, message: $event}))"
+            rows="5" placeholder="Write your campaign message here..."
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all resize-none font-mono text-sm"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Budget ($)</label>
+          <input type="number" [ngModel]="currentCampaign().budget" (ngModelChange)="currentCampaign.update(c => ({...c, budget: $event}))"
+            placeholder="0.00"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all font-mono" />
+        </div>
+
+        <button (click)="saveCampaign()"
+          class="w-full py-3.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-fuchsia-500/25 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">save</span> Save Campaign
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Segment Modal -->
+@if (isSegmentModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeSegmentModal()">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-violet-50 dark:bg-violet-900/20">
+        <h2 class="text-xl font-black flex items-center gap-2">
+          <span class="material-symbols-outlined text-violet-500">group</span>
+          {{ editingSegmentId() ? 'Edit Segment' : 'New Segment' }}
+        </h2>
+        <button (click)="closeSegmentModal()" class="text-zinc-400 hover:text-rose-500 transition-colors"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Segment Name <span class="text-rose-500">*</span></label>
+          <input type="text" [ngModel]="currentSegment().name" (ngModelChange)="currentSegment.update(s => ({...s, name: $event}))"
+            placeholder="e.g. VIP Customers"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-violet-500/50 outline-none transition-all" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Description</label>
+          <input type="text" [ngModel]="currentSegment().description" (ngModelChange)="currentSegment.update(s => ({...s, description: $event}))"
+            placeholder="e.g. Customers who have spent over $500"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-violet-500/50 outline-none transition-all" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Criteria (JSON)</label>
+          <textarea [ngModel]="currentSegment().criteria_json" (ngModelChange)="currentSegment.update(s => ({...s, criteria_json: $event}))"
+            rows="4" placeholder='{"min_spend": 500, "days_inactive": 30}'
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-violet-500/50 outline-none transition-all resize-none font-mono text-sm"></textarea>
+        </div>
+        <button (click)="saveSegment()" [disabled]="savingSegment() || !currentSegment().name"
+          class="w-full py-3.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:opacity-90 text-white font-bold rounded-xl shadow-lg shadow-violet-500/25 transition-all disabled:opacity-50">
+          {{ editingSegmentId() ? 'Update Segment' : 'Create Segment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Promo Modal -->
+@if (isPromoModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closePromoModal()">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-pink-50 dark:bg-pink-900/20">
+        <h2 class="text-xl font-black">{{ currentPromo().id ? 'Edit Promotion' : 'New Promotion' }}</h2>
+        <button (click)="closePromoModal()" class="text-zinc-400 hover:text-rose-500"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Name <span class="text-rose-500">*</span></label>
+          <input type="text" [ngModel]="currentPromo().name" (ngModelChange)="currentPromo.update(p => ({...p, name: $event}))"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-pink-500/50 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Type</label>
+            <select [ngModel]="currentPromo().type" (ngModelChange)="currentPromo.update(p => ({...p, type: $event}))"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-pink-500/50 outline-none appearance-none">
+              <option value="bogo">Buy One Get One</option>
+              <option value="bundle">Bundle Deal</option>
+              <option value="seasonal">Seasonal Sale</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Points Required</label>
+            <input type="number" [ngModel]="currentPromo().points_required" (ngModelChange)="currentPromo.update(p => ({...p, points_required: $event}))"
+              placeholder="0 = No limit"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-pink-500/50 outline-none" />
+          </div>
+        </div>
+        <button (click)="savePromotion()" class="w-full py-3.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl hover:opacity-90 transition-all">
+          Save Promotion
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Discount Modal -->
+@if (isDiscountModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeDiscountModal()">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-indigo-50 dark:bg-indigo-900/20">
+        <h2 class="text-xl font-black">New Discount Code</h2>
+        <button (click)="closeDiscountModal()" class="text-zinc-400 hover:text-rose-500"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Code <span class="text-rose-500">*</span></label>
+          <input type="text" [ngModel]="currentDiscount().code" (ngModelChange)="currentDiscount.update(d => ({...d, code: $event}))"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500/50 outline-none font-mono uppercase" placeholder="SUMMER26" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Type</label>
+            <select [ngModel]="currentDiscount().type" (ngModelChange)="currentDiscount.update(d => ({...d, type: $event}))"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500/50 outline-none appearance-none">
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount ($)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Value</label>
+            <input type="number" [ngModel]="currentDiscount().value" (ngModelChange)="currentDiscount.update(d => ({...d, value: $event}))"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500/50 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Max Uses</label>
+            <input type="number" [ngModel]="currentDiscount().max_uses" (ngModelChange)="currentDiscount.update(d => ({...d, max_uses: $event}))"
+              placeholder="Unlimited"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500/50 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Min. Order ($)</label>
+            <input type="number" [ngModel]="currentDiscount().min_order_value" (ngModelChange)="currentDiscount.update(d => ({...d, min_order_value: $event}))"
+              placeholder="None"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-indigo-500/50 outline-none" />
+          </div>
+        </div>
+        <button (click)="saveDiscount()" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl hover:opacity-90 transition-all">
+          Create Discount Code
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Loyalty Redemption Modal -->
+@if (isRedeemModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeRedeemModal()">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-amber-50 dark:bg-amber-900/20">
+        <h2 class="text-xl font-black flex items-center gap-2">
+          <span class="material-symbols-outlined text-amber-500">stars</span> Redeem Points
+        </h2>
+        <button (click)="closeRedeemModal()" class="text-zinc-400 hover:text-rose-500"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-zinc-500">Convert loyalty points into a unique discount code for a customer.</p>
+        <div>
+          <label class="block text-xs font-bold mb-1.5">Customer ID <span class="text-rose-500">*</span></label>
+          <input type="text" [ngModel]="redeemForm().customer_id" (ngModelChange)="redeemForm.update(f => ({...f, customer_id: $event}))"
+            placeholder="Enter customer UUID"
+            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-amber-500/50 outline-none font-mono text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Points to Redeem</label>
+            <input type="number" [ngModel]="redeemForm().points" (ngModelChange)="redeemForm.update(f => ({...f, points: +$event}))"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-amber-500/50 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1.5">Discount Value ($)</label>
+            <input type="number" [ngModel]="redeemForm().discount_value" (ngModelChange)="redeemForm.update(f => ({...f, discount_value: +$event}))"
+              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-amber-500/50 outline-none" />
+          </div>
+        </div>
+        <button (click)="redeemPoints()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-amber-500/25">
+          Generate Discount Code
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,167 @@
+<div class="p-8 max-w-7xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Custom Domains</h1>
+      <p class="text-slate-500 mt-1">White-labeling hub — manage DNS verification and SSL for tenant domains.</p>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="flex flex-col md:flex-row gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+    <div class="flex-1 flex gap-4">
+      <input 
+        type="text" 
+        [ngModel]="search()" 
+        (ngModelChange)="onSearch($event)" 
+        placeholder="Search domains..." 
+        class="w-full md:w-64 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+      <select 
+        [ngModel]="status()" 
+        (ngModelChange)="onStatusChange($event)" 
+        class="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="all">All Statuses</option>
+        <option value="verified">Verified (SSL)</option>
+        <option value="pending">Pending DNS</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-slate-500 font-medium">{{ selectedIds().size }} selected</span>
+      <button 
+        [disabled]="selectedIds().size === 0"
+        (click)="bulkVerify()" 
+        class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+      >
+        <span class="material-symbols-outlined text-sm align-middle mr-1">check_circle</span>
+        Force Verify Selected
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="flex justify-center p-20">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    <!-- Domains List -->
+    <div class="space-y-4">
+      <!-- Select All Header (Optional but good for UX) -->
+      <div *ngIf="domains().length > 0" class="flex items-center gap-4 px-6 py-2">
+        <input type="checkbox" (change)="toggleAll($event)" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+        <span class="text-xs font-bold uppercase text-slate-500">Select All on Page</span>
+      </div>
+
+      <div *ngFor="let d of domains()" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Domain Row -->
+        <div class="flex flex-wrap items-center gap-4 px-6 py-4">
+          <input 
+            type="checkbox" 
+            [checked]="selectedIds().has(d.id)"
+            (change)="toggleSelection(d.id)"
+            class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          >
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-slate-500">language</span>
+              <span class="text-lg font-bold text-slate-900 font-mono">{{ d.domain }}</span>
+              <span *ngIf="d.is_primary" class="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 rounded">Primary</span>
+            </div>
+            <!-- Tenant Badge -->
+            <div class="mt-2 flex items-center gap-2">
+              <span class="text-xs text-slate-500">Tenant:</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+                {{ d.tenant?.name || 'Unknown' }} ({{ d.tenant?.subdomain }})
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- DNS / SSL Status Badge -->
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                  [ngClass]="d.is_verified ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
+              <span class="material-symbols-outlined text-[14px]">{{ d.is_verified ? 'verified' : 'pending' }}</span>
+              {{ d.is_verified ? 'SSL Active' : 'Pending DNS' }}
+            </span>
+
+            <!-- Actions -->
+            <button (click)="loadDiagnostics(d.id)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">troubleshoot</span> Diagnostics
+            </button>
+            <button (click)="deleteDomain(d.id)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">delete</span> Remove
+            </button>
+          </div>
+        </div>
+
+        <!-- Diagnostics Panel -->
+        <div *ngIf="diagnostics()[d.id]" class="border-t border-slate-100 bg-slate-50 p-6">
+          <div *ngIf="diagnostics()[d.id].isLoading" class="flex items-center gap-3 text-sm text-slate-500">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+            Running live DNS lookup...
+          </div>
+          
+          <div *ngIf="!diagnostics()[d.id].isLoading && diagnostics()[d.id].data" class="space-y-4">
+            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-600">dns</span> Support Diagnostics
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- CNAME Record -->
+              <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">CNAME Record</p>
+                <div *ngIf="diagnostics()[d.id].data?.cname" class="font-mono text-sm text-emerald-700 font-medium">
+                  {{ diagnostics()[d.id].data?.cname }}
+                </div>
+                <div *ngIf="diagnostics()[d.id].data?.cname_error" class="text-xs text-rose-600">
+                  {{ diagnostics()[d.id].data?.cname_error }}
+                </div>
+              </div>
+              
+              <!-- A Records (IPs) -->
+              <div class="bg-white p-4 rounded-xl border border-slate-200">
+                <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">A Records (IPs)</p>
+                <div *ngIf="diagnostics()[d.id].data?.ips?.length" class="font-mono text-sm text-emerald-700 font-medium space-y-1">
+                  <div *ngFor="let ip of diagnostics()[d.id].data?.ips">{{ ip }}</div>
+                </div>
+                <div *ngIf="diagnostics()[d.id].data?.ips_error" class="text-xs text-rose-600">
+                  {{ diagnostics()[d.id].data?.ips_error }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="domains().length === 0" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+        <span class="material-symbols-outlined text-5xl text-slate-300 mb-3 block">domain_disabled</span>
+        <p class="text-slate-500 font-medium">No custom domains found.</p>
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div *ngIf="total() > limit" class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 mt-4">
+        <span class="text-sm text-slate-500">
+          Showing {{ (page() - 1) * limit + 1 }} to {{ page() * limit > total() ? total() : page() * limit }} of {{ total() }}
+        </span>
+        <div class="flex gap-2">
+          <button 
+            [disabled]="page() === 1" 
+            (click)="changePage(page() - 1)" 
+            class="px-3 py-1 rounded border border-slate-200 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button 
+            [disabled]="page() === totalPages()" 
+            (click)="changePage(page() + 1)" 
+            class="px-3 py-1 rounded border border-slate-200 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+      
+    </div>
+  </ng-container>
+</div>

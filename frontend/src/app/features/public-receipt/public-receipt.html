@@ -1,0 +1,157 @@
+<div class="min-h-screen bg-slate-100 dark:bg-slate-900 flex flex-col items-center py-10 px-4 sm:px-6 relative overflow-hidden font-sans">
+  <!-- Background Decorations -->
+  <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-500/30 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="z-10 flex flex-col items-center justify-center mt-32">
+    <div class="relative w-16 h-16">
+      <div class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-800"></div>
+      <div class="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+    </div>
+    <p class="mt-4 text-slate-500 font-medium">Fetching receipt details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading() && error()" class="z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-slate-200 dark:border-slate-700">
+    <span class="material-symbols-outlined text-rose-500 text-6xl mb-4">error</span>
+    <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Oops!</h2>
+    <p class="text-slate-500">{{ error() }}</p>
+  </div>
+
+  <!-- Receipt Content -->
+  <div *ngIf="!isLoading() && order()" class="z-10 w-full max-w-md animate-in slide-in-from-bottom-8 duration-500 ease-out">
+    
+    <!-- Top Action Bar -->
+    <div class="flex justify-end mb-4 no-print">
+      <button (click)="printReceipt()" class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-white px-4 py-2 rounded-full shadow-sm flex items-center gap-2 text-sm font-semibold transition-all border border-slate-200 dark:border-slate-700">
+        <span class="material-symbols-outlined text-[18px]">print</span>
+        Print / PDF
+      </button>
+    </div>
+
+    <!-- The Receipt Paper -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative receipt-paper">
+      
+      <!-- Zigzag Top Edge (CSS pseudo-elements below) -->
+      
+      <!-- Header -->
+      <div class="pt-10 pb-6 px-8 text-center border-b border-dashed border-slate-200 dark:border-slate-700/60">
+        <img *ngIf="logoUrl()" [src]="logoUrl()" alt="Logo" class="max-h-16 mx-auto mb-4 object-contain">
+        <h1 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-wider">{{ tenantName() }}</h1>
+        <p *ngIf="branchName()" class="text-slate-500 font-medium mt-1">{{ branchName() }}</p>
+        <p *ngIf="branchAddress()" class="text-slate-400 text-sm mt-1 max-w-[250px] mx-auto">{{ branchAddress() }}</p>
+        <p *ngIf="branchPhone()" class="text-slate-400 text-sm">Tel: {{ branchPhone() }}</p>
+        <p *ngIf="receiptHeader()" class="text-slate-400 text-xs italic mt-2">{{ receiptHeader() }}</p>
+      </div>
+
+      <!-- Meta Info -->
+      <div class="px-8 py-5 flex flex-col gap-2 border-b border-dashed border-slate-200 dark:border-slate-700/60 text-sm">
+        <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+          <span class="font-medium">Order No.</span>
+          <span class="font-bold text-slate-900 dark:text-white">#{{ order().order_number }}</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+          <span class="font-medium">Date</span>
+          <span class="font-bold">{{ order().created_at | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+          <span class="font-medium">Payment</span>
+          <span class="font-bold capitalize">{{ order().payment_method }}</span>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="px-8 py-6 border-b border-dashed border-slate-200 dark:border-slate-700/60">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-slate-400 uppercase text-xs tracking-wider border-b border-slate-100 dark:border-slate-800">
+              <th class="text-left font-semibold pb-2">Item</th>
+              <th class="text-right font-semibold pb-2">Qty</th>
+              <th class="text-right font-semibold pb-2">Total</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700 dark:text-slate-200 divide-y divide-slate-50 dark:divide-slate-800/50">
+            <tr *ngFor="let item of order().items" class="group">
+              <td class="py-3">
+                <div class="font-bold">{{ item.product?.name || 'Unknown Item' }}</div>
+                <div class="text-xs text-slate-400 mt-0.5">@ {{ item.unit_price | number:'1.2-2' }}</div>
+                <div *ngIf="item.discount > 0" class="text-xs text-emerald-500 mt-0.5">Discount: -{{ item.discount | number:'1.2-2' }}</div>
+              </td>
+              <td class="text-right py-3 font-semibold">{{ item.quantity }}</td>
+              <td class="text-right py-3 font-bold">{{ item.total | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals -->
+      <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/20">
+        <div class="flex justify-between items-center text-sm text-slate-500 mb-2">
+          <span>Subtotal</span>
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ order().subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div *ngIf="order().tax > 0" class="flex justify-between items-center text-sm text-slate-500 mb-2">
+          <span>Tax</span>
+          <span class="font-semibold text-slate-700 dark:text-slate-300">{{ order().tax | number:'1.2-2' }}</span>
+        </div>
+        <div *ngIf="order().discount > 0" class="flex justify-between items-center text-sm text-emerald-500 mb-4">
+          <span>Total Savings</span>
+          <span class="font-semibold">-{{ order().discount | number:'1.2-2' }}</span>
+        </div>
+        
+        <div class="flex justify-between items-center text-xl font-black text-slate-900 dark:text-white pt-4 border-t border-slate-200 dark:border-slate-700">
+          <span>TOTAL</span>
+          <span>{{ order().total | number:'1.2-2' }}</span>
+        </div>
+        
+        <div class="flex justify-between items-center text-sm text-slate-500 mt-4">
+          <span>Paid via {{ order().payment_method }}</span>
+          <span class="font-semibold">{{ order().amount_paid | number:'1.2-2' }}</span>
+        </div>
+        <div *ngIf="(order().amount_paid - order().total) > 0" class="flex justify-between items-center text-sm text-slate-500 mt-1">
+          <span>Change</span>
+          <span class="font-semibold">{{ (order().amount_paid - order().total) | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Footer / Wallet Promo -->
+      <div class="px-8 py-8 text-center bg-slate-900 dark:bg-black text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-900/40 to-transparent"></div>
+        <div class="relative z-10">
+          <p class="font-semibold mb-1">{{ receiptFooter() || 'Thank you for your business!' }}</p>
+          <p class="text-xs text-slate-400 mb-6">Keep this receipt for your records.</p>
+          
+          <div class="bg-white/10 backdrop-blur border border-white/10 rounded-2xl p-5 inline-block w-full max-w-[250px]">
+            <h3 class="font-bold text-lg mb-1 flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-indigo-400">wallet</span>
+              Join MyWallet
+            </h3>
+            <p class="text-xs text-slate-300 mb-4">Scan your physical receipt next time to earn points!</p>
+            <div class="bg-white p-3 rounded-xl mx-auto w-32 h-32 flex items-center justify-center shadow-inner">
+              <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + order().receipt_token" alt="Receipt Token QR" class="w-full h-full">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- Powered By -->
+    <div class="text-center mt-6 no-print">
+      <p class="text-xs text-slate-400 font-medium">Powered by <span class="font-bold text-indigo-500">Puxbay POS</span></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    body { background: white !important; margin: 0; padding: 0; }
+    .no-print { display: none !important; }
+    .receipt-paper {
+      box-shadow: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+    }
+  }
+</style>

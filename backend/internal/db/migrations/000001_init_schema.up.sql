@@ -1,0 +1,2 @@
+-- Baseline schema from GORM AutoMigrate goes here
+-- Down migration would drop all tables

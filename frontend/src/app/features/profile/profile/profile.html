@@ -1,0 +1,306 @@
+<!-- Dynamic Background Blobs -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+  <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500/20 dark:bg-blue-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+  <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-violet-500/20 dark:bg-violet-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+  <div class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-indigo-500/20 dark:bg-indigo-600/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+</div>
+
+<div class="h-full flex flex-col p-6 md:p-10 space-y-8 max-w-5xl mx-auto text-zinc-900 dark:text-white font-sans relative z-10">
+  <!-- ── Header ── -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative">
+    <div class="flex items-center space-x-5">
+      <button routerLink="/" class="w-14 h-14 flex items-center justify-center rounded-2xl glass-panel text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:scale-105 transition-all group shadow-lg">
+        <span class="material-symbols-outlined !text-[28px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      </button>
+      <div>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 animated-gradient-text drop-shadow-sm">My Profile</h1>
+        <p class="text-zinc-500 dark:text-zinc-400 mt-1.5 text-sm font-bold uppercase tracking-widest flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+          Account Settings & Security
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (profileService.loading()) {
+    <div class="flex justify-center items-center py-32">
+      <span class="material-symbols-outlined !text-[48px] text-blue-500 animate-spin">progress_activity</span>
+    </div>
+  }
+
+  @if (!profileService.loading() && profileService.profile(); as user) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- ── Left: Identity Card ── -->
+      <div class="lg:col-span-1">
+        <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl relative group">
+          <!-- Banner -->
+          <div class="h-36 bg-gradient-to-br from-blue-400 via-indigo-500 to-violet-500 relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+          </div>
+          <!-- Info -->
+          <div class="px-6 pb-8 flex flex-col items-center text-center -mt-16 relative z-10">
+            <div class="w-32 h-32 rounded-[1.5rem] bg-white dark:bg-zinc-900 border-[6px] border-white/80 dark:border-zinc-900/80 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-violet-500/10"></div>
+              <span class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-500 to-violet-500 drop-shadow-sm">{{ userInitials }}</span>
+            </div>
+            <h2 class="mt-5 text-2xl font-black text-zinc-900 dark:text-white">{{ user.first_name }} {{ user.last_name }}</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 font-bold mt-0.5">{{ user.email }}</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300">{{ user.role || 'User' }}</span>
+              @if (user.is_email_verified) {
+                <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center gap-1">
+                  <span class="material-symbols-outlined !text-[12px]">verified</span> Verified
+                </span>
+              } @else {
+                <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300">Unverified</span>
+              }
+            </div>
+
+            <!-- Stats -->
+            <div class="w-full mt-6 space-y-3">
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-black/5 dark:bg-white/5">
+                <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined !text-[18px] text-blue-600 dark:text-blue-400">badge</span>
+                </div>
+                <div class="text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Username</p>
+                  <p class="font-black text-sm text-zinc-900 dark:text-white">{{ user.username }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-2xl bg-black/5 dark:bg-white/5">
+                <div class="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center">
+                  <span class="material-symbols-outlined !text-[18px] text-violet-600 dark:text-violet-400">security</span>
+                </div>
+                <div class="text-left">
+                  <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">2FA</p>
+                  <p class="font-black text-sm" [ngClass]="user.is_2fa_enabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-900 dark:text-white'">
+                    {{ user.is_2fa_enabled ? 'Enabled' : 'Disabled' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Settings Panels ── -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Tab Navigation -->
+        <div class="glass-panel rounded-2xl p-1.5 flex gap-1">
+          <button (click)="activeTab.set('general')" class="flex-1 py-3 rounded-xl font-bold text-sm transition-all"
+                  [ngClass]="activeTab() === 'general' ? 'bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'">
+            <span class="material-symbols-outlined !text-[16px] align-middle mr-1.5">person</span>General Info
+          </button>
+          <button (click)="activeTab.set('security')" class="flex-1 py-3 rounded-xl font-bold text-sm transition-all"
+                  [ngClass]="activeTab() === 'security' ? 'bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'">
+            <span class="material-symbols-outlined !text-[16px] align-middle mr-1.5">lock</span>Password
+          </button>
+        </div>
+
+        <!-- Success Banner -->
+        @if (successMessage()) {
+          <div class="flex items-center gap-3 p-4 rounded-2xl bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-bold text-sm">
+            <span class="material-symbols-outlined !text-[20px]">check_circle</span>
+            {{ successMessage() }}
+          </div>
+        }
+
+        <!-- Error Banner -->
+        @if (profileService.error()) {
+          <div class="flex items-center gap-3 p-4 rounded-2xl bg-rose-100 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 font-bold text-sm">
+            <span class="material-symbols-outlined !text-[20px]">error</span>
+            {{ profileService.error() }}
+          </div>
+        }
+
+        <!-- ── General Info Tab ── -->
+        @if (activeTab() === 'general') {
+          <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h3 class="text-xl font-black flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-500">manage_accounts</span>
+                Personal Information
+              </h3>
+              <p class="text-sm text-zinc-500 font-bold mt-1">Update your display name and basic details.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">First Name</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">person</span>
+                    <input type="text" [ngModel]="firstName()" (ngModelChange)="firstName.set($event)"
+                           placeholder="John" class="input-premium">
+                  </div>
+                </div>
+                <div class="relative">
+                  <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Last Name</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">badge</span>
+                    <input type="text" [ngModel]="lastName()" (ngModelChange)="lastName.set($event)"
+                           placeholder="Doe" class="input-premium">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Email Address</label>
+                <div class="w-full p-4 pl-11 rounded-2xl bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50 font-bold flex items-center gap-2 relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[20px]">mail</span>
+                  {{ user.email }}
+                  <span class="ml-auto text-[10px] uppercase tracking-widest font-black bg-zinc-200/80 dark:bg-zinc-700/80 px-2 py-1 rounded-lg">Read-only</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Username</label>
+                <div class="w-full p-4 pl-11 rounded-2xl bg-zinc-100/80 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 border border-zinc-200/50 dark:border-zinc-700/50 font-bold flex items-center gap-2 relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[20px]">alternate_email</span>
+                  {{ user.username }}
+                  <span class="ml-auto text-[10px] uppercase tracking-widest font-black bg-zinc-200/80 dark:bg-zinc-700/80 px-2 py-1 rounded-lg">Read-only</span>
+                </div>
+              </div>
+
+              <button (click)="saveGeneral()" [disabled]="profileService.saving()"
+                      class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-black text-base hover:opacity-90 transition-all shadow-xl shadow-blue-500/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+                @if (profileService.saving()) {
+                  <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span> Saving...
+                } @else {
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save Changes
+                }
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ── Security / Password Tab ── -->
+        @if (activeTab() === 'security') {
+          <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h3 class="text-xl font-black flex items-center gap-2">
+                <span class="material-symbols-outlined text-violet-500">lock</span>
+                Change Password
+              </h3>
+              <p class="text-sm text-zinc-500 font-bold mt-1">Use a strong, unique password you don't use elsewhere.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+              <div class="relative">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Current Password</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">key</span>
+                  <input type="password" [ngModel]="currentPassword()" (ngModelChange)="currentPassword.set($event)"
+                         placeholder="••••••••" class="input-premium focus:border-violet-500 focus:ring-violet-500/20">
+                </div>
+              </div>
+              <div class="relative">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">New Password</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">password</span>
+                  <input type="password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)"
+                         placeholder="Min. 8 characters" class="input-premium focus:border-violet-500 focus:ring-violet-500/20">
+                </div>
+              </div>
+              <div class="relative">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Confirm New Password</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">lock_reset</span>
+                  <input type="password" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)"
+                         placeholder="••••••••" class="input-premium focus:border-violet-500 focus:ring-violet-500/20"
+                         [ngClass]="confirmPassword() && newPassword() !== confirmPassword() ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : ''">
+                </div>
+                @if (confirmPassword() && newPassword() !== confirmPassword()) {
+                  <p class="mt-1.5 text-xs text-rose-500 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined !text-[14px]">error</span> Passwords do not match
+                  </p>
+                }
+              </div>
+
+              <!-- Password Strength -->
+              @if (newPassword().length > 0) {
+                <div class="space-y-2">
+                  <p class="text-xs font-black uppercase tracking-wider text-zinc-500">Password Strength</p>
+                  <div class="flex gap-1.5">
+                    @for (i of [1,2,3,4]; track i) {
+                      <div class="h-1.5 flex-1 rounded-full transition-all"
+                           [ngClass]="{
+                             'bg-rose-400': newPassword().length >= (i * 2) && newPassword().length < 8,
+                             'bg-amber-400': newPassword().length >= 8 && newPassword().length < 12 && i <= 2,
+                             'bg-emerald-400': newPassword().length >= 12 && i <= (newPassword().length >= 16 ? 4 : 3),
+                             'bg-zinc-200 dark:bg-zinc-700': newPassword().length < (i * 2)
+                           }">
+                      </div>
+                    }
+                  </div>
+                  <p class="text-xs font-bold"
+                     [ngClass]="newPassword().length < 8 ? 'text-rose-500' : newPassword().length < 12 ? 'text-amber-500' : 'text-emerald-500'">
+                    {{ newPassword().length < 8 ? 'Too weak' : newPassword().length < 12 ? 'Fair' : newPassword().length < 16 ? 'Strong' : 'Very Strong' }}
+                  </p>
+                </div>
+              }
+
+              <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs font-bold flex items-start gap-2">
+                <span class="material-symbols-outlined !text-[16px] mt-0.5 shrink-0">warning</span>
+                Changing your password will sign you out of all active sessions.
+              </div>
+
+              <button (click)="savePassword()" [disabled]="profileService.saving() || !currentPassword() || !newPassword() || newPassword() !== confirmPassword()"
+                      class="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-500 to-purple-500 text-white font-black text-base hover:opacity-90 transition-all shadow-xl shadow-violet-500/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+                @if (profileService.saving()) {
+                  <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span> Updating...
+                } @else {
+                  <span class="material-symbols-outlined !text-[18px]">lock_reset</span> Change Password
+                }
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in mt-8">
+            <div class="p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md">
+              <h3 class="text-xl font-black flex items-center gap-2">
+                <span class="material-symbols-outlined text-rose-500">pin</span>
+                POS Manager Override PIN
+              </h3>
+              <p class="text-sm text-zinc-500 font-bold mt-1">Set a 4-digit PIN for quick manager overrides at the point of sale.</p>
+            </div>
+            <div class="p-8 space-y-6 bg-white/20 dark:bg-black/10">
+              <div class="relative">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">New 4-Digit PIN</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">dialpad</span>
+                  <input type="password" [ngModel]="posPin()" (ngModelChange)="posPin.set($event)"
+                         placeholder="e.g. 1234" maxlength="4" class="input-premium focus:border-rose-500 focus:ring-rose-500/20">
+                </div>
+              </div>
+              <div class="relative">
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2 pl-1">Confirm PIN</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">dialpad</span>
+                  <input type="password" [ngModel]="confirmPosPin()" (ngModelChange)="confirmPosPin.set($event)"
+                         placeholder="e.g. 1234" maxlength="4" class="input-premium focus:border-rose-500 focus:ring-rose-500/20"
+                         [ngClass]="confirmPosPin() && posPin() !== confirmPosPin() ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : ''">
+                </div>
+                @if (confirmPosPin() && posPin() !== confirmPosPin()) {
+                  <p class="mt-1.5 text-xs text-rose-500 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined !text-[14px]">error</span> PINs do not match
+                  </p>
+                }
+              </div>
+
+              <button (click)="savePosPin()" [disabled]="profileService.saving() || posPin().length !== 4 || posPin() !== confirmPosPin()"
+                      class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 text-white font-black text-base hover:opacity-90 transition-all shadow-xl shadow-rose-500/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+                @if (profileService.saving()) {
+                  <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span> Updating...
+                } @else {
+                  <span class="material-symbols-outlined !text-[18px]">save</span> Save POS PIN
+                }
+              </button>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+</div>

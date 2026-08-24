@@ -1,0 +1,55 @@
+<div class="animate-fade-in">
+  <div class="flex items-center gap-3 mb-8">
+    <a routerLink="/store" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700/50 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:border-zinc-600 transition-all">
+      <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Your Wishlist</h1>
+      <p class="text-sm text-slate-400 dark:text-zinc-500 font-medium">{{ wishlistService.wishlistIds().length }} saved items</p>
+    </div>
+  </div>
+
+  @if (wishlistService.isLoading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent"></div>
+    </div>
+  } @else if (wishlistService.wishlistProducts().length === 0) {
+    <div class="bg-white dark:bg-zinc-900/50 rounded-3xl p-12 sm:p-16 border border-slate-200 dark:border-zinc-800/60 flex flex-col items-center justify-center text-center">
+      <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
+        <span class="material-symbols-outlined !text-[40px] text-zinc-600">favorite</span>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Your wishlist is empty</h3>
+      <p class="text-slate-400 dark:text-zinc-500 mb-6 text-sm max-w-xs">Save items you love to review them later.</p>
+      <a routerLink="/store" class="px-8 py-3 bg-indigo-600 text-slate-900 dark:text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">Start Shopping</a>
+    </div>
+  } @else {
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      @for (product of wishlistService.wishlistProducts(); track product.id) {
+        <div class="group bg-white dark:bg-zinc-900/80 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-zinc-800/60 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col relative">
+          <button (click)="wishlistService.toggleWishlist(product.id); wishlistService.loadWishlistProducts()" 
+                  class="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-950/50 backdrop-blur-md flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-slate-900 dark:text-white transition-all">
+            <span class="material-symbols-outlined !text-[18px]">close</span>
+          </button>
+          <a [routerLink]="['/store/product', product.id]" class="block w-full aspect-square bg-slate-100 dark:bg-zinc-800/50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
+            @if (product.image_url) {
+              <img [src]="product.image_url" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            } @else {
+              <span class="material-symbols-outlined !text-[56px] text-zinc-700">inventory_2</span>
+            }
+          </a>
+          <div class="flex-1 flex flex-col">
+            <a [routerLink]="['/store/product', product.id]" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight mb-1 group-hover:text-indigo-400 transition-colors line-clamp-2">{{ product.name }}</a>
+            <div class="mt-auto pt-3">
+              <p class="text-lg font-black text-indigo-400 mb-3">{{ product.selling_price | appCurrency }}</p>
+              <button (click)="addToCart(product)"
+                      [disabled]="product.stock_quantity <= 0"
+                      class="w-full py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-indigo-600 text-slate-900 dark:text-white rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

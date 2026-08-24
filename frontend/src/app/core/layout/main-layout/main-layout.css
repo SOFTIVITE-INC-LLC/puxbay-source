@@ -1,0 +1,11 @@
+:host {
+    display: block;
+}
+
+.sidebar-is-collapsed main {
+    padding-left: var(--sidebar-collapsed-width, 80px) !important;
+}
+
+.sidebar-is-collapsed header.fixed {
+    padding-left: var(--sidebar-collapsed-width, 80px) !important;
+}

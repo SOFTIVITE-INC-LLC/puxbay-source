@@ -1,0 +1,134 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white relative z-10">
+  <!-- ── Page Header ── -->
+  <div class="flex justify-between items-end">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500">
+        Enterprise
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Manage global operations, multiple branches, and unified settings.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Content Area ── -->
+  <div class="flex flex-col md:flex-row gap-8 items-start mt-6">
+    
+    <!-- ── Sidebar Navigation ── -->
+    <div class="w-full md:w-64 flex-shrink-0 flex flex-col gap-2">
+      <button (click)="activeTab.set('command-center')"
+              [class.bg-white]="activeTab() === 'command-center'"
+              [class.dark:bg-zinc-800]="activeTab() === 'command-center'"
+              [class.shadow-sm]="activeTab() === 'command-center'"
+              [class.text-indigo-600]="activeTab() === 'command-center'"
+              [class.dark:text-indigo-400]="activeTab() === 'command-center'"
+              [class.font-bold]="activeTab() === 'command-center'"
+              class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+        <span class="material-symbols-outlined !text-[20px]">corporate_fare</span>
+        Command Center
+      </button>
+      <button (click)="activeTab.set('price-sync')"
+              [class.bg-white]="activeTab() === 'price-sync'"
+              [class.dark:bg-zinc-800]="activeTab() === 'price-sync'"
+              [class.shadow-sm]="activeTab() === 'price-sync'"
+              [class.text-indigo-600]="activeTab() === 'price-sync'"
+              [class.dark:text-indigo-400]="activeTab() === 'price-sync'"
+              [class.font-bold]="activeTab() === 'price-sync'"
+              class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+        <span class="material-symbols-outlined !text-[20px]">price_change</span>
+        Global Price Sync
+      </button>
+    </div>
+
+    <!-- ── Main Area ── -->
+    <div class="flex-1 w-full">
+      <!-- Command Center -->
+      @if (activeTab() === 'command-center') {
+        <div class="animate-fade-in space-y-6">
+          
+          <!-- Global Metrics -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-500"></div>
+              <h3 class="text-xs font-black tracking-widest text-zinc-500 uppercase">Global Revenue</h3>
+              <p class="text-3xl font-black mt-2 text-zinc-900 dark:text-white">{{ globalRevenue() | appCurrency }}</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-500"></div>
+              <h3 class="text-xs font-black tracking-widest text-zinc-500 uppercase">Global Net Profit</h3>
+              <p class="text-3xl font-black mt-2 text-zinc-900 dark:text-white">{{ globalProfit() | appCurrency }}</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-indigo-500"></div>
+              <h3 class="text-xs font-black tracking-widest text-zinc-500 uppercase">Total Branches</h3>
+              <p class="text-3xl font-black mt-2 text-zinc-900 dark:text-white">{{ branchService.branches().length }} Active</p>
+            </div>
+          </div>
+
+          <!-- Branches Table -->
+          <div class="glass-panel rounded-2xl shadow-xl overflow-hidden mt-8">
+            <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+              <h2 class="text-xl font-bold">Branch Operations</h2>
+              <span class="text-xs text-zinc-500 font-medium">Real-time status</span>
+            </div>
+            <table class="w-full text-left text-sm">
+              <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 uppercase text-[10px] font-black tracking-widest">
+                <tr>
+                  <th class="px-6 py-4">Branch Name</th>
+                  <th class="px-6 py-4">Location</th>
+                  <th class="px-6 py-4">Phone</th>
+                  <th class="px-6 py-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+                @for (b of branchService.branches(); track b.id) {
+                  <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <td class="px-6 py-4 font-bold">{{ b.name }}</td>
+                    <td class="px-6 py-4 text-zinc-500">{{ $any(b).location }}</td>
+                    <td class="px-6 py-4 text-zinc-500">{{ b.phone || 'N/A' }}</td>
+                    <td class="px-6 py-4">
+                      <span class="px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Online</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <!-- Global Price Sync -->
+      @if (activeTab() === 'price-sync') {
+        <div class="animate-fade-in space-y-6">
+          <div class="glass-panel rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-8 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 class="text-xl font-bold">Synchronize Master Prices</h2>
+              <p class="text-sm text-zinc-500 mt-1">Push headquarters base product prices to all branch POS instances across your enterprise.</p>
+            </div>
+            <div class="p-8 bg-zinc-50/50 dark:bg-zinc-900/50 text-center space-y-4">
+              <span class="material-symbols-outlined text-5xl text-indigo-500 mb-2">price_check</span>
+              <h3 class="text-lg font-bold">Global Price Rollout</h3>
+              <p class="text-sm text-zinc-500 max-w-md mx-auto">This will immediately overwrite any local price overrides at branch level with the master product catalog prices.</p>
+              
+              <div class="pt-6">
+                @if (!syncStatus()) {
+                  <button (click)="syncPrices()" class="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-indigo-500/25 transition-all transform hover:scale-105 active:scale-95">
+                    Start Rollout to {{ branchService.branches().length }} Branches
+                  </button>
+                } @else if (syncStatus() === 'syncing') {
+                  <button disabled class="px-8 py-3.5 bg-indigo-500/50 text-white font-bold rounded-xl shadow-sm flex items-center gap-2 justify-center mx-auto opacity-70 cursor-not-allowed">
+                    <span class="material-symbols-outlined animate-spin">refresh</span> Syncing...
+                  </button>
+                } @else if (syncStatus() === 'success') {
+                  <button disabled class="px-8 py-3.5 bg-emerald-600 text-white font-bold rounded-xl shadow-lg flex items-center gap-2 justify-center mx-auto transition-all">
+                    <span class="material-symbols-outlined">check_circle</span> Sync Complete!
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

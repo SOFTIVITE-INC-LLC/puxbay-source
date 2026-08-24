@@ -1,0 +1,32 @@
+<div class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none">
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="toast pointer-events-auto shadow-lg flex items-center gap-3 p-4 rounded-lg min-w-[300px] max-w-[500px]"
+      [ngClass]="{
+        'success bg-emerald-500 text-white': toast.type === 'success',
+        'error bg-red-500 text-white': toast.type === 'error',
+        'warning bg-amber-500 text-white': toast.type === 'warning',
+        'info bg-blue-500 text-white': toast.type === 'info',
+      }"
+    >
+      <span class="material-symbols-outlined shrink-0">
+        {{
+          toast.type === 'success'
+            ? 'check_circle'
+            : toast.type === 'error'
+              ? 'error'
+              : toast.type === 'warning'
+                ? 'warning'
+                : 'info'
+        }}
+      </span>
+      <span class="text-sm font-medium">{{ toast.message }}</span>
+      <button
+        (click)="removeToast(toast)"
+        class="ml-auto opacity-70 hover:opacity-100 transition-opacity"
+      >
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
+    </div>
+  }
+</div>

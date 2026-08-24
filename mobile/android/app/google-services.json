@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347107362360",
+    "project_id": "puxbay",
+    "storage_bucket": "puxbay.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347107362360:android:abe0165ad063c5f68488cd",
+        "android_client_info": {
+          "package_name": "com.softivite.puxbay_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDO7dz7uuo9o3vxvIrpF_d8iQkuf5_2ues"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

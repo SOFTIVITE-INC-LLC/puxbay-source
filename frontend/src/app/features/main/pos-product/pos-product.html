@@ -1,0 +1,143 @@
+
+<div class="pt-32 pb-20 relative overflow-hidden">
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="flex flex-col md:flex-row items-center gap-16 mb-24">
+      <div class="flex-1">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6">
+          <span class="material-icons-round text-sm">point_of_sale</span> Point of Sale
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+          The fastest checkout experience on the market.
+        </h1>
+        <p class="text-lg text-slate-600 font-medium leading-relaxed mb-8">
+          Ring up customers in seconds. Fully functional offline, syncing instantly when you reconnect.
+        </p>
+        <a routerLink="/login" class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+          Get Started
+          <span class="material-icons-round text-sm">arrow_forward</span>
+        </a>
+      </div>
+      
+      <div class="flex-1 w-full reveal" style="transition-delay:.1s;">
+        <div class="bg-white/70 backdrop-blur-xl shadow-2xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl relative overflow-hidden flex flex-col group p-6 h-[400px]">
+          <!-- Checkout Simulator UI -->
+          <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Register 1
+            </h3>
+            <button (click)="simulateScan()" class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors flex items-center gap-2">
+              <span class="material-icons-round text-sm">qr_code_scanner</span>
+              Simulate Scan
+            </button>
+          </div>
+          
+          <div class="flex-1 overflow-y-auto mb-4 space-y-2 pr-2 custom-scrollbar">
+            <div *ngIf="checkoutSuccess()" class="flex flex-col items-center justify-center h-full text-center animate-slide-up">
+              <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
+                <span class="material-icons-round text-3xl">check</span>
+              </div>
+              <h4 class="font-bold text-slate-900 text-xl mb-1">Payment Successful</h4>
+              <p class="text-sm text-slate-500">Synced to cloud instantly.</p>
+              <button (click)="resetDemo()" class="mt-4 text-indigo-600 text-sm font-bold hover:underline">Start New Sale</button>
+            </div>
+            
+            <ng-container *ngIf="!checkoutSuccess()">
+              <div *ngIf="cart().length === 0" class="flex flex-col items-center justify-center h-full text-slate-400">
+                <span class="material-icons-round text-4xl mb-2 opacity-50">shopping_bag</span>
+                <p class="text-sm">Scan items to begin</p>
+              </div>
+              
+              <div *ngFor="let item of cart(); let i = index" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 animate-slide-up" [style.animation-delay]="'0.05s'">
+                <span class="font-medium text-slate-700 text-sm">{{ item.name }}</span>
+                <span class="font-bold text-slate-900 text-sm">${{ item.price | number:'1.2-2' }}</span>
+              </div>
+            </ng-container>
+          </div>
+          
+          <div *ngIf="!checkoutSuccess()" class="pt-4 border-t border-slate-100 mt-auto">
+            <div class="flex items-center justify-between mb-4 px-2">
+              <span class="font-bold text-slate-600">Total</span>
+              <span class="text-2xl font-black text-slate-900">${{ cartTotal() | number:'1.2-2' }}</span>
+            </div>
+            <button (click)="simulateCheckout()" [disabled]="cart().length === 0 || isCheckingOut()" 
+                    class="w-full py-4 rounded-xl text-white font-bold text-lg flex items-center justify-center gap-2 transition-all"
+                    [ngClass]="cart().length === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 shadow-lg shadow-slate-900/20 active:scale-[0.98]'">
+              <span *ngIf="!isCheckingOut()">Checkout via Cash</span>
+              <span *ngIf="isCheckingOut()" class="material-icons-round animate-spin">refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">wifi_off</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Sub-second Offline Sync</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Never stop selling. Puxbay queues transactions locally during outages and syncs instantly when connection returns.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">payments</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Split Tenders</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Accept cash, card, and mobile money effortlessly. Split payments across multiple methods in a single checkout flow.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">print</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Hardware Agnostic</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Plug and play with any ESC/POS receipt printer, barcode scanner, or cash drawer. No proprietary hardware required.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">person_add</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Staff Permissions</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Granular control over who can void items, apply discounts, or open the cash drawer. Protect your margins.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">inventory_2</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Real-time Deduction</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Every scan immediately deducts from global inventory, preventing overselling across all your sales channels.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+        <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">loyalty</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Built-in Loyalty</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Capture customer details at checkout and automatically assign reward points. Turn one-time buyers into regulars.</p>
+      </div>
+    </div>
+
+    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal">
+      <h2 class="text-3xl font-black text-slate-900 mb-8">Frequently Asked Questions</h2>
+      <div class="space-y-6">
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">Do I need an internet connection to process sales?</h4>
+          <p class="text-slate-600 text-sm">No. Puxbay POS is built with an offline-first architecture using IndexedDB. You can process sales, scan barcodes, and print receipts completely offline. Data synchronizes automatically once the connection is restored.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">Which hardware is supported?</h4>
+          <p class="text-slate-600 text-sm">Puxbay is web-based and runs on iPads, Android tablets, Windows PCs, and Macs. It supports standard ESC/POS printers, standard USB/Bluetooth barcode scanners, and standard cash drawers.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">Can I manage multiple registers per store?</h4>
+          <p class="text-slate-600 text-sm">Yes, you can run unlimited concurrent registers per location. Inventory deductions and sales analytics are consolidated in real-time across all active registers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="reveal pb-20">
+    <app-testimonials></app-testimonials>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<div
+  class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white"
+>
+  <div class="flex justify-between items-center">
+    <div>
+      <h1
+        class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-500"
+      >
+        Privacy & GDPR
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Manage customer data export and deletion requests.
+      </p>
+    </div>
+  </div>
+
+  @if (privacyService.loading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+    </div>
+  }
+
+  @if (!privacyService.loading()) {
+    <div
+      class="glass-panel rounded-2xl overflow-hidden shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md max-w-4xl"
+    >
+      <div class="overflow-x-auto">
+        <div class="responsive-table overflow-x-auto w-full">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead
+              class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500 dark:text-zinc-400"
+            >
+              <tr>
+                <th class="px-6 py-4 font-semibold">Request ID</th>
+                <th class="px-6 py-4 font-semibold">Type</th>
+                <th class="px-6 py-4 font-semibold">Date</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+              @for (req of privacyService.requests(); track req) {
+                <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                  <td class="px-6 py-4 font-mono text-zinc-500 text-xs">#{{ req.id }}</td>
+                  <td class="px-6 py-4 font-bold uppercase tracking-wider text-xs">
+                    {{ req.type }}
+                  </td>
+                  <td class="px-6 py-4 text-zinc-500">{{ req.created_at | date: 'short' }}</td>
+                  <td class="px-6 py-4">
+                    <span
+                      class="px-2 py-1 text-xs font-bold rounded-full uppercase"
+                      [ngClass]="
+                        req.status === 'completed'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      "
+                    >
+                      {{ req.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+              @if (privacyService.requests().length === 0) {
+                <tr>
+                  <td colspan="4" class="px-6 py-12 text-center text-zinc-500">
+                    No active privacy requests.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+</div>

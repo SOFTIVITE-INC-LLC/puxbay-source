@@ -1,0 +1,79 @@
+<div class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+  <div class="text-center max-w-3xl mx-auto mb-20">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-8 shadow-sm">
+      Blog
+    </div>
+    <h1 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] mb-8">
+      Latest <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">Insights</span>.
+    </h1>
+    <p class="text-xl text-slate-600 font-medium leading-relaxed">
+      Tips, tricks, and product updates from the Puxbay team.
+    </p>
+  </div>
+  
+  @if (isLoading()) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden animate-pulse">
+          <div class="h-48 bg-slate-200"></div>
+          <div class="p-8">
+            <div class="h-4 bg-slate-200 rounded w-1/3 mb-4"></div>
+            <div class="h-6 bg-slate-200 rounded w-full mb-3"></div>
+            <div class="h-6 bg-slate-200 rounded w-5/6 mb-6"></div>
+            <div class="h-4 bg-slate-200 rounded w-full mb-2"></div>
+            <div class="h-4 bg-slate-200 rounded w-4/5 mb-6"></div>
+            <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (hasError() && !isLoading()) {
+    <div class="text-center py-20">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4">
+        <span class="material-icons-round text-3xl">error_outline</span>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">Unable to load posts</h3>
+      <p class="text-slate-500">There was an error connecting to our servers. Please try again later.</p>
+    </div>
+  }
+
+  @if (!isLoading() && !hasError() && posts().length === 0) {
+    <div class="text-center py-20">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
+        <span class="material-icons-round text-3xl">article</span>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 mb-2">No posts yet</h3>
+      <p class="text-slate-500">Check back soon for news and updates from the Puxbay team.</p>
+    </div>
+  }
+
+  @if (!isLoading() && !hasError() && posts().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @for (post of posts(); track post.id) {
+        <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden hover:-translate-y-1 transition-transform group cursor-pointer">
+          <div class="h-48 bg-slate-100 relative overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center text-slate-600 group-hover:text-slate-500 transition-colors">
+              <span class="material-icons-round text-6xl">image</span>
+            </div>
+          </div>
+          <div class="p-8">
+            <span class="text-xs font-bold uppercase tracking-widest mb-3 block"
+                  [ngClass]="{
+                    'text-cyan-400': post.category_color === 'cyan',
+                    'text-purple-400': post.category_color === 'purple',
+                    'text-green-400': post.category_color === 'green',
+                    'text-slate-400': !post.category_color || !['cyan','purple','green'].includes(post.category_color)
+                  }">
+              {{ post.category }}
+            </span>
+            <h3 class="text-xl font-bold text-slate-900 mb-3">{{ post.title }}</h3>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">{{ post.excerpt }}</p>
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ formatDate(post.published_at) }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,47 @@
+<nav class="h-16 bg-white flex items-center justify-between px-6 w-full text-slate-700 relative">
+
+  <!-- Left Side: Navigation / Breadcrumbs -->
+  <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 text-slate-500 font-medium">
+      <span class="material-symbols-outlined text-xl">home</span>
+      <span class="text-sm">/</span>
+      <span class="text-sm text-slate-900 font-bold">Admin Portal</span>
+    </div>
+  </div>
+
+  <!-- Center: Search -->
+  <div class="hidden md:flex flex-1 max-w-md mx-8">
+    <div class="relative w-full group">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <span class="material-symbols-outlined text-[18px] text-slate-400 group-focus-within:text-indigo-500">search</span>
+      </div>
+      <input type="text"
+        class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500/50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 text-slate-700 text-sm rounded-xl pl-10 pr-4 py-2 outline-none transition-all placeholder-slate-400"
+        placeholder="Search tenants, users, or settings...">
+    </div>
+  </div>
+
+  <!-- Right Side: Profile & Actions -->
+  <div class="flex items-center gap-3">
+    <button (click)="themeService.toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-colors border border-slate-200">
+      <span class="material-symbols-outlined text-[20px]">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</span>
+    </button>
+    <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-indigo-600 transition-colors border border-slate-200">
+      <span class="material-symbols-outlined text-[20px]">notifications</span>
+    </button>
+
+    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+    <!-- User Profile Dropdown -->
+    <button class="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-indigo-500/20">
+        A
+      </div>
+      <div class="text-left hidden sm:block">
+        <p class="text-sm font-bold text-slate-800 leading-tight">Admin User</p>
+        <p class="text-xs text-slate-500 font-medium">Superuser</p>
+      </div>
+      <span class="material-symbols-outlined text-[18px] text-slate-400 ml-1">expand_more</span>
+    </button>
+  </div>
+</nav>

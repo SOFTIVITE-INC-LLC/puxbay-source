@@ -1,0 +1,382 @@
+<div class="h-full flex flex-col p-6 space-y-8 max-w-[1400px] mx-auto text-zinc-900 dark:text-white" style="font-family: 'Outfit', sans-serif;">
+
+  <!-- ── Hero Header ── -->
+  <div class="relative overflow-hidden rounded-3xl p-8 bg-zinc-950 text-white shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-teal-900/40 to-zinc-950 animated-gradient"></div>
+    <!-- Decorative blobs -->
+    <div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-16 left-10 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl"></div>
+
+    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <span class="material-symbols-outlined !text-[22px]">psychology</span>
+          </div>
+          <span class="text-xs font-black uppercase tracking-[0.25em] text-emerald-400">AI-Powered</span>
+        </div>
+        <h1 class="text-4xl font-black tracking-tight text-white">Business Intelligence</h1>
+        <p class="text-zinc-400 mt-1 font-medium">Forecasts, segmentation, and actionable insights — all in real time.</p>
+      </div>
+      <button (click)="refreshAll()"
+              class="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold text-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm">
+        <span class="material-symbols-outlined !text-[20px]">sync</span>
+        Refresh All
+      </button>
+    </div>
+
+    <!-- Quick KPI Strip -->
+    <div class="relative z-10 mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Critical Stock</p>
+        <p class="text-3xl font-black text-rose-400">{{ criticalCount() }}</p>
+        <p class="text-[10px] text-zinc-600 mt-1">Items below 7 days</p>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Low Stock</p>
+        <p class="text-3xl font-black text-amber-400">{{ warningCount() }}</p>
+        <p class="text-[10px] text-zinc-600 mt-1">Items below 30 days</p>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Healthy Stock</p>
+        <p class="text-3xl font-black text-emerald-400">{{ healthyCount() }}</p>
+        <p class="text-[10px] text-zinc-600 mt-1">Items 30+ days supply</p>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Total Customers</p>
+        <p class="text-3xl font-black text-teal-400">{{ svc.totalCustomers() }}</p>
+        <p class="text-[10px] text-zinc-600 mt-1">Segmented by RFM</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab Navigation ── -->
+  <div class="flex flex-wrap gap-3 p-1.5 glass rounded-2xl w-fit shadow-sm">
+    @for (tab of [
+      { id: 'forecast', label: 'Inventory Forecast', icon: 'inventory_2' },
+      { id: 'leaderboard', label: 'Staff Performance', icon: 'leaderboard' },
+      { id: 'customers', label: 'Customer Segments', icon: 'people_outline' },
+      { id: 'pricing', label: 'Dynamic Pricing', icon: 'price_change' }
+    ]; track tab.id) {
+      <button (click)="loadTab($any(tab.id))"
+              class="px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2"
+              [ngClass]="activeTab() === tab.id
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105'
+                : 'text-zinc-500 hover:bg-white/60 dark:hover:bg-white/5'">
+        <span class="material-symbols-outlined !text-[18px]">{{ tab.icon }}</span>
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       TAB: INVENTORY FORECAST
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'forecast') {
+    @if (svc.forecastsLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (_ of [1,2,3,4,5,6]; track _) {
+          <div class="glass rounded-3xl p-6 space-y-4">
+            <div class="shimmer-bar h-5 w-3/4 rounded-xl"></div>
+            <div class="shimmer-bar h-3 w-1/2 rounded-xl"></div>
+            <div class="shimmer-bar h-10 rounded-xl"></div>
+          </div>
+        }
+      </div>
+    } @else if (svc.forecasts().length === 0) {
+      <div class="glass rounded-3xl flex flex-col items-center justify-center py-24 text-center">
+        <span class="material-symbols-outlined !text-[64px] text-zinc-300 dark:text-zinc-700 mb-4">inventory_2</span>
+        <h3 class="text-xl font-black text-zinc-500">No forecast data</h3>
+        <p class="text-sm text-zinc-400 mt-1">No active products with stock were found.</p>
+      </div>
+    } @else {
+      <!-- Sort critical items first -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (f of svc.forecasts(); track f.product.id) {
+          <div class="glass rounded-3xl p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300"
+               [ngClass]="{
+                 'hover:shadow-2xl hover:shadow-rose-500/10': f.status === 'critical',
+                 'hover:shadow-2xl hover:shadow-amber-500/10': f.status === 'warning',
+                 'hover:shadow-2xl hover:shadow-emerald-500/10': f.status === 'healthy'
+               }">
+            <!-- Status glow accent -->
+            <div class="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
+                 [ngClass]="{
+                   'bg-gradient-to-r from-rose-500 to-red-500': f.status === 'critical',
+                   'bg-gradient-to-r from-amber-500 to-yellow-400': f.status === 'warning',
+                   'bg-gradient-to-r from-emerald-500 to-teal-400': f.status === 'healthy'
+                 }"></div>
+
+            <div class="flex justify-between items-start mb-4 mt-1">
+              <div class="flex-1 min-w-0 pr-3">
+                <h3 class="font-black text-base text-zinc-900 dark:text-white leading-tight truncate">{{ f.product.name }}</h3>
+                <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+                  {{ f.product.category?.name || 'Uncategorized' }} · {{ f.product.sku }}
+                </p>
+              </div>
+              <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shrink-0"
+                    [ngClass]="{
+                      'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400': f.status === 'critical',
+                      'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400': f.status === 'warning',
+                      'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400': f.status === 'healthy'
+                    }">
+                {{ statusLabel(f.status) }}
+              </span>
+            </div>
+
+            <!-- Stock Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-[10px] font-black text-zinc-500 uppercase tracking-wider mb-2">
+                <span>Current Stock: {{ f.product.current_stock }} units</span>
+                <span>Reorder: {{ f.product.reorder_level }}</span>
+              </div>
+              <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full velocity-bar"
+                     [style.width.%]="Math.min(100, (f.product.current_stock / (f.product.reorder_level * 3 || 1)) * 100)"
+                     [ngClass]="{
+                       'bg-gradient-to-r from-rose-500 to-red-400': f.status === 'critical',
+                       'bg-gradient-to-r from-amber-500 to-yellow-400': f.status === 'warning',
+                       'bg-gradient-to-r from-emerald-500 to-teal-400': f.status === 'healthy'
+                     }"></div>
+              </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-black/5 dark:bg-white/5 rounded-2xl p-3 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Days Left</p>
+                <p class="text-xl font-black"
+                   [ngClass]="{
+                     'text-rose-600 dark:text-rose-400': f.status === 'critical',
+                     'text-amber-600 dark:text-amber-400': f.status === 'warning',
+                     'text-emerald-600 dark:text-emerald-400': f.status === 'healthy'
+                   }">{{ daysLabel(f.days_left) }}</p>
+              </div>
+              <div class="bg-black/5 dark:bg-white/5 rounded-2xl p-3 text-center">
+                <p class="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Velocity</p>
+                <p class="text-xl font-black text-zinc-900 dark:text-white">{{ f.velocity.toFixed(1) }}<span class="text-sm font-bold text-zinc-500">/day</span></p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════
+       TAB: STAFF LEADERBOARD
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'leaderboard') {
+    <div class="space-y-6">
+      <!-- Period selector -->
+      <div class="flex items-center gap-3 glass rounded-2xl p-2 w-fit">
+        @for (d of [7, 14, 30, 90]; track d) {
+          <button (click)="changeLeaderboardDays(d)"
+                  class="px-5 py-2 rounded-xl text-sm font-black transition-all"
+                  [ngClass]="leaderboardDays() === d ? 'bg-emerald-500 text-white shadow-lg' : 'text-zinc-500 hover:bg-white/60 dark:hover:bg-white/10'">
+            {{ d }}d
+          </button>
+        }
+      </div>
+
+      @if (svc.leaderboardLoading()) {
+        <div class="space-y-4">
+          @for (_ of [1,2,3]; track _) {
+            <div class="glass rounded-3xl p-6 flex gap-5 items-center">
+              <div class="shimmer-bar w-14 h-14 rounded-2xl shrink-0"></div>
+              <div class="flex-1 space-y-2">
+                <div class="shimmer-bar h-5 w-48 rounded-xl"></div>
+                <div class="shimmer-bar h-3 w-64 rounded-xl"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (svc.leaderboard().length === 0) {
+        <div class="glass rounded-3xl flex flex-col items-center justify-center py-24 text-center">
+          <span class="material-symbols-outlined !text-[64px] text-zinc-300 dark:text-zinc-700 mb-4">leaderboard</span>
+          <h3 class="text-xl font-black text-zinc-500">No sales data yet</h3>
+          <p class="text-sm text-zinc-400 mt-1">Complete some orders with assigned cashiers to see rankings.</p>
+        </div>
+      } @else {
+        <div class="space-y-4">
+          @for (entry of svc.leaderboard(); track entry.cashier_id; let i = $index) {
+            <div class="glass rounded-3xl p-5 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300"
+                 [ngClass]="{
+                   'ring-2 ring-amber-400/50 shadow-xl shadow-amber-500/10': i === 0,
+                   'ring-1 ring-zinc-300/50 dark:ring-zinc-700/50': i === 1,
+                   'ring-1 ring-orange-400/30 dark:ring-orange-800/30': i === 2
+                 }">
+              <!-- Rank Badge -->
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black shrink-0 shadow-inner"
+                   [ngClass]="{
+                     'bg-gradient-to-br from-amber-400 to-yellow-500 text-white': i === 0,
+                     'bg-gradient-to-br from-zinc-300 to-zinc-400 text-white': i === 1,
+                     'bg-gradient-to-br from-orange-400 to-orange-500 text-white': i === 2,
+                     'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': i > 2
+                   }">
+                @if (i === 0) { 🥇 }
+                @else if (i === 1) { 🥈 }
+                @else if (i === 2) { 🥉 }
+                @else { {{ i + 1 }} }
+              </div>
+
+              <!-- Name + Bar -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-black text-lg">{{ entry.first_name }} {{ entry.last_name }}</h3>
+                  <div class="text-right">
+                    <p class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ entry.total_sales | appCurrency }}</p>
+                    <p class="text-[10px] text-zinc-400 font-bold">{{ entry.order_count }} orders</p>
+                  </div>
+                </div>
+                <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
+                       [style.width.%]="(entry.total_sales / maxSales()) * 100"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════
+       TAB: CUSTOMER SEGMENTATION
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'customers') {
+    <div class="space-y-8">
+      @if (svc.segmentsLoading()) {
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+          @for (_ of [1,2,3,4,5]; track _) {
+            <div class="glass rounded-3xl p-6 space-y-3">
+              <div class="shimmer-bar h-12 w-12 rounded-2xl"></div>
+              <div class="shimmer-bar h-8 w-16 rounded-xl"></div>
+              <div class="shimmer-bar h-3 w-full rounded-xl"></div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Segment Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+          @for (seg of segmentEntries(); track seg.label) {
+            <div class="glass rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden group hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl cursor-default">
+              <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300" [ngClass]="'bg-gradient-to-br ' + seg.color"></div>
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform"
+                   [ngClass]="seg.color">
+                <span class="material-symbols-outlined !text-[28px]">{{ seg.icon }}</span>
+              </div>
+              <p class="text-4xl font-black text-zinc-900 dark:text-white mb-2">{{ seg.count }}</p>
+              <h3 class="font-black text-base text-zinc-700 dark:text-zinc-300 mb-1">{{ seg.label }}</h3>
+              <p class="text-[11px] text-zinc-400 leading-relaxed">{{ seg.desc }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- RFM Explanation -->
+        <div class="glass rounded-3xl p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[20px]">info</span>
+            </div>
+            <div>
+              <h3 class="font-black text-lg text-zinc-900 dark:text-white">About RFM Segmentation</h3>
+              <p class="text-xs text-zinc-400">Recency · Frequency · Monetary</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="bg-white/50 dark:bg-white/5 rounded-2xl p-5 border border-zinc-200/50 dark:border-zinc-700/50">
+              <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined !text-[18px]">history</span>
+              </div>
+              <h4 class="font-black text-zinc-900 dark:text-white mb-1">Recency</h4>
+              <p class="text-sm text-zinc-500">How recently a customer made a purchase. Recent buyers are more likely to return.</p>
+            </div>
+            <div class="bg-white/50 dark:bg-white/5 rounded-2xl p-5 border border-zinc-200/50 dark:border-zinc-700/50">
+              <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined !text-[18px]">repeat</span>
+              </div>
+              <h4 class="font-black text-zinc-900 dark:text-white mb-1">Frequency</h4>
+              <p class="text-sm text-zinc-500">How often they buy. Frequent buyers have higher loyalty and lifetime value.</p>
+            </div>
+            <div class="bg-white/50 dark:bg-white/5 rounded-2xl p-5 border border-zinc-200/50 dark:border-zinc-700/50">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined !text-[18px]">payments</span>
+              </div>
+              <h4 class="font-black text-zinc-900 dark:text-white mb-1">Monetary</h4>
+              <p class="text-sm text-zinc-500">Total spend. High-monetary customers deserve VIP treatment and rewards.</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════
+       TAB: DYNAMIC PRICING
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'pricing') {
+    <div class="space-y-6">
+      <!-- Info Banner -->
+      <div class="glass rounded-2xl p-5 flex items-center gap-4 border-l-4 border-indigo-500">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined !text-[24px]">auto_awesome</span>
+        </div>
+        <div>
+          <h4 class="font-black text-zinc-900 dark:text-white">AI Pricing Recommendations</h4>
+          <p class="text-sm text-zinc-500">Based on demand velocity, competitor patterns, and seasonal trends. Review before applying.</p>
+        </div>
+      </div>
+
+      @if (svc.pricingLoading()) {
+        <div class="space-y-3">
+          @for (_ of [1,2,3]; track _) {
+            <div class="glass rounded-2xl p-5 flex gap-5 items-center">
+              <div class="shimmer-bar h-5 flex-1 rounded-xl"></div>
+              <div class="shimmer-bar h-8 w-24 rounded-xl"></div>
+            </div>
+          }
+        </div>
+      } @else if (svc.pricingSuggestions().length === 0) {
+        <div class="glass rounded-3xl flex flex-col items-center justify-center py-24 text-center">
+          <span class="material-symbols-outlined !text-[64px] text-zinc-300 dark:text-zinc-700 mb-4">price_check</span>
+          <h3 class="text-xl font-black text-zinc-500">No Pricing Suggestions</h3>
+          <p class="text-sm text-zinc-400 mt-1">The system has no adjustments to recommend right now.</p>
+        </div>
+      } @else {
+        <div class="glass rounded-3xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
+                <tr>
+                  <th class="px-6 py-5">Product ID</th>
+                  <th class="px-6 py-5">Current Price</th>
+                  <th class="px-6 py-5">AI Suggested</th>
+                  <th class="px-6 py-5">Change</th>
+                  <th class="px-6 py-5">Reason</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-200/40 dark:divide-zinc-800/40">
+                @for (s of svc.pricingSuggestions(); track s.product_id) {
+                  <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 font-mono text-xs text-zinc-500">{{ s.product_id }}</td>
+                    <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">{{ s.current_price | appCurrency }}</td>
+                    <td class="px-6 py-4 font-black text-emerald-600 dark:text-emerald-400 text-base">{{ s.suggested_price | appCurrency }}</td>
+                    <td class="px-6 py-4">
+                      <span class="px-3 py-1.5 rounded-lg text-xs font-black"
+                            [ngClass]="s.suggested_price > s.current_price ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400'">
+                        {{ priceDelta(s.current_price, s.suggested_price) }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-zinc-500 capitalize">{{ s.reason }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</div>

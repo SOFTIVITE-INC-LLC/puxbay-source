@@ -1,0 +1,69 @@
+<div class="w-full mb-8 pt-4 border-t border-slate-200 dark:border-white/5 animate-fade-in">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+      <span class="material-symbols-outlined text-rose-500">local_fire_department</span>
+      Trending Now
+    </h3>
+    <a routerLink="/store" class="text-sm font-bold text-indigo-400 hover:text-indigo-300">View All &rarr;</a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex gap-4 overflow-x-hidden">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="w-64 flex-shrink-0 bg-white dark:bg-zinc-900/80 rounded-2xl p-3 border border-slate-200 dark:border-zinc-800/60 animate-pulse">
+          <div class="w-full h-40 bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4"></div>
+          <div class="h-4 bg-slate-100 dark:bg-zinc-800 rounded-lg w-3/4 mb-2"></div>
+          <div class="h-4 bg-slate-100 dark:bg-zinc-800 rounded-lg w-1/2"></div>
+        </div>
+      }
+    </div>
+  } @else if (products().length > 0) {
+    <div class="relative group">
+      <!-- Gradient masks for smooth scrolling edges -->
+      <div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none"></div>
+
+      <div class="flex gap-4 overflow-x-auto hide-scrollbar snap-x pb-4">
+        @for (product of products(); track product.id) {
+          <a [routerLink]="['/store/product', product.id]" 
+             class="w-64 flex-shrink-0 snap-start bg-white dark:bg-zinc-900/50 rounded-2xl p-3 border border-slate-200 dark:border-zinc-800/60 hover:bg-slate-100 dark:bg-zinc-800/80 hover:border-indigo-500/30 transition-all group/card relative">
+            
+            <div class="absolute top-2 right-2 z-10">
+              <button (click)="wishlistService.toggleWishlist(product.id); $event.preventDefault(); $event.stopPropagation()" 
+                      class="w-8 h-8 rounded-full bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-md flex items-center justify-center transition-all border border-slate-200 dark:border-white/5 shadow-lg opacity-0 group-hover/card:opacity-100"
+                      [ngClass]="wishlistService.isSaved(product.id) ? 'text-rose-500' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800'">
+                <span class="material-symbols-outlined !text-[16px]">{{ wishlistService.isSaved(product.id) ? 'favorite' : 'favorite_border' }}</span>
+              </button>
+            </div>
+
+            <div class="w-full h-40 bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-3 overflow-hidden flex items-center justify-center shadow-inner relative">
+              @if (product.image_url) {
+                <img [src]="product.image_url" [alt]="product.name" class="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700 ease-out">
+              } @else {
+                <span class="material-symbols-outlined !text-[48px] text-zinc-700">inventory_2</span>
+              }
+              
+              <div class="absolute bottom-2 left-2 flex gap-1">
+                <span class="px-2 py-0.5 bg-slate-50 dark:bg-zinc-950/80 text-slate-900 dark:text-white text-[10px] font-bold rounded-md backdrop-blur-md border border-slate-200 dark:border-white/10 shadow-lg">Hot</span>
+              </div>
+            </div>
+            
+            <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-tight mb-1 group-hover/card:text-indigo-400 transition-colors line-clamp-1">{{ product.name }}</h4>
+            <div class="flex items-center justify-between mt-2">
+              <p class="text-base font-black text-indigo-300">{{ product.selling_price | appCurrency }}</p>
+              
+              <button (click)="quickAddToCart(product, $event)"
+                      [disabled]="product.stock_quantity <= 0"
+                      class="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 border border-slate-200 dark:border-white/5"
+                      [ngClass]="addingProductId() === product.id ? 'bg-emerald-500 text-slate-900 dark:text-white shadow-emerald-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-indigo-400 hover:bg-indigo-600 hover:text-slate-900 dark:text-white shadow-indigo-500/10'">
+                <span class="material-symbols-outlined !text-[16px]">
+                  {{ addingProductId() === product.id ? 'check' : 'add_shopping_cart' }}
+                </span>
+              </button>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>

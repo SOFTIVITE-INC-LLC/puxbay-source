@@ -1,0 +1,690 @@
+<div id="pos-app" class="h-screen w-full flex flex-col lg:flex-row bg-slate-50 dark:bg-slate-900 overflow-hidden font-sans text-slate-800 dark:text-slate-200">
+  <!-- Left App Sidebar Navigation -->
+  <div class="hidden lg:flex w-[80px] bg-slate-900 flex-col items-center py-6 shrink-0 shadow-2xl relative z-30">
+    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg mb-8">
+      <span class="material-symbols-outlined font-black">point_of_sale</span>
+    </div>
+    
+    <div class="flex flex-col gap-4 flex-1 w-full px-3">
+      <button class="w-full aspect-square rounded-2xl bg-indigo-500/20 text-indigo-400 flex flex-col items-center justify-center transition-all">
+        <span class="material-symbols-outlined mb-1">dashboard</span>
+        <span class="text-[10px] font-bold tracking-wider">SALE</span>
+      </button>
+      <button (click)="facade.isParkedSalesModalOpen.set(true)" class="w-full aspect-square rounded-2xl text-slate-400 hover:bg-slate-800 hover:text-white flex flex-col items-center justify-center transition-all relative">
+        <span class="material-symbols-outlined mb-1">pause_presentation</span>
+        <span class="text-[10px] font-bold tracking-wider">HOLD</span>
+        <div *ngIf="facade.parkedSales().length > 0" class="absolute top-2 right-2 w-4 h-4 bg-red-500 rounded-full text-[9px] font-black text-white flex items-center justify-center">{{ facade.parkedSales().length }}</div>
+      </button>
+      <button (click)="facade.isShiftModalOpen.set(true)" class="w-full aspect-square rounded-2xl text-slate-400 hover:bg-slate-800 hover:text-white flex flex-col items-center justify-center transition-all relative">
+        <span class="material-symbols-outlined mb-1">local_activity</span>
+        <span class="text-[10px] font-bold tracking-wider">SHIFT</span>
+        <div *ngIf="facade.shiftStatus() === 'open'" class="absolute top-3 right-3 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+      </button>
+      <button (click)="facade.isHardwareModalOpen.set(true)" class="w-full aspect-square rounded-2xl text-slate-400 hover:bg-slate-800 hover:text-white flex flex-col items-center justify-center transition-all">
+        <span class="material-symbols-outlined mb-1">devices</span>
+        <span class="text-[10px] font-bold tracking-wider">HUB</span>
+      </button>
+    </div>
+
+    <div class="flex flex-col w-full px-3 gap-2">
+      <button (click)="facade.toggleFullscreen()" class="w-full h-12 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center transition-all" [title]="facade.isFullscreen() ? 'Exit Fullscreen' : 'Enter Fullscreen'">
+        <span class="material-symbols-outlined">{{ facade.isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</span>
+      </button>
+      <button (click)="facade.toggleTheme()" class="w-full h-12 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center transition-all" title="Toggle Theme">
+        <span class="material-symbols-outlined">{{ facade.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</span>
+      </button>
+      <button routerLink="/dashboard" class="w-full h-12 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-red-400 flex items-center justify-center transition-all mt-4" title="Exit POS">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+      <div class="w-full aspect-square rounded-2xl bg-slate-800 overflow-hidden border-2 border-slate-700 mt-2">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff" class="w-full h-full object-cover">
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Products Area -->
+  
+  <div class="flex-1 flex flex-col h-full w-full overflow-hidden relative">
+    <!-- Header -->
+    <div class="p-4 lg:p-6 shrink-0 z-10 w-full relative z-40">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+        <div class="w-full sm:w-auto flex items-center justify-between gap-4 order-2 sm:order-1">
+          <div *ngIf="facade.isOffline()" class="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg flex items-center gap-2 text-sm font-bold shadow-sm">
+            <span class="material-symbols-outlined text-sm">wifi_off</span> Offline
+          </div>
+          <!-- Offline queue badge -->
+          <div *ngIf="facade.offlineDb.pendingCount() > 0"
+               class="px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-lg flex items-center gap-2 text-sm font-bold shadow-sm animate-pulse cursor-pointer"
+               (click)="facade._syncOfflineOrders()"
+               title="Click to sync offline orders">
+            <span class="material-symbols-outlined text-sm">sync</span>
+            {{ facade.offlineDb.pendingCount() }} Pending
+          </div>
+          <!-- Hardware printer button -->
+          <button (click)="facade.printer.isConnected() ? facade.printer.disconnect() : facade.printer.connect()"
+                  class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm transition-all"
+                  [class]="facade.printer.isConnected() ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 border border-slate-200 dark:border-slate-700'"
+                  title="Connect thermal printer">
+            <span class="material-symbols-outlined text-sm">print</span>
+            {{ facade.printer.isConnected() ? 'Printer Connected' : 'Connect Printer' }}
+          </button>
+          <button (click)="facade.isCustomItemModalOpen.set(true)" class="sm:hidden h-12 px-4 flex-1 flex items-center justify-center gap-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-bold text-sm transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span> Custom Item
+          </button>
+        </div>
+        
+        <div class="flex-1 w-full max-w-2xl relative group order-1 sm:order-2 shadow-sm rounded-2xl">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">search</span>
+          <input type="text" placeholder="Search or scan barcode (F4)"
+                 [ngModel]="facade.searchQuery()" (ngModelChange)="facade.searchQuery.set($event)"
+                 class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-slate-800 dark:text-white outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm">
+          <button *ngIf="facade.searchQuery()" (click)="facade.searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <span class="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
+
+        <button (click)="facade.isCustomItemModalOpen.set(true)" class="hidden sm:flex h-14 px-5 items-center gap-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500/50 text-indigo-600 dark:text-indigo-400 font-bold text-sm transition-all shadow-sm order-3">
+          <span class="material-symbols-outlined text-[18px]">add_circle</span> Custom Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="px-6 py-4 flex items-center gap-3 overflow-x-auto no-scrollbar shrink-0 border-b border-slate-200 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
+      <button (click)="facade.selectedCategoryId.set('all')"
+              [ngClass]="['px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap active:scale-95', facade.selectedCategoryId() === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 ring-2 ring-indigo-600 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-900' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm']">
+        All Items
+      </button>
+      <button *ngFor="let cat of facade.categories()" (click)="facade.selectedCategoryId.set(cat.id)"
+              [ngClass]="['px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap active:scale-95', facade.selectedCategoryId() === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 ring-2 ring-indigo-600 ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-900' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm']">
+        {{ cat.name }}
+      </button>
+    </div>
+
+    <!-- Recommendations -->
+    <div *ngIf="!facade.searchQuery() && facade.selectedCategoryId() === 'all'" class="px-6 pt-4 pb-2 shrink-0">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+          <span class="material-symbols-outlined text-amber-500 text-sm">auto_awesome</span> Recommended
+        </h2>
+      </div>
+      <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        <div *ngFor="let product of facade.recommendations()" (click)="facade.addToCart(product)" class="group bg-white dark:bg-slate-800 rounded-xl p-2 border border-amber-200/50 dark:border-amber-500/20 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-amber-400/50 transition-all cursor-pointer flex items-center gap-3 w-[200px] shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0">
+            <img [src]="product.image_url || '/images/default-product.png'" class="w-full h-full object-cover">
+          </div>
+          <div class="flex flex-col flex-1 min-w-0">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs truncate">{{ product.name }}</h3>
+            <span class="font-black text-amber-600 dark:text-amber-400 text-sm">{{ (product.selling_price || 0) | appCurrency }}</span>
+          </div>
+          <div class="w-6 h-6 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+            <span class="material-symbols-outlined text-[14px]">add</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="flex-1 overflow-y-auto p-6 no-scrollbar">
+      <div *ngIf="facade.filteredProducts().length === 0" class="h-full flex flex-col items-center justify-center text-slate-400">
+        <span class="material-symbols-outlined text-6xl mb-4 opacity-30">inventory_2</span>
+        <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">No products found</h3>
+        <p class="text-sm">Try scanning a barcode or adjusting your filters.</p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-max">
+        <div *ngFor="let product of facade.filteredProducts()" (click)="facade.addToCart(product)" class="group relative bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all cursor-pointer overflow-hidden flex flex-col h-[220px]">
+          <div class="w-full aspect-square rounded-xl bg-slate-50 dark:bg-slate-900 overflow-hidden mb-3 relative">
+            <img [src]="product.image_url || '/images/default-product.png'" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110">
+            <div [ngClass]="(product.current_stock || 0) <= 5 ? 'bg-red-500 text-white' : 'bg-slate-800 text-white dark:bg-white dark:text-slate-800'" class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ product.current_stock || 0 }} in stock</div>
+          </div>
+          <div class="flex flex-col flex-1">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight line-clamp-2 mb-auto">{{ product.name }}</h3>
+            <div class="flex items-end justify-between mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+              <span class="font-black text-indigo-600 dark:text-indigo-400 text-base">{{ (product.selling_price || 0) | appCurrency }}</span>
+              <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">add</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  
+  <!-- Mobile Cart Overlay Background -->
+  <div *ngIf="facade.isMobileCartOpen()" (click)="facade.isMobileCartOpen.set(false)" class="lg:hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] animate-in fade-in duration-200"></div>
+
+  <!-- Cart Sidebar / Mobile Bottom Sheet -->
+  <div class="fixed lg:static inset-x-0 bottom-0 bg-white dark:bg-slate-800 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700/50 flex flex-col h-[85vh] lg:h-full lg:w-[420px] xl:w-[480px] shrink-0 shadow-2xl z-[100] lg:z-20 transform transition-transform duration-300 ease-out lg:translate-y-0 rounded-t-3xl lg:rounded-none" [class.translate-y-full]="!facade.isMobileCartOpen()">
+    
+    <!-- Mobile Sheet Handle -->
+    <div class="w-full flex justify-center py-3 lg:hidden shrink-0 cursor-pointer" (click)="facade.isMobileCartOpen.set(false)">
+      <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+    </div>
+
+    <!-- Customer Selector -->
+    <div class="p-3 lg:p-5 border-b border-slate-100 dark:border-slate-700/50 relative bg-slate-50/50 dark:bg-slate-900/20">
+      <div class="flex items-center gap-3 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer hover:border-indigo-300 transition-colors shadow-sm" (click)="facade.showCustomerDropdown.set(!facade.showCustomerDropdown())">
+        <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="text-[10px] uppercase font-black tracking-wider text-slate-400">Customer</p>
+          <div class="flex items-center gap-2">
+            <p class="font-bold text-slate-800 dark:text-white truncate">{{ facade.selectedCustomer()?.name || 'Walk-in Customer' }}</p>
+            <span *ngIf="facade.loyaltyPoints() > 0" class="text-[10px] font-black bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full">{{ facade.loyaltyPoints() }} pts</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+      </div>
+
+      <div *ngIf="facade.showCustomerDropdown()" class="absolute top-full left-5 right-5 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+        <div class="max-h-60 overflow-y-auto">
+          <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700" (click)="facade.selectCustomer(null)">
+            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><span class="material-symbols-outlined text-sm text-slate-500">person_off</span></div>
+            <span class="font-bold text-slate-700 dark:text-slate-300">Walk-in Customer</span>
+          </div>
+          <div *ngFor="let c of facade.customers()" (click)="facade.selectCustomer(c)" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
+            <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center font-black">{{ c.name.charAt(0) }}</div>
+            <div class="flex flex-col">
+              <span class="font-bold text-sm text-slate-800 dark:text-slate-200">{{ c.name }}</span>
+              <span class="text-xs text-slate-500">{{ c.phone }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-3 relative bg-slate-50/30 dark:bg-slate-900/10">
+      <div *ngIf="facade.cart().length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 pointer-events-none">
+        <div class="w-32 h-32 mb-4 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center border-4 border-white dark:border-slate-700 shadow-sm">
+          <span class="material-symbols-outlined text-5xl">shopping_cart</span>
+        </div>
+        <p class="font-bold text-lg text-slate-700 dark:text-slate-300">Cart is empty</p>
+        <p class="text-sm">Scan a barcode or select items</p>
+      </div>
+
+      <div *ngFor="let item of facade.cart()" class="group flex gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900 transition-all relative overflow-hidden" [ngClass]="facade.isSentToKitchen() ? 'opacity-80' : ''">
+        <div *ngIf="facade.isSentToKitchen()" class="absolute inset-0 bg-slate-50/50 dark:bg-slate-900/50 pointer-events-none z-10 flex items-center justify-center">
+          <div class="bg-amber-500 text-white font-black px-3 py-1 text-xs rounded-full shadow-lg">PREPPING</div>
+        </div>
+        
+        <div *ngIf="item.discount > 0" class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-bl-lg shadow-sm z-20">
+          Discounted
+        </div>
+        
+        <div class="w-16 h-16 rounded-xl bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700">
+          <img [src]="item.product.image_url || '/images/default-product.png'" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="flex-1 flex flex-col justify-between z-20">
+          <div class="flex justify-between items-start">
+            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm line-clamp-2 pr-6">{{ item.product.name }}</h4>
+            <button (click)="facade.removeFromCart(item.product.id)" class="text-slate-300 hover:text-red-500 transition-colors shrink-0 p-1">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+          
+          <div class="flex justify-between items-end mt-2">
+            <div class="flex flex-col">
+              <span class="font-black text-indigo-600 dark:text-indigo-400 text-base">{{ (item.product.selling_price || 0) | appCurrency }}</span>
+              <span *ngIf="item.discount > 0" class="text-[11px] font-bold text-emerald-600">-{{ item.discount }}{{ item.discountType === 'percent' ? '%' : ' flat' }} off</span>
+            </div>
+            
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+              <button (click)="facade.updateQuantity(item.product.id, -1)" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm text-slate-600 dark:text-slate-300 transition-all font-black">-</button>
+              <span class="w-8 text-center font-bold text-sm text-slate-800 dark:text-slate-100">{{ item.quantity }}</span>
+              <button (click)="facade.updateQuantity(item.product.id, 1)" class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-slate-700 hover:shadow-sm text-slate-600 dark:text-slate-300 transition-all font-black">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Footer -->
+    <div class="p-6 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-700 shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-30">
+      
+      <!-- Auto Promo Alert -->
+      <div *ngIf="facade.autoPromoDiscount() > 0" class="mb-4 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-4 py-2 rounded-xl text-xs font-bold flex justify-between items-center border border-purple-200 dark:border-purple-800">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">local_offer</span> {{ facade.promoPercent() }}% Off Orders > {{ facade.promoThreshold() | appCurrency }}
+        </div>
+        <div class="flex items-center gap-3">
+          <span>-{{ facade.autoPromoDiscount() | appCurrency }}</span>
+          <button (click)="facade.isAutoPromoEnabled.set(false)" class="text-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors flex items-center" title="Remove Discount">
+            <span class="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2 mb-4">
+        <div class="flex justify-between text-slate-500 font-bold text-sm">
+          <span>Subtotal</span>
+          <span class="text-slate-700 dark:text-slate-300">{{ facade.cartSubtotal() | appCurrency }}</span>
+        </div>
+        <div *ngIf="facade.cartDiscountTotal() > 0" class="flex justify-between text-emerald-600 font-bold text-sm">
+          <span>Discount (Loyalty + Promos)</span>
+          <span>-{{ facade.cartDiscountTotal() | appCurrency }}</span>
+        </div>
+        <div class="flex justify-between text-slate-500 font-bold text-sm">
+          <span>Tax</span>
+          <span class="text-slate-700 dark:text-slate-300">{{ facade.cartTax() | appCurrency }}</span>
+        </div>
+        <div class="h-px bg-slate-200 dark:bg-slate-700 my-3"></div>
+        <div class="flex justify-between items-end">
+          <span class="text-sm font-black text-slate-400 uppercase tracking-wider">Total Due</span>
+          <span class="text-4xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter">{{ facade.cartTotal() | appCurrency }}</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mb-3">
+        <button (click)="facade.sendToKitchen()" [disabled]="facade.cart().length === 0 || facade.isSentToKitchen()" class="flex-1 h-10 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-100 border border-amber-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-sm">restaurant_menu</span> {{ facade.isSentToKitchen() ? 'Sent to Kitchen' : 'Send to Kitchen' }}
+        </button>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="facade.parkSale()" [disabled]="facade.cart().length === 0" class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-amber-500 hover:border-amber-200 hover:bg-amber-50 transition-all active:scale-95 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm" title="Hold Sale">
+          <span class="material-symbols-outlined">pause</span>
+        </button>
+        <button (click)="facade.clearCart()" [ngClass]="facade.isSentToKitchen() ? 'text-red-500 bg-red-50 border-red-200' : 'text-slate-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50'" class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all active:scale-95 shrink-0 shadow-sm" title="Clear / Void Cart">
+          <span class="material-symbols-outlined">{{ facade.isSentToKitchen() ? 'block' : 'delete_sweep' }}</span>
+        </button>
+        <button (click)="facade.openCheckout()" [disabled]="facade.cart().length === 0"
+                class="flex-1 h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-lg shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 relative overflow-hidden group" title="Checkout (F9)">
+          <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+          <span class="relative z-10">Pay (F9)</span>
+          <span class="material-symbols-outlined relative z-10 text-xl">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL (SPLIT PAYMENTS & LOYALTY) -->
+  <div *ngIf="facade.isCheckoutModalOpen()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex h-[90vh] sm:h-[80vh] animate-in zoom-in-95 duration-300 ease-out flex-col sm:flex-row border border-slate-200 dark:border-slate-700">
+      
+      <!-- Left Panel: Payments Log -->
+      <div class="w-full sm:w-[400px] bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800">
+          <h2 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-500">point_of_sale</span> Checkout
+          </h2>
+          <button (click)="facade.closeCheckout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors flex items-center justify-center">
+            <span class="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
+        
+        <div class="p-8 flex-1 flex flex-col justify-center items-center relative">
+          
+          <div *ngIf="facade.loyaltyPoints() > 0" class="w-full mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="text-xs font-black text-amber-500 uppercase">Loyalty Reward</span>
+              <span class="font-bold text-slate-700 text-sm">You have {{ facade.loyaltyPoints() }} points</span>
+            </div>
+            <button (click)="facade.redeemLoyaltyPoints()" class="px-4 py-2 bg-amber-500 text-white font-black text-xs rounded-lg shadow-sm">Redeem</button>
+          </div>
+
+          <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Total Due</p>
+          <h3 class="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{{ facade.cartTotal() | appCurrency }}</h3>
+          
+          <div class="w-full mt-8 space-y-3">
+            <div *ngFor="let p of facade.payments(); let i = index" class="w-full flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-lg">{{ p.method === 'cash' ? 'payments' : (p.method === 'card' ? 'credit_card' : 'smartphone') }}</span>
+                </div>
+                <span class="font-bold text-slate-700 dark:text-slate-200 uppercase">{{ p.method }}</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="font-black text-lg text-slate-800 dark:text-white">{{ p.amount | appCurrency }}</span>
+                <button (click)="facade.removePaymentMethod(i)" class="text-red-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined">delete</span></button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="w-full mt-8 p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex justify-between items-center">
+            <span class="font-bold text-slate-500">Remaining Balance</span>
+            <span class="font-black text-2xl" [ngClass]="facade.remainingBalance() > 0 ? 'text-red-500' : 'text-emerald-500'">{{ facade.remainingBalance() | appCurrency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Entry Methods -->
+      <div class="flex-1 flex flex-col bg-white dark:bg-slate-800 p-6">
+        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Select Payment Method</p>
+        <div class="grid grid-cols-3 gap-3 mb-8">
+          <button (click)="facade.addPaymentMethod('cash', facade.remainingBalance())" class="h-20 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-indigo-400 bg-slate-50 dark:bg-slate-900 font-bold flex flex-col items-center justify-center gap-2 transition-all group">
+            <span class="material-symbols-outlined text-slate-400 group-hover:text-indigo-600 text-2xl">payments</span>
+            <span class="text-slate-600 dark:text-slate-300 text-sm">Cash</span>
+          </button>
+          <button (click)="facade.addPaymentMethod('card', facade.remainingBalance())" class="h-20 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-indigo-400 bg-slate-50 dark:bg-slate-900 font-bold flex flex-col items-center justify-center gap-2 transition-all group">
+            <span class="material-symbols-outlined text-slate-400 group-hover:text-indigo-600 text-2xl">credit_card</span>
+            <span class="text-slate-600 dark:text-slate-300 text-sm">Card</span>
+          </button>
+          <button (click)="facade.addPaymentMethod('mobile', facade.remainingBalance())" class="h-20 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-indigo-400 bg-slate-50 dark:bg-slate-900 font-bold flex flex-col items-center justify-center gap-2 transition-all group">
+            <span class="material-symbols-outlined text-slate-400 group-hover:text-indigo-600 text-2xl">smartphone</span>
+            <span class="text-slate-600 dark:text-slate-300 text-sm">Mobile Money</span>
+          </button>
+        </div>
+
+        <div *ngIf="facade.remainingBalance() > 0" class="mb-8 animate-in slide-in-from-top-2">
+          <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Quick Cash Tenders</p>
+          <div class="grid grid-cols-4 gap-3">
+            <button *ngFor="let amount of facade.quickCashOptions()" (click)="facade.addPaymentMethod('cash', amount)" class="h-16 rounded-xl font-black border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all text-lg shadow-sm">
+              {{ amount | appCurrency }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="facade.changeDue() > 0" class="mb-8 p-6 bg-emerald-500 rounded-2xl shadow-lg flex justify-between items-center text-white animate-in slide-in-from-bottom-2">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-4xl">payments</span>
+            <span class="font-bold text-lg uppercase tracking-wider">Change Due</span>
+          </div>
+          <span class="font-black text-5xl tracking-tighter">{{ facade.changeDue() | appCurrency }}</span>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-slate-100 dark:border-slate-700">
+          <button (click)="facade.processCheckout()"
+            [disabled]="facade.remainingBalance() > 0 || facade.isCheckoutLoading()"
+            class="w-full h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-black text-xl shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 transition-all active:scale-[0.98] flex items-center justify-center gap-3 relative overflow-hidden">
+
+            <!-- Shimmer animation layer while loading -->
+            @if (facade.isCheckoutLoading()) {
+              <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-[shimmer_1.2s_linear_infinite]"></span>
+              <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="tracking-wide">Processing Sale…</span>
+            } @else {
+              Complete Sale
+              <span class="material-symbols-outlined text-2xl">check_circle</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT PROCESSING OVERLAY -->
+  @if (facade.isCheckoutLoading()) {
+    <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div class="flex flex-col items-center gap-6 p-10 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700/50 max-w-sm w-full mx-4">
+        <!-- Pulsing ring animation -->
+        <div class="relative">
+          <div class="w-20 h-20 rounded-full border-4 border-indigo-500/20"></div>
+          <div class="absolute inset-0 w-20 h-20 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+          <div class="absolute inset-[10px] w-[60px] h-[60px] rounded-full bg-indigo-600/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-indigo-400 text-2xl">point_of_sale</span>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-white font-bold text-xl tracking-tight">Finalizing Sale</p>
+          <p class="text-slate-400 text-sm mt-1">Please wait, processing your order…</p>
+        </div>
+        <!-- Animated progress dots -->
+        <div class="flex gap-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:0ms]"></span>
+          <span class="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:150ms]"></span>
+          <span class="w-2 h-2 rounded-full bg-indigo-500 animate-bounce [animation-delay:300ms]"></span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MANAGER VOID PIN MODAL -->
+  <div *ngIf="facade.isVoidModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h2 class="text-xl font-black text-red-600 flex items-center gap-2">
+          <span class="material-symbols-outlined">gpp_bad</span> Manager Override
+        </h2>
+        <button (click)="facade.isVoidModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+      <div class="p-6 bg-white dark:bg-slate-800">
+        <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4">This cart was sent to the kitchen. You need a Manager PIN to void it.</p>
+        <div class="mb-6">
+          <input type="password" [value]="facade.voidPin()" readonly placeholder="Enter PIN (e.g. 1234)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white font-black tracking-widest text-center outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all text-xl">
+        </div>
+        
+        <!-- DIGITAL NUMBER PAD -->
+        <div class="grid grid-cols-3 gap-3 mb-6">
+          @for (n of ['1','2','3','4','5','6','7','8','9']; track n) {
+            <button (click)="facade.appendVoidPin(n)" class="h-14 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xl font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition-all">
+              {{n}}
+            </button>
+          }
+          <button (click)="facade.voidPin.set('')" class="h-14 bg-slate-100 hover:bg-red-100 dark:bg-slate-700 dark:hover:bg-red-900/40 rounded-xl text-red-500 font-bold active:scale-95 transition-all flex items-center justify-center">
+             <span class="material-symbols-outlined">delete</span>
+          </button>
+          <button (click)="facade.appendVoidPin('0')" class="h-14 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-xl font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition-all">
+            0
+          </button>
+          <button (click)="facade.backspaceVoidPin()" class="h-14 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl text-slate-700 dark:text-slate-200 font-bold active:scale-95 transition-all flex items-center justify-center">
+             <span class="material-symbols-outlined">backspace</span>
+          </button>
+        </div>
+
+        <button (click)="facade.verifyVoid()" class="w-full h-14 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-lg shadow-xl shadow-red-200 dark:shadow-red-900/40 transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+          Authorize Void <span class="material-symbols-outlined">delete_forever</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div *ngIf="facade.isSuccessModalOpen()" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[110] flex items-center justify-center p-6 animate-in fade-in duration-300">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-8 shadow-2xl text-center animate-in zoom-in-95 duration-300 ease-out border border-slate-200 dark:border-slate-700">
+      <div class="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
+        <span class="material-symbols-outlined text-5xl text-white">check</span>
+      </div>
+      <h2 class="text-3xl font-black text-slate-800 dark:text-white mb-2">Success!</h2>
+      <p class="text-slate-500 font-bold mb-8 text-lg">Order #{{ facade.checkoutSuccessOrder()?.order_number }}</p>
+      
+      <div class="flex flex-col gap-3">
+        <button (click)="facade.printReceipt()" class="h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-lg flex items-center justify-center gap-2 transition-colors border border-slate-200 dark:border-slate-600">
+          <span class="material-symbols-outlined">receipt_long</span> Print Receipt
+        </button>
+        <button (click)="facade.closeCheckout()" class="h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg transition-colors shadow-lg shadow-indigo-200 dark:shadow-indigo-900/40">
+          New Sale
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARKED SALES MODAL -->
+  <div *ngIf="facade.isParkedSalesModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h2 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-amber-500">pause_presentation</span>
+          Parked Sales
+        </h2>
+        <button (click)="facade.isParkedSalesModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+      <div class="p-6 flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 space-y-3">
+        <div *ngIf="facade.parkedSales().length === 0" class="text-center text-slate-400 py-10">
+          <span class="material-symbols-outlined text-6xl mb-3 opacity-50">inbox</span>
+          <p class="font-bold text-lg">No parked sales</p>
+        </div>
+        <div *ngFor="let sale of facade.parkedSales(); let i = index" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between hover:border-indigo-300 transition-colors">
+          <div>
+            <p class="font-black text-slate-800 dark:text-white text-lg">{{ sale.customer?.name || 'Walk-in Customer' }}</p>
+            <p class="text-sm text-slate-500 font-bold mt-1">{{ sale.cart.length }} items • Parked at {{ sale.time | date:'shortTime' }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button (click)="facade.removeParkedSale(i)" class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors border border-transparent hover:border-red-200">
+              <span class="material-symbols-outlined text-lg">delete</span>
+            </button>
+            <button (click)="facade.resumeSale(i)" class="px-6 h-12 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 dark:shadow-indigo-900/40">
+              <span class="material-symbols-outlined text-lg">play_arrow</span> Resume
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM ITEM MODAL -->
+  <div *ngIf="facade.isCustomItemModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h2 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500">add_circle</span> Add Custom Item
+        </h2>
+        <button (click)="facade.isCustomItemModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+      <div class="p-6 bg-white dark:bg-slate-800">
+        <div class="mb-4">
+          <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">Item Name</label>
+          <input type="text" #customName placeholder="e.g. Alterations" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-800 dark:text-white font-bold outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all">
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">Price</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black">$</span>
+            <input type="number" #customPrice placeholder="0.00" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-4 py-3 text-slate-800 dark:text-white font-black outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-xl">
+          </div>
+        </div>
+        <button (click)="facade.addCustomItem(customName.value, +customPrice.value)" class="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+          Add to Cart <span class="material-symbols-outlined">add_shopping_cart</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHIFT & DRAWER MODAL -->
+  <div *ngIf="facade.isShiftModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h2 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500">local_activity</span> Shift Management
+        </h2>
+        <button (click)="facade.isShiftModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+      <div class="p-8 text-center bg-white dark:bg-slate-800">
+        <div class="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center shadow-inner border-[6px]" [ngClass]="facade.shiftStatus() === 'open' ? 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-900 text-emerald-500' : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400'">
+          <span class="material-symbols-outlined text-5xl">{{ facade.shiftStatus() === 'open' ? 'lock_open' : 'lock' }}</span>
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2">Shift is {{ facade.shiftStatus() === 'open' ? 'Open' : 'Closed' }}</h3>
+        <p class="text-slate-500 font-bold mb-8">
+          <span *ngIf="facade.shiftStatus() === 'open'">Started at {{ facade.shiftDetails()?.startTime | date:'shortTime' }} with {{ facade.shiftDetails()?.float | appCurrency }} float.</span>
+          <span *ngIf="facade.shiftStatus() === 'closed'">You must open a shift to process cash transactions.</span>
+        </p>
+        <button (click)="facade.toggleShift()" class="w-full h-16 rounded-2xl text-white font-black text-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-3 shadow-lg" [ngClass]="facade.shiftStatus() === 'open' ? 'bg-slate-800 hover:bg-slate-900 shadow-slate-300 dark:shadow-slate-900/40' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-200 dark:shadow-emerald-900/40'">
+          {{ facade.shiftStatus() === 'open' ? 'Close Shift' : 'Open Shift' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDWARE & HUB MODAL -->
+  <div *ngIf="facade.isHardwareModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">
+      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h2 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500">devices</span> Hardware Hub
+        </h2>
+        <button (click)="facade.isHardwareModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+      <div class="p-6 bg-slate-50 dark:bg-slate-900 space-y-4">
+        
+        <!-- Customer Display System -->
+        <div class="bg-indigo-600 p-5 rounded-2xl shadow-lg flex items-center justify-between text-white">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl">
+              <span class="material-symbols-outlined">storefront</span>
+            </div>
+            <div>
+              <p class="font-black text-lg">Customer Display</p>
+              <p class="text-xs font-bold text-indigo-200">Open live cart view in a new window</p>
+            </div>
+          </div>
+          <button (click)="facade.openCDSWindow()" class="px-5 h-10 rounded-xl bg-white text-indigo-600 font-bold text-sm hover:bg-slate-50 transition-colors shadow-sm">Launch CDS</button>
+        </div>
+
+        <!-- Receipt Printer -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl" [ngClass]="facade.isPrinterConnected() ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30' : 'bg-slate-100 text-slate-400 dark:bg-slate-700'">
+              <span class="material-symbols-outlined">print</span>
+            </div>
+            <div>
+              <p class="font-black text-slate-800 dark:text-white text-lg">Receipt Printer</p>
+              <p class="text-sm font-bold flex items-center gap-1" [ngClass]="facade.isPrinterConnected() ? 'text-emerald-500' : 'text-slate-400'">
+                <span class="w-2 h-2 rounded-full" [ngClass]="facade.isPrinterConnected() ? 'bg-emerald-500' : 'bg-slate-300'"></span>
+                {{ facade.isPrinterConnected() ? 'Connected via Web Serial' : 'Disconnected' }}
+              </p>
+            </div>
+          </div>
+          <button *ngIf="!facade.isPrinterConnected()" (click)="facade.connectPrinter()" class="px-5 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition-colors">Connect</button>
+          <button *ngIf="facade.isPrinterConnected()" (click)="facade.printReceipt()" class="px-5 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 transition-colors">Test Print</button>
+        </div>
+        
+        <!-- Barcode Scanner -->
+        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between opacity-70">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center text-xl">
+              <span class="material-symbols-outlined">qr_code_scanner</span>
+            </div>
+            <div>
+              <p class="font-black text-slate-800 dark:text-white text-lg">Barcode Scanner</p>
+              <p class="text-sm font-bold flex items-center gap-1 text-emerald-500">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Keyboard Wedge Active
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Floating Cart Button -->
+  <div class="fixed bottom-[80px] left-4 right-4 z-40 lg:hidden">
+    <button (click)="facade.isMobileCartOpen.set(true)" class="w-full h-14 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-900/20 text-white flex items-center justify-between px-5 transition-transform active:scale-95">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center font-black">
+          {{ facade.cart().length }}
+        </div>
+        <span class="font-black tracking-wide">View Cart</span>
+      </div>
+      <span class="font-black text-lg">{{ facade.cartTotal() | appCurrency }}</span>
+    </button>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <div class="fixed bottom-0 inset-x-0 h-[65px] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-40 lg:hidden flex items-center justify-around px-2">
+    <button class="flex flex-col items-center justify-center gap-1 text-indigo-600 w-16">
+      <span class="material-symbols-outlined text-[24px]">dashboard</span>
+      <span class="text-[9px] font-bold tracking-wider">SALE</span>
+    </button>
+    <button (click)="facade.isParkedSalesModalOpen.set(true)" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white w-16 relative">
+      <span class="material-symbols-outlined text-[24px]">pause_presentation</span>
+      <span class="text-[9px] font-bold tracking-wider">HOLD</span>
+      <div *ngIf="facade.parkedSales().length > 0" class="absolute top-0 right-2 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] font-black text-white flex items-center justify-center">{{ facade.parkedSales().length }}</div>
+    </button>
+    <button (click)="facade.isShiftModalOpen.set(true)" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white w-16 relative">
+      <span class="material-symbols-outlined text-[24px]">local_activity</span>
+      <span class="text-[9px] font-bold tracking-wider">SHIFT</span>
+      <div *ngIf="facade.shiftStatus() === 'open'" class="absolute top-0 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+    </button>
+    <button (click)="facade.isHardwareModalOpen.set(true)" class="flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white w-16">
+      <span class="material-symbols-outlined text-[24px]">devices</span>
+      <span class="text-[9px] font-bold tracking-wider">HUB</span>
+    </button>
+  </div>
+</div>

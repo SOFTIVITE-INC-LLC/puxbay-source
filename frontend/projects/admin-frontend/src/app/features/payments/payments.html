@@ -1,0 +1,136 @@
+<div class="p-8 max-w-7xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Payment History</h1>
+      <p class="text-slate-500 mt-1">Platform-wide invoice and payment records.</p>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading()" class="flex justify-center p-20">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    <!-- KPI Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="stats()">
+      <div class="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6 flex flex-col justify-between bg-emerald-50/20">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-emerald-700 text-sm font-bold uppercase tracking-wider">Total Processed Revenue</h3>
+          <span class="material-symbols-outlined text-emerald-500 bg-emerald-100 p-2 rounded-xl">account_balance</span>
+        </div>
+        <p class="text-4xl font-extrabold text-emerald-800">GH₵{{ stats().total_revenue | number:'1.2-2' }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Successful Transactions</h3>
+          <span class="material-symbols-outlined text-indigo-500 bg-indigo-50 p-2 rounded-xl">check_circle</span>
+        </div>
+        <p class="text-4xl font-extrabold text-slate-800">{{ stats().successful_count }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6 flex flex-col justify-between bg-rose-50/30">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-rose-600 text-sm font-bold uppercase tracking-wider">Failed Transactions</h3>
+          <span class="material-symbols-outlined text-rose-500 bg-rose-100 p-2 rounded-xl">error</span>
+        </div>
+        <p class="text-4xl font-extrabold text-rose-600">{{ stats().failed_count }}</p>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <!-- Tab Filters -->
+      <div class="border-b border-slate-200 px-6 py-4 flex items-center gap-6 text-sm font-semibold">
+        <button (click)="setFilter('all')" [ngClass]="filter() === 'all' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">All Payments</button>
+        <button (click)="setFilter('succeeded')" [ngClass]="filter() === 'succeeded' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Succeeded</button>
+        <button (click)="setFilter('failed')" [ngClass]="filter() === 'failed' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Failed</button>
+        <button (click)="setFilter('pending')" [ngClass]="filter() === 'pending' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Pending</button>
+      </div>
+
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tenant</th>
+            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
+            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Integration Ref</th>
+            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let p of filteredPayments" class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="font-bold text-slate-900">{{ p.subscription?.tenant?.name || 'Unknown Tenant' }}</div>
+              <div class="text-xs font-medium text-slate-500 mt-0.5">{{ p.date | date:'medium' }}</div>
+            </td>
+            
+            <td class="px-6 py-4">
+              <div class="text-lg font-extrabold text-slate-800">GH₵{{ p.amount | number:'1.2-2' }}</div>
+            </td>
+
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                    [ngClass]="{
+                      'bg-emerald-100 text-emerald-700': p.status === 'succeeded' || p.status === 'paid',
+                      'bg-rose-100 text-rose-700': p.status === 'failed',
+                      'bg-amber-100 text-amber-700': p.status === 'pending'
+                    }">
+                <div class="w-1.5 h-1.5 rounded-full" 
+                     [ngClass]="{
+                       'bg-emerald-500': p.status === 'succeeded' || p.status === 'paid',
+                       'bg-rose-500': p.status === 'failed',
+                       'bg-amber-500': p.status === 'pending'
+                     }"></div>
+                {{ p.status | titlecase }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4">
+              <div *ngIf="p.paystack_reference" class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <span class="material-symbols-outlined text-[14px] text-teal-600">link</span>
+                <span class="text-xs font-mono font-bold text-slate-600 tracking-wider">{{ p.paystack_reference }}</span>
+              </div>
+              <div *ngIf="!p.paystack_reference" class="text-sm font-semibold text-slate-400">
+                Manual Entry
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-right">
+              <div class="relative inline-block text-left action-menu-container">
+                <button (click)="toggleDropdown(p.id, $event)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                  <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div *ngIf="openDropdownId() === p.id" class="absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 overflow-hidden transform origin-top-right transition-all">
+                  <div class="py-1">
+                    <button class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-2 transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined text-[18px]">open_in_new</span> View in Paystack
+                    </button>
+                    <button *ngIf="p.status === 'failed'" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-emerald-600 flex items-center gap-2 transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined text-[18px]">refresh</span> Retry Payment
+                    </button>
+                    <div *ngIf="p.status === 'succeeded' || p.status === 'paid'" class="border-t border-slate-100 my-1"></div>
+                    <button *ngIf="p.status === 'succeeded' || p.status === 'paid'" class="w-full text-left px-4 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 flex items-center gap-2 transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined text-[18px]">undo</span> Issue Refund
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          
+          <tr *ngIf="filteredPayments.length === 0">
+            <td colspan="5" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <span class="material-symbols-outlined text-4xl text-slate-300 mb-3">receipt_long</span>
+                <p class="text-slate-500 font-medium">No payments match this filter.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://api.puxbay.com",
+    "secure": true,
+    "changeOrigin": false
+  }
+}

@@ -1,0 +1,205 @@
+<div class="h-full flex flex-col p-6 max-w-5xl mx-auto relative z-10 text-zinc-900 dark:text-white">
+
+  <!-- ── Header ── -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <div class="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-[32px]">notifications</span>
+      </div>
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400">
+          Notifications
+        </h1>
+        <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-1">
+          Review system alerts, inventory warnings, and general messages.
+        </p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <!-- Test Toast button -->
+      <button (click)="testToast()"
+        class="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-semibold transition-all text-zinc-600 dark:text-zinc-300">
+        <span class="material-symbols-outlined text-[16px]">bug_report</span>
+        Test Toast
+      </button>
+
+      @if (notificationService.unreadCount() > 0) {
+        <button (click)="markAllAsRead()"
+          class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-sm text-sm font-semibold transition-all hover:shadow text-zinc-700 dark:text-zinc-300">
+          <span class="material-symbols-outlined text-[18px] text-emerald-500">done_all</span>
+          Mark all as read
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Filter Tabs & Bulk Actions ── -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <!-- Tabs -->
+    <div class="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl">
+      <button (click)="setTab('all')"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all"
+        [ngClass]="activeTab() === 'all' ? 'bg-white dark:bg-zinc-700 shadow-sm text-zinc-900 dark:text-white' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+        All
+      </button>
+      <button (click)="setTab('alert')"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all"
+        [ngClass]="activeTab() === 'alert' ? 'bg-white dark:bg-zinc-700 shadow-sm text-rose-600 dark:text-rose-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+        Alerts
+      </button>
+      <button (click)="setTab('success')"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all"
+        [ngClass]="activeTab() === 'success' ? 'bg-white dark:bg-zinc-700 shadow-sm text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+        Success
+      </button>
+      <button (click)="setTab('info')"
+        class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all"
+        [ngClass]="activeTab() === 'info' ? 'bg-white dark:bg-zinc-700 shadow-sm text-blue-600 dark:text-blue-400' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+        System
+      </button>
+    </div>
+
+    <!-- Bulk Actions (show only when items selected) -->
+    <div class="flex items-center gap-2 h-10 transition-opacity" [class.opacity-0]="selectedIds().size === 0" [class.pointer-events-none]="selectedIds().size === 0">
+      <span class="text-sm font-bold text-amber-600 dark:text-amber-500 px-2">{{ selectedIds().size }} selected</span>
+      <button (click)="markSelectedAsRead()" class="p-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-200 transition-colors shadow-sm" title="Mark selected as read">
+        <span class="material-symbols-outlined !text-[18px]">drafts</span>
+      </button>
+      <button (click)="deleteSelected()" class="p-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200 transition-colors shadow-sm" title="Delete selected">
+        <span class="material-symbols-outlined !text-[18px]">delete</span>
+      </button>
+    </div>
+  </div>
+
+  @if (notificationService.loading()) {
+    <div class="flex justify-center items-center py-32">
+      <div class="relative">
+        <div class="absolute inset-0 bg-amber-500 rounded-full blur animate-pulse opacity-50"></div>
+        <div class="animate-spin relative rounded-full h-14 w-14 border-4 border-amber-500 border-t-transparent"></div>
+      </div>
+    </div>
+  }
+
+  @if (!notificationService.loading()) {
+    <!-- Select All Header -->
+    @if (filteredList().length > 0) {
+      <div class="px-5 py-3 mb-2 flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+        <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll()"
+          class="w-5 h-5 rounded border-zinc-300 text-amber-600 focus:ring-amber-600 cursor-pointer">
+        <span class="text-sm font-bold text-zinc-600 dark:text-zinc-400 select-none">Select All in current view</span>
+      </div>
+    }
+
+    <!-- Grouped Notifications -->
+    <div class="space-y-8 pb-10">
+      @for (group of groupedNotifications(); track group.label) {
+        <div>
+          <!-- Date Header -->
+          <div class="flex items-center gap-3 mb-3 pl-2">
+            <h3 class="font-extrabold text-sm uppercase tracking-widest text-zinc-400">{{ group.label }}</h3>
+            <div class="h-px flex-1 bg-zinc-200 dark:bg-zinc-800"></div>
+          </div>
+
+          <!-- Notification Items -->
+          <div class="glass-panel rounded-2xl overflow-hidden shadow-xl border border-white/40 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl">
+            <div class="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+              @for (notif of group.items; track notif.id) {
+                <div class="notif-item p-4 sm:p-5 flex flex-col sm:flex-row gap-4 border-l-4 transition-all"
+                  [ngClass]="{
+                    'border-transparent bg-transparent': notif.is_read,
+                    'border-amber-500 bg-white dark:bg-zinc-800/50': !notif.is_read,
+                    'bg-amber-50 dark:bg-amber-900/20': selectedIds().has(notif.id)
+                  }">
+                  
+                  <div class="flex items-start gap-4 flex-1">
+                    <!-- Checkbox -->
+                    <div class="pt-2">
+                      <input type="checkbox" [checked]="selectedIds().has(notif.id)" (change)="toggleSelection(notif.id)"
+                        class="w-5 h-5 rounded border-zinc-300 text-amber-600 focus:ring-amber-600 cursor-pointer">
+                    </div>
+
+                    <!-- Icon -->
+                    <div class="shrink-0 w-11 h-11 flex items-center justify-center rounded-full"
+                      [ngClass]="{
+                        'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400': notif.type === 'success',
+                        'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400': notif.type === 'alert' || notif.type === 'error',
+                        'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400': notif.type === 'warning',
+                        'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400': notif.type === 'info' || !notif.type
+                      }">
+                      @switch (notif.type) {
+                        @case ('success') { <span class="material-symbols-outlined text-[22px]">check_circle</span> }
+                        @case ('alert') { <span class="material-symbols-outlined text-[22px]">error</span> }
+                        @case ('error') { <span class="material-symbols-outlined text-[22px]">cancel</span> }
+                        @case ('warning') { <span class="material-symbols-outlined text-[22px]">warning</span> }
+                        @default { <span class="material-symbols-outlined text-[22px]">info</span> }
+                      }
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                      <div class="flex justify-between items-start gap-2">
+                        <div class="flex items-center gap-2">
+                          <h3 class="font-bold text-base leading-tight truncate"
+                            [ngClass]="!notif.is_read ? 'text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400'">
+                            {{ notif.title }}
+                          </h3>
+                          <!-- Pulsing Dot for Unread -->
+                          @if (!notif.is_read) {
+                            <span class="relative flex h-2.5 w-2.5">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                            </span>
+                          }
+                        </div>
+                        <div class="text-[11px] font-bold tracking-wide uppercase whitespace-nowrap text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-1 rounded-md">
+                          {{ notif.created_at | date: 'shortTime' }}
+                        </div>
+                      </div>
+                      <p class="text-sm mt-1.5 leading-relaxed line-clamp-2"
+                        [ngClass]="!notif.is_read ? 'text-zinc-700 dark:text-zinc-300' : 'text-zinc-500 dark:text-zinc-500'">
+                        {{ notif.message }}
+                      </p>
+                      
+                      @if (notif.link) {
+                        <a [href]="notif.link" class="inline-block mt-2 text-xs font-bold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-lg transition-colors">
+                          View Details &rarr;
+                        </a>
+                      }
+                    </div>
+                  </div>
+                  
+                  @if (!notif.is_read) {
+                    <div class="flex sm:flex-col justify-end items-end shrink-0 pt-2 sm:pt-0">
+                      <button (click)="markRead(notif.id)"
+                        class="group flex items-center gap-1.5 px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-[11px] font-extrabold uppercase tracking-widest text-zinc-400 hover:text-emerald-500 transition-colors"
+                        title="Mark as read">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        Mark Read
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (filteredList().length === 0) {
+        <div class="py-24 px-6 flex flex-col items-center justify-center text-center glass-panel rounded-3xl mt-4">
+          <div class="w-24 h-24 bg-zinc-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <span class="material-symbols-outlined text-[40px] text-zinc-400 dark:text-zinc-500">
+              {{ activeTab() === 'all' ? 'notifications_off' : 'filter_list_off' }}
+            </span>
+          </div>
+          <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+            {{ activeTab() === 'all' ? "You're all caught up!" : "No " + activeTab() + " notifications" }}
+          </h3>
+          <p class="text-zinc-500 dark:text-zinc-400 max-w-sm text-sm leading-relaxed">
+            {{ activeTab() === 'all' ? "You have no new notifications. We'll let you know when something important happens." : "There are currently no notifications matching this category filter." }}
+          </p>
+        </div>
+      }
+    </div>
+  }
+</div>

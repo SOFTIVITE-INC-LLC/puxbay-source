@@ -1,0 +1,331 @@
+<div class="animate-fade-in">
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent"></div>
+    </div>
+  } @else {
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-8">
+      <a routerLink="/store/cart" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700/50 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:border-zinc-600 transition-all">
+        <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
+      </a>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Checkout</h1>
+        <p class="text-sm text-slate-400 dark:text-zinc-500 font-medium">Complete your order</p>
+      </div>
+    </div>
+
+    <!-- Error banner -->
+    @if (checkoutError()) {
+      <div class="mb-6 bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-3 animate-fade-in">
+        <span class="material-symbols-outlined text-rose-400">error</span>
+        <p class="text-sm font-medium text-rose-400">{{ checkoutError() }}</p>
+      </div>
+    }
+
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Form -->
+      <div class="flex-1">
+        <form [formGroup]="checkoutForm" (ngSubmit)="processCheckout()" class="space-y-6">
+          <!-- Contact -->
+          <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[20px] text-indigo-400">person</span>
+              Contact Information
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">First Name</label>
+                <input type="text" formControlName="firstName"
+                       [ngClass]="isFieldInvalid('firstName') ? 'border-rose-500/50 ring-rose-500/20' : 'border-slate-300 dark:border-zinc-700/50 focus:ring-indigo-500'"
+                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 transition-all">
+                @if (isFieldInvalid('firstName')) {
+                  <p class="text-xs text-rose-400 mt-1">First name is required</p>
+                }
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Last Name</label>
+                <input type="text" formControlName="lastName"
+                       [ngClass]="isFieldInvalid('lastName') ? 'border-rose-500/50 ring-rose-500/20' : 'border-slate-300 dark:border-zinc-700/50 focus:ring-indigo-500'"
+                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 transition-all">
+                @if (isFieldInvalid('lastName')) {
+                  <p class="text-xs text-rose-400 mt-1">Last name is required</p>
+                }
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Email</label>
+                <input type="email" formControlName="email" (blur)="onEmailBlur()"
+                       [ngClass]="isFieldInvalid('email') ? 'border-rose-500/50' : 'border-slate-300 dark:border-zinc-700/50'"
+                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                @if (isFieldInvalid('email')) {
+                  <p class="text-xs text-rose-400 mt-1">Valid email is required</p>
+                }
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Phone (optional)</label>
+                <input type="tel" formControlName="phone"
+                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery Method Selector -->
+          <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[20px] text-indigo-400">delivery_dining</span>
+              Delivery Method
+            </h3>
+            <div class="flex gap-4">
+              @if (settingsService.settings()?.allow_pickup) {
+                <label class="flex-1 relative cursor-pointer group">
+                  <input type="radio" name="deliveryMethod" value="pickup" 
+                         [ngModel]="deliveryMethod()" (ngModelChange)="deliveryMethod.set($event)"
+                         [ngModelOptions]="{standalone: true}"
+                         class="peer sr-only">
+                  <div class="p-4 rounded-xl border border-slate-300 dark:border-zinc-700/50 bg-slate-100 dark:bg-zinc-800/50 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 transition-all text-center">
+                    <span class="material-symbols-outlined !text-[24px] text-slate-500 dark:text-zinc-400 peer-checked:text-indigo-400 mb-2">storefront</span>
+                    <div class="font-bold text-slate-900 dark:text-white">Store Pickup</div>
+                    <div class="text-xs text-slate-500 dark:text-zinc-400 mt-1">Free</div>
+                  </div>
+                </label>
+              }
+              @if (settingsService.settings()?.allow_delivery) {
+                <label class="flex-1 relative cursor-pointer group">
+                  <input type="radio" name="deliveryMethod" value="delivery"
+                         [ngModel]="deliveryMethod()" (ngModelChange)="deliveryMethod.set($event)"
+                         [ngModelOptions]="{standalone: true}"
+                         class="peer sr-only">
+                  <div class="p-4 rounded-xl border border-slate-300 dark:border-zinc-700/50 bg-slate-100 dark:bg-zinc-800/50 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 transition-all text-center">
+                    <span class="material-symbols-outlined !text-[24px] text-slate-500 dark:text-zinc-400 peer-checked:text-indigo-400 mb-2">local_shipping</span>
+                    <div class="font-bold text-slate-900 dark:text-white">Delivery</div>
+                    <div class="text-xs text-slate-500 dark:text-zinc-400 mt-1">{{ deliveryFee | appCurrency }}</div>
+                  </div>
+                </label>
+              }
+            </div>
+          </div>
+          
+          <!-- Payment Method Selector -->
+          <div class="glass-panel rounded-2xl p-6 relative overflow-hidden mt-6">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[20px] text-indigo-400">payments</span>
+              Payment Method
+            </h3>
+            <div class="flex gap-4">
+              <label class="flex-1 relative cursor-pointer group">
+                <input type="radio" name="paymentMethod" value="online" 
+                       [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)"
+                       [ngModelOptions]="{standalone: true}"
+                       class="peer sr-only">
+                <div class="p-4 rounded-xl border border-slate-300 dark:border-zinc-700/50 bg-slate-100 dark:bg-zinc-800/50 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 transition-all text-center">
+                  <span class="material-symbols-outlined !text-[24px] text-slate-500 dark:text-zinc-400 peer-checked:text-indigo-400 mb-2">credit_card</span>
+                  <div class="font-bold text-slate-900 dark:text-white">Pay Online</div>
+                  <div class="text-xs text-slate-500 dark:text-zinc-400 mt-1">Cards, Mobile Money</div>
+                </div>
+              </label>
+              
+              <label class="flex-1 relative cursor-pointer group" [class.opacity-50]="deliveryMethod() === 'delivery'" [class.pointer-events-none]="deliveryMethod() === 'delivery'">
+                <input type="radio" name="paymentMethod" value="pickup"
+                       [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)"
+                       [ngModelOptions]="{standalone: true}"
+                       [disabled]="deliveryMethod() === 'delivery'"
+                       class="peer sr-only">
+                <div class="p-4 rounded-xl border border-slate-300 dark:border-zinc-700/50 bg-slate-100 dark:bg-zinc-800/50 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 transition-all text-center">
+                  <span class="material-symbols-outlined !text-[24px] text-slate-500 dark:text-zinc-400 peer-checked:text-indigo-400 mb-2">storefront</span>
+                  <div class="font-bold text-slate-900 dark:text-white">Pay at Pickup</div>
+                  <div class="text-xs text-slate-500 dark:text-zinc-400 mt-1">Cash, POS</div>
+                </div>
+              </label>
+            </div>
+            @if (deliveryMethod() === 'delivery') {
+              <p class="text-xs text-slate-500 dark:text-zinc-400 mt-3 flex items-center gap-1"><span class="material-symbols-outlined !text-[14px]">info</span> Pay at Pickup is not available for delivery.</p>
+            }
+          </div>
+
+          @if (deliveryMethod() === 'delivery') {
+            <div class="glass-panel rounded-2xl p-6 animate-fade-in relative overflow-hidden">
+              <h3 class="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                <span class="material-symbols-outlined !text-[20px] text-indigo-400">place</span>
+                Shipping Address
+              </h3>
+              
+              <div class="mb-5">
+                <button type="button" (click)="getLocation()" [disabled]="locationLoading()" class="w-full flex items-center justify-center gap-2 py-3.5 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200 dark:border-indigo-500/30 transition-all font-bold text-sm">
+                  @if (locationLoading()) {
+                    <span class="material-symbols-outlined animate-spin !text-[18px]">refresh</span> Getting GPS location...
+                  } @else {
+                    <span class="material-symbols-outlined !text-[18px]">my_location</span> Use My Current Location
+                  }
+                </button>
+              </div>
+              <div class="flex items-center gap-4 mb-5">
+                <div class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></div>
+                <span class="text-[10px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-wider">Or Enter Manually</span>
+                <div class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></div>
+              </div>
+
+              <div class="space-y-4">
+                <div class="relative">
+                  <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Address</label>
+                  <input type="text" formControlName="address" (input)="onAddressInput($event)"
+                         [ngClass]="isFieldInvalid('address') ? 'border-rose-500/50' : 'border-slate-300 dark:border-zinc-700/50'"
+                         class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                  
+                  @if (isSearchingAddress()) {
+                    <div class="absolute right-4 top-[38px]">
+                      <span class="material-symbols-outlined animate-spin text-slate-400 !text-[18px]">refresh</span>
+                    </div>
+                  }
+
+                  @if (addressSuggestions().length > 0) {
+                    <div class="absolute z-10 w-full mt-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      @for (suggestion of addressSuggestions(); track suggestion.place_id) {
+                        <button type="button" (click)="selectAddress(suggestion)"
+                                class="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 border-b border-slate-100 dark:border-zinc-800/50 last:border-0 transition-colors">
+                          <p class="text-sm font-medium text-slate-900 dark:text-white truncate">{{ suggestion.display_name }}</p>
+                        </button>
+                      }
+                    </div>
+                  }
+
+                  @if (isFieldInvalid('address')) {
+                    <p class="text-xs text-rose-400 mt-1">Address is required</p>
+                  }
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">City</label>
+                  <input type="text" formControlName="city"
+                         [ngClass]="isFieldInvalid('city') ? 'border-rose-500/50' : 'border-slate-300 dark:border-zinc-700/50'"
+                         class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                  @if (isFieldInvalid('city')) {
+                    <p class="text-xs text-rose-400 mt-1">City is required</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Order Notes (Special Instructions) -->
+          <div class="glass-panel rounded-2xl p-6 relative overflow-hidden mt-6">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[20px] text-indigo-400">speaker_notes</span>
+              Order Notes (Optional)
+            </h3>
+            <textarea formControlName="orderNotes" rows="3" placeholder="Special instructions for delivery or pickup..."
+                      class="w-full bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"></textarea>
+          </div>
+
+          <!-- Submit (visible on mobile below form) -->
+          <button type="submit"
+                  [disabled]="checkoutForm.invalid || isProcessing()"
+                  class="lg:hidden w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-2xl font-bold text-base shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-40 flex items-center justify-center gap-2">
+            @if (isProcessing()) {
+              <span class="material-symbols-outlined animate-spin !text-[20px]">refresh</span> Processing...
+            } @else {
+              <span class="material-symbols-outlined !text-[20px]">lock</span> Pay {{ finalTotal() | appCurrency }}
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="w-full lg:w-80 flex-shrink-0">
+        <div class="glass-panel rounded-[2rem] p-6 sticky top-24 space-y-5">
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Order Summary</h3>
+
+          <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+            @for (item of cartService.cartDetails(); track item.product_id) {
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-slate-100 dark:bg-zinc-800/50 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  @if (item.product.image_url) {
+                    <img [src]="item.product.image_url" class="w-full h-full object-cover">
+                  } @else {
+                    <span class="material-symbols-outlined !text-[18px] text-zinc-700">inventory_2</span>
+                  }
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-slate-900 dark:text-white truncate">{{ item.product.name }}</p>
+                  <p class="text-xs text-slate-400 dark:text-zinc-500">Qty: {{ item.quantity }}</p>
+                </div>
+                <p class="text-sm font-bold text-slate-900 dark:text-white flex-shrink-0">{{ (item.quantity * item.product.selling_price) | appCurrency }}</p>
+              </div>
+            }
+          </div>
+
+          <div class="space-y-2 pt-4 border-t border-slate-200 dark:border-zinc-800 text-sm">
+            <div class="flex justify-between text-slate-500 dark:text-zinc-400">
+              <span>Subtotal</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ cartService.cartTotal() | appCurrency }}</span>
+            </div>
+            @if (deliveryMethod() === 'delivery') {
+              <div class="flex justify-between text-slate-500 dark:text-zinc-400">
+                <span>Delivery</span>
+                <span class="font-bold text-emerald-400">{{ deliveryFee | appCurrency }}</span>
+              </div>
+            } @else {
+              <div class="flex justify-between text-slate-500 dark:text-zinc-400">
+                <span>Shipping</span>
+                <span class="font-bold text-emerald-400">Free</span>
+              </div>
+            }
+            @if (discountAmount() > 0) {
+              <div class="flex justify-between text-emerald-400">
+                <span>Discount ({{ appliedPromoCode() }})</span>
+                <span class="font-bold">-{{ discountAmount() | appCurrency }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Promo Code Section -->
+          <div class="pt-4 border-t border-slate-200 dark:border-zinc-800">
+            @if (appliedPromoCode()) {
+              <div class="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-emerald-400 !text-[18px]">check_circle</span>
+                  <span class="text-sm font-bold text-emerald-400">{{ appliedPromoCode() }}</span>
+                </div>
+                <button (click)="removePromoCode()" class="text-xs font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white transition-colors">Remove</button>
+              </div>
+            } @else {
+              <div class="flex gap-2">
+                <input type="text" [ngModel]="promoCodeInput()" (ngModelChange)="promoCodeInput.set($event)" [ngModelOptions]="{standalone: true}" placeholder="Promo code (e.g. WELCOME10)" 
+                       class="w-full bg-slate-100 dark:bg-zinc-800/50 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-indigo-500 uppercase">
+                <button (click)="applyPromoCode()" [disabled]="!promoCodeInput() || isApplyingPromo()"
+                        class="px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-700 text-slate-900 dark:text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-50 whitespace-nowrap">
+                  {{ isApplyingPromo() ? '...' : 'Apply' }}
+                </button>
+              </div>
+              @if (promoMessage()) {
+                <p class="text-xs mt-2" [ngClass]="promoMessage()!.type === 'error' ? 'text-rose-400' : 'text-emerald-400'">
+                  {{ promoMessage()!.text }}
+                </p>
+              }
+            }
+          </div>
+
+          <div class="pt-4 border-t border-slate-200 dark:border-zinc-800 flex justify-between items-end">
+            <span class="text-sm text-slate-500 dark:text-zinc-400">Total</span>
+            <span class="text-2xl font-black text-slate-900 dark:text-white">{{ finalTotal() | appCurrency }}</span>
+          </div>
+
+          <!-- Desktop submit button -->
+          <button (click)="processCheckout()"
+                  [disabled]="checkoutForm.invalid || isProcessing()"
+                  class="hidden lg:flex w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-2xl font-bold text-base shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-40 items-center justify-center gap-2">
+            @if (isProcessing()) {
+              <span class="material-symbols-outlined animate-spin !text-[20px]">refresh</span> Processing...
+            } @else {
+              <span class="material-symbols-outlined !text-[20px]">lock</span> Pay Now
+            }
+          </button>
+
+          <p class="text-[11px] text-zinc-600 text-center leading-relaxed">
+            Your payment is secured with 256-bit SSL encryption
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

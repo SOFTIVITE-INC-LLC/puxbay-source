@@ -1,0 +1,256 @@
+<div class="h-full flex flex-col space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center px-6 pt-6">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-400 dark:to-violet-500">
+        B2B &amp; Wholesale
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">Generate quotes, approve proposals, and convert to orders seamlessly.</p>
+    </div>
+    <button (click)="isQuoteModalOpen.set(true)"
+      class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2">
+      <span class="material-symbols-outlined text-[20px]">add</span> New Quote
+    </button>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-4 gap-4 px-6">
+    @for (stat of [
+      {label:'Total Quotes', value: totalQuotes(), icon:'description', color:'indigo', filter:'all'},
+      {label:'Pending Review', value: pendingQuotes(), icon:'pending', color:'amber', filter:'pending'},
+      {label:'Approved', value: approvedQuotes(), icon:'check_circle', color:'emerald', filter:'approved'},
+      {label:'Converted', value: convertedQuotes(), icon:'shopping_cart', color:'blue', filter:'converted'}
+    ]; track stat.label) {
+      <button (click)="filterStatus.set(stat.filter)"
+        [class]="filterStatus() === stat.filter
+          ? 'bg-white dark:bg-zinc-900 rounded-2xl border-2 border-indigo-400 dark:border-indigo-500 p-5 text-left shadow-lg transition-all'
+          : 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 text-left hover:border-zinc-300 dark:hover:border-zinc-600 transition-all'">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-[20px] text-{{ stat.color }}-500">{{ stat.icon }}</span>
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">{{ stat.label }}</p>
+        </div>
+        <p class="text-4xl font-black">{{ stat.value }}</p>
+      </button>
+    }
+  </div>
+
+  <!-- Quotes Table -->
+  <div class="flex-1 overflow-auto px-6 pb-6">
+    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900">
+      @if (b2bService.loading()) {
+        <div class="flex justify-center items-center py-20">
+          <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+        </div>
+      } @else {
+        <table class="w-full text-sm">
+          <thead class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500">
+            <tr>
+              <th class="px-6 py-4 font-bold text-left">Quote ID</th>
+              <th class="px-6 py-4 font-bold text-left">Customer</th>
+              <th class="px-6 py-4 font-bold text-left">Status</th>
+              <th class="px-6 py-4 font-bold text-right">Total</th>
+              <th class="px-6 py-4 font-bold text-left">Date</th>
+              <th class="px-6 py-4 font-bold text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+            @for (q of filteredQuotes(); track q.id) {
+              <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 font-mono text-indigo-600 dark:text-indigo-400 font-bold text-xs">{{ q.id.slice(0,8).toUpperCase() }}</td>
+                <td class="px-6 py-4 font-semibold text-zinc-700 dark:text-zinc-300">{{ q.customer_id }}</td>
+                <td class="px-6 py-4">
+                  <span class="px-2.5 py-1 text-xs font-bold rounded-full uppercase tracking-wide {{ statusBadge(q.status) }}">
+                    {{ q.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right font-black">{{ q.total | appCurrency }}</td>
+                <td class="px-6 py-4 text-zinc-500 text-xs">{{ q.created_at | date:'mediumDate' }}</td>
+                <td class="px-6 py-4">
+                  <div class="flex gap-2 items-center">
+                    <button (click)="viewQuote(q)" class="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors">
+                      View
+                    </button>
+                    @if (q.status === 'pending') {
+                      <button (click)="approveQuote(q.id)" class="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl hover:bg-emerald-100 transition-colors">
+                        Approve
+                      </button>
+                      <button (click)="rejectQuote(q.id)" class="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 rounded-xl hover:bg-rose-100 transition-colors">
+                        Reject
+                      </button>
+                    }
+                    @if (q.status === 'approved') {
+                      <button (click)="convertToOrder(q.id)" class="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 transition-colors">
+                        → Order
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (filteredQuotes().length === 0) {
+              <tr>
+                <td colspan="6" class="px-6 py-20 text-center">
+                  <div class="space-y-3">
+                    <span class="material-symbols-outlined text-[72px] text-zinc-300 dark:text-zinc-600">request_quote</span>
+                    <p class="font-bold text-zinc-500">No quotes found</p>
+                    <p class="text-sm text-zinc-400">
+                      @if (filterStatus() !== 'all') { No {{ filterStatus() }} quotes. } @else { Create your first B2B quote to get started. }
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- ─── Create Quote Modal ─── -->
+@if (isQuoteModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 backdrop-blur-md p-4" (click)="isQuoteModalOpen.set(false)">
+    <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-white dark:border-zinc-700 flex flex-col"
+      (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight">New Quotation</h2>
+          <p class="text-sm text-zinc-500 mt-0.5">Create a wholesale pricing proposal</p>
+        </div>
+        <button (click)="isQuoteModalOpen.set(false)" class="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <!-- Customer Select -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Customer / Account</label>
+          <select [ngModel]="newQuote().customer_id" (ngModelChange)="newQuote.update(q => ({...q, customer_id: $event}))"
+            class="w-full p-4 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-bold transition-all appearance-none">
+            <option value="">Select a customer…</option>
+            @for (c of customerService.customers(); track c.id) {
+              <option [value]="c.id">{{ c.name }} ({{ c.email }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Internal Notes <span class="text-zinc-400 font-medium normal-case">(optional)</span></label>
+          <textarea rows="2" [ngModel]="newQuote().notes" (ngModelChange)="newQuote.update(q => ({...q, notes: $event}))"
+            placeholder="Add any special notes or terms…"
+            class="w-full p-4 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 resize-none focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-medium transition-all"></textarea>
+        </div>
+
+        <!-- Line Items -->
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <label class="text-xs font-black uppercase tracking-wider text-zinc-500">Line Items</label>
+            <button (click)="addItem()" class="text-xs text-indigo-600 dark:text-indigo-400 font-black hover:text-indigo-700 flex items-center gap-1 transition-colors">
+              <span class="material-symbols-outlined text-[14px]">add</span> Add Item
+            </button>
+          </div>
+          <div class="space-y-2">
+            <div class="grid grid-cols-[1fr_80px_110px_36px] gap-2 text-[10px] font-black text-zinc-400 uppercase px-1">
+              <span>Product</span><span class="text-center">Qty</span><span class="text-right">Unit Price</span><span></span>
+            </div>
+            @for (item of newQuote().items; track $index) {
+              <div class="grid grid-cols-[1fr_80px_110px_36px] gap-2 items-center">
+                <select [ngModel]="item.product_id" (ngModelChange)="onProductSelect($index, $event)"
+                  class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black/40 text-sm font-medium focus:outline-none focus:border-indigo-500 transition-all">
+                  <option value="">Select…</option>
+                  @for (p of catalogService.products(); track p.id) {
+                    <option [value]="p.id">{{ p.name }}</option>
+                  }
+                </select>
+                <input type="number" [ngModel]="item.qty"
+                  (ngModelChange)="newQuote.update(q => ({...q, items: q.items.map((i, idx) => idx === $index ? {...i, qty: +$event} : i)}))"
+                  min="1" class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black/40 text-sm text-center font-bold focus:outline-none focus:border-indigo-500 transition-all">
+                <input type="number" [ngModel]="item.unit_price"
+                  (ngModelChange)="newQuote.update(q => ({...q, items: q.items.map((i, idx) => idx === $index ? {...i, unit_price: +$event} : i)}))"
+                  min="0" step="0.01" class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black/40 text-sm text-right font-bold focus:outline-none focus:border-indigo-500 transition-all">
+                <button (click)="removeItem($index)" class="w-9 h-9 flex items-center justify-center text-zinc-400 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-900/30 rounded-xl transition-colors">
+                  <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="p-5 bg-indigo-50 dark:bg-indigo-950/30 rounded-2xl flex justify-between items-center border border-indigo-100 dark:border-indigo-900">
+          <span class="font-black text-indigo-700 dark:text-indigo-300 text-sm uppercase tracking-wider">Quote Total</span>
+          <span class="text-3xl font-black text-indigo-700 dark:text-indigo-300">{{ quoteTotal() | appCurrency }}</span>
+        </div>
+
+        <button (click)="createQuote()"
+          class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black text-lg hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-xl shadow-indigo-500/30">
+          Create Quotation
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ─── View Quote Modal ─── -->
+@if (isViewModalOpen() && selectedQuote()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 backdrop-blur-md p-4" (click)="isViewModalOpen.set(false)">
+    <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-[32px] w-full max-w-lg shadow-2xl border border-white dark:border-zinc-700 overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <div class="p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight">Quote Details</h2>
+          <p class="font-mono text-xs text-zinc-400 mt-0.5">{{ selectedQuote().id?.toUpperCase() }}</p>
+        </div>
+        <button (click)="isViewModalOpen.set(false)" class="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-8 space-y-5">
+        <div class="grid grid-cols-2 gap-5">
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Status</p>
+            <span class="px-3 py-1 rounded-full text-sm font-black uppercase {{ statusBadge(selectedQuote().status) }}">
+              {{ selectedQuote().status }}
+            </span>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Total</p>
+            <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">{{ selectedQuote().total | appCurrency }}</p>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Created</p>
+            <p class="font-bold text-sm">{{ selectedQuote().created_at | date:'mediumDate' }}</p>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Valid Until</p>
+            <p class="font-bold text-sm">{{ selectedQuote().expires_at | date:'mediumDate' }}</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          @if (selectedQuote().status === 'pending') {
+            <button (click)="approveQuote(selectedQuote().id); isViewModalOpen.set(false)"
+              class="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black transition-colors">
+              ✓ Approve Quote
+            </button>
+            <button (click)="rejectQuote(selectedQuote().id); isViewModalOpen.set(false)"
+              class="flex-1 py-3.5 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black transition-colors">
+              ✕ Reject
+            </button>
+          }
+          @if (selectedQuote().status === 'approved') {
+            <button (click)="convertToOrder(selectedQuote().id)"
+              [disabled]="isConverting()"
+              class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50">
+              @if (isConverting()) { Converting… } @else { → Convert to Sales Order }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

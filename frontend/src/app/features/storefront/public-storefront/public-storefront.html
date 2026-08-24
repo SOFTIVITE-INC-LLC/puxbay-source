@@ -1,0 +1,393 @@
+<div class="min-h-screen transition-colors duration-300" [class.dark]="darkMode()" [style.font-family]="'Outfit, sans-serif'">
+  <div class="min-h-screen bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+  
+  <!-- Navbar -->
+  <nav class="bg-white dark:bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-slate-200 dark:border-zinc-800 sticky top-0 z-40 transition-colors" [style.border-bottom-color]="$any(storefrontService.settings())?.primary_color">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center gap-4">
+          <div class="font-black text-2xl" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
+            {{ $any(storefrontService.settings())?.store_name || 'My Store' }}
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="relative hidden md:block">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 dark:text-zinc-400 material-symbols-outlined !text-[18px]">search</span>
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search products..." class="pl-10 pr-4 py-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-full bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 focus:bg-white dark:focus:bg-white dark:bg-zinc-900 focus:ring-2 outline-none w-64 transition-all">
+          </div>
+          <button (click)="darkMode.set(!darkMode())" class="p-2 text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:text-black dark:hover:text-slate-900 dark:text-white transition-colors">
+            <span class="material-symbols-outlined !text-[24px]">{{ darkMode() ? 'light_mode' : 'dark_mode' }}</span>
+          </button>
+          <button (click)="isCartOpen.set(true)" class="relative p-2 text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:text-black dark:hover:text-slate-900 dark:text-white transition-colors">
+            <span class="material-symbols-outlined !text-[28px]">shopping_cart</span>
+            @if (cart().length > 0) {
+              <span class="absolute top-0 right-0 bg-red-500 text-slate-900 dark:text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white dark:border-zinc-900">{{ cart().length }}</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Banner -->
+  <div class="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white py-12 px-4 text-center">
+    <h1 class="text-4xl font-black mb-4">{{ $any(storefrontService.settings())?.welcome_message || 'Welcome to our store' }}</h1>
+    <p class="text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto">{{ $any(storefrontService.settings())?.about_text || 'Browse our catalog below.' }}</p>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
+    
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 shrink-0">
+      <div class="sticky top-24">
+        <h2 class="font-bold text-lg mb-4">Categories</h2>
+        <div class="space-y-1 mb-8">
+          @for (cat of categories(); track cat) {
+            <button (click)="selectedCategory.set(cat)"
+                    [class.bg-zinc-100]="selectedCategory() === cat" 
+                    [class.dark:bg-slate-100 dark:bg-zinc-800]="selectedCategory() === cat"
+                    [class.font-bold]="selectedCategory() === cat"
+                    class="w-full text-left px-4 py-2 rounded-xl text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-slate-100 dark:bg-zinc-800 transition-colors">
+              {{ cat }}
+            </button>
+          }
+        </div>
+        
+        <h2 class="font-bold text-lg mb-4">Filters</h2>
+        <div class="space-y-6">
+          
+          <!-- My Wishlist Toggle -->
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <div class="relative flex-shrink-0">
+              <input type="checkbox" [ngModel]="showWishlistOnly()" (ngModelChange)="showWishlistOnly.set($event)" class="sr-only">
+              <div class="w-10 h-6 bg-zinc-200 dark:bg-zinc-700 rounded-full transition-colors" [class.bg-rose-500]="showWishlistOnly()"></div>
+              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" [class.translate-x-4]="showWishlistOnly()"></div>
+            </div>
+            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-slate-900 dark:text-white transition-colors flex items-center gap-1.5">
+              <span class="material-symbols-outlined !text-[16px]" [class.text-rose-500]="showWishlistOnly()">favorite</span>
+              My Wishlist
+            </span>
+          </label>
+          
+          <!-- In Stock Toggle -->
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <div class="relative">
+              <input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event)" class="sr-only">
+              <div class="w-10 h-6 bg-zinc-200 dark:bg-zinc-700 rounded-full transition-colors" [class.bg-indigo-500]="inStockOnly()"></div>
+              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" [class.translate-x-4]="inStockOnly()"></div>
+            </div>
+            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-slate-900 dark:text-white transition-colors">In Stock Only</span>
+          </label>
+          
+          <!-- Price Range -->
+          <div>
+            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 block mb-3">Price Range</span>
+            <div class="flex items-center gap-2">
+              <input type="number" placeholder="Min" 
+                     [ngModel]="priceRange().min || null" 
+                     (ngModelChange)="priceRange.update(r => ({...r, min: $event || 0}))"
+                     class="w-full p-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 text-sm focus:bg-white dark:focus:bg-white dark:bg-zinc-900 outline-none transition-colors">
+              <span class="text-slate-500 dark:text-zinc-400">-</span>
+              <input type="number" placeholder="Max" 
+                     [ngModel]="priceRange().max" 
+                     (ngModelChange)="priceRange.update(r => ({...r, max: $event || null}))"
+                     class="w-full p-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 text-sm focus:bg-white dark:focus:bg-white dark:bg-zinc-900 outline-none transition-colors">
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </aside>
+
+    <!-- Product Grid -->
+    <main class="flex-1">
+      <div class="flex justify-between items-center mb-6">
+        <p class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">{{ filteredProducts().length }} product(s)</p>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">Sort by:</span>
+          <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" 
+                  class="bg-transparent border-none text-sm font-black focus:ring-0 outline-none cursor-pointer">
+            <option value="newest">Newest Arrivals</option>
+            <option value="price_low_high">Price: Low to High</option>
+            <option value="price_high_low">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (p of filteredProducts(); track p.id) {
+          <div class="bg-white dark:bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-sm border border-zinc-100 dark:border-slate-200 dark:border-zinc-800 group hover:shadow-xl transition-shadow flex flex-col relative">
+            <div class="aspect-square bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
+              @if (p.images && p.images.length > 0) {
+                <img [src]="p.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500">
+              } @else {
+                <span class="material-symbols-outlined !text-[48px] text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+              }
+              
+              <!-- Quick View Button Overlay -->
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button (click)="openQuickView(p)" class="px-4 py-2 bg-white text-black font-bold rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px]">visibility</span>
+                  Quick View
+                </button>
+              </div>
+              
+              <!-- Wishlist Heart Overlay -->
+              <button (click)="toggleWishlist(p.id)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm dark:bg-white dark:bg-zinc-900/90 shadow-sm flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
+                <span class="material-symbols-outlined font-bold" [ngClass]="wishlist().has(p.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
+              </button>
+            </div>
+            <div class="flex-1">
+              <p class="text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">{{ p.category || 'Uncategorized' }}</p>
+              <h3 class="font-bold text-lg leading-tight mb-2">{{ p.name }}</h3>
+              <p class="text-xl font-black" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
+                {{ p.selling_price | appCurrency }}
+              </p>
+            </div>
+            <button (click)="addToCart(p)" 
+                    class="mt-4 w-full py-2.5 rounded-xl font-bold text-slate-900 dark:text-white shadow-lg transition-transform active:scale-95"
+                    [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
+              Add to Cart
+            </button>
+          </div>
+        }
+        @if (filteredProducts().length === 0) {
+          <div class="col-span-full py-20 text-center text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">
+            <span class="material-symbols-outlined !text-[48px] mb-4">search_off</span>
+            <p class="font-bold text-lg">No products found</p>
+          </div>
+        }
+      </div>
+    </main>
+  </div>
+  
+  <!-- Recently Viewed Section -->
+  @if (recentlyViewedProducts().length > 0) {
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-zinc-200 dark:border-slate-200 dark:border-zinc-800">
+      <h2 class="text-2xl font-black mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
+        <span class="material-symbols-outlined text-indigo-500">history</span>
+        Recently Viewed
+      </h2>
+      <div class="flex gap-6 overflow-x-auto pb-6 snap-x">
+        @for (rp of recentlyViewedProducts(); track rp.id) {
+          <div class="min-w-[160px] md:min-w-[220px] shrink-0 bg-white dark:bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-100 dark:border-slate-200 dark:border-zinc-800 cursor-pointer hover:shadow-xl dark:hover:shadow-indigo-500/10 transition-all snap-start group relative"
+               (click)="openQuickView(rp)">
+            <!-- Wishlist Heart Overlay -->
+            <button (click)="toggleWishlist(rp.id); $event.stopPropagation()" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm dark:bg-slate-100 dark:bg-zinc-800/90 shadow flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
+              <span class="material-symbols-outlined !text-[16px] font-bold" [ngClass]="wishlist().has(rp.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
+            </button>
+            <div class="aspect-square bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
+              @if (rp.images && rp.images.length > 0) {
+                <img [src]="rp.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform">
+              } @else {
+                <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+              }
+            </div>
+            <h4 class="font-bold text-sm leading-tight mb-1 truncate text-zinc-900 dark:text-zinc-100">{{ rp.name }}</h4>
+            <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  
+  <!-- Sticky Cart Bar -->
+  @if (cart().length > 0 && !isCartOpen() && !isCheckoutOpen()) {
+    <div class="fixed bottom-0 left-0 w-full z-30 p-4 animate-slide-up">
+      <div class="max-w-2xl mx-auto bg-white dark:bg-slate-100 dark:bg-zinc-800 rounded-2xl shadow-2xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <span class="material-symbols-outlined">shopping_cart</span>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">{{ cart().length }} item(s) in cart</p>
+            <p class="text-lg font-black">{{ cartTotal() | appCurrency }}</p>
+          </div>
+        </div>
+        <button (click)="isCartOpen.set(true)" class="px-6 py-3 rounded-xl font-black text-slate-900 dark:text-white shadow-lg transition-transform active:scale-95"
+                [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
+          View Cart
+        </button>
+      </div>
+    </div>
+  }
+  
+</div>
+</div>
+
+<!-- Cart Drawer -->
+@if (isCartOpen()) {
+<div class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-colors duration-300" [class.dark]="darkMode()">
+  <div class="w-full max-w-md bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 h-full shadow-2xl flex flex-col animate-slide-in-right">
+    <div class="p-6 border-b border-zinc-200 dark:border-slate-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950">
+      <h2 class="text-2xl font-black">Your Cart</h2>
+      <button (click)="isCartOpen.set(false)" class="p-2 hover:bg-zinc-200 dark:hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      @for (item of cart(); track item.product.id) {
+        <div class="flex gap-4">
+          <div class="w-20 h-20 bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+          </div>
+          <div class="flex-1 flex flex-col justify-center">
+            <h4 class="font-bold leading-tight line-clamp-2 mb-1">{{ item.product.name }}</h4>
+            <p class="font-black text-indigo-600 dark:text-indigo-400 mb-2">{{ item.product.selling_price | appCurrency }}</p>
+            <div class="flex items-center gap-3">
+              <button (click)="updateQty(item.product.id, -1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold">-</button>
+              <span class="font-bold w-4 text-center">{{ item.qty }}</span>
+              <button (click)="updateQty(item.product.id, 1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold">+</button>
+            </div>
+          </div>
+        </div>
+      }
+      @if (cart().length === 0) {
+        <div class="text-center py-20 text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">
+          <span class="material-symbols-outlined !text-[48px] mb-4 opacity-50">shopping_cart</span>
+          <p class="font-bold">Your cart is empty</p>
+        </div>
+      }
+    </div>
+
+    @if (cart().length > 0) {
+      <div class="p-6 bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-slate-200 dark:border-zinc-800">
+        <div class="flex justify-between items-center mb-6">
+          <span class="text-lg font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">Subtotal</span>
+          <span class="text-3xl font-black">{{ cartTotal() | appCurrency }}</span>
+        </div>
+        <button (click)="startCheckout()" class="w-full py-4 rounded-xl font-black text-slate-900 dark:text-white text-lg bg-black dark:bg-zinc-100 dark:text-black hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-white transition-colors shadow-xl">
+          Checkout Now
+        </button>
+      </div>
+    }
+  </div>
+</div>
+}
+
+<!-- Checkout Modal -->
+@if (isCheckoutOpen() && !orderPlaced()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-colors duration-300" [class.dark]="darkMode()">
+  <div class="w-full max-w-2xl bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-full">
+    <div class="p-6 border-b border-zinc-200 dark:border-slate-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950">
+      <h2 class="text-xl font-black">Guest Checkout</h2>
+      <button (click)="isCheckoutOpen.set(false)" class="p-2 hover:bg-zinc-200 dark:hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors">✕</button>
+    </div>
+    <div class="p-8 overflow-y-auto">
+      @if (checkoutStep() === 1) {
+        <div class="space-y-4 max-w-md mx-auto">
+          <h3 class="font-bold text-lg mb-4 text-center">Your Details</h3>
+          <div><input type="text" [ngModel]="guestDetails().name" (ngModelChange)="guestDetails.update(d => ({...d, name: $event}))" placeholder="Full Name" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800"></div>
+          <div><input type="email" [ngModel]="guestDetails().email" (ngModelChange)="guestDetails.update(d => ({...d, email: $event}))" placeholder="Email Address" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800"></div>
+          <div><input type="text" [ngModel]="guestDetails().phone" (ngModelChange)="guestDetails.update(d => ({...d, phone: $event}))" placeholder="Phone Number" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800"></div>
+          <div><textarea [ngModel]="guestDetails().address" (ngModelChange)="guestDetails.update(d => ({...d, address: $event}))" placeholder="Delivery Address" rows="3" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800"></textarea></div>
+          <button (click)="checkoutStep.set(2)" class="w-full py-3 mt-4 rounded-xl font-bold text-slate-900 dark:text-white bg-black dark:bg-zinc-100 dark:text-black hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-white transition-colors">Continue to Payment</button>
+        </div>
+      }
+      @if (checkoutStep() === 2) {
+        <div class="max-w-md mx-auto text-center space-y-6">
+          <h3 class="font-bold text-lg">Order Summary</h3>
+          <p class="text-5xl font-black text-indigo-600">{{ cartTotal() | appCurrency }}</p>
+          <div class="p-4 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 text-sm font-bold">
+            Payment integration placeholder. In a real environment, Stripe/Square would load here.
+          </div>
+          <button (click)="submitOrder()" class="w-full py-4 rounded-xl font-black text-slate-900 dark:text-white text-lg bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xl shadow-emerald-600/20">
+            Confirm Order & Pay
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}
+
+<!-- Order Success (Tracking) -->
+@if (orderPlaced()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-emerald-500 p-4 transition-colors duration-300" [class.dark]="darkMode()">
+  <div class="w-full max-w-lg bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl p-10 text-center shadow-2xl animate-fade-in">
+    <div class="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+      <span class="material-symbols-outlined !text-[48px]">check_circle</span>
+    </div>
+    <h2 class="text-3xl font-black mb-2">Order Confirmed!</h2>
+    <p class="text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400 mb-8">Thank you for shopping with us.</p>
+    
+    <div class="p-6 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-slate-200 dark:border-zinc-800 mb-8">
+      <p class="text-sm font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Tracking Number</p>
+      <p class="font-mono text-3xl font-black text-black dark:text-slate-900 dark:text-white">{{ orderTrackingNumber() }}</p>
+    </div>
+    
+    <button (click)="orderPlaced.set(false); isCheckoutOpen.set(false)" class="px-8 py-3 rounded-full font-bold text-slate-900 dark:text-white bg-black dark:bg-zinc-100 dark:text-black hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-white transition-colors">
+      Continue Shopping
+    </button>
+  </div>
+</div>
+}
+
+<!-- Quick View Modal -->
+@if (quickViewProduct()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-colors duration-300" [class.dark]="darkMode()">
+  <div class="w-full max-w-4xl bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl overflow-hidden shadow-2xl animate-fade-in flex flex-col md:flex-row relative">
+    <button (click)="quickViewProduct.set(null)" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    
+    <!-- Image Side -->
+    <div class="w-full md:w-1/2 bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 flex items-center justify-center aspect-square md:aspect-auto relative p-8">
+      @if (quickViewProduct().images && quickViewProduct().images.length > 0) {
+        <img [src]="quickViewProduct().images[0]" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal drop-shadow-xl">
+      } @else {
+        <span class="material-symbols-outlined !text-[96px] text-slate-600 dark:text-zinc-300 dark:text-zinc-700">inventory_2</span>
+      }
+    </div>
+    
+    <!-- Details Side -->
+    <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+      <p class="text-sm font-bold text-slate-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">{{ quickViewProduct().category || 'Uncategorized' }}</p>
+      <h2 class="text-3xl font-black leading-tight mb-2">{{ quickViewProduct().name }}</h2>
+      <p class="text-4xl font-black mb-6" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
+        {{ quickViewProduct().selling_price | appCurrency }}
+      </p>
+      
+      <p class="text-zinc-600 dark:text-slate-500 dark:text-zinc-400 mb-8 line-clamp-4 leading-relaxed">
+        {{ quickViewProduct().description || 'No description available for this product.' }}
+      </p>
+      
+      <div class="mt-auto">
+        <button (click)="addToCart(quickViewProduct()); quickViewProduct.set(null)" 
+                class="w-full py-4 rounded-xl font-black text-slate-900 dark:text-white text-lg shadow-lg shadow-black/10 transition-transform active:scale-95 flex items-center justify-center gap-2"
+                [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
+          <span class="material-symbols-outlined !text-[20px]">add_shopping_cart</span>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Related Products Overlay / Attached inside Modal Wrapper -->
+  @if (relatedProducts().length > 0) {
+    <div class="w-full max-w-4xl bg-white dark:bg-white dark:bg-zinc-900 mt-4 rounded-3xl p-6 shadow-2xl">
+      <h3 class="text-lg font-black mb-4 px-2 text-zinc-900 dark:text-slate-900 dark:text-white">You Might Also Like</h3>
+      <div class="flex gap-4 overflow-x-auto pb-4 snap-x">
+        @for (rp of relatedProducts(); track rp.id) {
+          <div class="min-w-[160px] md:min-w-[200px] shrink-0 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800 rounded-2xl p-3 border border-zinc-100 dark:border-slate-300 dark:border-zinc-700 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors snap-start relative group"
+               (click)="openQuickView(rp)">
+            <button (click)="toggleWishlist(rp.id); $event.stopPropagation()" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm dark:bg-white dark:bg-zinc-900/90 shadow flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
+              <span class="material-symbols-outlined !text-[14px] font-bold" [ngClass]="wishlist().has(rp.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
+            </button>
+            <div class="aspect-square bg-white dark:bg-white dark:bg-zinc-900 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+              @if (rp.images && rp.images.length > 0) {
+                <img [src]="rp.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal">
+              } @else {
+                <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+              }
+            </div>
+            <h4 class="font-bold text-sm leading-tight mb-1 truncate text-zinc-900 dark:text-zinc-100">{{ rp.name }}</h4>
+            <p class="text-sm font-black text-zinc-900 dark:text-slate-900 dark:text-white">{{ rp.selling_price | appCurrency }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+}

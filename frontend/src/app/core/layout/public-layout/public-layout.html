@@ -1,0 +1,329 @@
+
+<div class="min-h-screen bg-slate-50 font-sans text-slate-700 selection:bg-indigo-500/30 overflow-x-hidden flex flex-col">
+  <!-- NAVBAR -->
+  <header class="fixed top-4 left-4 right-4 lg:left-10 lg:right-10 z-50 transition-all duration-300">
+    <!-- Gradient border wrapper -->
+    <div class="p-px rounded-2xl bg-gradient-to-r from-indigo-500/40 via-slate-700/60 to-violet-500/30 shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+      <div class="bg-slate-950/95 backdrop-blur-2xl rounded-[15px] px-5 lg:px-7">
+        <div class="flex items-center justify-between h-[62px]">
+
+          <!-- Logo -->
+          <a routerLink="/" class="flex items-center gap-3 group shrink-0">
+            <div class="relative w-9 h-9 flex items-center justify-center">
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl shadow-lg shadow-indigo-500/40 group-hover:shadow-indigo-500/60 transition-shadow duration-300"></div>
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
+              <span class="material-icons-round text-white text-[18px] relative z-10">layers</span>
+            </div>
+            <span class="text-[22px] font-black text-white tracking-tight leading-none">
+              Puxbay<span class="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">.</span>
+            </span>
+          </a>
+
+          <!-- Divider -->
+          <div class="hidden md:block w-px h-6 bg-slate-700/70 mx-2"></div>
+
+          <!-- Desktop Nav -->
+          <nav class="hidden md:flex items-center gap-1 h-full flex-1 px-2">
+            <!-- Products Dropdown -->
+            <div class="relative group h-full flex items-center">
+              <button class="flex items-center gap-1 text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+                Products
+                <span class="material-icons-round text-[15px] opacity-70 transition-transform duration-200 group-hover:rotate-180 group-hover:opacity-100">expand_more</span>
+              </button>
+
+              <!-- Products mega dropdown -->
+              <div class="absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 w-[500px] opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
+                <div class="p-px rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800/50">
+                  <div class="bg-slate-950 rounded-[15px] p-3 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+                    <!-- Header -->
+                    <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 px-3 pt-1 pb-2">Platform</p>
+                    <div class="grid grid-cols-2 gap-1.5">
+                      <a routerLink="/product/pos" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                        <div class="w-9 h-9 rounded-lg bg-indigo-500/15 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 group-hover/item:bg-indigo-500/25 transition-colors">
+                          <span class="material-icons-round text-[17px]">point_of_sale</span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-bold text-slate-200 group-hover/item:text-white transition-colors leading-tight">Point of Sale</p>
+                          <p class="text-[11px] text-slate-500 leading-tight mt-0.5">Offline-first registers</p>
+                        </div>
+                      </a>
+                      <a routerLink="/product/inventory" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                        <div class="w-9 h-9 rounded-lg bg-violet-500/15 border border-violet-500/20 text-violet-400 flex items-center justify-center shrink-0 group-hover/item:bg-violet-500/25 transition-colors">
+                          <span class="material-icons-round text-[17px]">inventory_2</span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-bold text-slate-200 group-hover/item:text-white transition-colors leading-tight">Inventory</p>
+                          <p class="text-[11px] text-slate-500 leading-tight mt-0.5">Multi-location stock</p>
+                        </div>
+                      </a>
+                      <a routerLink="/product/storefront" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                        <div class="w-9 h-9 rounded-lg bg-pink-500/15 border border-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 group-hover/item:bg-pink-500/25 transition-colors">
+                          <span class="material-icons-round text-[17px]">storefront</span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-bold text-slate-200 group-hover/item:text-white transition-colors leading-tight">Storefront</p>
+                          <p class="text-[11px] text-slate-500 leading-tight mt-0.5">Zero-setup ecommerce</p>
+                        </div>
+                      </a>
+                      <a routerLink="/product/analytics" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                        <div class="w-9 h-9 rounded-lg bg-cyan-500/15 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 group-hover/item:bg-cyan-500/25 transition-colors">
+                          <span class="material-icons-round text-[17px]">analytics</span>
+                        </div>
+                        <div>
+                          <p class="text-sm font-bold text-slate-200 group-hover/item:text-white transition-colors leading-tight">Analytics</p>
+                          <p class="text-[11px] text-slate-500 leading-tight mt-0.5">AI forecasting & reports</p>
+                        </div>
+                      </a>
+                    </div>
+                    <!-- Footer CTA -->
+                    <div class="mt-3 pt-3 border-t border-slate-800">
+                      <a routerLink="/features" class="flex items-center justify-between px-3 py-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/15 border border-indigo-500/20 transition-colors group/cta">
+                        <span class="text-sm font-bold text-indigo-400 group-hover/cta:text-indigo-300">See all features</span>
+                        <span class="material-icons-round text-indigo-400 text-[16px] group-hover/cta:translate-x-0.5 transition-transform">arrow_forward</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a routerLink="/solutions" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Solutions</a>
+            <a routerLink="/pricing" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Pricing</a>
+
+            <!-- Company Dropdown -->
+            <div class="relative group h-full flex items-center">
+              <button class="flex items-center gap-1 text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+                Company
+                <span class="material-icons-round text-[15px] opacity-70 transition-transform duration-200 group-hover:rotate-180 group-hover:opacity-100">expand_more</span>
+              </button>
+
+              <div class="absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 w-52 opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
+                <div class="p-px rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800/50">
+                  <div class="bg-slate-950 rounded-[15px] p-2 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+                    <a routerLink="/about" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+                      <span class="material-icons-round text-[16px] text-slate-600">info</span> About Us
+                    </a>
+                    <a routerLink="/careers" class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+                      <span class="flex items-center gap-3"><span class="material-icons-round text-[16px] text-slate-600">work</span> Careers</span>
+                      <span class="text-[10px] font-black uppercase tracking-wide bg-indigo-500/15 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-full">Hiring</span>
+                    </a>
+                    <a routerLink="/blog" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+                      <span class="material-icons-round text-[16px] text-slate-600">article</span> Blog
+                    </a>
+                    <a routerLink="/contact" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-400 hover:text-white transition-colors">
+                      <span class="material-icons-round text-[16px] text-slate-600">mail</span> Contact
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+
+          <!-- CTA Buttons -->
+          <div class="flex items-center gap-2 shrink-0">
+            @if (authService.isAuthenticated()) {
+              <a [href]="getDashboardUrl()" class="hidden md:flex relative items-center gap-1.5 text-sm font-bold text-white px-5 py-2.5 rounded-xl overflow-hidden group/cta transition-all duration-200 hover:-translate-y-px">
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-200"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
+                <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
+                <span class="relative z-10 whitespace-nowrap">Dashboard</span>
+                <span class="material-icons-round text-[15px] relative z-10 group-hover/cta:translate-x-0.5 transition-transform duration-200">dashboard</span>
+              </a>
+            } @else {
+              <a routerLink="/login" class="hidden md:flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-white transition-all duration-200 px-4 py-2 rounded-xl border border-transparent hover:border-slate-700 hover:bg-white/5">
+                <span class="material-icons-round text-[15px]">login</span>
+                Login
+              </a>
+              <a routerLink="/login" class="hidden md:flex relative items-center gap-1.5 text-sm font-bold text-white px-5 py-2.5 rounded-xl overflow-hidden group/cta transition-all duration-200 hover:-translate-y-px">
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-200"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
+                <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
+                <span class="relative z-10 whitespace-nowrap">Start Free Trial</span>
+                <span class="material-icons-round text-[15px] relative z-10 group-hover/cta:translate-x-0.5 transition-transform duration-200">arrow_forward</span>
+              </a>
+            }
+
+            <!-- Hamburger Button (mobile only) -->
+            <button
+              id="mobile-menu-btn"
+              (click)="toggleMobileMenu()"
+              class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+              [attr.aria-expanded]="mobileMenuOpen()"
+              aria-label="Toggle menu">
+              <span class="material-icons-round text-[22px] transition-transform duration-300" [class.rotate-90]="mobileMenuOpen()">
+                {{ mobileMenuOpen() ? 'close' : 'menu' }}
+              </span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        @if (mobileMenuOpen()) {
+          <div class="md:hidden border-t border-slate-800/80">
+            <div class="px-4 py-4 space-y-1">
+
+              <!-- Products section -->
+              <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 px-3 pt-1 pb-2">Products</p>
+              <a routerLink="/product/pos" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-colors">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                  <span class="material-icons-round text-[16px]">point_of_sale</span>
+                </div>
+                <span class="text-sm font-semibold text-slate-300">Point of Sale</span>
+              </a>
+              <a routerLink="/product/inventory" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-colors">
+                <div class="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/20 text-violet-400 flex items-center justify-center shrink-0">
+                  <span class="material-icons-round text-[16px]">inventory_2</span>
+                </div>
+                <span class="text-sm font-semibold text-slate-300">Inventory</span>
+              </a>
+              <a routerLink="/product/storefront" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-colors">
+                <div class="w-8 h-8 rounded-lg bg-pink-500/15 border border-pink-500/20 text-pink-400 flex items-center justify-center shrink-0">
+                  <span class="material-icons-round text-[16px]">storefront</span>
+                </div>
+                <span class="text-sm font-semibold text-slate-300">Storefront</span>
+              </a>
+              <a routerLink="/product/analytics" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 transition-colors">
+                <div class="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                  <span class="material-icons-round text-[16px]">analytics</span>
+                </div>
+                <span class="text-sm font-semibold text-slate-300">Analytics</span>
+              </a>
+
+              <!-- Divider -->
+              <div class="h-px bg-slate-800 my-2"></div>
+
+              <!-- Main links -->
+              <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 px-3 pb-1">Navigate</p>
+              <a routerLink="/solutions" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="material-icons-round text-[16px] text-slate-600">hub</span> Solutions
+              </a>
+              <a routerLink="/pricing" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="material-icons-round text-[16px] text-slate-600">sell</span> Pricing
+              </a>
+              <a routerLink="/about" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="material-icons-round text-[16px] text-slate-600">info</span> About Us
+              </a>
+              <a routerLink="/careers" (click)="closeMobileMenu()" class="flex items-center justify-between px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="flex items-center gap-3"><span class="material-icons-round text-[16px] text-slate-600">work</span> Careers</span>
+                <span class="text-[10px] font-black uppercase tracking-wide bg-indigo-500/15 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-full">Hiring</span>
+              </a>
+              <a routerLink="/blog" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="material-icons-round text-[16px] text-slate-600">article</span> Blog
+              </a>
+              <a routerLink="/contact" (click)="closeMobileMenu()" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+                <span class="material-icons-round text-[16px] text-slate-600">mail</span> Contact
+              </a>
+
+              <!-- Divider -->
+              <div class="h-px bg-slate-800 my-2"></div>
+
+              <!-- Mobile CTAs -->
+              <div class="flex flex-col gap-2 pt-1 pb-2">
+                <a routerLink="/login" (click)="closeMobileMenu()" class="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-700 text-sm font-semibold text-slate-300 hover:text-white hover:border-slate-600 transition-colors">
+                  <span class="material-icons-round text-[16px]">login</span> Login
+                </a>
+                <a routerLink="/login" (click)="closeMobileMenu()" class="relative flex items-center justify-center gap-2 py-3 rounded-xl overflow-hidden text-sm font-bold text-white">
+                  <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+                  <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
+                  <span class="relative z-10">Start Free Trial</span>
+                  <span class="material-icons-round text-[15px] relative z-10">arrow_forward</span>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  </header>
+
+  
+  <main class="flex-grow pt-20">
+    <router-outlet></router-outlet>
+  </main>
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 pt-20 pb-10">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+        
+        <div class="col-span-2 lg:col-span-2">
+          <a routerLink="/" class="flex items-center gap-2 mb-6">
+            <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white">
+              <span class="material-icons-round text-sm">layers</span>
+            </div>
+            <span class="text-xl font-black text-slate-900 tracking-tight">Puxbay<span class="text-indigo-500">.</span></span>
+          </a>
+          <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-xs mb-8">
+            The next generation operating system designed exclusively for growing retail empires and ambitious storefronts.
+          </p>
+          <div class="flex items-center gap-4">
+            <a routerLink="/" class="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
+              <span class="material-icons-round text-sm">code</span>
+            </a>
+            <a routerLink="/" class="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors">
+              <span class="material-icons-round text-sm">language</span>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-slate-900 font-black text-xs uppercase tracking-[0.2em] mb-6">Product</h4>
+          <ul class="space-y-4">
+            <li><a routerLink="/product/pos" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Point of Sale</a></li>
+            <li><a routerLink="/product/inventory" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Inventory</a></li>
+            <li><a routerLink="/product/storefront" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Storefront</a></li>
+            <li><a routerLink="/product/analytics" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Analytics</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-slate-900 font-black text-xs uppercase tracking-[0.2em] mb-6">Company</h4>
+          <ul class="space-y-4">
+            <li><a routerLink="/about" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">About Us</a></li>
+            <li><a routerLink="/careers" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Careers</a></li>
+            <li><a routerLink="/blog" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Blog</a></li>
+            <li><a routerLink="/contact" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Contact</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-slate-900 font-black text-xs uppercase tracking-[0.2em] mb-6">Legal</h4>
+          <ul class="space-y-4">
+            <li><a routerLink="/privacy-policy" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Privacy Policy</a></li>
+            <li><a routerLink="/terms" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Terms of Service</a></li>
+            <li><a routerLink="/cookie-policy" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Cookie Policy</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-slate-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">
+          &copy; 2026 Softivite Inc LLC. All rights reserved.
+        </p>
+        <div class="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-widest">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          All systems operational
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Sticky Book a Demo Widget -->
+  <a routerLink="/contact" class="fixed bottom-6 right-6 z-50 group flex items-center justify-end w-14 h-14 hover:w-40 transition-all duration-300">
+    <!-- Background Pill -->
+    <div class="absolute inset-0 bg-indigo-600 rounded-full shadow-xl shadow-indigo-600/30 group-hover:shadow-indigo-600/40 z-0 transition-all duration-300"></div>
+    
+    <!-- Text (Revealed on hover) -->
+    <div class="absolute right-14 whitespace-nowrap overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none pr-2">
+      <span class="text-white font-bold text-sm tracking-wide">Book a Demo</span>
+    </div>
+    
+    <!-- Icon -->
+    <div class="relative w-14 h-14 flex items-center justify-center text-white z-10 shrink-0 group-hover:scale-105 transition-transform duration-300">
+      <span class="material-icons-round">chat_bubble</span>
+    </div>
+  </a>
+</div>

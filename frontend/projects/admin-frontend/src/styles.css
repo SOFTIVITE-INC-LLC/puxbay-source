@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* Dark Mode Overrides for Admin Theme */
+.dark .bg-white { background-color: #0f172a !important; } /* slate-900 */
+.dark .bg-slate-50 { background-color: #1e293b !important; } /* slate-800 */
+.dark .bg-slate-100 { background-color: #020617 !important; } /* slate-950 (deepest background) */
+.dark .bg-slate-900 { background-color: #f8fafc !important; } /* white -> slate-50 */
+.dark .text-slate-900 { color: #f8fafc !important; } /* slate-50 */
+.dark .text-slate-800 { color: #f1f5f9 !important; } /* slate-100 */
+.dark .text-slate-700 { color: #e2e8f0 !important; } /* slate-200 */
+.dark .text-slate-600 { color: #cbd5e1 !important; } /* slate-300 */
+.dark .text-slate-500 { color: #94a3b8 !important; } /* slate-400 */
+.dark .text-slate-400 { color: #64748b !important; } /* slate-500 */
+.dark .border-slate-100 { border-color: #1e293b !important; } /* slate-800 */
+.dark .border-slate-200 { border-color: #334155 !important; } /* slate-700 */
+.dark .ring-slate-200 { --tw-ring-color: #334155 !important; } /* slate-700 */
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #1e293b !important; }
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: #334155 !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #1e293b !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #334155 !important; }
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5) !important; }
+.dark input.bg-slate-50:focus { background-color: #0f172a !important; }

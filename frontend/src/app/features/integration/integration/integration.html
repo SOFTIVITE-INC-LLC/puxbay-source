@@ -1,0 +1,60 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
+  
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-red-500 dark:from-orange-400 dark:to-red-400">Integrations</h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Connect third-party apps, payment gateways, and webhooks.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Xero Accounting -->
+    <div class="glass-panel rounded-2xl p-6 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.65 0 1.12-1.08 1.96-2.7 1.96-1.78 0-2.73-1-2.9-2.1H6.38c.17 2.19 1.72 3.4 3.72 3.86V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.8-4.4z"/></svg>
+          </div>
+          
+          <ng-container *ngIf="xeroIntegration(); else xeroNotConnected">
+            <span class="px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Connected</span>
+          </ng-container>
+          <ng-template #xeroNotConnected>
+            <span class="px-2 py-1 text-xs font-bold rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">Not Connected</span>
+          </ng-template>
+
+        </div>
+        <h3 class="font-bold text-lg">Xero Accounting</h3>
+        <p class="text-sm text-zinc-500 mt-1">Automatically sync your daily sales, expenses, and COGS to Xero.</p>
+        
+        <p *ngIf="xeroIntegration()?.last_sync_at" class="text-xs text-zinc-400 mt-2">
+          Last sync: {{ xeroIntegration()?.last_sync_at | date:'short' }}
+        </p>
+      </div>
+      
+      <div class="mt-6">
+        <button *ngIf="!xeroIntegration()" (click)="connectXero()" class="w-full py-2 bg-[#13B5EA] text-white font-medium rounded-lg text-sm hover:bg-[#109cc8] transition-colors shadow-lg shadow-[#13B5EA]/25">
+          Connect Xero
+        </button>
+        <button *ngIf="xeroIntegration()" (click)="syncXero()" [disabled]="isSyncing()" class="w-full py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium rounded-lg text-sm hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50">
+          {{ isSyncing() ? 'Syncing...' : 'Sync Now' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Mailchimp -->
+    <div class="glass-panel rounded-2xl p-6 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-[#FFE01B]/20 text-[#241C15] dark:text-yellow-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+          </div>
+          <span class="px-2 py-1 text-xs font-bold rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">Not Connected</span>
+        </div>
+        <h3 class="font-bold text-lg">Mailchimp</h3>
+        <p class="text-sm text-zinc-500 mt-1">Sync your customer lists for email marketing campaigns.</p>
+      </div>
+      <button class="mt-6 w-full py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/25">Connect Account</button>
+    </div>
+  </div>
+</div>

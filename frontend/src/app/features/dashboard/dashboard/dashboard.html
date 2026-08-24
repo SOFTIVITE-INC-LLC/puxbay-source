@@ -1,0 +1,614 @@
+<!-- ═══════════════════════════════════════════════════════
+     BRANCH DASHBOARD — shown when a branch is active
+═══════════════════════════════════════════════════════ -->
+@if (branchService.activeBranch(); as branch) {
+  <div class="min-h-full p-6 lg:p-8 space-y-8 font-sans" style="font-family: 'Outfit', sans-serif;">
+
+
+
+
+    <!-- ── Branch Header ── -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg text-lg font-black"
+            [style.background-color]="branch.primary_color || '#4f46e5'">
+            {{ branch.name[0] }}
+          </div>
+          <h1 class="text-3xl lg:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500">
+            {{ branch.name }}
+          </h1>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+          Live branch dashboard · {{ branch.branch_type | titlecase }} · {{ branch.currency_code }}
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <a routerLink="/branch-settings"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.1] transition-all font-bold text-sm shadow-sm">
+          <span class="material-symbols-outlined !text-[18px]">tune</span>
+          Settings
+        </a>
+        <a routerLink="/pos"
+          class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          [style.background]="'linear-gradient(135deg,' + (branch.primary_color || '#6366f1') + ',#8b5cf6)'">
+          <span class="material-symbols-outlined !text-[18px]">point_of_sale</span>
+          Open POS
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Branch KPI Cards ── -->
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+
+      <!-- Today's Revenue -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent dark:from-sky-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-sky-50 dark:bg-sky-500/15 border border-sky-100 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">today</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20">Today</span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Today's Revenue</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ (dashboardService.branchMetrics()?.today_revenue | appCurrency: branch.currency_code) || (branch.currency_symbol + '0.00') }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Since midnight</p>
+      </div>
+
+      <!-- Today's Orders -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent dark:from-indigo-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">shopping_bag</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">Live</span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Today's Orders</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ dashboardService.branchMetrics()?.today_orders ?? '—' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Completed today</p>
+      </div>
+
+      <!-- Active Staff -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent dark:from-emerald-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">badge</span>
+          </div>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Active Staff</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ dashboardService.branchMetrics()?.active_staff ?? '—' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">On shift now</p>
+      </div>
+
+      <!-- Low Stock -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent dark:from-rose-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-100 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">warning</span>
+          </div>
+          @if ((dashboardService.branchMetrics()?.low_stock_items || 0) > 0) {
+            <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20">Alert</span>
+          }
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Low Stock Items</p>
+        <h2 class="text-2xl lg:text-3xl font-black tracking-tight"
+          [ngClass]="(dashboardService.branchMetrics()?.low_stock_items || 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'">
+          {{ dashboardService.branchMetrics()?.low_stock_items || '0' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Need restocking</p>
+      </div>
+
+      <!-- Total Revenue (All Time) -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-100 dark:border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">payments</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">All Time</span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Total Revenue</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ (dashboardService.branchMetrics()?.total_revenue_alltime | appCurrency: branch.currency_code) || (branch.currency_symbol + '0.00') }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Lifetime sales</p>
+      </div>
+
+      <!-- Total Orders (All Time) -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent dark:from-purple-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-500/15 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">receipt_long</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20">All Time</span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Total Orders</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ dashboardService.branchMetrics()?.total_orders_alltime ?? '—' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Completed orders</p>
+      </div>
+    </div>
+
+    <!-- ── Quick Actions ── -->
+    <div>
+      <h2 class="text-lg font-black text-slate-900 dark:text-white mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-3 lg:grid-cols-6 gap-3">
+        @for (action of branchQuickActions; track action.route) {
+          <a [routerLink]="action.route"
+            class="group flex flex-col items-center gap-3 p-4 rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-white/20 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer text-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br {{ action.color }} group-hover:scale-105 transition-transform">
+              <span class="material-symbols-outlined !text-[22px]">{{ action.icon }}</span>
+            </div>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">{{ action.label }}</span>
+          </a>
+        }
+      </div>
+    </div>
+
+    <!-- ── AI Insight Banner (Branch-specific) ── -->
+    <div class="branch-gradient-bg rounded-2xl p-6 relative overflow-hidden shadow-xl shadow-indigo-500/20">
+      <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%2760%27 height=%2760%27 viewBox=%270 0 60 60%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg fill=%27none%27 fill-rule=%27evenodd%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.4%27%3E%3Ccircle cx=%2730%27 cy=%2730%27 r=%272%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 float-anim">
+            <span class="material-symbols-outlined !text-[24px] text-white">auto_awesome</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-extrabold text-blue-100 uppercase tracking-[0.25em] mb-1">Branch AI Insight · {{ branch.name }}</p>
+            <p class="text-base font-bold text-white leading-snug">
+              @if (lowStockProducts.length > 0) {
+                ⚠️ {{ lowStockProducts.length }} item(s) are below the reorder threshold. Create a Purchase Order now.
+              } @else {
+                ✅ {{ branch.name }} inventory is healthy. Sales momentum looks strong today!
+              }
+            </p>
+          </div>
+        </div>
+        <a routerLink="/purchase-orders"
+          class="flex-shrink-0 px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5">
+          Create PO →
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Bottom Grid: Recent Orders + Low Stock + Top Products ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Recent Orders -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-lg font-black text-slate-900 dark:text-white">Recent Orders</h3>
+          <a routerLink="/orders" class="text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-bold transition-colors">View All →</a>
+        </div>
+        <div class="flex-1 space-y-2 overflow-y-auto">
+          @if (!dashboardService.branchMetrics()?.recent_transactions?.length) {
+            <div class="flex flex-col items-center justify-center h-32 text-slate-400 dark:text-slate-600 gap-2">
+              <span class="material-symbols-outlined !text-3xl">receipt_long</span>
+              <p class="text-xs font-bold">No recent activity</p>
+            </div>
+          }
+          @for (tx of dashboardService.branchMetrics()?.recent_transactions; track tx.id) {
+            <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-500/15 border border-sky-100 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400 font-black text-xs group-hover:scale-105 transition-transform">
+                  {{ tx.initials }}
+                </div>
+                <div>
+                  <p class="font-bold text-xs text-slate-900 dark:text-white">{{ tx.name }}</p>
+                  <p class="text-[10px] font-medium text-slate-500">Order #{{ tx.id }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-black text-xs" [ngClass]="tx.type === 'positive' ? 'text-emerald-500' : 'text-rose-500'">{{ branch.currency_symbol }}{{ tx.amount }}</p>
+                <p class="text-[10px] font-medium text-slate-500">{{ tx.time }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[16px] text-rose-500">warning</span>
+            </div>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Low Stock Alerts</h3>
+          </div>
+          <a routerLink="/purchase-orders" class="text-xs font-bold text-indigo-500 dark:text-indigo-400 hover:underline">Order Now →</a>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+          @if (lowStockProducts.length === 0) {
+            <div class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600 gap-2 px-5 text-center">
+              <span class="material-symbols-outlined !text-3xl text-emerald-400">check_circle</span>
+              <p class="text-xs font-bold">All items well-stocked!</p>
+            </div>
+          }
+          @for (p of lowStockProducts; track p.id) {
+            <div class="flex items-center justify-between px-5 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+              <div class="flex-1 min-w-0 mr-3">
+                <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-[10px] font-mono text-slate-500">{{ p.sku }}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-base font-black text-rose-600 dark:text-rose-400">{{ p.current_stock }}</p>
+                <p class="text-[10px] text-slate-500">/ {{ p.reorder_level }} min</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Top Products -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[16px] text-indigo-500">inventory_2</span>
+            </div>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Top Products</h3>
+          </div>
+          <a routerLink="/inventory" class="text-xs font-bold text-indigo-500 dark:text-indigo-400 hover:underline">View All →</a>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+          @if (topProducts.length === 0) {
+            <div class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600 gap-2 px-5 text-center">
+              <span class="material-symbols-outlined !text-3xl">inventory_2</span>
+              <p class="text-xs font-bold">No products yet</p>
+            </div>
+          }
+          @for (p of topProducts; track p.id; let i = $index) {
+            <div class="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+              <span class="w-5 text-center text-[11px] font-black text-slate-400 dark:text-slate-600">#{{ i + 1 }}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-[10px] text-slate-500">{{ p.stock_unit }}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ p.selling_price | appCurrency: branch.currency_code }}</p>
+                <p class="text-[10px] text-slate-500">{{ p.current_stock }} in stock</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════
+     GLOBAL / HQ DASHBOARD — shown when no branch is active
+═══════════════════════════════════════════════════════ -->
+@if (!branchService.activeBranch()) {
+  <div class="min-h-full p-6 lg:p-8 space-y-8 font-sans" style="font-family: 'Outfit', sans-serif;">
+
+    <!-- ── Onboarding Widget ── -->
+
+
+    <!-- ── Global Header ── -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl lg:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          Command Center
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">
+          Live overview of your entire retail operations.
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.1] transition-all font-bold text-sm shadow-sm">
+          <span class="material-symbols-outlined !text-[18px]">download</span>
+          Export
+        </button>
+        <a routerLink="/branches" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all">
+          <span class="material-symbols-outlined !text-[18px]">store</span>
+          Manage Branches
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Global KPI Cards ── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Revenue -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent dark:from-indigo-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">payments</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider"
+            [ngClass]="(dashboardService.metrics()?.sales_trend || 0) >= 0
+              ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
+              : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20'">
+            {{ (dashboardService.metrics()?.sales_trend || 0) > 0 ? '+' : '' }}{{ dashboardService.metrics()?.sales_trend | number:'1.1-1' }}%
+          </span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Total Revenue</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ (dashboardService.metrics()?.total_sales | appCurrency) || '$0.00' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">vs. last period</p>
+      </div>
+
+      <!-- Total Orders -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent dark:from-purple-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-purple-50 dark:bg-purple-500/15 border border-purple-100 dark:border-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">shopping_bag</span>
+          </div>
+          <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20">Live</span>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Total Orders</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ (dashboardService.metrics()?.total_orders | number) || '0' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">All time, all branches</p>
+      </div>
+
+      <!-- Active Customers -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+        <div class="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent dark:from-pink-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-pink-50 dark:bg-pink-500/15 border border-pink-100 dark:border-pink-500/20 flex items-center justify-center text-pink-600 dark:text-pink-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">group</span>
+          </div>
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Active Customers</p>
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          {{ (dashboardService.metrics()?.active_customers | number) || '0' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Registered</p>
+      </div>
+
+      <!-- Low Stock (Network-wide) -->
+      <div class="group relative overflow-hidden rounded-2xl p-5 bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent dark:from-rose-500/10 pointer-events-none"></div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-100 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:-translate-y-0.5 transition-transform">
+            <span class="material-symbols-outlined !text-[22px]">warning</span>
+          </div>
+          @if ((dashboardService.metrics()?.low_stock_items || 0) > 0) {
+            <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg tracking-wider text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20">Alert</span>
+          }
+        </div>
+        <p class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1">Low Stock (Network)</p>
+        <h2 class="text-2xl lg:text-3xl font-black tracking-tight"
+          [ngClass]="(dashboardService.metrics()?.low_stock_items || 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'">
+          {{ dashboardService.metrics()?.low_stock_items || '0' }}
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Across all branches</p>
+      </div>
+    </div>
+
+    <!-- ── Quick Actions ── -->
+    <div>
+      <h2 class="text-lg font-black text-slate-900 dark:text-white mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-3 lg:grid-cols-6 gap-3">
+        @for (action of tenantQuickActions; track action.route) {
+          <a [routerLink]="action.route"
+            class="group flex flex-col items-center gap-3 p-4 rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-white/20 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer text-center">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br {{ action.color }} group-hover:scale-105 transition-transform">
+              <span class="material-symbols-outlined !text-[22px]">{{ action.icon }}</span>
+            </div>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">{{ action.label }}</span>
+          </a>
+        }
+      </div>
+    </div>
+
+    <!-- ── AI Insight Banner ── -->
+    <div class="animated-gradient-bg rounded-2xl p-6 relative overflow-hidden shadow-xl shadow-indigo-500/20">
+      <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=%2760%27 height=%2760%27 viewBox=%270 0 60 60%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg fill=%27none%27 fill-rule=%27evenodd%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.4%27%3E%3Ccircle cx=%2730%27 cy=%2730%27 r=%272%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+      <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 float-anim">
+            <span class="material-symbols-outlined !text-[24px] text-white">auto_awesome</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-extrabold text-indigo-100 uppercase tracking-[0.25em] mb-1">Puxbay AI Insight · Network Wide</p>
+            <p class="text-base font-bold text-white leading-snug">
+              @if (dashboardService.metrics()?.low_stock_items) {
+                ⚠️ Stock depletion detected across {{ dashboardService.metrics()?.low_stock_items }} items. Select a branch to create a Purchase Order.
+              } @else {
+                ✅ All branches are stocked and running well. Network performance looks great!
+              }
+            </p>
+          </div>
+        </div>
+        <a routerLink="/branches"
+          class="flex-shrink-0 px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5">
+          View Branches →
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Main Grid: Revenue Chart + Recent Activity ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Revenue Chart Placeholder -->
+      <div class="lg:col-span-2 rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm p-6 min-h-[360px] flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h3 class="text-lg font-black text-slate-900 dark:text-white">Network Revenue</h3>
+            <p class="text-xs text-slate-500 mt-0.5">All-branch daily performance</p>
+          </div>
+          <select class="bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer">
+            <option>This Week</option>
+            <option>This Month</option>
+            <option>This Year</option>
+          </select>
+        </div>
+        <div class="flex-1 flex flex-col justify-end gap-2">
+          <div class="flex items-end gap-2 h-48">
+            @for (bar of revenueChartData; track $index) {
+              <div class="flex-1 h-full flex flex-col justify-end items-center gap-1 group cursor-pointer" [title]="bar | appCurrency">
+                <div class="w-full rounded-t-lg transition-all group-hover:opacity-80"
+                  [style.height.%]="getBarHeight(bar)"
+                  [ngClass]="$index === 6 ? 'bg-gradient-to-t from-indigo-600 to-purple-500' : 'bg-gradient-to-t from-indigo-200 to-indigo-100 dark:from-indigo-900/60 dark:to-indigo-800/30'">
+                </div>
+              </div>
+            }
+          </div>
+          <div class="flex justify-between text-[10px] font-bold text-slate-400 dark:text-slate-600 px-1 mt-1">
+            @for (label of chartLabels; track $index) {
+              <span>{{ label }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-lg font-black text-slate-900 dark:text-white">Recent Orders</h3>
+          <a routerLink="/orders" class="text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 text-xs font-bold transition-colors">View All →</a>
+        </div>
+        <div class="flex-1 space-y-2 overflow-y-auto">
+          @if (!dashboardService.metrics()?.recent_transactions?.length) {
+            <div class="flex flex-col items-center justify-center h-32 text-slate-400 dark:text-slate-600 gap-2">
+              <span class="material-symbols-outlined !text-3xl">receipt_long</span>
+              <p class="text-xs font-bold">No recent activity</p>
+            </div>
+          }
+          @for (tx of dashboardService.metrics()?.recent_transactions; track tx.id) {
+            <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs group-hover:scale-105 transition-transform">
+                  {{ tx.initials }}
+                </div>
+                <div>
+                  <p class="font-bold text-xs text-slate-900 dark:text-white">{{ tx.name }}</p>
+                  <p class="text-[10px] font-medium text-slate-500">Order #{{ tx.id }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="font-black text-xs" [ngClass]="tx.type === 'positive' ? 'text-emerald-500' : 'text-rose-500'">{{ tx.amount }}</p>
+                <p class="text-[10px] font-medium text-slate-500">{{ tx.time }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bottom Grid: Low Stock + Top Products + Store Health ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Low Stock -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[16px] text-rose-500">warning</span>
+            </div>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Low Stock Network</h3>
+          </div>
+          <a routerLink="/inventory/supply-chain" class="text-xs font-bold text-indigo-500 dark:text-indigo-400 hover:underline">Manage →</a>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+          @if (lowStockProducts.length === 0) {
+            <div class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600 gap-2 px-5 text-center">
+              <span class="material-symbols-outlined !text-3xl text-emerald-400">check_circle</span>
+              <p class="text-xs font-bold">Network stock levels healthy!</p>
+            </div>
+          }
+          @for (p of lowStockProducts; track p.id) {
+            <div class="flex items-center justify-between px-5 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+              <div class="flex-1 min-w-0 mr-3">
+                <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-[10px] font-mono text-slate-500">{{ p.sku }}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-base font-black text-rose-600 dark:text-rose-400">{{ p.current_stock }}</p>
+                <p class="text-[10px] text-slate-500">/ {{ p.reorder_level }} min</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Top Products -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[16px] text-indigo-500">inventory_2</span>
+            </div>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">Top Products</h3>
+          </div>
+          <a routerLink="/inventory" class="text-xs font-bold text-indigo-500 dark:text-indigo-400 hover:underline">View All →</a>
+        </div>
+        <div class="divide-y divide-slate-100 dark:divide-white/[0.05]">
+          @if (topProducts.length === 0) {
+            <div class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600 gap-2 px-5 text-center">
+              <span class="material-symbols-outlined !text-3xl">inventory_2</span>
+              <p class="text-xs font-bold">No products yet</p>
+            </div>
+          }
+          @for (p of topProducts; track p.id; let i = $index) {
+            <div class="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+              <span class="w-5 text-center text-[11px] font-black text-slate-400 dark:text-slate-600">#{{ i + 1 }}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-[10px] text-slate-500">{{ p.stock_unit }}</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ p.selling_price | appCurrency }}</p>
+                <p class="text-[10px] text-slate-500">{{ p.current_stock }} in stock</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Network Store Health -->
+      <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm p-5 flex flex-col gap-4">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px] text-emerald-500">monitoring</span>
+          </div>
+          <h3 class="font-black text-sm text-slate-900 dark:text-white">Network Health</h3>
+        </div>
+
+        @for (m of storeHealthMetrics; track m.label; let i = $index) {
+          @let values = [82, 67, 91, 74];
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined !text-[14px] text-slate-500">{{ m.icon }}</span>
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ m.label }}</span>
+              </div>
+              <span class="text-xs font-black text-slate-900 dark:text-white">{{ values[i] }}%</span>
+            </div>
+            <div class="h-2 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+              <div class="{{ m.color }} h-full rounded-full transition-all duration-500" [style.width.%]="values[i]"></div>
+            </div>
+          </div>
+        }
+
+        <div class="mt-auto pt-3 border-t border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
+            <span class="material-symbols-outlined !text-[16px] text-emerald-500">check_circle</span>
+            <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400">Network health is <strong>Good</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+}

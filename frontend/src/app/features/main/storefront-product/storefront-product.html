@@ -1,0 +1,149 @@
+
+<div class="pt-32 pb-20 relative overflow-hidden">
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  
+  <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="flex flex-col md:flex-row items-center gap-16 mb-24">
+      <div class="flex-1">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
+          <span class="material-icons-round text-sm">storefront</span> Storefront
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-[1.1] mb-6">
+          Your brand, beautifully presented online.
+        </h1>
+        <p class="text-lg text-slate-600 font-medium leading-relaxed mb-8">
+          Launch a fully integrated e-commerce platform that syncs perfectly with your physical inventory.
+        </p>
+        <a routerLink="/login" class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/20">
+          Get Started
+          <span class="material-icons-round text-sm">arrow_forward</span>
+        </a>
+      </div>
+      
+      <div class="flex-1 w-full reveal" style="transition-delay:.1s;">
+        <div (mouseenter)="isScanning.set(true)" (mouseleave)="isScanning.set(false)" class="aspect-video bg-white/70 backdrop-blur-xl shadow-2xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl relative overflow-hidden flex items-center justify-center group cursor-pointer">
+          <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent transition-opacity duration-500" [ngClass]="isScanning() ? 'opacity-0' : 'opacity-100'"></div>
+          
+          <!-- Default State: QR Code -->
+          <div class="flex flex-col items-center justify-center transition-all duration-500 transform" [ngClass]="isScanning() ? 'scale-150 opacity-0 absolute' : 'scale-100 opacity-100'">
+            <span class="material-icons-round text-7xl text-slate-700 mb-4 group-hover:text-cyan-500 transition-colors">qr_code_2</span>
+            <p class="text-sm font-bold text-slate-500">Hover to Scan</p>
+          </div>
+          
+          <!-- Scanned State: Digital Menu -->
+          <div class="absolute inset-0 bg-white p-6 transition-all duration-500 transform flex flex-col" [ngClass]="isScanning() ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 bg-cyan-100 text-cyan-600 rounded-lg flex items-center justify-center">
+                <span class="material-icons-round text-xl">storefront</span>
+              </div>
+              <div>
+                <h4 class="font-black text-slate-900 text-lg">Local Coffee Co.</h4>
+                <p class="text-xs text-slate-500">Online Ordering</p>
+              </div>
+            </div>
+            
+            <div class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2">
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-round text-slate-400">local_cafe</span>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-slate-900 text-sm">Iced Latte</h5>
+                    <p class="text-xs text-slate-500">Whole milk</p>
+                  </div>
+                </div>
+                <span class="font-bold text-slate-900">$4.50</span>
+              </div>
+              
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center">
+                    <span class="material-icons-round text-slate-400">bakery_dining</span>
+                  </div>
+                  <div>
+                    <h5 class="font-bold text-slate-900 text-sm">Croissant</h5>
+                    <p class="text-xs text-slate-500">Fresh baked</p>
+                  </div>
+                </div>
+                <span class="font-bold text-slate-900">$3.00</span>
+              </div>
+            </div>
+            
+            <button class="w-full mt-4 py-3 bg-cyan-500 text-slate-900 font-bold rounded-xl text-sm shadow-md shadow-cyan-500/20">
+              Checkout ($7.50)
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">rocket_launch</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Zero Setup Online Store</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Flip a switch and your POS products instantly appear on a beautiful, mobile-optimized ecommerce website.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">qr_code_2</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Contactless QR Ordering</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Generate QR codes for tables or shelves. Customers scan, browse, and pay on their phones—no app needed.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">credit_card</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Integrated Payments</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Built-in integration with local payment gateways enables you to securely accept credit cards and mobile money online immediately.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">local_shipping</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Delivery Management</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Set custom delivery zones, flat rates, or pickup options. Track dispatch status directly from your dashboard.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">brush</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Custom Branding</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Match the storefront to your brand with custom colors, logos, and typography to build customer trust.</p>
+      </div>
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+        <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+          <span class="material-icons-round">sell</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-3">Promo Codes & Discounts</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">Create targeted promotional campaigns with percentage or flat-rate discounts to drive more online traffic.</p>
+      </div>
+    </div>
+    
+    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal">
+      <h2 class="text-3xl font-black text-slate-900 mb-8">Frequently Asked Questions</h2>
+      <div class="space-y-6">
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">Do I need coding skills to set up the Storefront?</h4>
+          <p class="text-slate-600 text-sm">No coding is required. Your Storefront is automatically generated from your Puxbay inventory. You simply add your logo, choose a primary color, and you're ready to sell.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">Can I use my own custom domain?</h4>
+          <p class="text-slate-600 text-sm">Yes. While we provide a free `[your-name].puxbay.com` subdomain, you can easily connect your own custom domain (e.g., `shop.yourbrand.com`) on our Pro and Enterprise plans.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-900 mb-2">How do I get notified of online orders?</h4>
+          <p class="text-slate-600 text-sm">Online orders appear instantly in your Puxbay POS queue. They trigger an audible alert and push notification so your staff can fulfill them immediately alongside in-store customers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="reveal pb-20">
+    <app-testimonials></app-testimonials>
+  </div>
+</div>

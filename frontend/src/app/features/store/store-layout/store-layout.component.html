@@ -1,0 +1,304 @@
+<!-- Store Navigation -->
+<!-- Announcement Bar -->
+<div class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_auto] text-slate-900 dark:text-white text-[10px] sm:text-xs font-bold text-center py-2 relative z-[60] tracking-wider uppercase">
+  <p class="animate-pulse">✨ Free Premium Shipping on all orders over $150 ✨</p>
+</div>
+
+<nav class="sticky top-0 z-50 bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 shadow-2xl transition-all">
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a routerLink="/store" class="flex items-center gap-2.5 group">
+        @if (settingsService.settings()?.logo_image) {
+          <img [src]="settingsService.settings()!.logo_image" alt="Logo" class="w-9 h-9 object-contain rounded-lg">
+        } @else {
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <span class="material-symbols-outlined !text-[20px] text-slate-900 dark:text-white">storefront</span>
+          </div>
+        }
+        <span class="text-lg font-black text-slate-900 dark:text-white tracking-tight hidden sm:block">{{ settingsService.settings()?.store_name || 'Store' }}</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex items-center gap-2 bg-white dark:bg-zinc-900/50 backdrop-blur-md rounded-full px-2 py-1 border border-slate-200 dark:border-white/5 shadow-inner">
+        <a routerLink="/store" routerLinkActive="bg-white/10 text-slate-900 dark:text-white shadow-sm" [routerLinkActiveOptions]="{exact: true}"
+           class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
+          Shop All
+        </a>
+        <a routerLink="/store" [queryParams]="{ filter: 'new' }"
+           class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
+          New Arrivals
+        </a>
+        <a routerLink="/store" [queryParams]="{ filter: 'trending' }"
+           class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
+          Trending
+        </a>
+        @if (authService.currentUser()) {
+          <a routerLink="/store/account" routerLinkActive="bg-white/10 text-slate-900 dark:text-white shadow-sm"
+             class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all flex items-center gap-2">
+            <img [src]="'https://api.dicebear.com/7.x/avataaars/svg?seed=' + authService.currentUser()?.email" class="w-5 h-5 rounded-full border border-white/20">
+            Account
+          </a>
+        } @else {
+          <a routerLink="/store/login" routerLinkActive="bg-white/10 text-slate-900 dark:text-white shadow-sm"
+             class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
+            Sign In
+          </a>
+        }
+      </div>
+
+      <!-- Right side actions -->
+      <div class="flex items-center gap-2">
+        <!-- Currency -->
+        <div class="relative group hidden sm:block">
+          <button class="h-10 px-3 rounded-full flex items-center gap-1 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-white/10 transition-all font-bold text-sm">
+            {{ currencyService.activeCurrency().code }}
+            <span class="material-symbols-outlined !text-[16px]">expand_more</span>
+          </button>
+          <div class="absolute top-[calc(100%+8px)] right-0 w-32 bg-white dark:bg-zinc-900/95 backdrop-blur-xl border border-slate-200 dark:border-zinc-800 shadow-2xl rounded-xl p-2 opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 ease-out z-50">
+            @for (c of currencyService.getCurrencies(); track c.code) {
+              <button (click)="currencyService.setCurrency(c.code)" class="w-full text-left px-4 py-2 rounded-lg text-sm font-bold transition-colors" [ngClass]="currencyService.activeCurrency().code === c.code ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:bg-zinc-800 hover:text-slate-900 dark:text-white'">
+                {{ c.code }} ({{ c.symbol }})
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Search -->
+        <button (click)="searchOpen = true" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-white/10 transition-all">
+          <span class="material-symbols-outlined !text-[22px]">search</span>
+        </button>
+
+        <!-- Theme Toggle -->
+        <button (click)="themeService.toggleTheme()" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-white/10 transition-all">
+          <span class="material-symbols-outlined !text-[22px]">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
+
+        <!-- Wishlist -->
+        <a routerLink="/store/wishlist"
+           class="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all">
+          <span class="material-symbols-outlined !text-[22px]">favorite</span>
+          @if (wishlistService.wishlistIds().length > 0) {
+            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-[10px] font-bold text-slate-900 dark:text-white flex items-center justify-center shadow-lg shadow-rose-500/30">
+              {{ wishlistService.wishlistIds().length > 99 ? '99+' : wishlistService.wishlistIds().length }}
+            </span>
+          }
+        </a>
+
+        <!-- Cart -->
+        <button (click)="miniCartOpen = true"
+           class="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all outline-none">
+          <span class="material-symbols-outlined !text-[22px]">shopping_bag</span>
+          @if (cartService.cartCount() > 0) {
+            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-[10px] font-bold text-slate-900 dark:text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-bounce-once">
+              {{ cartService.cartCount() > 99 ? '99+' : cartService.cartCount() }}
+            </span>
+          }
+        </button>
+
+        <!-- Mobile menu toggle -->
+        <button (click)="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-white/10 transition-all">
+          <span class="material-symbols-outlined">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (mobileMenuOpen) {
+    <div class="md:hidden border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-950/98 backdrop-blur-2xl px-4 py-4 space-y-2 animate-slide-up shadow-2xl">
+      <!-- Mobile Currency -->
+      <div class="flex items-center gap-2 px-4 py-2 mb-2 overflow-x-auto hide-scrollbar">
+        @for (c of currencyService.getCurrencies(); track c.code) {
+          <button (click)="currencyService.setCurrency(c.code)" 
+            class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border"
+            [ngClass]="currencyService.activeCurrency().code === c.code ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' : 'bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-400 border-slate-200 dark:border-zinc-800 hover:text-slate-900 dark:text-white'">
+            {{ c.code }}
+          </button>
+        }
+      </div>
+
+      <a routerLink="/store" (click)="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
+        <span class="material-symbols-outlined !text-[20px] text-indigo-400">storefront</span>
+        Shop All
+      </a>
+      @if (authService.currentUser()) {
+        <a routerLink="/store/account" (click)="mobileMenuOpen = false"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
+          <span class="material-symbols-outlined !text-[20px] text-indigo-400">person</span>
+          My Account
+        </a>
+      } @else {
+        <a routerLink="/store/login" (click)="mobileMenuOpen = false"
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
+          <span class="material-symbols-outlined !text-[20px] text-indigo-400">login</span>
+          Sign In
+        </a>
+      }
+      <a routerLink="/store/wishlist" (click)="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
+        <span class="material-symbols-outlined !text-[20px] text-rose-400">favorite</span>
+        Wishlist ({{ wishlistService.wishlistIds().length }})
+      </a>
+      <button (click)="miniCartOpen = true; mobileMenuOpen = false"
+         class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all outline-none">
+        <span class="material-symbols-outlined !text-[20px] text-purple-400">shopping_bag</span>
+        Cart ({{ cartService.cartCount() }})
+      </button>
+    </div>
+  }
+</nav>
+
+<!-- Page Content -->
+<main class="min-h-[calc(100dvh-64px-200px)] bg-gradient-premium text-slate-900 dark:text-white relative overflow-x-hidden">
+  <!-- Subtle decorative background blobs -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2"></div>
+  <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none translate-y-1/2"></div>
+
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
+    <router-outlet />
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gradient-to-b from-slate-50 to-slate-200 dark:from-zinc-950 dark:to-[#050505] border-t border-slate-200 dark:border-white/5 text-slate-500 dark:text-zinc-400 relative overflow-hidden">
+  
+  <!-- Subtle decorative blobs -->
+  <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none translate-x-1/2 -translate-y-1/2"></div>
+  <div class="absolute bottom-0 left-0 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 translate-y-1/2"></div>
+  
+  <!-- Giant Watermark Text -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02] select-none overflow-hidden mix-blend-overlay">
+    <span class="text-[20vw] font-black leading-none text-slate-900 dark:text-white whitespace-nowrap tracking-tighter">{{ settingsService.settings()?.store_name || 'PUXBAY' }}</span>
+  </div>
+
+  <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-8 relative z-10">
+    
+    <!-- Premium Newsletter Banner -->
+    <div class="mb-20 bg-white dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden group">
+      <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-transparent to-purple-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+      
+      <div class="relative z-10 md:w-1/2 text-center md:text-left">
+        <span class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 text-slate-900 dark:text-white rounded-lg text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200 dark:border-white/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Community
+        </span>
+        <h3 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Join the Inner Circle.</h3>
+        <p class="text-slate-500 dark:text-zinc-400 text-lg">Get early access to exclusive drops, limited-time discounts, and insider news.</p>
+      </div>
+      
+      <div class="relative z-10 w-full md:w-1/2 max-w-md">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center shadow-2xl rounded-2xl sm:rounded-full bg-slate-50 dark:bg-zinc-950/80 border border-slate-200 dark:border-white/10 p-1.5 focus-within:border-indigo-500/50 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
+          <input type="email" [(ngModel)]="newsletterEmail" placeholder="Enter your email address..." class="w-full bg-transparent px-5 py-3.5 text-slate-900 dark:text-white outline-none placeholder-zinc-500">
+          <button (click)="subscribeNewsletter()" [disabled]="!newsletterEmail || isSubscribing" class="px-8 py-3.5 bg-white hover:bg-zinc-200 text-zinc-950 font-black rounded-xl sm:rounded-full disabled:opacity-40 transition-all flex-shrink-0 mt-2 sm:mt-0">
+            {{ isSubscribing ? 'Wait...' : 'Subscribe' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Footer Links Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 lg:gap-8 border-b border-slate-200 dark:border-white/5 pb-16">
+      <!-- Brand Info -->
+      <div class="sm:col-span-2 lg:col-span-2">
+        <div class="flex items-center gap-3 mb-6">
+          @if (settingsService.settings()?.logo_image) {
+            <img [src]="settingsService.settings()!.logo_image" alt="Logo" class="w-12 h-12 object-contain rounded-xl bg-white/5 p-1 border border-slate-200 dark:border-white/10 shadow-lg">
+          } @else {
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <span class="material-symbols-outlined !text-[24px] text-slate-900 dark:text-white">storefront</span>
+            </div>
+          }
+          <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ settingsService.settings()?.store_name || 'Store' }}</span>
+        </div>
+        <p class="text-sm leading-relaxed text-slate-500 dark:text-zinc-400 max-w-md">{{ settingsService.settings()?.about_text || 'Premium products delivered to your door. Experience the finest quality with every purchase.' }}</p>
+      </div>
+
+      <!-- Links Column 1 -->
+      <div>
+        <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Shop</h4>
+        <div class="flex flex-col gap-4">
+          <a routerLink="/store" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit">All Products</a>
+          <a routerLink="/store" [queryParams]="{ filter: 'new' }" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit">New Arrivals</a>
+          <a routerLink="/store" [queryParams]="{ filter: 'trending' }" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit">Trending</a>
+        </div>
+      </div>
+
+      <!-- Links Column 2 -->
+      <div>
+        <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Account</h4>
+        <div class="flex flex-col gap-4">
+          <a routerLink="/store/account" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit">My Account</a>
+          <a routerLink="/store/wishlist" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit flex items-center gap-2">
+             Wishlist
+             @if (wishlistService.wishlistIds().length > 0) {
+               <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[10px] leading-none">{{ wishlistService.wishlistIds().length }}</span>
+             }
+          </a>
+          <a routerLink="/store/cart" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit">Shopping Cart</a>
+        </div>
+      </div>
+
+      <!-- Links Column 3 -->
+      <div>
+        <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Support</h4>
+        <div class="flex flex-col gap-4">
+          <a routerLink="/store/track-order" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit flex items-center gap-2">
+             <span class="material-symbols-outlined !text-[16px]">local_shipping</span> Track Order
+          </a>
+          <a href="mailto:help@puxbay.com" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[16px]">mail</span> help&#64;puxbay.com
+          </a>
+          <a href="#" class="text-sm font-semibold hover:text-slate-900 dark:text-white hover:translate-x-1 transition-all w-fit flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[16px]">help_center</span> FAQ
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-16 pt-8 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs font-semibold">&copy; {{ currentYear }} {{ settingsService.settings()?.store_name || 'Store' }}. All rights reserved.</p>
+      <div class="flex gap-4">
+        <!-- Social links placeholder -->
+        <a href="#" class="w-8 h-8 rounded-full bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-indigo-600 hover:text-slate-900 dark:text-white hover:border-indigo-500 transition-all">
+          <span class="material-symbols-outlined !text-[16px]">public</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+@if (searchOpen) {
+  <app-search-overlay (closeOverlay)="searchOpen = false"></app-search-overlay>
+}
+
+@if (miniCartOpen) {
+  <app-mini-cart (closeCart)="miniCartOpen = false"></app-mini-cart>
+}
+
+<!-- Sticky Cart Bar -->
+@if (cartService.cartCount() > 0 && !miniCartOpen) {
+  <div class="fixed bottom-0 left-0 w-full z-[45] p-4 animate-slide-up pointer-events-none">
+    <div class="max-w-2xl mx-auto bg-white dark:bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/50 border border-slate-200 dark:border-white/10 p-4 flex items-center justify-between pointer-events-auto">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden sm:flex w-12 h-12 bg-indigo-500/20 rounded-xl items-center justify-center text-indigo-400 border border-indigo-500/30">
+          <span class="material-symbols-outlined">shopping_cart</span>
+        </div>
+        <div>
+          <p class="text-xs sm:text-sm font-bold text-slate-500 dark:text-zinc-400">{{ cartService.cartCount() }} item(s)</p>
+          <p class="text-base sm:text-lg font-black text-slate-900 dark:text-white">{{ cartService.cartTotal() | appCurrency }}</p>
+        </div>
+      </div>
+      <button (click)="miniCartOpen = true" class="px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition-transform active:scale-95 text-sm sm:text-base whitespace-nowrap">
+        View Cart
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Toast Notifications -->
+<app-toast />
+
+<!-- Global Phase 2 Overlays -->
+<app-social-proof />
+<app-welcome-discount />

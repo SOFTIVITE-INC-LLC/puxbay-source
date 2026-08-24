@@ -1,0 +1,555 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in text-zinc-900 dark:text-white">
+
+  <!-- ── Header ── -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-teal-400 dark:to-cyan-400">
+        Suppliers
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor relationships and contact details.</p>
+    </div>
+    <button (click)="openAddModal()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 transition-all">
+      <span class="material-symbols-outlined !text-[18px]">add</span>
+      Add Supplier
+    </button>
+  </div>
+
+  <!-- ── Stat Cards ── -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full blur-xl opacity-60"></div>
+      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+        <span class="material-symbols-outlined !text-[18px] text-teal-500">business</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Total</span>
+      </div>
+      <p class="text-3xl font-black z-10 text-zinc-900 dark:text-white">{{ totalSuppliers }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60"></div>
+      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+        <span class="material-symbols-outlined !text-[18px] text-emerald-500">check_circle</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Active</span>
+      </div>
+      <p class="text-3xl font-black z-10 text-emerald-600 dark:text-emerald-400">{{ activeSuppliers }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60"></div>
+      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+        <span class="material-symbols-outlined !text-[18px] text-rose-500">account_balance_wallet</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Outstanding</span>
+      </div>
+      <p class="text-3xl font-black z-10 text-rose-600 dark:text-rose-400">{{ outstandingBalance | appCurrency }}</p>
+    </div>
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-xl opacity-60"></div>
+      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+        <span class="material-symbols-outlined !text-[18px] text-violet-500">lock_open</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Portal Access</span>
+      </div>
+      <p class="text-3xl font-black z-10 text-violet-600 dark:text-violet-400">{{ portalActiveCount }}</p>
+    </div>
+  </div>
+
+  <!-- ── Toolbar: Search + Filter + Sort + View Toggle ── -->
+  <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+    <!-- Search -->
+    <div class="relative flex-1">
+      <span class="absolute inset-y-0 left-4 flex items-center text-zinc-400">
+        <span class="material-symbols-outlined !text-[20px]">search</span>
+      </span>
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search name, email, phone..."
+        class="w-full pl-11 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none shadow-sm text-sm font-medium"
+      />
+    </div>
+    <!-- Status filter -->
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+      class="px-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+      <option value="all">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <!-- Sort -->
+    <select [ngModel]="sortOrder()" (ngModelChange)="sortOrder.set($event)"
+      class="px-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+      <option value="name">Name A→Z</option>
+      <option value="name_desc">Name Z→A</option>
+      <option value="balance">Highest Balance</option>
+      <option value="newest">Newest First</option>
+    </select>
+    <!-- View toggle -->
+    <div class="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+      <button (click)="viewMode.set('grid')" [class]="viewMode() === 'grid' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2.5 transition-colors">
+        <span class="material-symbols-outlined !text-[20px]">grid_view</span>
+      </button>
+      <button (click)="viewMode.set('list')" [class]="viewMode() === 'list' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2.5 transition-colors border-l border-zinc-200 dark:border-zinc-800">
+        <span class="material-symbols-outlined !text-[20px]">view_list</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading ── -->
+  @if (supplierService.loading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-teal-500 border-t-transparent"></div>
+    </div>
+  }
+
+  <!-- ── Supplier Content ── -->
+  @if (!supplierService.loading()) {
+    @if (filteredSuppliers.length === 0) {
+      <div class="flex flex-col items-center justify-center py-24 gap-3 text-zinc-400">
+        <span class="material-symbols-outlined !text-[56px] opacity-50">business</span>
+        <p class="text-xl font-black text-zinc-600 dark:text-zinc-300">No suppliers found</p>
+        <p class="text-sm">Try a different search or add a new supplier.</p>
+      </div>
+    } @else if (viewMode() === 'grid') {
+      <!-- Grid View -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 pb-6">
+        @for (supplier of filteredSuppliers; track supplier.id) {
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all group relative"
+               [class.opacity-50]="deletingId() === supplier.id">
+
+            <!-- Actions (always visible on mobile, hover on desktop) -->
+            <div class="absolute top-4 right-4 flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition-opacity">
+              <button (click)="openCatalog(supplier)" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors" title="Product Catalog">
+                <span class="material-symbols-outlined !text-[16px]">inventory</span>
+              </button>
+              <button (click)="openLedger(supplier)" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors" title="Accounts Payable">
+                <span class="material-symbols-outlined !text-[16px]">receipt_long</span>
+              </button>
+              <button (click)="openInviteModal(supplier)" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors" title="Invite to Portal">
+                <span class="material-symbols-outlined !text-[16px]">key</span>
+              </button>
+              <button (click)="openEditModal(supplier)" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
+                <span class="material-symbols-outlined !text-[16px]">edit</span>
+              </button>
+              <button (click)="deleteSupplier(supplier)" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors" title="Delete">
+                <span class="material-symbols-outlined !text-[16px]">delete</span>
+              </button>
+            </div>
+
+            <!-- Avatar + Name -->
+            <div class="flex items-center gap-4 pr-16">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
+                {{ supplierInitials(supplier.name) }}
+              </div>
+              <div class="min-w-0">
+                <p class="font-black text-lg text-zinc-900 dark:text-white truncate">{{ supplier.name }}</p>
+                <div class="flex items-center gap-2">
+                  @if (supplier.is_active !== false) {
+                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                      <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>Inactive
+                    </span>
+                  }
+                  @if (supplier.portal_email) {
+                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400" title="Portal access enabled">
+                      <span class="material-symbols-outlined !text-[12px]">lock_open</span>Portal
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact info -->
+            <div class="space-y-2.5 text-sm">
+              @if (supplier.email || supplier.contact_email) {
+                <div class="flex items-center gap-2.5 text-zinc-600 dark:text-zinc-400">
+                  <span class="material-symbols-outlined !text-[17px] text-teal-500 shrink-0">mail</span>
+                  <span class="truncate font-medium">{{ supplier.email || supplier.contact_email }}</span>
+                </div>
+              }
+              @if (supplier.phone) {
+                <div class="flex items-center gap-2.5 text-zinc-600 dark:text-zinc-400">
+                  <span class="material-symbols-outlined !text-[17px] text-teal-500 shrink-0">call</span>
+                  <span class="font-medium">{{ supplier.phone }}</span>
+                </div>
+              }
+              @if (supplier.website) {
+                <div class="flex items-center gap-2.5 text-zinc-600 dark:text-zinc-400">
+                  <span class="material-symbols-outlined !text-[17px] text-teal-500 shrink-0">language</span>
+                  <a [href]="supplier.website" target="_blank" class="font-medium truncate hover:text-teal-500 transition-colors">{{ supplier.website }}</a>
+                </div>
+              }
+              @if (supplier.address) {
+                <div class="flex items-start gap-2.5 text-zinc-600 dark:text-zinc-400">
+                  <span class="material-symbols-outlined !text-[17px] text-teal-500 shrink-0 mt-0.5">location_on</span>
+                  <span class="font-medium line-clamp-2">{{ supplier.address }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Payment terms + balance footer -->
+            <div class="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-zinc-500">
+                <span class="material-symbols-outlined !text-[15px]">schedule</span>
+                {{ paymentTermsLabel(supplier.payment_terms) }}
+              </div>
+              @if ((supplier.credit_balance ?? 0) > 0) {
+                <span class="text-xs font-black text-rose-600 dark:text-rose-400">
+                  {{ supplier.credit_balance | appCurrency }} owed
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- List / Table View -->
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm pb-6">
+        <table class="w-full text-sm">
+          <thead class="border-b border-zinc-100 dark:border-zinc-800">
+            <tr class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+              <th class="text-left px-5 py-4">Supplier</th>
+              <th class="text-left px-4 py-4 hidden md:table-cell">Email</th>
+              <th class="text-left px-4 py-4 hidden lg:table-cell">Phone</th>
+              <th class="text-left px-4 py-4 hidden xl:table-cell">Terms</th>
+              <th class="text-right px-4 py-4">Balance</th>
+              <th class="text-right px-5 py-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (supplier of filteredSuppliers; track supplier.id) {
+              <tr class="border-b border-zinc-50 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors" [class.opacity-50]="deletingId() === supplier.id">
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+                      {{ supplierInitials(supplier.name) }}
+                    </div>
+                    <div>
+                      <p class="font-bold text-zinc-900 dark:text-white">{{ supplier.name }}</p>
+                      @if (supplier.contact_person) {
+                        <p class="text-xs text-zinc-500">{{ supplier.contact_person }}</p>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-zinc-600 dark:text-zinc-400 hidden md:table-cell">{{ supplier.email || supplier.contact_email || '—' }}</td>
+                <td class="px-4 py-3.5 text-zinc-600 dark:text-zinc-400 hidden lg:table-cell">{{ supplier.phone || '—' }}</td>
+                <td class="px-4 py-3.5 hidden xl:table-cell">
+                  <span class="text-xs font-bold px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                    {{ paymentTermsLabel(supplier.payment_terms) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3.5 text-right font-black" [class]="(supplier.credit_balance ?? 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-400'">
+                  {{ (supplier.credit_balance ?? 0) | appCurrency }}
+                </td>
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center justify-end gap-1">
+                    <button (click)="openCatalog(supplier)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors" title="Catalog">
+                      <span class="material-symbols-outlined !text-[15px]">inventory</span>
+                    </button>
+                    <button (click)="openLedger(supplier)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors" title="Ledger">
+                      <span class="material-symbols-outlined !text-[15px]">receipt_long</span>
+                    </button>
+                    <button (click)="openInviteModal(supplier)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors" title="Portal">
+                      <span class="material-symbols-outlined !text-[15px]">key</span>
+                    </button>
+                    <button (click)="openEditModal(supplier)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="Edit">
+                      <span class="material-symbols-outlined !text-[15px]">edit</span>
+                    </button>
+                    <button (click)="deleteSupplier(supplier)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors" title="Delete">
+                      <span class="material-symbols-outlined !text-[15px]">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+</div>
+
+<!-- ── Add/Edit/Catalog Supplier Modal ── -->
+@if (isModalOpen()) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-4" (click)="closeModal()">
+    <div class="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-start shrink-0">
+        <div class="w-full">
+          <h3 class="text-xl font-black tracking-tight mb-4">{{ isEditing() ? currentSupplier().name : 'Add Supplier' }}</h3>
+          @if (isEditing()) {
+            <!-- Tabs -->
+            <div class="flex gap-4 border-b border-zinc-200 dark:border-zinc-800">
+              <button (click)="activeTab.set('details')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'details' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+                Details
+              </button>
+              <button (click)="activeTab.set('catalog')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'catalog' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+                Product Catalog
+              </button>
+              <button (click)="activeTab.set('ledger')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'ledger' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+                Accounts Payable
+              </button>
+            </div>
+          }
+        </div>
+        <button (click)="closeModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 -mr-2 -mt-2">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="p-6 overflow-y-auto min-h-[300px]">
+        @if (activeTab() === 'details' || !isEditing()) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2 space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Company Name *</label>
+              <input type="text" [ngModel]="currentSupplier().name" (ngModelChange)="updateField('name', $event)" placeholder="Acme Corp Ltd." class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Contact Person</label>
+              <input type="text" [ngModel]="currentSupplier().contact_person" (ngModelChange)="updateField('contact_person', $event)" placeholder="John Doe" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Contact Email</label>
+              <input type="email" [ngModel]="currentSupplier().email" (ngModelChange)="updateField('email', $event)" placeholder="orders@acme.com" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Phone</label>
+              <input type="tel" [ngModel]="currentSupplier().phone" (ngModelChange)="updateField('phone', $event)" placeholder="+1 555 000 0000" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Website</label>
+              <input type="url" [ngModel]="currentSupplier().website" (ngModelChange)="updateField('website', $event)" placeholder="https://acmecorp.com" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="sm:col-span-2 space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Address</label>
+              <input type="text" [ngModel]="currentSupplier().address" (ngModelChange)="updateField('address', $event)" placeholder="123 Industrial Rd, City, State" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Payment Terms</label>
+              <select [ngModel]="currentSupplier().payment_terms" (ngModelChange)="updateField('payment_terms', $event)" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all">
+                <option value="due_on_receipt">Due on Receipt</option>
+                <option value="net15">Net 15</option>
+                <option value="net30">Net 30</option>
+                <option value="net45">Net 45</option>
+                <option value="net60">Net 60</option>
+                <option value="net90">Net 90</option>
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Status</label>
+              <select [ngModel]="currentSupplier().is_active !== false" (ngModelChange)="updateField('is_active', $event)" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 outline-none transition-all">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+        } @else if (activeTab() === 'catalog') {
+          <!-- Catalog Tab -->
+          <div class="space-y-6">
+            <!-- Add Product Form -->
+            <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+              <h4 class="text-sm font-bold mb-3">Link New Product</h4>
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="col-span-2">
+                  <select [(ngModel)]="newCatalogProduct().product_id" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="" disabled selected>Select Inventory Product</option>
+                    @for (p of allProducts(); track p.id) {
+                      <option [value]="p.id">{{ p.name }}</option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <input type="text" [(ngModel)]="newCatalogProduct().supplier_sku" placeholder="Supplier SKU" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div class="relative">
+                  <span class="absolute left-3 top-2.5 text-zinc-400 text-sm">GHS</span>
+                  <input type="number" [(ngModel)]="newCatalogProduct().unit_cost" min="0" step="0.01" placeholder="Unit Cost" class="w-full pl-12 pr-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+                <div>
+                  <input type="number" [(ngModel)]="newCatalogProduct().min_order_qty" min="1" step="1" placeholder="Min Order Qty" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" />
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button (click)="addCatalogProduct()" [disabled]="!newCatalogProduct().product_id || addingToCatalog()" class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-bold hover:bg-teal-600 transition-colors disabled:opacity-50">
+                  {{ addingToCatalog() ? 'Adding...' : '+ Add to Catalog' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Existing Products -->
+            <div>
+              <h4 class="text-sm font-bold mb-3 text-zinc-500">Linked Products</h4>
+              <div class="space-y-2">
+                @for (cp of catalogProducts(); track cp.id) {
+                  <div class="flex items-center justify-between p-3 border border-zinc-100 dark:border-zinc-800 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <div>
+                      <p class="font-bold text-sm">{{ cp.product?.name || 'Unknown Product' }}</p>
+                      <div class="flex gap-3 mt-0.5">
+                        <p class="text-xs text-zinc-500 font-mono">SKU: {{ cp.supplier_sku || 'N/A' }}</p>
+                        @if (cp.min_order_qty && cp.min_order_qty > 1) {
+                          <p class="text-xs text-zinc-500">MOQ: {{ cp.min_order_qty }}</p>
+                        }
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="font-black text-emerald-600 dark:text-emerald-400">{{ cp.unit_cost | appCurrency }}</span>
+                      <button (click)="removeCatalogProduct(cp)" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors" title="Remove">
+                        <span class="material-symbols-outlined !text-[15px]">remove_circle</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+                @if (catalogProducts().length === 0) {
+                  <p class="text-sm text-zinc-500 text-center py-4">No products linked to this supplier yet.</p>
+                }
+              </div>
+            </div>
+          </div>
+        } @else if (activeTab() === 'ledger') {
+          <!-- Accounts Payable / Ledger Tab -->
+          <div class="space-y-6">
+
+            <!-- Record Transaction Form -->
+            <div class="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-2xl border border-violet-200 dark:border-violet-800">
+              <h4 class="text-sm font-bold mb-3 text-violet-700 dark:text-violet-300">Record Transaction</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-1">Type</label>
+                  <select [(ngModel)]="newPayment().entry_type" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-500">
+                    <option value="invoice">Invoice (Owe to Supplier)</option>
+                    <option value="payment">Payment (Paid to Supplier)</option>
+                    <option value="adjustment">Adjustment</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-1">Amount</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-2.5 text-zinc-400 text-sm">GHS</span>
+                    <input type="number" [(ngModel)]="newPayment().amount" min="0" step="0.01" class="w-full pl-10 pr-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-500" placeholder="0.00" />
+                  </div>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-1">Transaction Date</label>
+                  <input type="date" [(ngModel)]="newPayment().transaction_date" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-500" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-1">Reference</label>
+                  <input type="text" [(ngModel)]="newPayment().reference_id" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-500" placeholder="PO-001, INV-123..." />
+                </div>
+                <div class="col-span-2">
+                  <label class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 block mb-1">Notes</label>
+                  <input type="text" [(ngModel)]="newPayment().notes" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-500" placeholder="Optional notes..." />
+                </div>
+              </div>
+              <div class="flex justify-end mt-3">
+                <button (click)="addPayment()" [disabled]="!newPayment().amount || addingPayment()" class="px-5 py-2 bg-violet-600 text-white text-sm font-bold rounded-xl hover:bg-violet-700 transition-colors disabled:opacity-50">
+                  {{ addingPayment() ? 'Recording...' : 'Record Entry' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Ledger Entries -->
+            <div>
+              <h4 class="text-sm font-bold mb-3 text-zinc-500 flex items-center justify-between">
+                <span>Transaction History</span>
+                <div class="flex items-center gap-3">
+                  @if (currentSupplier().credit_balance !== undefined) {
+                    <span class="text-base font-black" [class]="(currentSupplier().credit_balance ?? 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'">
+                      Balance: {{ currentSupplier().credit_balance | appCurrency }}
+                    </span>
+                  }
+                  <button (click)="exportLedgerCSV()" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                    <span class="material-symbols-outlined !text-[14px]">download</span>Export CSV
+                  </button>
+                </div>
+              </h4>
+              <div class="space-y-2 max-h-96 overflow-y-auto">
+                @for (entry of ledgerEntries(); track entry.id) {
+                  <div class="flex items-center gap-3 p-3 border rounded-xl" [class]="entry.entry_type === 'payment' ? 'border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-900/10' : 'border-rose-100 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-900/10'">
+                    <span class="material-symbols-outlined !text-[20px]" [class]="entry.entry_type === 'payment' ? 'text-emerald-500' : 'text-rose-500'">
+                      {{ entry.entry_type === 'payment' ? 'payments' : 'receipt' }}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-bold capitalize">{{ entry.entry_type }}</p>
+                      <div class="flex gap-3">
+                        @if (entry.reference_id) { <p class="text-xs text-zinc-500 font-mono">{{ entry.reference_id }}</p> }
+                        @if (entry.transaction_date) { <p class="text-xs text-zinc-400">{{ entry.transaction_date | date:'mediumDate' }}</p> }
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-black text-sm" [class]="entry.entry_type === 'payment' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                        {{ entry.entry_type === 'payment' ? '-' : '+' }}{{ entry.amount | appCurrency }}
+                      </p>
+                      <p class="text-[10px] text-zinc-400">Bal: {{ entry.balance | appCurrency }}</p>
+                    </div>
+                  </div>
+                }
+                @if (ledgerEntries().length === 0) {
+                  <p class="text-sm text-zinc-500 text-center py-6">No transactions recorded yet.</p>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3 shrink-0">
+        <button (click)="closeModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-all">
+          Close
+        </button>
+        @if (activeTab() === 'details' || !isEditing()) {
+          <button (click)="saveSupplier()" [disabled]="!currentSupplier().name || saving()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl shadow-lg shadow-teal-500/25 hover:opacity-90 transition-all disabled:opacity-50">
+            {{ saving() ? 'Saving...' : 'Save Details' }}
+          </button>
+        }
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ── Invite to Portal Modal ── -->
+@if (isInviteModalOpen()) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-4" (click)="closeInviteModal()">
+    <div class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-6 border-b border-zinc-200 dark:border-zinc-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[20px] text-indigo-600">key</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-black">Grant Portal Access</h3>
+            <p class="text-sm text-zinc-500">{{ inviteSupplier()?.name }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-zinc-600 dark:text-zinc-400">Set login credentials for this supplier so they can access their portal and view purchase orders.</p>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Portal Email</label>
+          <input type="email" [(ngModel)]="inviteEmail" placeholder="supplier@example.com" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Password</label>
+          <input type="password" [(ngModel)]="invitePassword" placeholder="Min. 6 characters" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+        </div>
+        @if (inviteSupplier()?.portal_email) {
+          <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-xs text-emerald-700 dark:text-emerald-400">
+            <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+            Currently active: {{ inviteSupplier()?.portal_email }}
+          </div>
+        }
+      </div>
+      <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+        <button (click)="closeInviteModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-all">Cancel</button>
+        <button (click)="sendInvite()" [disabled]="!inviteEmail || !invitePassword || sendingInvite()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+          {{ sendingInvite() ? 'Saving...' : 'Grant Access' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

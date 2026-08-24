@@ -1,0 +1,89 @@
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden font-outfit">
+  
+  <!-- Ambient Background -->
+  <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-violet-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <!-- Main Card -->
+  <div class="w-full max-w-lg glass-card rounded-3xl p-8 sm:p-10 z-10 animate-fade-in relative overflow-hidden">
+    
+    <!-- Top Pattern -->
+    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-violet-500 to-purple-600"></div>
+
+    @if (!submitted()) {
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
+          <span class="material-symbols-outlined !text-[32px] text-violet-600 dark:text-violet-400">rate_review</span>
+        </div>
+        <h1 class="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">We value your feedback</h1>
+        <p class="text-zinc-500 dark:text-zinc-400 text-sm">Please let us know about your experience. Your thoughts help us improve.</p>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Name & Email (Grid on sm) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Your Name *</label>
+            <input type="text" [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="John Doe"
+              class="w-full px-4 py-3 bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all shadow-sm">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Email Address *</label>
+            <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" placeholder="john@example.com"
+              class="w-full px-4 py-3 bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all shadow-sm">
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="space-y-3 text-center">
+          <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">How would you rate your experience? *</label>
+          <div class="flex items-center justify-center gap-2">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button (click)="setRating(star)" class="transition-transform hover:scale-110 p-1 group">
+                <span class="material-symbols-outlined !text-[42px] sm:!text-[48px] transition-all duration-300"
+                      style="font-variation-settings: 'FILL' 1"
+                      [ngClass]="star <= rating() ? 'text-amber-400 drop-shadow-md scale-110' : 'text-zinc-200 dark:text-zinc-800 group-hover:text-amber-200'">
+                  star
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Comment -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Any additional comments?</label>
+          <textarea rows="4" [ngModel]="comment()" (ngModelChange)="comment.set($event)" placeholder="Tell us what you loved or what we could do better..."
+            class="w-full px-4 py-3 bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none transition-all resize-none shadow-sm"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button (click)="submit()" [disabled]="submitting() || !name() || !email() || rating() === 0"
+          class="w-full py-4 rounded-xl font-black text-white text-base bg-gradient-to-r from-violet-500 to-purple-600 hover:opacity-90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-xl shadow-violet-500/20">
+          @if (submitting()) {
+            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          }
+          Submit Feedback
+        </button>
+      </div>
+    } @else {
+      <!-- Success State -->
+      <div class="text-center py-8 animate-fade-in">
+        <div class="w-24 h-24 mx-auto bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-6 shadow-inner relative">
+          <div class="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-20"></div>
+          <span class="material-symbols-outlined !text-[48px] text-emerald-600 dark:text-emerald-400">check_circle</span>
+        </div>
+        <h2 class="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-3">Thank You!</h2>
+        <p class="text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto mb-8">Your feedback has been successfully submitted and is greatly appreciated.</p>
+        <button onclick="window.location.reload()" class="px-6 py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-bold transition-all text-sm">
+          Submit Another
+        </button>
+      </div>
+    }
+  </div>
+  
+  <!-- Footer -->
+  <div class="mt-8 text-center text-xs text-zinc-400 font-medium z-10">
+    Powered by <span class="font-black text-zinc-900 dark:text-white ml-1">puxbay</span>
+  </div>
+</div>

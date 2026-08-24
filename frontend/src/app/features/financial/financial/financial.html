@@ -1,0 +1,866 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+
+  <!-- ── Page Header ── -->
+  <div class="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600">
+        Financials & Accounting
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Track revenue, manage expenses, and configure tax settings.
+      </p>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <!-- Date Range Filter -->
+      <div class="relative">
+        <select [ngModel]="dateRange()" (ngModelChange)="onDateRangeChange($event)" class="pl-4 pr-10 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none">
+          <option value="this_month">This Month</option>
+          <option value="this_quarter">This Quarter</option>
+          <option value="this_year">This Year</option>
+          <option value="all_time">All Time</option>
+        </select>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[18px] text-zinc-400 pointer-events-none">expand_more</span>
+      </div>
+
+      <!-- Export Button based on active tab -->
+      @if (activeTab() === 'pnl') {
+        <button (click)="printPnL()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
+          <span class="material-symbols-outlined !text-[18px]">print</span> Print P&L
+        </button>
+      } @else if (activeTab() === 'expenses') {
+        <button (click)="exportExpensesCSV()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
+          <span class="material-symbols-outlined !text-[18px]">download</span> Export CSV
+        </button>
+      } @else if (activeTab() === 'tax') {
+        <button (click)="exportTaxCSV()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
+          <span class="material-symbols-outlined !text-[18px]">download</span> Export CSV
+        </button>
+      }
+
+      <button (click)="openExpenseCategoryModal()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all hidden sm:flex">
+        <span class="material-symbols-outlined !text-[18px]">category</span> New Category
+      </button>
+      <button (click)="openExpenseModal()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-white text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all">
+        <span class="material-symbols-outlined !text-[18px]">add</span> Add Expense
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Navigation Tabs ── -->
+  <div class="print:hidden flex gap-2 bg-slate-100 dark:bg-zinc-800/80 rounded-2xl p-1.5 w-full sm:w-fit overflow-x-auto border border-zinc-200 dark:border-zinc-700/50 no-scrollbar">
+    <button (click)="activeTab.set('pnl')"
+            [class.bg-white]="activeTab() === 'pnl'"
+            [class.dark:bg-zinc-900]="activeTab() === 'pnl'"
+            [class.shadow-sm]="activeTab() === 'pnl'"
+            [class.text-emerald-600]="activeTab() === 'pnl'"
+            [class.dark:text-emerald-400]="activeTab() === 'pnl'"
+            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[18px]">account_balance</span> Balance Sheet
+    </button>
+    <button (click)="activeTab.set('expenses')"
+            [class.bg-white]="activeTab() === 'expenses'"
+            [class.dark:bg-zinc-900]="activeTab() === 'expenses'"
+            [class.shadow-sm]="activeTab() === 'expenses'"
+            [class.text-emerald-600]="activeTab() === 'expenses'"
+            [class.dark:text-emerald-400]="activeTab() === 'expenses'"
+            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[18px]">receipt_long</span> Expenses
+    </button>
+    <button (click)="activeTab.set('tax')"
+            [class.bg-white]="activeTab() === 'tax'"
+            [class.dark:bg-zinc-900]="activeTab() === 'tax'"
+            [class.shadow-sm]="activeTab() === 'tax'"
+            [class.text-emerald-600]="activeTab() === 'tax'"
+            [class.dark:text-emerald-400]="activeTab() === 'tax'"
+            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[18px]">account_balance_wallet</span> Tax Configuration
+    </button>
+    <button (click)="activeTab.set('ledger')"
+            [class.bg-white]="activeTab() === 'ledger'"
+            [class.dark:bg-zinc-900]="activeTab() === 'ledger'"
+            [class.shadow-sm]="activeTab() === 'ledger'"
+            [class.text-emerald-600]="activeTab() === 'ledger'"
+            [class.dark:text-emerald-400]="activeTab() === 'ledger'"
+            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[18px]">account_tree</span> Chart of Accounts
+    </button>
+    <button (click)="activeTab.set('journal')"
+            [class.bg-white]="activeTab() === 'journal'"
+            [class.dark:bg-zinc-900]="activeTab() === 'journal'"
+            [class.shadow-sm]="activeTab() === 'journal'"
+            [class.text-emerald-600]="activeTab() === 'journal'"
+            [class.dark:text-emerald-400]="activeTab() === 'journal'"
+            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[18px]">book</span> Journal Entries
+    </button>
+  </div>
+
+  @if (financialService.loading()) {
+    <div class="flex flex-col items-center justify-center py-24 text-emerald-600 gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-current border-t-transparent"></div>
+      <p class="font-bold animate-pulse">Loading financial data...</p>
+    </div>
+  }
+
+  <!-- ── Balance Sheet (PnL) Tab ── -->
+  @if (!financialService.loading() && activeTab() === 'pnl') {
+    <div class="animate-fade-in space-y-6">
+
+      <!-- Financial Alerts -->
+      @if (financialAlerts().length > 0) {
+        <div class="space-y-3">
+          @for (alert of financialAlerts(); track alert.message) {
+            <div class="flex items-center gap-3 p-4 rounded-2xl border"
+                 [ngClass]="{
+                   'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-400': alert.type === 'danger',
+                   'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400': alert.type === 'warning',
+                   'bg-sky-50 border-sky-200 text-sky-700 dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-400': alert.type === 'info'
+                 }">
+              <span class="material-symbols-outlined">
+                {{ alert.type === 'danger' ? 'error' : alert.type === 'warning' ? 'warning' : 'info' }}
+              </span>
+              <p class="font-bold text-sm">{{ alert.message }}</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- PnL Overview Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- Gross Revenue -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+            <span class="material-symbols-outlined !text-[20px] text-emerald-500">payments</span>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Gross Revenue</span>
+          </div>
+          <p class="text-3xl font-black z-10">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</p>
+        </div>
+
+        <!-- COGS -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+            <span class="material-symbols-outlined !text-[20px] text-amber-500">inventory</span>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Cost of Goods (COGS)</span>
+          </div>
+          <p class="text-3xl font-black z-10">{{ (pnlData()?.cogs || 0) | appCurrency }}</p>
+        </div>
+
+        <!-- Total Expenses -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
+            <span class="material-symbols-outlined !text-[20px] text-rose-500">receipt_long</span>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Total Expenses</span>
+          </div>
+          <p class="text-3xl font-black z-10">{{ (pnlData()?.total_expenses || 0) | appCurrency }}</p>
+        </div>
+
+        <!-- Operating Cash Flow -->
+        <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl p-6 flex flex-col gap-2 shadow-lg shadow-indigo-500/20 text-white relative overflow-hidden group">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-white/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
+          <div class="flex items-center gap-2 text-indigo-100 mb-1 z-10">
+            <span class="material-symbols-outlined !text-[20px]">account_balance_wallet</span>
+            <span class="text-[11px] font-extrabold uppercase tracking-widest">Op. Cash Flow</span>
+          </div>
+          <p class="text-4xl font-black z-10">{{ (pnlData()?.operating_cash_flow || 0) | appCurrency }}</p>
+        </div>
+      </div>
+
+      <!-- Revenue vs Expenses Chart -->
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black tracking-tight flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-500">monitoring</span> Revenue vs Expenses
+          </h3>
+          <select class="pl-4 pr-10 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl outline-none font-medium text-sm appearance-none">
+            <option>Last 12 Months</option>
+            <option>Year to Date</option>
+            <option>Last 6 Months</option>
+          </select>
+        </div>
+        <div class="h-72 w-full">
+          <canvas baseChart
+                  [type]="'line'"
+                  [data]="chartData()"
+                  [options]="$any(chartOptions)">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Financial Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Income Statement Structure -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <h3 class="text-lg font-black tracking-tight mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-zinc-400">request_quote</span> Income Statement
+          </h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Gross Revenue</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-rose-400"></span> Less COGS
+              </span>
+              <span class="font-bold text-rose-500">-{{ (pnlData()?.cogs || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-4 bg-zinc-50 dark:bg-zinc-800/30 px-4 rounded-xl">
+              <span class="font-bold text-zinc-900 dark:text-white">Gross Profit</span>
+              <span class="font-black text-lg text-emerald-600 dark:text-emerald-400">{{ (pnlData()?.gross_profit || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-rose-400"></span> Less Operating Expenses
+              </span>
+              <span class="font-bold text-rose-500">-{{ (pnlData()?.total_expenses || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-4 bg-emerald-50 dark:bg-emerald-900/20 px-4 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
+              <span class="font-black text-emerald-700 dark:text-emerald-400">Net Profit</span>
+              <span class="font-black text-xl text-emerald-600 dark:text-emerald-400">{{ (pnlData()?.net_profit || 0) | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax Liability -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <h3 class="text-lg font-black tracking-tight mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-zinc-400">account_balance</span> Tax Liabilities
+          </h3>
+          <div class="flex items-center gap-4 p-5 bg-sky-50 dark:bg-sky-900/10 rounded-2xl border border-sky-100 dark:border-sky-900/30 mb-6">
+            <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center text-sky-600 dark:text-sky-400">
+              <span class="material-symbols-outlined !text-[24px]">price_change</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-500">Total Tax Collected</p>
+              <p class="text-3xl font-black text-sky-700 dark:text-sky-400">{{ (taxReportData()?.total_tax_collected || 0) | appCurrency }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Taxable Sales Amount</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ (taxReportData()?.taxable_amount || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Total Sales (Inc. Tax)</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ (taxReportData()?.total_sales || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Orders Processed</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ taxReportData()?.order_count || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Expenses Tab ── -->
+  @if (!financialService.loading() && activeTab() === 'expenses') {
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm animate-fade-in">
+      <!-- Header with search & filter -->
+      <div class="p-6 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-1">
+          <h2 class="text-lg font-black tracking-tight">Operating Expenses</h2>
+          <p class="text-sm text-zinc-500 mt-0.5">{{ filteredExpenses().length }} of {{ financialService.expenses().length }} entries</p>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Search -->
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[18px] text-zinc-400">search</span>
+            <input type="text" [ngModel]="expenseSearch()" (ngModelChange)="expenseSearch.set($event)" placeholder="Search description..." class="pl-9 pr-4 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50 font-medium w-52">
+          </div>
+          <!-- Category filter -->
+          <div class="relative">
+            <select [ngModel]="expenseCategoryFilter()" (ngModelChange)="expenseCategoryFilter.set($event)" class="pl-4 pr-9 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50 font-medium appearance-none">
+              <option value="">All Categories</option>
+              @for (cat of financialService.expenseCategories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[16px] text-zinc-400 pointer-events-none">expand_more</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-xs uppercase tracking-wider text-zinc-500">
+            <tr>
+              <th class="px-6 py-4 font-bold">Date</th>
+              <th class="px-6 py-4 font-bold">Description</th>
+              <th class="px-6 py-4 font-bold">Category</th>
+              <th class="px-6 py-4 font-bold text-right">Amount</th>
+              <th class="px-6 py-4 font-bold text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+            @for (expense of filteredExpenses(); track expense.id) {
+              <tr (click)="openExpenseDetails(expense)" class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group cursor-pointer">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3 text-zinc-500 font-medium">
+                    <span class="material-symbols-outlined !text-[18px]">calendar_today</span>
+                    {{ expense.date | date:'MMM d, yyyy' }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">
+                  <div class="flex items-center gap-2">
+                    {{ expense.description || 'N/A' }}
+                    @if (expense.is_recurring) {
+                      <span class="material-symbols-outlined !text-[16px] text-emerald-500" title="Recurring Expense: {{ expense.recurrence_interval }}">autorenew</span>
+                    }
+                    @if (expense.receipt_url) {
+                      <span class="material-symbols-outlined !text-[16px] text-sky-500" title="Has Receipt Attached">receipt</span>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  @if (expense.category_id) {
+                    <span class="inline-flex px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-bold rounded-lg">
+                      {{ financialService.expenseCategories().find(c => c.id === expense.category_id)?.name || '—' }}
+                    </span>
+                  } @else {
+                    <span class="text-zinc-400">—</span>
+                  }
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <span class="inline-flex px-3 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-black rounded-lg">
+                    -{{ expense.amount | appCurrency }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button (click)="openEditExpenseModal(expense); $event.stopPropagation()" class="p-2 rounded-lg text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors">
+                      <span class="material-symbols-outlined !text-[18px]">edit</span>
+                    </button>
+                    <button (click)="confirmDeleteExpense(expense); $event.stopPropagation()" class="p-2 rounded-lg text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors">
+                      <span class="material-symbols-outlined !text-[18px]">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @if (filteredExpenses().length === 0) {
+              <tr>
+                <td colspan="5" class="px-6 py-24 text-center">
+                  <div class="flex flex-col items-center gap-3 text-zinc-400">
+                    <span class="material-symbols-outlined !text-[48px] opacity-50">receipt_long</span>
+                    <p class="font-bold text-lg text-zinc-600 dark:text-zinc-300">No expenses found</p>
+                    <p class="text-sm">{{ financialService.expenses().length === 0 ? "Click 'Add Expense' to log your first business expense." : 'Try adjusting your search or filter.' }}</p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ── Tax Configuration Tab ── -->
+  @if (!financialService.loading() && activeTab() === 'tax') {
+    <div class="animate-fade-in max-w-2xl mx-auto w-full">
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+        <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-gradient-to-br from-zinc-50 to-white dark:from-zinc-800/30 dark:to-zinc-900">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined !text-[24px]">account_balance</span>
+          </div>
+          <h2 class="text-2xl font-black tracking-tight mb-1">Tax Configuration</h2>
+          <p class="text-zinc-500">Configure global tax rates applied to all orders at checkout.</p>
+        </div>
+
+        @if (financialService.taxConfig(); as config) {
+          <div class="p-8 space-y-6">
+            
+            <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+              <div>
+                <h4 class="font-black text-zinc-900 dark:text-white">Enable Taxes</h4>
+                <p class="text-sm text-zinc-500 mt-0.5">Apply this tax calculation to all new orders.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [(ngModel)]="config.is_active" class="sr-only peer" />
+                <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Tax Type</label>
+              <div class="relative">
+                <select [(ngModel)]="config.tax_type" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium appearance-none">
+                  <option value="none">No Tax</option>
+                  <option value="sales_tax">Sales Tax</option>
+                  <option value="vat">VAT (Value Added Tax)</option>
+                  <option value="gst">GST (Goods and Services Tax)</option>
+                </select>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Tax Rate</label>
+              <div class="relative">
+                <input type="number" [(ngModel)]="config.tax_rate" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-bold font-mono text-lg" />
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">%</span>
+              </div>
+              <p class="text-xs text-zinc-500 mt-2">Example: Enter 8.5 for 8.5% tax rate.</p>
+            </div>
+
+            <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800">
+              <button (click)="saveTaxConfig()" class="w-full py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Save Tax Settings
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Ledger Tab ── -->
+  @if (!financialService.loading() && activeTab() === 'ledger') {
+    <div class="animate-fade-in space-y-6">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold">Chart of Accounts</h2>
+        <button (click)="isLedgerModalOpen.set(true)" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-600">Add Account</button>
+      </div>
+      <div class="glass-panel rounded-3xl p-6 overflow-x-auto custom-scrollbar border border-zinc-200 dark:border-zinc-800">
+        <table class="w-full text-left whitespace-nowrap">
+          <thead>
+            <tr class="text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <th class="pb-4 px-4">Code</th>
+              <th class="pb-4 px-4">Name</th>
+              <th class="pb-4 px-4">Type</th>
+              <th class="pb-4 px-4">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800 text-sm">
+            @for (acc of ledgerAccounts(); track acc.id) {
+              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                <td class="py-4 px-4 font-mono font-bold">{{ acc.code }}</td>
+                <td class="py-4 px-4 font-bold">{{ acc.name }}</td>
+                <td class="py-4 px-4 text-emerald-500 font-bold uppercase text-xs tracking-wider">{{ acc.type }}</td>
+                <td class="py-4 px-4 text-zinc-500">{{ acc.description }}</td>
+              </tr>
+            }
+            @if (ledgerAccounts().length === 0) {
+              <tr><td colspan="4" class="py-8 text-center text-zinc-500">No accounts found.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ── Journal Tab ── -->
+  @if (!financialService.loading() && activeTab() === 'journal') {
+    <div class="animate-fade-in space-y-6">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold">Journal Entries</h2>
+        <button (click)="isJournalModalOpen.set(true)" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:bg-emerald-600">New Entry</button>
+      </div>
+      <div class="glass-panel rounded-3xl p-6 overflow-x-auto custom-scrollbar border border-zinc-200 dark:border-zinc-800">
+        <table class="w-full text-left whitespace-nowrap">
+          <thead>
+            <tr class="text-xs font-black uppercase tracking-widest text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <th class="pb-4 px-4">Date</th>
+              <th class="pb-4 px-4">Ref Type</th>
+              <th class="pb-4 px-4">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800 text-sm">
+            @for (entry of journalEntries(); track entry.id) {
+              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                <td class="py-4 px-4">{{ entry.created_at | date:'mediumDate' }}</td>
+                <td class="py-4 px-4"><span class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-xs font-bold">{{ entry.reference_type }}</span></td>
+                <td class="py-4 px-4">{{ entry.description }}</td>
+              </tr>
+            }
+            @if (journalEntries().length === 0) {
+              <tr><td colspan="3" class="py-8 text-center text-zinc-500">No journal entries found.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Add Expense Category Modal -->
+@if (isExpenseCategoryModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between sticky top-0 bg-white dark:bg-zinc-900 z-10">
+        <div>
+          <h2 class="text-xl font-black">New Expense Category</h2>
+          <p class="text-xs text-zinc-500 mt-1">Create a new category for expenses</p>
+        </div>
+        <button (click)="closeExpenseCategoryModal()" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors text-zinc-500">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto custom-scrollbar">
+        <div class="space-y-5">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Category Name <span class="text-rose-500">*</span></label>
+            <input type="text" [ngModel]="newExpenseCategory().name" (ngModelChange)="newExpenseCategory.update(s => ({...s, name: $event}))"
+                   class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium text-zinc-900 dark:text-white"
+                   placeholder="e.g. Office Supplies">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Category Type <span class="text-rose-500">*</span></label>
+            <select [ngModel]="newExpenseCategory().type" (ngModelChange)="newExpenseCategory.update(s => ({...s, type: $event}))"
+                    class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium appearance-none">
+              <option value="operating">Operating</option>
+              <option value="non-operating">Non-Operating</option>
+              <option value="cogs">COGS</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Monthly Budget <span class="text-xs font-normal text-zinc-400">(Optional)</span></label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">$</span>
+              <input type="number" [ngModel]="newExpenseCategory().monthly_budget" (ngModelChange)="newExpenseCategory.update(s => ({...s, monthly_budget: +$event}))"
+                     class="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium text-zinc-900 dark:text-white"
+                     placeholder="0.00">
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Description</label>
+            <textarea [ngModel]="newExpenseCategory().description" (ngModelChange)="newExpenseCategory.update(s => ({...s, description: $event}))"
+                      class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium text-zinc-900 dark:text-white min-h-[80px]"
+                      placeholder="Optional description"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex justify-end gap-3 sticky bottom-0">
+        <button (click)="closeExpenseCategoryModal()" class="px-5 py-2.5 rounded-xl font-bold text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+          Cancel
+        </button>
+        <button (click)="saveExpenseCategory()"
+                [disabled]="savingExpenseCategory() || !newExpenseCategory().name"
+                class="px-5 py-2.5 rounded-xl font-bold text-sm bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-zinc-500/20">
+          @if (savingExpenseCategory()) {
+            <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span>
+          }
+          Create Category
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add / Edit Expense Modal -->
+@if (isExpenseModalOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[500px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col">
+    <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-950">
+      <h2 class="text-xl font-bold text-zinc-900 dark:text-white">{{ editingExpenseId() ? 'Edit Expense' : 'Add Expense' }}</h2>
+      <button (click)="closeExpenseModal()" class="text-zinc-400 hover:text-rose-500 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+    
+    <div class="p-6 space-y-5">
+      <!-- Category Dropdown -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Expense Category</label>
+        <div class="relative">
+          <select [ngModel]="expenseForm().category_id" (ngModelChange)="expenseForm.update(f => ({...f, category_id: $event}))" class="w-full pl-4 pr-10 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white font-medium appearance-none">
+            <option value="" disabled>Select Category</option>
+            @for (cat of financialService.expenseCategories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }} ({{ cat.type }})</option>
+            }
+          </select>
+          <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Amount Input -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Amount</label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">$</span>
+          <input type="number" [ngModel]="expenseForm().amount" (ngModelChange)="expenseForm.update(f => ({...f, amount: +$event}))" placeholder="0.00" class="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white font-medium">
+        </div>
+      </div>
+
+      <!-- Date Picker -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Date</label>
+        <input type="date" [ngModel]="expenseForm().date" (ngModelChange)="expenseForm.update(f => ({...f, date: $event}))" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white font-medium">
+      </div>
+      
+      <!-- Recurring Options -->
+      <div class="flex items-center gap-4">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [ngModel]="expenseForm().is_recurring" (ngModelChange)="expenseForm.update(f => ({...f, is_recurring: $event}))" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500">
+          <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Is Recurring?</span>
+        </label>
+        @if (expenseForm().is_recurring) {
+          <select [ngModel]="expenseForm().recurrence_interval" (ngModelChange)="expenseForm.update(f => ({...f, recurrence_interval: $event}))" class="flex-1 px-4 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white font-medium appearance-none">
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        }
+      </div>
+
+      <!-- Description Input -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Description <span class="text-xs font-normal text-zinc-400">(Optional)</span></label>
+        <textarea [ngModel]="expenseForm().description" (ngModelChange)="expenseForm.update(f => ({...f, description: $event}))" rows="2" placeholder="What was this expense for?" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white resize-none font-medium"></textarea>
+      </div>
+
+      <!-- Receipt Upload -->
+      <div>
+        <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Receipt Attachment <span class="text-xs font-normal text-zinc-400">(Optional)</span></label>
+        <input type="url" [ngModel]="expenseForm().receipt_url" (ngModelChange)="expenseForm.update(f => ({...f, receipt_url: $event}))" placeholder="https://link-to-receipt.pdf" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-900 dark:text-white font-medium text-sm">
+        <p class="text-xs text-zinc-400 mt-1">Provide a URL to the scanned receipt image or PDF.</p>
+      </div>
+    </div>
+    
+    <div class="p-6 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3">
+      <button (click)="closeExpenseModal()" class="px-6 py-2.5 rounded-xl font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">Cancel</button>
+      <button (click)="saveExpense()" [disabled]="savingExpense() || !expenseForm().category_id || expenseForm().amount <= 0 || !expenseForm().date" class="px-6 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+      @if (savingExpense()) {
+          <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        }
+        {{ editingExpenseId() ? 'Update Expense' : 'Save Expense' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Delete Expense Confirmation Modal -->
+@if (isDeleteExpenseOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[400px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col items-center text-center">
+    <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    </div>
+    <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">Delete Expense?</h3>
+    <p class="text-zinc-500 mb-6">This will permanently remove this expense record and update your financial reports.</p>
+    
+    <div class="flex gap-3 w-full">
+      <button (click)="isDeleteExpenseOpen.set(false)" class="flex-1 py-3 rounded-xl font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">Cancel</button>
+      <button (click)="executeDeleteExpense()" [disabled]="savingExpense()" class="flex-1 py-3 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-colors shadow-lg shadow-rose-500/20 flex items-center justify-center gap-2">
+        @if (savingExpense()) {
+          <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        }
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Expense Details Slide-Over -->
+@if (isExpenseDetailsOpen() && selectedExpense()) {
+<div class="fixed inset-0 z-40 flex justify-end" (click)="closeExpenseDetails()">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/20 backdrop-blur-sm animate-fade-in"></div>
+  
+  <!-- Panel -->
+  <div class="relative w-full sm:w-[400px] h-full bg-white dark:bg-zinc-950 shadow-2xl border-l border-zinc-200 dark:border-zinc-800 flex flex-col animate-slide-in-right" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+      <div>
+        <h3 class="text-xl font-black">Expense Details</h3>
+        <p class="text-sm text-zinc-500 mt-0.5">Ref: {{ selectedExpense()!.id.split('-')[0] | uppercase }}</p>
+      </div>
+      <button (click)="closeExpenseDetails()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+        <span class="material-symbols-outlined !text-[20px]">close</span>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      
+      <!-- Big Amount -->
+      <div class="flex flex-col items-center justify-center py-8 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-100 dark:border-zinc-800/50">
+        <span class="material-symbols-outlined !text-[32px] text-rose-500 mb-2">receipt_long</span>
+        <p class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-1">Total Amount</p>
+        <p class="text-4xl font-black text-rose-600 dark:text-rose-500">-{{ selectedExpense()!.amount | appCurrency }}</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <p class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Description</p>
+          <p class="font-medium text-zinc-900 dark:text-white">{{ selectedExpense()!.description || 'No description provided' }}</p>
+        </div>
+        
+        <div>
+          <p class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Date</p>
+          <div class="flex items-center gap-2 font-medium text-zinc-900 dark:text-white">
+            <span class="material-symbols-outlined !text-[18px] text-emerald-500">calendar_today</span>
+            {{ selectedExpense()!.date | date:'longDate' }}
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Category</p>
+          @if (selectedExpense()!.category_id) {
+            <span class="inline-flex px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-bold rounded-xl">
+              {{ financialService.expenseCategories().find(c => c.id === selectedExpense()!.category_id)?.name || 'Unknown' }}
+            </span>
+          } @else {
+            <span class="text-zinc-400">Uncategorized</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 flex gap-3 bg-zinc-50 dark:bg-zinc-950">
+      <button (click)="openEditExpenseModal(selectedExpense()!)" class="flex-1 py-3 rounded-xl font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">edit</span> Edit
+      </button>
+      <button (click)="confirmDeleteExpense(selectedExpense()!)" class="flex-1 py-3 rounded-xl font-bold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-800 transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">delete</span> Delete
+      </button>
+    </div>
+
+  </div>
+</div>
+}
+
+<!-- Add Ledger Account Modal -->
+@if (isLedgerModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between sticky top-0 bg-white dark:bg-zinc-900 z-10">
+        <div>
+          <h2 class="text-xl font-black">New Ledger Account</h2>
+          <p class="text-xs text-zinc-500 mt-1">Create an account for the Chart of Accounts</p>
+        </div>
+        <button (click)="isLedgerModalOpen.set(false)" class="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-500">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto custom-scrollbar space-y-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Account Name</label>
+          <input type="text" [(ngModel)]="ledgerForm().name" placeholder="e.g. Petty Cash" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Account Code</label>
+          <input type="text" [(ngModel)]="ledgerForm().code" placeholder="e.g. 1001" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium font-mono" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Type</label>
+          <select [(ngModel)]="ledgerForm().type" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium">
+            <option value="Asset">Asset</option>
+            <option value="Liability">Liability</option>
+            <option value="Equity">Equity</option>
+            <option value="Revenue">Revenue</option>
+            <option value="Expense">Expense</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Description</label>
+          <textarea [(ngModel)]="ledgerForm().description" rows="2" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
+        <button (click)="saveLedgerAccount()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all">
+          Create Account
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- New Journal Entry Modal -->
+@if (isJournalModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden border border-zinc-100 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+      <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between sticky top-0 bg-white dark:bg-zinc-900 z-10">
+        <div>
+          <h2 class="text-xl font-black">New Journal Entry</h2>
+          <p class="text-xs text-zinc-500 mt-1">Record a manual double-entry transaction</p>
+        </div>
+        <button (click)="isJournalModalOpen.set(false)" class="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-zinc-500">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Description / Memo</label>
+            <input type="text" [(ngModel)]="journalForm().description" placeholder="What is this transaction for?" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Reference Type</label>
+            <select [(ngModel)]="journalForm().reference_type" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium">
+              <option value="Manual">Manual Entry</option>
+              <option value="Adjustment">Adjustment</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-zinc-800 dark:text-zinc-200">Transaction Lines</h3>
+            <button (click)="addJournalLine()" class="text-xs font-bold text-emerald-500 hover:text-emerald-600 flex items-center gap-1">
+              <span class="material-symbols-outlined !text-[16px]">add</span> Add Line
+            </button>
+          </div>
+          
+          <div class="space-y-3">
+            @for (line of journalForm().lines; track $index) {
+              <div class="flex items-start gap-3 p-4 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+                <div class="flex-1">
+                  <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Account</label>
+                  <select [(ngModel)]="line.account_id" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none text-sm font-medium">
+                    <option value="">Select Account</option>
+                    @for (acc of ledgerAccounts(); track acc.id) {
+                      <option [value]="acc.id">{{ acc.code }} - {{ acc.name }}</option>
+                    }
+                  </select>
+                </div>
+                
+                <div class="w-32">
+                  <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Entry Type</label>
+                  <div class="flex rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                    <button (click)="line.is_debit = true" [class.bg-emerald-50]="line.is_debit" [class.dark:bg-emerald-900/30]="line.is_debit" [class.text-emerald-600]="line.is_debit" [class.bg-white]="!line.is_debit" [class.dark:bg-zinc-900]="!line.is_debit" class="flex-1 py-2 text-xs font-bold text-center transition-colors">Dr</button>
+                    <button (click)="line.is_debit = false" [class.bg-rose-50]="!line.is_debit" [class.dark:bg-rose-900/30]="!line.is_debit" [class.text-rose-600]="!line.is_debit" [class.bg-white]="line.is_debit" [class.dark:bg-zinc-900]="line.is_debit" class="flex-1 py-2 text-xs font-bold text-center transition-colors">Cr</button>
+                  </div>
+                </div>
+
+                <div class="w-32">
+                  <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Amount</label>
+                  <input type="number" [(ngModel)]="line.amount" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none text-sm font-mono text-right" placeholder="0.00" />
+                </div>
+
+                <div class="pt-6">
+                  <button (click)="removeJournalLine($index)" class="p-1.5 text-zinc-400 hover:text-rose-500 transition-colors">
+                    <span class="material-symbols-outlined !text-[18px]">close</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex gap-4">
+        <button (click)="isJournalModalOpen.set(false)" class="flex-1 py-3.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+          Cancel
+        </button>
+        <button (click)="saveJournalEntry()" class="flex-[2] py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all">
+          Record Journal Entry
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,91 @@
+<div class="roles-container">
+  <div class="header">
+    <div>
+      <h2>Roles & Permissions</h2>
+      <p>Manage access levels and permissions for your staff.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openModal()">+ Create Custom Role</button>
+  </div>
+
+  <div class="roles-list">
+    <div class="role-card" *ngFor="let role of roles()">
+      <div class="role-header">
+        <div class="role-title">
+          <h3>{{ role.name }}</h3>
+          <span class="badge" [class.system]="role.is_system" [class.custom]="!role.is_system">
+            {{ role.is_system ? 'System' : 'Custom' }}
+          </span>
+        </div>
+        <div class="actions" *ngIf="!role.is_system">
+          <button class="btn-icon" (click)="openModal(role)" title="Edit">
+            <i class="fi fi-rr-edit"></i>
+          </button>
+          <button class="btn-icon text-danger" (click)="deleteRole(role)" title="Delete">
+            <i class="fi fi-rr-trash"></i>
+          </button>
+        </div>
+      </div>
+      <p class="role-desc">{{ role.description || 'No description provided' }}</p>
+      <div class="perms-summary" *ngIf="role.permissions?.length">
+        <span class="perm-tag" *ngFor="let p of role.permissions | slice:0:3">{{ p.code }}</span>
+        <span class="perm-tag more" *ngIf="role.permissions && role.permissions.length > 3">
+          +{{ role.permissions.length - 3 }} more
+        </span>
+      </div>
+      <div class="perms-summary empty" *ngIf="!role.permissions?.length">
+        No permissions assigned.
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Modal -->
+  <div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ selectedRole() ? 'Edit Role' : 'Create Custom Role' }}</h3>
+        <button class="close-btn" (click)="closeModal()"><i class="fi fi-rr-cross"></i></button>
+      </div>
+
+      <form [formGroup]="roleForm" (ngSubmit)="saveRole()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Role Name <span class="required">*</span></label>
+            <input type="text" formControlName="name" placeholder="e.g. Floor Manager" />
+          </div>
+          
+          <div class="form-group">
+            <label>Description</label>
+            <textarea formControlName="description" rows="2" placeholder="Brief description of this role's duties"></textarea>
+          </div>
+
+          <div class="permissions-section">
+            <h4>Assign Permissions</h4>
+            <div class="modules-grid">
+              <div class="module-group" *ngFor="let mod of modules()">
+                <h5>{{ mod.name }}</h5>
+                <div class="perm-list">
+                  <label class="perm-item" *ngFor="let p of mod.permissions">
+                    <input type="checkbox" 
+                           [checked]="hasPermissionSelected(p.id)"
+                           (change)="togglePermission(p.id)" />
+                    <span class="perm-info">
+                      <span class="perm-code">{{ p.code }}</span>
+                      <span class="perm-desc">{{ p.description }}</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="roleForm.invalid">
+            {{ selectedRole() ? 'Save Changes' : 'Create Role' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

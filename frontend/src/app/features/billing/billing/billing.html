@@ -1,0 +1,133 @@
+<div
+  class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white"
+>
+  <!-- Payment verification banners -->
+  @if (verifying()) {
+    <div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+      <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-blue-600"></div>
+      <p class="text-blue-700 dark:text-blue-300 font-semibold">Verifying your payment with Paystack...</p>
+    </div>
+  }
+  @if (verifySuccess()) {
+    <div class="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+      <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+      <p class="text-emerald-700 dark:text-emerald-300 font-semibold">Payment verified! Your subscription is now active. 🎉</p>
+    </div>
+  }
+  @if (verifyError()) {
+    <div class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+      <span class="material-symbols-outlined text-red-600">error</span>
+      <p class="text-red-700 dark:text-red-300 font-semibold">{{ verifyError() }}</p>
+    </div>
+  }
+
+  <div class="flex justify-between items-center">
+    <div>
+      <h1
+        class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500"
+      >
+        Billing & Subscriptions
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Manage your SaaS subscription and payment methods.
+      </p>
+    </div>
+  </div>
+
+  @if (billingService.loading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  }
+
+  @if (!billingService.loading() && billingService.subscription(); as sub) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Subscription Details -->
+      <div class="lg:col-span-1">
+        <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden h-full flex flex-col justify-between">
+          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+          <div>
+            <h2 class="text-sm font-bold tracking-widest text-zinc-500 uppercase mb-2">
+              Current Plan
+            </h2>
+            <div class="text-4xl font-black text-zinc-900 dark:text-white">{{ sub.plan?.name || 'Unknown' }}</div>
+            <div class="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-4">
+              {{ sub.plan?.price | appCurrency }} <span class="text-sm text-zinc-500 uppercase font-medium tracking-wider">/ mo</span>
+            </div>
+            
+            <p class="text-zinc-500 dark:text-zinc-400 mt-6 text-sm">
+              Your next billing date is
+              <span class="font-bold text-zinc-900 dark:text-white">{{ sub.current_period_end | date: 'mediumDate' }}</span>
+            </p>
+            <div class="mt-4 flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                    [ngClass]="sub.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'">
+                {{ sub.status }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col gap-3">
+            <button (click)="upgradePlan()" class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+              Upgrade Plan
+            </button>
+            <button class="w-full px-6 py-3 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl shadow-sm transition-all hover:bg-zinc-50 dark:hover:bg-zinc-700">
+              Cancel Subscription
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoices / Billing History -->
+      <div class="lg:col-span-2">
+        <div class="glass-panel rounded-2xl shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md overflow-hidden">
+          <div class="p-6 border-b border-zinc-200 dark:border-zinc-800">
+            <h2 class="text-xl font-bold text-zinc-900 dark:text-white">Billing History</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 uppercase text-[10px] font-black tracking-widest">
+                <tr>
+                  <th class="px-6 py-4">Date</th>
+                  <th class="px-6 py-4">Amount</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Invoice</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
+                @for (inv of billingService.invoices(); track inv.id) {
+                  <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <td class="px-6 py-4 font-medium text-zinc-900 dark:text-white">{{ inv.date | date: 'MMM d, y' }}</td>
+                    <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">{{ inv.amount | appCurrency }}</td>
+                    <td class="px-6 py-4">
+                      <span class="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider"
+                            [ngClass]="inv.status === 'succeeded' || inv.status === 'paid' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
+                        {{ inv.status }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      @if (inv['receipt_url']) {
+                        <button class="text-blue-600 hover:text-blue-700 dark:text-blue-400 font-bold text-xs uppercase tracking-wider flex items-center justify-end gap-1 w-full">
+                          <span class="material-symbols-outlined !text-[16px]">download</span> PDF
+                        </button>
+                      } @else {
+                        <span class="text-zinc-400 text-xs italic">N/A</span>
+                      }
+                    </td>
+                  </tr>
+                }
+                @if (billingService.invoices().length === 0) {
+                  <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-zinc-500 dark:text-zinc-400">
+                      No invoices found for this subscription.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

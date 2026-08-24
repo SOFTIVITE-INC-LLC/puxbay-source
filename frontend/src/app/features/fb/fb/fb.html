@@ -1,0 +1,409 @@
+<div class="h-full flex flex-col space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center px-6 pt-6">
+    <div>
+      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-orange-600">
+        Food &amp; Beverage
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">Manage dining tables, kitchen display, and menu</p>
+    </div>
+    @if (activeTab() === 'tables') {
+      <button (click)="openAddModal()"
+        class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">add</span> Add Table
+      </button>
+    }
+    @if (activeTab() === 'menu') {
+      <div class="flex gap-2">
+        <button (click)="openMenuCategoryModal()"
+          class="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-2xl hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">category</span> Add Category
+        </button>
+        <button (click)="openMenuItemModal()"
+          class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">restaurant_menu</span> Add Item
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-1 px-6 bg-zinc-100/80 dark:bg-zinc-800/50 mx-6 rounded-2xl p-1">
+    <button (click)="activeTab.set('tables')"
+      [class]="activeTab() === 'tables'
+        ? 'flex-1 py-2.5 rounded-xl font-black text-sm bg-white dark:bg-zinc-700 shadow text-zinc-900 dark:text-white transition-all'
+        : 'flex-1 py-2.5 rounded-xl font-bold text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-all'">
+      <span class="material-symbols-outlined text-[16px] align-middle mr-1">table_bar</span>
+      Floor Plan
+    </button>
+    <button (click)="activeTab.set('kds')"
+      [class]="activeTab() === 'kds'
+        ? 'flex-1 py-2.5 rounded-xl font-black text-sm bg-white dark:bg-zinc-700 shadow text-zinc-900 dark:text-white transition-all'
+        : 'flex-1 py-2.5 rounded-xl font-bold text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-all'">
+      <span class="material-symbols-outlined text-[16px] align-middle mr-1">kitchen</span>
+      Kitchen Display (KDS)
+      @if (kdsTicketsByStatus('pending').length > 0) {
+        <span class="ml-1 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px] font-black">{{ kdsTicketsByStatus('pending').length }}</span>
+      }
+    </button>
+    <button (click)="activeTab.set('menu')"
+      [class]="activeTab() === 'menu'
+        ? 'flex-1 py-2.5 rounded-xl font-black text-sm bg-white dark:bg-zinc-700 shadow text-zinc-900 dark:text-white transition-all'
+        : 'flex-1 py-2.5 rounded-xl font-bold text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-all'">
+      <span class="material-symbols-outlined text-[16px] align-middle mr-1">menu_book</span>
+      Menu Management
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-auto px-6 pb-6">
+
+    <!-- Floor Plan Tab -->
+    @if (activeTab() === 'tables') {
+      @if (fnbService.loading()) {
+        <div class="flex justify-center items-center py-24">
+          <div class="w-12 h-12 border-4 border-amber-500/30 border-t-amber-500 rounded-full animate-spin"></div>
+        </div>
+      } @else if (fnbService.tables().length === 0) {
+        <div class="text-center py-24 space-y-4">
+          <span class="material-symbols-outlined text-[80px] text-zinc-300 dark:text-zinc-600">table_restaurant</span>
+          <p class="text-zinc-500 dark:text-zinc-400 font-medium">No tables configured yet.</p>
+          <button (click)="openAddModal()" class="px-5 py-2.5 bg-amber-500 text-white rounded-2xl font-bold hover:-translate-y-0.5 transition-all">
+            Add First Table
+          </button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          @for (table of fnbService.tables(); track table.id) {
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-lg border border-zinc-200/50 dark:border-zinc-700/50 hover:-translate-y-1 transition-all group">
+              <!-- Status bar -->
+              <div class="h-2 w-full {{ statusColor(table.status) }}"></div>
+              <div class="p-5 flex flex-col items-center gap-3">
+                <div class="text-4xl font-black text-zinc-900 dark:text-white">{{ table.name }}</div>
+                <div class="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">
+                  <span class="material-symbols-outlined text-[14px] align-middle">people</span>
+                  {{ table.capacity }} seats
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider {{ statusBadge(table.status) }}">
+                  {{ table.status }}
+                </span>
+                <!-- Quick status actions -->
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity w-full">
+                  @for (s of ['available','occupied','reserved','cleaning']; track s) {
+                    @if (s !== table.status) {
+                      <button (click)="setTableStatus(table, s)"
+                        [disabled]="isUpdatingStatus() === table.id"
+                        class="flex-1 py-1 text-[9px] font-black uppercase rounded-lg {{ statusBadge(s) }} hover:opacity-80 transition disabled:opacity-50">
+                        {{ s.substring(0,3) }}
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- KDS Tab -->
+    @if (activeTab() === 'kds') {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Pending Column -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+            <h3 class="font-black text-sm uppercase tracking-wider text-amber-600 dark:text-amber-400">
+              Pending <span class="ml-1 text-zinc-400 font-medium normal-case">{{ kdsTicketsByStatus('pending').length }}</span>
+            </h3>
+          </div>
+          <div class="space-y-3">
+            @for (ticket of kdsTicketsByStatus('pending'); track ticket.id) {
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border-l-4 border-amber-500 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Order #{{ ticket.order_id.slice(-6) }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ ticketStatusBadge(ticket.status) }}">{{ ticket.status }}</span>
+                </div>
+                <button (click)="advanceTicket(ticket)"
+                  class="w-full py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black transition-colors">
+                  {{ nextAction(ticket.status) }}
+                </button>
+              </div>
+            }
+            @if (kdsTicketsByStatus('pending').length === 0) {
+              <div class="text-center py-10 text-zinc-400 text-sm">No pending orders</div>
+            }
+          </div>
+        </div>
+
+        <!-- Preparing Column -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+            <h3 class="font-black text-sm uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              Preparing <span class="ml-1 text-zinc-400 font-medium normal-case">{{ kdsTicketsByStatus('preparing').length }}</span>
+            </h3>
+          </div>
+          <div class="space-y-3">
+            @for (ticket of kdsTicketsByStatus('preparing'); track ticket.id) {
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Order #{{ ticket.order_id.slice(-6) }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ ticketStatusBadge(ticket.status) }}">{{ ticket.status }}</span>
+                </div>
+                <button (click)="advanceTicket(ticket)"
+                  class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-black transition-colors">
+                  {{ nextAction(ticket.status) }}
+                </button>
+              </div>
+            }
+            @if (kdsTicketsByStatus('preparing').length === 0) {
+              <div class="text-center py-10 text-zinc-400 text-sm">Nothing being prepared</div>
+            }
+          </div>
+        </div>
+
+        <!-- Ready Column -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+            <h3 class="font-black text-sm uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              Ready <span class="ml-1 text-zinc-400 font-medium normal-case">{{ kdsTicketsByStatus('ready').length }}</span>
+            </h3>
+          </div>
+          <div class="space-y-3">
+            @for (ticket of kdsTicketsByStatus('ready'); track ticket.id) {
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border-l-4 border-emerald-500 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                  <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Order #{{ ticket.order_id.slice(-6) }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black {{ ticketStatusBadge(ticket.status) }}">{{ ticket.status }}</span>
+                </div>
+                <button (click)="advanceTicket(ticket)"
+                  class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black transition-colors">
+                  {{ nextAction(ticket.status) }}
+                </button>
+              </div>
+            }
+            @if (kdsTicketsByStatus('ready').length === 0) {
+              <div class="text-center py-10 text-zinc-400 text-sm">No orders ready</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Menu Management Tab -->
+    @if (activeTab() === 'menu') {
+      <div class="space-y-8 animate-fade-in">
+        
+        <!-- Categories Row -->
+        <div>
+          <h2 class="text-xl font-black mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-amber-500">category</span> Menu Categories
+          </h2>
+          @if (categoryService.loading()) {
+            <div class="h-24 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
+          } @else if (categoryService.categories().length === 0) {
+            <div class="text-center py-6 text-zinc-400 text-sm">No categories yet. Add one to get started!</div>
+          } @else {
+            <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+              @for (cat of categoryService.categories(); track cat.id) {
+                <div class="flex-shrink-0 bg-white dark:bg-zinc-900 px-6 py-4 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 min-w-[150px] cursor-pointer hover:border-amber-500 transition-colors">
+                  <div class="font-bold">{{ cat.name }}</div>
+                  <div class="text-xs text-zinc-500 mt-1">{{ cat.description || 'No description' }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Menu Items Grid -->
+        <div>
+          <h2 class="text-xl font-black mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-orange-500">restaurant_menu</span> Menu Items
+          </h2>
+          @if (catalogService.loading()) {
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div class="h-48 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
+              <div class="h-48 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
+              <div class="h-48 bg-zinc-100 dark:bg-zinc-800 rounded-2xl animate-pulse"></div>
+            </div>
+          } @else if (catalogService.products().length === 0) {
+            <div class="text-center py-12 text-zinc-400">No menu items found. Click 'Add Item' to create one.</div>
+          } @else {
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              @for (item of catalogService.products(); track item.id) {
+                <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-zinc-200 dark:border-zinc-800 transition-all group flex flex-col">
+                  <div class="h-32 bg-zinc-100 dark:bg-zinc-800 relative">
+                    @if (item.image) {
+                      <img [src]="item.image" alt="item" class="w-full h-full object-cover">
+                    } @else {
+                      <div class="w-full h-full flex items-center justify-center text-zinc-300 dark:text-zinc-700">
+                        <span class="material-symbols-outlined text-[48px]">fastfood</span>
+                      </div>
+                    }
+                    <div class="absolute top-2 right-2 bg-black/60 backdrop-blur text-white text-xs font-bold px-2 py-1 rounded-lg">
+                      ${{ item.selling_price }}
+                    </div>
+                  </div>
+                  <div class="p-4 flex flex-col flex-1">
+                    <div class="font-bold text-sm leading-tight mb-1">{{ item.name }}</div>
+                    <div class="text-xs text-zinc-500 line-clamp-2 mb-3">{{ item.description }}</div>
+                    <div class="mt-auto flex justify-between items-center text-[10px] font-black uppercase text-zinc-400">
+                      <span>{{ item.category?.name || 'Uncategorized' }}</span>
+                      @if (item.track_inventory) {
+                        <span [class]="(item?.current_stock || 0) > 0 ? 'text-emerald-500' : 'text-rose-500'">
+                          {{ item.current_stock }} {{ item.stock_unit }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add Table Modal -->
+@if (isModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-md" (click)="closeModal()">
+    <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-3xl w-full max-w-sm shadow-2xl border border-white dark:border-zinc-700 overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center">
+        <h2 class="text-xl font-black">Add Table</h2>
+        <button (click)="closeModal()" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Table Name / Number</label>
+          <input type="text" [ngModel]="currentTable().name" (ngModelChange)="currentTable.update(t => ({...t, name: $event}))"
+            placeholder="e.g. Table 1, VIP-A, Bar-3"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 font-bold transition-all">
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Seating Capacity</label>
+          <input type="number" min="1" [ngModel]="currentTable().capacity" (ngModelChange)="currentTable.update(t => ({...t, capacity: +$event}))"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 font-bold transition-all">
+        </div>
+        <button (click)="saveTable()"
+          class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-amber-500/30">
+          Add Table
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Menu Category Modal -->
+@if (isCategoryModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-md" (click)="closeCategoryModal()">
+    <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-3xl w-full max-w-sm shadow-2xl border border-white dark:border-zinc-700 overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center">
+        <h2 class="text-xl font-black">Add Category</h2>
+        <button (click)="closeCategoryModal()" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Category Name</label>
+          <input type="text" [ngModel]="currentCategory().name" (ngModelChange)="currentCategory.update(c => ({...c, name: $event}))"
+            placeholder="e.g. Appetizers, Drinks"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 font-bold transition-all">
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Description (Optional)</label>
+          <input type="text" [ngModel]="currentCategory().description" (ngModelChange)="currentCategory.update(c => ({...c, description: $event}))"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 font-bold transition-all">
+        </div>
+        <button (click)="saveCategory()"
+          class="w-full py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg">
+          Add Category
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add Menu Item Modal -->
+@if (isMenuModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-md" (click)="closeMenuModal()">
+    <div class="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-3xl w-full max-w-md shadow-2xl border border-white dark:border-zinc-700 overflow-hidden"
+      (click)="$event.stopPropagation()">
+      <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center">
+        <h2 class="text-xl font-black">Add Menu Item</h2>
+        <button (click)="closeMenuModal()" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto sidebar-scroll">
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Item Name</label>
+          <input type="text" [ngModel]="currentMenuItem().name" (ngModelChange)="currentMenuItem.update(i => ({...i, name: $event}))"
+            placeholder="e.g. Classic Cheeseburger"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 font-bold transition-all">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Selling Price</label>
+            <input type="number" min="0" step="0.01" [ngModel]="currentMenuItem().selling_price" (ngModelChange)="currentMenuItem.update(i => ({...i, selling_price: +$event}))"
+              class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 font-bold transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Category</label>
+            <select [ngModel]="currentMenuItem().category_id" (ngModelChange)="currentMenuItem.update(i => ({...i, category_id: $event}))"
+              class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 font-bold transition-all">
+              <option value="">Select...</option>
+              @for (cat of categoryService.categories(); track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Description</label>
+          <textarea [ngModel]="currentMenuItem().description" (ngModelChange)="currentMenuItem.update(i => ({...i, description: $event}))"
+            class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 font-bold transition-all" rows="2"></textarea>
+        </div>
+        
+        <label class="flex items-center gap-3 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+          <input type="checkbox" [ngModel]="currentMenuItem().track_inventory" (ngModelChange)="currentMenuItem.update(i => ({...i, track_inventory: $event}))"
+            class="w-5 h-5 rounded border-zinc-300 text-amber-500 focus:ring-amber-500">
+          <div>
+            <div class="font-bold text-sm">Track Inventory</div>
+            <div class="text-xs text-zinc-500">Enable if you want to track portions/stock</div>
+          </div>
+        </label>
+
+        @if (currentMenuItem().track_inventory) {
+          <div class="grid grid-cols-2 gap-4 animate-fade-in">
+            <div>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Initial Stock</label>
+              <input type="number" min="0" [ngModel]="currentMenuItem().current_stock" (ngModelChange)="currentMenuItem.update(i => ({...i, current_stock: +$event}))"
+                class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 font-bold transition-all">
+            </div>
+            <div>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Unit</label>
+              <input type="text" [ngModel]="currentMenuItem().stock_unit" (ngModelChange)="currentMenuItem.update(i => ({...i, stock_unit: $event}))"
+                placeholder="e.g. plate, cup"
+                class="w-full px-4 py-3 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 font-bold transition-all">
+            </div>
+          </div>
+        }
+
+        <button (click)="saveMenuItem()"
+          class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-amber-500/30 mt-4">
+          Save Menu Item
+        </button>
+      </div>
+    </div>
+  </div>
+}

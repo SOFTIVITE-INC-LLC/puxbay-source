@@ -1,0 +1,1 @@
+-- Down migration would drop all tables

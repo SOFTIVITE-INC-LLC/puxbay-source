@@ -1,0 +1,792 @@
+<div class="pf-root" style="font-family: 'Outfit', sans-serif">
+
+  <!-- ══════════════════ TOP BAR ══════════════════ -->
+  <div class="pf-topbar">
+    <div class="pf-topbar-inner">
+      <!-- Left: back + breadcrumb -->
+      <div class="pf-topbar-left">
+        <button (click)="cancel()" class="pf-back-btn" aria-label="Go back">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="pf-breadcrumb">
+          <a routerLink="/inventory" class="pf-breadcrumb-link">Master Products</a>
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="pf-breadcrumb-sep">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span class="pf-breadcrumb-current">{{ breadcrumb }}</span>
+        </div>
+      </div>
+
+      <!-- Center: product title + status -->
+      <div class="pf-topbar-center">
+        <h1 class="pf-page-title">{{ form().name || pageTitle }}</h1>
+        <span class="pf-status-pill" [class.pf-status-active]="form().is_active" [class.pf-status-inactive]="!form().is_active">
+          <span class="pf-status-dot"></span>
+          {{ form().is_active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <!-- Right: actions -->
+      <div class="pf-topbar-right">
+        <button (click)="cancel()" class="pf-btn-ghost">Discard</button>
+        <button (click)="save()" [disabled]="isSaving()" class="pf-btn-primary" id="save-product-btn">
+          @if (isSaving()) {
+            <svg class="pf-spin" width="16" height="16" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Saving…
+          } @else {
+            <span class="material-symbols-outlined" style="font-size:17px">save</span>
+            {{ isEditing() ? 'Update Product' : 'Save Product' }}
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab strip -->
+    <div class="pf-tabs-strip">
+      <div class="pf-tabs-inner">
+        <button class="pf-tab" [class.pf-tab-active]="activeTab === 'basic'" (click)="activeTab = 'basic'" id="tab-basic">
+          <span class="material-symbols-outlined pf-tab-icon">package_2</span>
+          <span>Basic Info</span>
+        </button>
+        <button class="pf-tab" [class.pf-tab-active]="activeTab === 'pricing'" (click)="activeTab = 'pricing'" id="tab-pricing">
+          <span class="material-symbols-outlined pf-tab-icon">payments</span>
+          <span>Pricing</span>
+        </button>
+        <button class="pf-tab" [class.pf-tab-active]="activeTab === 'inventory'" (click)="activeTab = 'inventory'" id="tab-inventory">
+          <span class="material-symbols-outlined pf-tab-icon">inventory_2</span>
+          <span>Inventory</span>
+        </button>
+        <button class="pf-tab" [class.pf-tab-active]="activeTab === 'details'" (click)="activeTab = 'details'" id="tab-details">
+          <span class="material-symbols-outlined pf-tab-icon">factory</span>
+          <span>Details</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ BODY ══════════════════ -->
+  <div class="pf-body">
+    <div class="pf-content-grid">
+
+      <!-- ─── Main panel ─── -->
+      <div class="pf-main">
+
+        <!-- ═══ TAB: BASIC INFO ═══ -->
+        @if (activeTab === 'basic') {
+          <div class="pf-panel pf-fade-in">
+            <div class="pf-panel-header">
+              <div class="pf-panel-icon pf-icon-indigo">
+                <span class="material-symbols-outlined">package_2</span>
+              </div>
+              <div>
+                <h2 class="pf-panel-title">Basic Information</h2>
+                <p class="pf-panel-subtitle">Core product identity and classification</p>
+              </div>
+            </div>
+            <div class="pf-panel-body pf-stack">
+
+              <!-- Product Name -->
+              <div class="pf-field-group">
+                <label class="pf-label">Product Name <span class="pf-required">*</span></label>
+                <input
+                  id="field-name"
+                  type="text"
+                  [value]="form().name"
+                  (blur)="update('name', $any($event.target).value)"
+                  placeholder="e.g. Organic Arabica Coffee Beans 250g"
+                  class="pf-input pf-input-lg"
+                />
+              </div>
+
+              <!-- Description -->
+              <div class="pf-field-group">
+                <label class="pf-label">Description</label>
+                <textarea
+                  id="field-description"
+                  [value]="form().description || ''"
+                  (blur)="update('description', $any($event.target).value)"
+                  rows="3"
+                  placeholder="Describe the product, key features, usage, or anything a customer should know…"
+                  class="pf-input pf-textarea"
+                ></textarea>
+              </div>
+
+              <!-- Category + Brand -->
+              <div class="pf-grid-2">
+                <div class="pf-field-group">
+                  <label class="pf-label">Category</label>
+                  <div class="pf-select-wrap">
+                    <select
+                      id="field-category"
+                      [value]="form().category_id || ''"
+                      (change)="update('category_id', $any($event.target).value || null)"
+                      class="pf-select"
+                    >
+                      <option value="" class="bg-white dark:bg-[#0a0f1e]">No Category</option>
+                      @for (cat of catalogService.categories(); track cat) {
+                        <option [value]="cat.id" class="bg-white dark:bg-[#0a0f1e]">{{ cat.name }}</option>
+                      }
+                    </select>
+                    <span class="material-symbols-outlined pf-select-arrow">expand_more</span>
+                  </div>
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Brand</label>
+                  <input
+                    id="field-brand"
+                    type="text"
+                    [value]="form().brand || ''"
+                    (blur)="update('brand', $any($event.target).value)"
+                    placeholder="e.g. Nescafe, Unilever"
+                    class="pf-input"
+                  />
+                </div>
+              </div>
+
+              <!-- SKU + Barcode -->
+              <div class="pf-grid-2">
+                <div class="pf-field-group">
+                  <label class="pf-label">SKU <span class="pf-required">*</span></label>
+                  <div class="pf-input-icon-wrap">
+                    <span class="material-symbols-outlined pf-input-icon">tag</span>
+                    <input
+                      id="field-sku"
+                      type="text"
+                      [value]="form().sku"
+                      (blur)="update('sku', $any($event.target).value)"
+                      placeholder="COF-001"
+                      class="pf-input pf-input-has-icon pf-font-mono"
+                    />
+                  </div>
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Barcode</label>
+                  <div class="pf-input-icon-wrap">
+                    <span class="material-symbols-outlined pf-input-icon">barcode</span>
+                    <input
+                      id="field-barcode"
+                      type="text"
+                      [value]="form().barcode || ''"
+                      (blur)="update('barcode', $any($event.target).value)"
+                      placeholder="012345678905"
+                      class="pf-input pf-input-has-icon pf-font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color -->
+              <div class="pf-field-group">
+                <label class="pf-label">Color / Variant</label>
+                <input
+                  id="field-color"
+                  type="text"
+                  [value]="form().color || ''"
+                  (blur)="update('color', $any($event.target).value)"
+                  placeholder="e.g. Midnight Black, Navy Blue"
+                  class="pf-input"
+                />
+              </div>
+
+            </div>
+          </div>
+        }
+
+        <!-- ═══ TAB: PRICING ═══ -->
+        @if (activeTab === 'pricing') {
+          <div class="pf-panel pf-fade-in">
+            <div class="pf-panel-header">
+              <div class="pf-panel-icon pf-icon-emerald">
+                <span class="material-symbols-outlined">payments</span>
+              </div>
+              <div>
+                <h2 class="pf-panel-title">Pricing</h2>
+                <p class="pf-panel-subtitle">Set selling, cost and wholesale prices</p>
+              </div>
+            </div>
+            <div class="pf-panel-body pf-stack">
+
+              <!-- Price fields -->
+              <div class="pf-grid-3">
+                <div class="pf-field-group">
+                  <label class="pf-label">Selling Price <span class="pf-required">*</span></label>
+                  <div class="pf-input-prefix-wrap">
+                    <span class="pf-input-prefix pf-prefix-emerald">$</span>
+                    <input
+                      id="field-selling-price"
+                      type="number" min="0" step="0.01"
+                      [value]="form().selling_price"
+                      (blur)="update('selling_price', +$any($event.target).value)"
+                      class="pf-input pf-input-has-prefix pf-input-emerald"
+                    />
+                  </div>
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Cost Price</label>
+                  <div class="pf-input-prefix-wrap">
+                    <span class="pf-input-prefix">$</span>
+                    <input
+                      id="field-cost-price"
+                      type="number" min="0" step="0.01"
+                      [value]="form().cost_price"
+                      (blur)="update('cost_price', +$any($event.target).value)"
+                      class="pf-input pf-input-has-prefix"
+                    />
+                  </div>
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Tax Rate</label>
+                  <div class="pf-input-suffix-wrap">
+                    <input
+                      id="field-tax"
+                      type="number" min="0" max="100" step="0.01"
+                      [value]="form().tax_rate || 0"
+                      (blur)="update('tax_rate', +$any($event.target).value)"
+                      class="pf-input pf-input-has-suffix"
+                    />
+                    <span class="pf-input-suffix">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Wholesale -->
+              <div class="pf-grid-2">
+                <div class="pf-field-group">
+                  <label class="pf-label">Wholesale Price</label>
+                  <div class="pf-input-prefix-wrap">
+                    <span class="pf-input-prefix pf-prefix-amber">$</span>
+                    <input
+                      id="field-wholesale-price"
+                      type="number" min="0" step="0.01"
+                      [value]="$any(form()).wholesale_price || 0"
+                      (blur)="update('wholesale_price', +$any($event.target).value)"
+                      class="pf-input pf-input-has-prefix"
+                    />
+                  </div>
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Min. Wholesale Qty</label>
+                  <input
+                    id="field-min-wholesale-qty"
+                    type="number" min="1"
+                    [value]="form().minimum_wholesale_quantity || 1"
+                    (blur)="update('minimum_wholesale_quantity', +$any($event.target).value)"
+                    class="pf-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Live Margin Calculator -->
+              <div class="pf-margin-calculator">
+                <div class="pf-calc-row">
+                  <span class="pf-calc-label">Gross Profit</span>
+                  <span class="pf-calc-value" [class.pf-positive]="grossProfit > 0" [class.pf-negative]="grossProfit < 0">
+                    {{ grossProfit | appCurrency }}
+                  </span>
+                </div>
+                <div class="pf-calc-divider"></div>
+                <div class="pf-calc-row">
+                  <span class="pf-calc-label">Profit Margin</span>
+                  <span class="pf-calc-value pf-margin-highlight" [class.pf-positive]="grossProfit > 0" [class.pf-negative]="grossProfit < 0">
+                    {{ margin }}
+                  </span>
+                </div>
+                <div class="pf-calc-divider"></div>
+                <div class="pf-calc-row">
+                  <span class="pf-calc-label">Tax Amount</span>
+                  <span class="pf-calc-value">{{ ((form().selling_price || 0) * (form().tax_rate || 0)) / 100 | appCurrency }}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        }
+
+        <!-- ═══ TAB: INVENTORY ═══ -->
+        @if (activeTab === 'inventory') {
+          <div class="pf-panel pf-fade-in">
+            <div class="pf-panel-header">
+              <div class="pf-panel-icon pf-icon-amber">
+                <span class="material-symbols-outlined">inventory_2</span>
+              </div>
+              <div>
+                <h2 class="pf-panel-title">Inventory</h2>
+                <p class="pf-panel-subtitle">Track stock levels and reorder points</p>
+              </div>
+            </div>
+            <div class="pf-panel-body pf-stack">
+
+              <div class="pf-grid-3">
+                <div class="pf-field-group">
+                  <label class="pf-label">Opening Stock</label>
+                  <input
+                    id="field-stock"
+                    type="number" min="0"
+                    [value]="form().current_stock"
+                    (blur)="update('current_stock', +$any($event.target).value)"
+                    class="pf-input pf-input-amber"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Reorder Level</label>
+                  <input
+                    id="field-reorder"
+                    type="number" min="0"
+                    [value]="form().reorder_level"
+                    (blur)="update('reorder_level', +$any($event.target).value)"
+                    class="pf-input pf-input-amber"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Stock Unit</label>
+                  <div class="pf-select-wrap">
+                    <select
+                      id="field-stock-unit"
+                      [value]="form().stock_unit || 'pcs'"
+                      (change)="update('stock_unit', $any($event.target).value)"
+                      class="pf-select"
+                    >
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="pcs">pcs — Pieces</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="kg">kg — Kilograms</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="g">g — Grams</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="L">L — Litres</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="ml">ml — Millilitres</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="box">box — Boxes</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="pack">pack — Packs</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="dozen">dozen — Dozens</option>
+                      <option class="bg-white dark:bg-[#0a0f1e]" value="carton">carton — Cartons</option>
+                    </select>
+                    <span class="material-symbols-outlined pf-select-arrow">expand_more</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stock health bar -->
+              @if ((form().current_stock || 0) > 0) {
+                <div class="pf-stock-health">
+                  <div class="pf-stock-health-header">
+                    <span class="pf-stock-label">Stock Level</span>
+                    <div class="pf-stock-badge-wrap">
+                      <span class="pf-stock-value" [class.pf-in-stock]="(form().current_stock || 0) > (form().reorder_level || 0)" [class.pf-low-stock]="(form().current_stock || 0) <= (form().reorder_level || 0)">
+                        {{ form().current_stock }} {{ form().stock_unit }}
+                      </span>
+                      <span class="pf-stock-badge" [class.pf-badge-green]="(form().current_stock || 0) > (form().reorder_level || 0)" [class.pf-badge-red]="(form().current_stock || 0) <= (form().reorder_level || 0)">
+                        {{ (form().current_stock || 0) > (form().reorder_level || 0) ? 'In Stock' : 'Low Stock' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="pf-progress-track">
+                    <div
+                      class="pf-progress-fill"
+                      [class.pf-fill-green]="(form().current_stock || 0) > (form().reorder_level || 0)"
+                      [class.pf-fill-red]="(form().current_stock || 0) <= (form().reorder_level || 0)"
+                      [style.width.%]="Math.min(100, ((form().current_stock || 0) / Math.max(1, (form().current_stock || 0) * 1.5)) * 100)"
+                    ></div>
+                  </div>
+                  @if ((form().reorder_level || 0) > 0) {
+                    <p class="pf-stock-hint">Reorder point: {{ form().reorder_level }} {{ form().stock_unit }}</p>
+                  }
+                </div>
+              }
+
+            </div>
+          </div>
+        }
+
+        <!-- ═══ TAB: DETAILS ═══ -->
+        @if (activeTab === 'details') {
+          <div class="pf-panel pf-fade-in">
+            <div class="pf-panel-header">
+              <div class="pf-panel-icon pf-icon-orange">
+                <span class="material-symbols-outlined">factory</span>
+              </div>
+              <div>
+                <h2 class="pf-panel-title">Manufacturing &amp; Logistics</h2>
+                <p class="pf-panel-subtitle">Dates, batch numbers, and manufacturer info</p>
+              </div>
+            </div>
+            <div class="pf-panel-body pf-stack">
+
+              <div class="pf-grid-2">
+                <div class="pf-field-group">
+                  <label class="pf-label">Manufacturing Date</label>
+                  <input
+                    id="field-mfg-date"
+                    type="date"
+                    [value]="form().manufacturing_date || ''"
+                    (blur)="update('manufacturing_date', $any($event.target).value)"
+                    class="pf-input pf-input-orange"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Expiry Date</label>
+                  <input
+                    id="field-expiry-date"
+                    type="date"
+                    [value]="form().expiry_date || ''"
+                    (blur)="update('expiry_date', $any($event.target).value)"
+                    class="pf-input pf-input-orange"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Batch Number</label>
+                  <input
+                    id="field-batch"
+                    type="text"
+                    [value]="form().batch_number || ''"
+                    (blur)="update('batch_number', $any($event.target).value)"
+                    placeholder="BATCH-12345"
+                    class="pf-input pf-font-mono"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Invoice / Waybill</label>
+                  <input
+                    id="field-invoice"
+                    type="text"
+                    [value]="form().invoice_waybill_number || ''"
+                    (blur)="update('invoice_waybill_number', $any($event.target).value)"
+                    placeholder="INV-00123"
+                    class="pf-input pf-font-mono"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Country of Origin</label>
+                  <input
+                    id="field-origin"
+                    type="text"
+                    [value]="form().country_of_origin || ''"
+                    (blur)="update('country_of_origin', $any($event.target).value)"
+                    placeholder="e.g. Ghana"
+                    class="pf-input"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Weight (kg)</label>
+                  <div class="pf-input-suffix-wrap">
+                    <input
+                      id="field-weight"
+                      type="number" min="0" step="0.001"
+                      [value]="form().weight || ''"
+                      (blur)="update('weight', +$any($event.target).value)"
+                      placeholder="0.000"
+                      class="pf-input pf-input-has-suffix"
+                    />
+                    <span class="pf-input-suffix">kg</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pf-divider-line"></div>
+
+              <div class="pf-grid-2">
+                <div class="pf-field-group">
+                  <label class="pf-label">Manufacturer Name</label>
+                  <input
+                    id="field-mfg-name"
+                    type="text"
+                    [value]="form().manufacturer_name || ''"
+                    (blur)="update('manufacturer_name', $any($event.target).value)"
+                    placeholder="e.g. Acme Corp"
+                    class="pf-input"
+                  />
+                </div>
+                <div class="pf-field-group">
+                  <label class="pf-label">Manufacturer Address</label>
+                  <input
+                    id="field-mfg-address"
+                    type="text"
+                    [value]="form().manufacturer_address || ''"
+                    (blur)="update('manufacturer_address', $any($event.target).value)"
+                    placeholder="Address details…"
+                    class="pf-input"
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- ─── Sidebar ─── -->
+      <aside class="pf-sidebar">
+
+        <!-- Status & Visibility -->
+        <div class="pf-side-card">
+          <p class="pf-side-card-title" style="padding:14px 16px 4px">Status &amp; Visibility</p>
+          <div class="pf-toggle-list">
+
+            <button type="button" (click)="update('is_active', !form().is_active)" class="pf-toggle-row" id="toggle-active">
+              <div class="pf-toggle-icon" [class.pf-ticon-emerald]="form().is_active">
+                <span class="material-symbols-outlined" style="font-size:16px" [class.text-emerald-600]="form().is_active" [class.dark:text-emerald-400]="form().is_active" [class.text-slate-400]="!form().is_active" [class.dark:text-slate-500]="!form().is_active">check_circle</span>
+              </div>
+              <div class="pf-toggle-text">
+                <span class="pf-toggle-label">Active</span>
+                <span class="pf-toggle-desc">Available at POS &amp; orders</span>
+              </div>
+              <div class="pf-switch" [class.pf-switch-on]="form().is_active" [class.pf-switch-emerald]="form().is_active">
+                <span class="pf-switch-knob" [style.transform]="form().is_active ? 'translateX(20px)' : 'translateX(0)'"></span>
+              </div>
+            </button>
+
+            <button type="button" (click)="update('is_online', !form().is_online)" class="pf-toggle-row" id="toggle-online">
+              <div class="pf-toggle-icon" [class.pf-ticon-blue]="form().is_online">
+                <span class="material-symbols-outlined" style="font-size:16px" [class.text-blue-600]="form().is_online" [class.dark:text-blue-400]="form().is_online" [class.text-slate-400]="!form().is_online" [class.dark:text-slate-500]="!form().is_online">storefront</span>
+              </div>
+              <div class="pf-toggle-text">
+                <span class="pf-toggle-label">Sell Online</span>
+                <span class="pf-toggle-desc">Show in Storefront</span>
+              </div>
+              <div class="pf-switch" [class.pf-switch-on]="form().is_online" [class.pf-switch-blue]="form().is_online">
+                <span class="pf-switch-knob" [style.transform]="form().is_online ? 'translateX(20px)' : 'translateX(0)'"></span>
+              </div>
+            </button>
+
+            <button type="button" (click)="update('track_inventory', !form().track_inventory)" class="pf-toggle-row" id="toggle-track-inventory">
+              <div class="pf-toggle-icon" [class.pf-ticon-purple]="form().track_inventory">
+                <span class="material-symbols-outlined" style="font-size:16px" [class.text-purple-600]="form().track_inventory" [class.dark:text-purple-400]="form().track_inventory" [class.text-slate-400]="!form().track_inventory" [class.dark:text-slate-500]="!form().track_inventory">analytics</span>
+              </div>
+              <div class="pf-toggle-text">
+                <span class="pf-toggle-label">Track Inventory</span>
+                <span class="pf-toggle-desc">Monitor stock levels</span>
+              </div>
+              <div class="pf-switch" [class.pf-switch-on]="form().track_inventory" [class.pf-switch-purple]="form().track_inventory">
+                <span class="pf-switch-knob" [style.transform]="form().track_inventory ? 'translateX(20px)' : 'translateX(0)'"></span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Live Preview card -->
+        <div class="pf-preview-card">
+          <div class="pf-preview-header">
+            <p class="pf-side-card-title">Live Preview</p>
+            <span class="pf-live-dot"></span>
+          </div>
+          <div class="pf-preview-product-name">{{ form().name || 'Untitled Product' }}</div>
+          @if (form().sku) {
+            <p class="pf-preview-sku">SKU: {{ form().sku }}</p>
+          }
+          <div class="pf-preview-divider"></div>
+          <div class="pf-stat-grid">
+            <div class="pf-stat-item">
+              <p class="pf-stat-label">Sell</p>
+              <p class="pf-stat-value pf-val-emerald">{{ form().selling_price || 0 | appCurrency }}</p>
+            </div>
+            <div class="pf-stat-item">
+              <p class="pf-stat-label">Cost</p>
+              <p class="pf-stat-value">{{ form().cost_price || 0 | appCurrency }}</p>
+            </div>
+            <div class="pf-stat-item">
+              <p class="pf-stat-label">Margin</p>
+              <p class="pf-stat-value" [class.pf-val-emerald]="grossProfit > 0" [class.pf-val-red]="grossProfit < 0">{{ margin }}</p>
+            </div>
+            <div class="pf-stat-item">
+              <p class="pf-stat-label">Stock</p>
+              <p class="pf-stat-value">{{ form().current_stock || 0 }} <span style="font-size:10px;opacity:.6">{{ form().stock_unit || 'pcs' }}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save CTA -->
+        <div class="pf-save-card">
+          <button (click)="save()" [disabled]="isSaving()" class="pf-btn-primary pf-btn-full" id="save-product-sidebar-btn">
+            @if (isSaving()) {
+              <svg class="pf-spin" width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Saving…
+            } @else {
+              <span class="material-symbols-outlined" style="font-size:17px">save</span>
+              {{ isEditing() ? 'Update Product' : 'Save Product' }}
+            }
+          </button>
+          <button (click)="cancel()" class="pf-btn-discard" id="discard-btn">Discard Changes</button>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.pf-root { @apply min-h-screen bg-slate-50 dark:bg-[#05070f] text-slate-900 dark:text-white; }
+
+/* TOP BAR */
+.pf-topbar { @apply sticky top-0 z-30 bg-white/80 dark:bg-[#05070f]/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/5; }
+.pf-topbar-inner { @apply grid items-center max-w-7xl mx-auto px-6 py-3.5 gap-4; grid-template-columns: 1fr auto 1fr; }
+.pf-topbar-left  { @apply flex items-center gap-3; }
+.pf-topbar-center { @apply flex items-center gap-2.5 justify-center min-w-0; }
+.pf-topbar-right { @apply flex items-center gap-2.5 justify-end; }
+
+.pf-back-btn { @apply flex items-center justify-center w-9 h-9 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 cursor-pointer transition-all flex-shrink-0 hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white; }
+.pf-breadcrumb { @apply flex items-center gap-1.5 text-xs; }
+.pf-breadcrumb-link { @apply text-slate-500 dark:text-slate-400 no-underline transition-colors hover:text-indigo-600 dark:hover:text-indigo-400; }
+.pf-breadcrumb-sep { @apply text-slate-300 dark:text-slate-600; }
+.pf-breadcrumb-current { @apply text-slate-700 dark:text-slate-300; }
+
+.pf-page-title { @apply text-[15px] font-extrabold text-slate-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[260px] m-0; }
+
+.pf-status-pill { @apply inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full flex-shrink-0; }
+.pf-status-active  { @apply bg-emerald-100/50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20; }
+.pf-status-inactive{ @apply bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700; }
+.pf-status-dot { @apply w-1.5 h-1.5 rounded-full bg-current; animation: pfPulse 2s infinite; }
+@keyframes pfPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* TABS */
+.pf-tabs-strip { @apply border-t border-slate-200 dark:border-white/5; }
+.pf-tabs-inner { @apply flex max-w-7xl mx-auto px-6; }
+.pf-tab { @apply flex items-center gap-2 px-4 py-3 text-[13px] font-semibold text-slate-500 dark:text-slate-400 bg-transparent border-none border-b-2 border-transparent cursor-pointer transition-all relative top-[1px] hover:text-slate-700 dark:hover:text-slate-300; font-family: inherit; }
+.pf-tab-active { @apply text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400; }
+.pf-tab-icon { @apply text-[16px] !important; }
+
+/* BODY */
+.pf-body { @apply max-w-7xl mx-auto px-6 pt-7 pb-16; }
+.pf-content-grid { @apply grid gap-6 items-start; grid-template-columns: 1fr 300px; }
+@media (max-width: 1024px) { .pf-content-grid { grid-template-columns: 1fr; } }
+
+/* PANELS */
+.pf-panel { @apply rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.025] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-black/40; }
+.pf-fade-in { animation: pfFade .22s ease-out; }
+@keyframes pfFade { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+.pf-panel-header { @apply flex items-center gap-3.5 px-5 py-4 border-b border-slate-100 dark:border-white/5; }
+.pf-panel-icon { @apply w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0; }
+.pf-panel-icon .material-symbols-outlined { @apply text-[18px]; }
+.pf-icon-indigo { @apply bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400; }
+.pf-icon-emerald { @apply bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400; }
+.pf-icon-amber   { @apply bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400; }
+.pf-icon-orange  { @apply bg-orange-50 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400; }
+.pf-panel-title    { @apply text-[14px] font-extrabold text-slate-900 dark:text-white m-0; }
+.pf-panel-subtitle { @apply text-[11px] text-slate-500 dark:text-slate-400 mt-0.5; }
+.pf-panel-body { @apply p-5; }
+.pf-stack { @apply flex flex-col gap-[18px]; }
+
+/* FORM ELEMENTS */
+.pf-field-group { @apply flex flex-col gap-1.5; }
+.pf-label { @apply text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest; }
+.pf-required { @apply text-rose-500 ml-0.5; }
+
+.pf-input { @apply w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0a0f1e]/80 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-slate-100 text-[13.5px] outline-none transition-all box-border placeholder-slate-400 dark:placeholder-slate-600 hover:border-slate-400 dark:hover:border-white/20 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20; font-family: inherit; }
+.pf-input-lg { @apply text-[15px] px-4 py-3; }
+.pf-input-emerald:focus { @apply border-emerald-500 ring-emerald-500/10 dark:ring-emerald-500/20; }
+.pf-input-amber:focus   { @apply border-amber-500 ring-amber-500/10 dark:ring-amber-500/20; }
+.pf-input-orange:focus  { @apply border-orange-500 ring-orange-500/10 dark:ring-orange-500/20; }
+.pf-textarea { @apply resize-none leading-relaxed; }
+.pf-font-mono { @apply font-mono tracking-wide; }
+
+.pf-input-icon-wrap { @apply relative; }
+.pf-input-icon { @apply absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-400 dark:text-slate-500 pointer-events-none; }
+.pf-input-has-icon { @apply pl-9; }
+
+.pf-input-prefix-wrap { @apply relative; }
+.pf-input-prefix { @apply absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-500 dark:text-slate-400 pointer-events-none; }
+.pf-prefix-emerald { @apply text-emerald-600 dark:text-emerald-400; }
+.pf-prefix-amber   { @apply text-amber-600 dark:text-amber-400; }
+.pf-input-has-prefix { @apply pl-8; }
+
+.pf-input-suffix-wrap { @apply relative; }
+.pf-input-suffix { @apply absolute right-3.5 top-1/2 -translate-y-1/2 text-[12px] font-bold text-slate-500 dark:text-slate-400 pointer-events-none; }
+.pf-input-has-suffix { @apply pr-9; }
+
+.pf-select-wrap { @apply relative; }
+.pf-select { @apply w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-white dark:bg-[#0a0f1e]/80 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-slate-100 text-[13.5px] outline-none transition-all box-border appearance-none cursor-pointer hover:border-slate-400 dark:hover:border-white/20 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:focus:ring-indigo-500/20; font-family: inherit; }
+.pf-select-arrow { @apply absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 dark:text-slate-500 pointer-events-none; }
+
+/* GRIDS */
+.pf-grid-2 { @apply grid gap-4 grid-cols-2; }
+.pf-grid-3 { @apply grid gap-4 grid-cols-3; }
+@media (max-width: 720px) { .pf-grid-2, .pf-grid-3 { @apply grid-cols-1; } }
+@media (max-width: 960px) { .pf-grid-3 { @apply grid-cols-2; } }
+
+/* MARGIN CALCULATOR */
+.pf-margin-calculator { @apply rounded-[14px] bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 p-4; }
+.pf-calc-row { @apply flex items-center justify-between py-1.5; }
+.pf-calc-label { @apply text-[12.5px] font-semibold text-slate-600 dark:text-slate-400; }
+.pf-calc-value { @apply text-[14px] font-extrabold text-slate-900 dark:text-white; }
+.pf-calc-divider { @apply h-px bg-indigo-100 dark:bg-white/5 my-0.5; }
+.pf-margin-highlight { @apply text-[16px]; }
+.pf-positive { @apply text-emerald-600 dark:text-emerald-400 !important; }
+.pf-negative { @apply text-rose-600 dark:text-rose-400 !important; }
+
+/* STOCK HEALTH */
+.pf-stock-health { @apply rounded-[14px] bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 p-4; }
+.pf-stock-health-header { @apply flex justify-between items-center mb-3; }
+.pf-stock-label { @apply text-[12px] font-semibold text-slate-600 dark:text-slate-400; }
+.pf-stock-badge-wrap { @apply flex items-center gap-2; }
+.pf-stock-value { @apply text-[12px] font-bold text-slate-900 dark:text-white; }
+.pf-in-stock { @apply text-emerald-600 dark:text-emerald-400; }
+.pf-low-stock { @apply text-rose-600 dark:text-rose-400; }
+.pf-stock-badge { @apply text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider; }
+.pf-badge-green { @apply bg-emerald-100/50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20; }
+.pf-badge-red   { @apply bg-rose-100/50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20; }
+.pf-progress-track { @apply w-full h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden; }
+.pf-progress-fill { @apply h-full rounded-full transition-all duration-500; }
+.pf-fill-green { @apply bg-gradient-to-r from-emerald-500 to-emerald-400; }
+.pf-fill-red   { @apply bg-gradient-to-r from-rose-500 to-rose-400; }
+.pf-stock-hint { @apply text-[11px] text-slate-500 dark:text-slate-400 mt-2; }
+.pf-divider-line { @apply h-px bg-slate-200 dark:bg-white/5; }
+
+/* BUTTONS */
+.pf-btn-primary { @apply inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-[13.5px] font-extrabold text-white bg-gradient-to-br from-indigo-600 to-purple-600 border-none cursor-pointer shadow-lg shadow-indigo-600/30 transition-all whitespace-nowrap; font-family: inherit; }
+.pf-btn-primary:hover:not(:disabled) { @apply -translate-y-px shadow-xl shadow-indigo-600/40 brightness-110; }
+.pf-btn-primary:active:not(:disabled){ @apply scale-95; }
+.pf-btn-primary:disabled { @apply opacity-50 cursor-not-allowed; }
+.pf-btn-full { @apply w-full; }
+
+.pf-btn-ghost { @apply inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white; font-family: inherit; }
+
+.pf-btn-discard { @apply block w-full p-2.5 border-none bg-transparent text-[13px] font-semibold text-slate-500 dark:text-slate-400 cursor-pointer transition-colors text-center hover:text-slate-700 dark:hover:text-slate-200; font-family: inherit; }
+
+/* SIDEBAR */
+.pf-sidebar { @apply flex flex-col gap-4 sticky top-[122px]; }
+.pf-side-card { @apply rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.025] overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-black/30; }
+.pf-side-card-title { @apply text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] m-0; }
+
+/* TOGGLE ROWS */
+.pf-toggle-list { @apply p-1.5; }
+.pf-toggle-row { @apply flex items-center gap-3 w-full p-2.5 rounded-xl bg-transparent border-none cursor-pointer transition-colors text-left hover:bg-slate-50 dark:hover:bg-white/5; }
+.pf-toggle-icon { @apply w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center flex-shrink-0 transition-colors; }
+.pf-ticon-emerald { @apply bg-emerald-50 dark:bg-emerald-500/15 !important; }
+.pf-ticon-blue    { @apply bg-blue-50 dark:bg-blue-500/15 !important; }
+.pf-ticon-purple  { @apply bg-purple-50 dark:bg-purple-500/15 !important; }
+.pf-toggle-text { @apply flex-1; }
+.pf-toggle-label { @apply block text-[13px] font-bold text-slate-900 dark:text-white; }
+.pf-toggle-desc  { @apply block text-[11px] text-slate-500 dark:text-slate-400 mt-px; }
+
+/* SWITCH */
+.pf-switch { @apply relative w-10 h-6 rounded-full bg-slate-200 dark:bg-slate-800 flex-shrink-0 transition-colors duration-200; }
+.pf-switch-on.pf-switch-emerald { @apply bg-emerald-500; }
+.pf-switch-on.pf-switch-blue    { @apply bg-blue-500; }
+.pf-switch-on.pf-switch-purple  { @apply bg-purple-500; }
+.pf-switch-knob { @apply absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ease-out; }
+
+/* PREVIEW CARD */
+.pf-preview-card { @apply rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/10 border border-indigo-100 dark:border-indigo-500/20 p-4 shadow-lg shadow-indigo-100/50 dark:shadow-indigo-500/10; }
+.pf-preview-header { @apply flex items-center justify-between mb-3.5; }
+.pf-live-dot { @apply w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]; animation: pfPulse 2s infinite; }
+.pf-preview-product-name { @apply text-[15px] font-extrabold text-slate-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis; }
+.pf-preview-sku { @apply text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-1; }
+.pf-preview-divider { @apply h-px bg-indigo-200/50 dark:bg-white/10 my-3.5; }
+.pf-stat-grid { @apply grid grid-cols-2 gap-3; }
+.pf-stat-label { @apply text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1; }
+.pf-stat-value { @apply text-[14px] font-extrabold text-slate-900 dark:text-white; }
+.pf-val-emerald { @apply text-emerald-600 dark:text-emerald-400; }
+.pf-val-red     { @apply text-rose-600 dark:text-rose-400; }
+
+/* SAVE CARD */
+.pf-save-card { @apply rounded-2xl border border-indigo-100 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/5 p-3.5 flex flex-col gap-1.5; }
+
+/* SPINNER */
+.pf-spin { animation: pfSpin .7s linear infinite; }
+@keyframes pfSpin { to { transform: rotate(360deg); } }
+</style>

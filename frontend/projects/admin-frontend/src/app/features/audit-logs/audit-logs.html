@@ -1,0 +1,114 @@
+<div class="p-8 max-w-7xl mx-auto">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Security & Audit Logs</h1>
+      <p class="text-slate-500 mt-1">Global ledger of system events and access activity. Last 100 events.</p>
+    </div>
+    <button (click)="exportCSV()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition text-sm cursor-pointer shadow-sm">
+      <span class="material-symbols-outlined text-[18px]">download</span> Export CSV
+    </button>
+  </div>
+
+  <div *ngIf="isLoading()" class="flex justify-center p-20">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    <!-- KPI Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="stats()">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Events</h3>
+          <span class="material-symbols-outlined text-indigo-500 bg-indigo-50 p-2 rounded-xl">history</span>
+        </div>
+        <p class="text-4xl font-extrabold text-slate-800">{{ stats().total_events }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6 flex flex-col justify-between bg-rose-50/30">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-rose-600 text-sm font-bold uppercase tracking-wider">Critical Errors</h3>
+          <span class="material-symbols-outlined text-rose-500 bg-rose-100 p-2 rounded-xl">bug_report</span>
+        </div>
+        <p class="text-4xl font-extrabold text-rose-600">{{ stats().critical_errors }}</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-6 flex flex-col justify-between bg-amber-50/30">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-amber-600 text-sm font-bold uppercase tracking-wider">High-Risk Actions</h3>
+          <span class="material-symbols-outlined text-amber-500 bg-amber-100 p-2 rounded-xl">warning</span>
+        </div>
+        <p class="text-4xl font-extrabold text-amber-600">{{ stats().high_risk_actions }}</p>
+      </div>
+    </div>
+
+    <!-- Timeline Panel -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <!-- Filters -->
+      <div class="border-b border-slate-200 px-6 py-4 flex items-center gap-6 text-sm font-semibold">
+        <button (click)="setFilter('all')" [ngClass]="filterType() === 'all' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">All Events</button>
+        <button (click)="setFilter('critical')" [ngClass]="filterType() === 'critical' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Critical</button>
+        <button (click)="setFilter('high_risk')" [ngClass]="filterType() === 'high_risk' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">High Risk</button>
+        <button (click)="setFilter('create')" [ngClass]="filterType() === 'create' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Creates</button>
+        <button (click)="setFilter('delete')" [ngClass]="filterType() === 'delete' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-4 -mb-4' : 'text-slate-500 hover:text-slate-800 pb-4 -mb-4'">Deletes</button>
+      </div>
+
+      <!-- Timeline List -->
+      <div class="divide-y divide-slate-100">
+        <div *ngFor="let log of filteredLogs" class="flex gap-5 px-6 py-4 hover:bg-slate-50 transition-colors">
+          
+          <!-- Severity Dot + Line -->
+          <div class="flex flex-col items-center pt-1 shrink-0">
+            <div class="w-3 h-3 rounded-full shrink-0"
+                 [ngClass]="{
+                   'bg-rose-500': getSeverityClass(log) === 'error' || getSeverityClass(log) === 'danger',
+                   'bg-amber-500': getSeverityClass(log) === 'warning',
+                   'bg-emerald-500': getSeverityClass(log) === 'success',
+                   'bg-indigo-500': getSeverityClass(log) === 'info',
+                   'bg-slate-400': getSeverityClass(log) === 'neutral'
+                 }">
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+                    [ngClass]="{
+                      'bg-rose-100 text-rose-700': getSeverityClass(log) === 'error' || getSeverityClass(log) === 'danger',
+                      'bg-amber-100 text-amber-700': getSeverityClass(log) === 'warning',
+                      'bg-emerald-100 text-emerald-700': getSeverityClass(log) === 'success',
+                      'bg-indigo-100 text-indigo-700': getSeverityClass(log) === 'info',
+                      'bg-slate-100 text-slate-600': getSeverityClass(log) === 'neutral'
+                    }">
+                {{ log.action_type }}
+              </span>
+              <span *ngIf="log.target_model" class="text-xs font-semibold text-slate-400 font-mono">{{ log.target_model }}</span>
+            </div>
+            <p class="text-sm font-semibold text-slate-800">{{ log.description }}</p>
+            <div class="flex items-center gap-4 mt-1.5 text-xs text-slate-400 font-medium">
+              <span>{{ log.created_at | date:'medium' }}</span>
+              <span *ngIf="log.actor" class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">person</span>
+                {{ log.actor.first_name }} {{ log.actor.last_name }}
+              </span>
+              <span *ngIf="!log.actor">System</span>
+              <span *ngIf="log.tenant" class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[12px]">business</span>
+                {{ log.tenant.subdomain }}.puxbay.com
+              </span>
+              <span *ngIf="!log.tenant">Global</span>
+              <span *ngIf="log.ip_address" class="font-mono">{{ log.ip_address }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="filteredLogs.length === 0" class="px-6 py-12 text-center">
+          <div class="flex flex-col items-center justify-center">
+            <span class="material-symbols-outlined text-4xl text-slate-300 mb-3">shield</span>
+            <p class="text-slate-500 font-medium">No events match this filter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

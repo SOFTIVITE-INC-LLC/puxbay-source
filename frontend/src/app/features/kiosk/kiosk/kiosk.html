@@ -1,0 +1,385 @@
+<!-- Premium Touch Kiosk Interface -->
+<div class="h-screen w-screen text-white overflow-hidden flex flex-col select-none relative" [style.font-family]="'Outfit, sans-serif'">
+
+  <!-- ── Dynamic Animated Background ── -->
+  <div class="absolute inset-0 z-0 bg-[#0a0a14] overflow-hidden">
+    <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-indigo-600/30 to-purple-800/20 blur-[120px] animate-blob"></div>
+    <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-600/20 to-rose-800/15 blur-[120px] animate-blob animation-delay-2000"></div>
+    <div class="absolute top-[30%] right-[20%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-br from-violet-600/20 to-cyan-800/10 blur-[100px] animate-blob animation-delay-4000"></div>
+  </div>
+
+  <style>
+    @keyframes blob {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(2%, 3%) scale(1.05); }
+      66% { transform: translate(-2%, -1%) scale(0.97); }
+    }
+    .animate-blob { animation: blob 14s ease-in-out infinite; }
+    .animation-delay-2000 { animation-delay: 2s; }
+    .animation-delay-4000 { animation-delay: 4s; }
+    @keyframes fade-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+    .animate-fade-in { animation: fade-in 0.3s ease-out; }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-slide-up { animation: slide-up 0.35s ease-out; }
+    @keyframes countdown-ring {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 283; }
+    }
+    .countdown-ring { animation: countdown-ring 5s linear forwards; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  </style>
+
+  <!-- ── Idle Screen ── -->
+  @if (isIdle()) {
+    <div class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xl animate-fade-in cursor-pointer" (click)="startSession()">
+      <div class="relative mb-12">
+        <div class="w-52 h-52 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-500/50 flex items-center justify-center animate-pulse">
+          <span class="material-symbols-outlined !text-[90px] text-white">touch_app</span>
+        </div>
+        <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500/30 to-pink-500/30 blur-2xl scale-125"></div>
+      </div>
+      <h1 class="text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Tap to Start</h1>
+      <p class="text-2xl text-white/50 font-medium">Touch the screen to place your order</p>
+    </div>
+  }
+
+  <!-- ── Customer Info Step ── -->
+  @if (isCustomerStep()) {
+    <div class="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl animate-fade-in">
+      <div class="w-full max-w-lg mx-4 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-10 shadow-2xl animate-slide-up text-center">
+        
+        <!-- Avatar / Icon -->
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center mx-auto mb-6">
+          <span class="material-symbols-outlined !text-[36px] text-white">person</span>
+        </div>
+
+        <h2 class="text-4xl font-black mb-2">Who are we serving?</h2>
+        <p class="text-white/50 text-lg mb-8">Enter your details for a personalized experience</p>
+
+        <!-- Name Input -->
+        <div class="mb-4 text-left">
+          <label class="text-white/60 text-sm font-bold uppercase tracking-widest mb-2 block">Your Name <span class="text-indigo-400">*</span></label>
+          <input [(ngModel)]="customerName" type="text" placeholder="e.g. Jane Mensah"
+                 class="w-full bg-white/10 border border-white/20 focus:border-indigo-500 rounded-2xl px-5 py-4 text-xl font-medium text-white placeholder:text-white/30 outline-none transition-colors"
+                 (keyup.enter)="registerCustomer()" autocomplete="off" />
+        </div>
+
+        <!-- Phone Input -->
+        <div class="mb-8 text-left">
+          <label class="text-white/60 text-sm font-bold uppercase tracking-widest mb-2 block">Phone Number <span class="text-white/30 text-xs normal-case font-normal">(optional)</span></label>
+          <input [(ngModel)]="customerPhone" type="tel" placeholder="e.g. 0241234567"
+                 class="w-full bg-white/10 border border-white/20 focus:border-indigo-500 rounded-2xl px-5 py-4 text-xl font-medium text-white placeholder:text-white/30 outline-none transition-colors"
+                 (keyup.enter)="registerCustomer()" autocomplete="off" />
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-4">
+          <button (click)="skipCustomerStep()"
+                  class="flex-1 py-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white/70 font-bold text-lg transition-all active:scale-95">
+            Skip
+          </button>
+          <button (click)="registerCustomer()" [disabled]="!customerName.trim() || isRegisteringCustomer()"
+                  class="flex-1 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-lg shadow-xl shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-40">
+            @if (isRegisteringCustomer()) {
+              <div class="flex items-center justify-center gap-2">
+                <div class="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                Saving...
+              </div>
+            } @else {
+              Continue →
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Order Success Screen ── -->
+  @if (orderPlaced()) {
+    <div class="absolute inset-0 z-50 flex flex-col items-center justify-center animate-fade-in" style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%)">
+      <div class="relative mb-8">
+        <div class="w-36 h-36 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+          <span class="material-symbols-outlined !text-[72px] text-white">check_circle</span>
+        </div>
+        <!-- Countdown Ring -->
+        <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4"/>
+          <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" 
+                  stroke-dasharray="283" class="countdown-ring"/>
+        </svg>
+      </div>
+      <h1 class="text-7xl font-black mb-3 tracking-tight">Order Received!</h1>
+      @if (orderNumber()) {
+        <div class="text-3xl font-bold text-white/80 mb-4">Order <span class="text-white font-black bg-white/10 px-4 py-1 rounded-xl">#{{ orderNumber() }}</span></div>
+      }
+      <p class="text-2xl text-emerald-100/80 font-medium mb-10">Please wait for your order to be called.</p>
+      <div class="text-6xl font-black text-white/50">{{ countdown() }}</div>
+      <p class="text-white/40 mt-2">Returning to menu...</p>
+    </div>
+  }
+
+  <!-- ── Item Detail Modal ── -->
+  @if (selectedProduct()) {
+    <div class="absolute inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in" (click)="closeProductModal()">
+      <div class="relative w-full max-w-lg bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-10 shadow-2xl animate-slide-up mx-4" (click)="$event.stopPropagation()">
+        <!-- Close -->
+        <button (click)="closeProductModal()" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <!-- Product Image -->
+        <div class="w-40 h-40 rounded-3xl bg-white/10 shadow-inner mx-auto mb-8 flex items-center justify-center overflow-hidden">
+          @if (selectedProduct()?.images?.length) {
+            <img [src]="selectedProduct()!.images[0]" class="w-full h-full object-cover">
+          } @else {
+            <span class="material-symbols-outlined !text-[64px] text-white/40">inventory_2</span>
+          }
+        </div>
+
+        <!-- Product Info -->
+        <h2 class="text-4xl font-black text-center mb-2 leading-tight">{{ selectedProduct()?.name }}</h2>
+        @if (selectedProduct()?.description) {
+          <p class="text-center text-white/60 text-lg mb-4">{{ selectedProduct()?.description }}</p>
+        }
+        <p class="text-center text-4xl font-black text-indigo-300 mb-10">{{ selectedProduct()?.selling_price | appCurrency }}</p>
+
+        <!-- Quantity Selector -->
+        <div class="flex items-center justify-center gap-8 mb-10">
+          <button (click)="modalQty > 1 ? modalQty = modalQty - 1 : null" class="w-16 h-16 rounded-2xl bg-white/10 hover:bg-white/20 text-3xl font-black transition-all active:scale-90 flex items-center justify-center">−</button>
+          <span class="text-5xl font-black w-16 text-center tabular-nums">{{ modalQty }}</span>
+          <button (click)="modalQty = modalQty + 1" class="w-16 h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-3xl font-black transition-all active:scale-90 flex items-center justify-center">+</button>
+        </div>
+
+        <!-- Add to Cart Button -->
+        <button (click)="confirmAddToCart(selectedProduct()!, modalQty); modalQty = 1"
+                class="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover:to-purple-500 transition-all active:scale-[0.98]">
+          Add to Order — {{ (selectedProduct()!.selling_price * modalQty) | appCurrency }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Payment Method Modal ── -->
+  @if (isPaymentModalOpen()) {
+    <div class="absolute inset-0 z-40 flex items-end justify-center bg-black/60 backdrop-blur-md animate-fade-in md:items-center" (click)="closePaymentModal()">
+      <div class="relative w-full max-w-2xl bg-[#12121f] border border-white/10 rounded-t-3xl md:rounded-3xl p-8 shadow-2xl animate-slide-up" (click)="$event.stopPropagation()">
+        <button (click)="closePaymentModal()" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <h2 class="text-3xl font-black mb-2">Choose Payment</h2>
+        <p class="text-white/50 mb-8">Total: <span class="text-white font-black text-2xl">{{ cartTotal() | appCurrency }}</span></p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <!-- Card Payment -->
+          <button (click)="processPayment('card')" [disabled]="isProcessing()"
+                  class="flex flex-col items-center gap-4 p-8 bg-gradient-to-b from-indigo-600/80 to-indigo-900/80 border border-indigo-500/40 rounded-3xl hover:from-indigo-500/80 hover:to-indigo-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-indigo-500/20">
+            <span class="material-symbols-outlined !text-[52px]">contactless</span>
+            <div class="text-center">
+              <p class="text-xl font-black">Tap or Insert Card</p>
+              <p class="text-sm text-indigo-300 mt-1">Credit / Debit / NFC</p>
+            </div>
+          </button>
+
+          <!-- QR / Mobile Payment -->
+          <button (click)="processPayment('mobile_money')" [disabled]="isProcessing()"
+                  class="flex flex-col items-center gap-4 p-8 bg-gradient-to-b from-violet-600/80 to-violet-900/80 border border-violet-500/40 rounded-3xl hover:from-violet-500/80 hover:to-violet-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-violet-500/20">
+            <span class="material-symbols-outlined !text-[52px]">qr_code_scanner</span>
+            <div class="text-center">
+              <p class="text-xl font-black">Scan QR Code</p>
+              <p class="text-sm text-violet-300 mt-1">Mobile Money / Wallet</p>
+            </div>
+          </button>
+        </div>
+
+        @if (isProcessing()) {
+          <div class="flex items-center justify-center gap-3 py-4 text-white/60">
+            <div class="w-6 h-6 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+            <span class="font-bold">Processing payment...</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── Kiosk Header ── -->
+  <header class="relative z-10 h-22 bg-black/30 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-10 shrink-0">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+        <span class="material-symbols-outlined !text-[22px]">restaurant</span>
+      </div>
+      <h1 class="text-3xl font-black tracking-tight">{{ $any(storefrontService.settings())?.store_name || 'Self-Service Kiosk' }}</h1>
+    </div>
+    <div class="flex items-center gap-4">
+      <button (click)="startOver()" class="px-7 py-3 rounded-2xl bg-white/10 text-lg font-bold hover:bg-white/20 transition-colors active:scale-95">
+        Start Over
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Category Navigation ── -->
+  <div class="relative z-10 flex items-center gap-3 px-6 py-4 overflow-x-auto border-b border-white/5 bg-black/20 shrink-0 scrollbar-hide"
+       style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
+    <button (click)="setCategory(null)"
+            class="shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
+            [class]="!activeCategoryId() ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white/10 text-white/70 hover:bg-white/20'">
+      All Items
+    </button>
+    @for (cat of categories(); track cat.id) {
+      <button (click)="setCategory(cat.id)"
+              class="shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
+              [class]="activeCategoryId() === cat.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white/10 text-white/70 hover:bg-white/20'">
+        {{ cat.name }}
+      </button>
+    }
+  </div>
+
+  <!-- ── Main Content ── -->
+  <main class="relative z-10 flex-1 flex flex-col md:flex-row gap-0 overflow-hidden">
+
+    <!-- ── Menu Grid ── -->
+    <div class="flex-1 overflow-y-auto p-6 pb-24 md:pb-6">
+      <div class="flex items-baseline justify-between mb-6 px-1">
+        <h2 class="text-3xl font-black">
+          @if (activeCategoryId()) {
+            {{ categories().find(c => c.id === activeCategoryId())?.name }}
+          } @else {
+            Our Menu
+          }
+        </h2>
+        <span class="text-white/40 font-medium">{{ products().length }} items</span>
+      </div>
+
+      @if (catalogService.loading()) {
+        <div class="flex items-center justify-center h-60 gap-4 text-white/40">
+          <div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-white/60 animate-spin"></div>
+          <span class="font-bold text-lg">Loading menu...</span>
+        </div>
+      } @else {
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          @for (item of products(); track item.id) {
+            <div (click)="addToCart(item)"
+                 class="group bg-white/5 border border-white/10 rounded-3xl p-5 active:scale-95 transition-all duration-200 flex flex-col items-center text-center cursor-pointer hover:bg-white/10 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/10 shadow-lg">
+              <div class="w-28 h-28 rounded-2xl bg-white/10 mb-4 shadow-inner flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                @if (item.images?.length) {
+                  <img [src]="item.images[0]" class="w-full h-full object-cover">
+                } @else {
+                  <span class="material-symbols-outlined !text-[44px] text-white/40">inventory_2</span>
+                }
+              </div>
+              <h3 class="text-base font-bold mb-1 leading-tight line-clamp-2">{{ item.name }}</h3>
+              <p class="text-xl font-black text-indigo-400 mb-3">{{ item.selling_price | appCurrency }}</p>
+              <div class="w-8 h-8 rounded-full bg-indigo-600/50 group-hover:bg-indigo-600 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined !text-[18px]">add</span>
+              </div>
+            </div>
+          }
+          @if (products().length === 0 && !catalogService.loading()) {
+            <div class="col-span-full py-20 flex flex-col items-center text-white/30">
+              <span class="material-symbols-outlined !text-[64px] mb-4">search_off</span>
+              <p class="text-xl font-bold">No items in this category</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Mobile Cart Toggle ── -->
+    <button (click)="isCartOpen.set(!isCartOpen())"
+            class="md:hidden fixed bottom-6 right-6 z-40 bg-indigo-600 text-white px-6 py-4 rounded-full shadow-2xl shadow-indigo-500/40 flex items-center gap-3 font-bold text-lg active:scale-95 transition-transform">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <span>{{ cart().length }} items</span>
+      @if (cart().length > 0) {
+        <span class="bg-white text-indigo-600 font-black text-sm px-2 py-0.5 rounded-full">{{ cartTotal() | appCurrency }}</span>
+      }
+    </button>
+
+    <!-- ── Cart Panel ── -->
+    <div [class.translate-x-0]="isCartOpen()" [class.translate-x-full]="!isCartOpen()"
+         class="fixed md:static inset-y-0 right-0 z-30 w-full sm:w-[420px] md:w-[380px] lg:w-[420px] shrink-0 bg-black/60 backdrop-blur-2xl border-l border-white/10 flex flex-col overflow-hidden shadow-2xl transform transition-transform duration-300 md:translate-x-0">
+
+      <!-- Cart Header -->
+      <div class="p-6 border-b border-white/10 flex justify-between items-center shrink-0">
+        <div>
+          <h2 class="text-2xl font-black">Your Order</h2>
+          <p class="text-white/40 text-sm mt-0.5">{{ cart().length }} item(s) selected</p>
+        </div>
+        <div class="flex items-center gap-2">
+          @if (cart().length > 0) {
+            <button (click)="clearCart()" title="Clear cart"
+                    class="p-2 rounded-xl bg-red-500/15 hover:bg-red-500/30 text-red-400 transition-colors active:scale-95">
+              <span class="material-symbols-outlined !text-[22px]">delete_sweep</span>
+            </button>
+          }
+          <button (click)="isCartOpen.set(false)" class="md:hidden p-2 rounded-xl bg-white/10 text-white">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cart Items -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        @for (item of cart(); track item.product.id) {
+          <div class="flex gap-3 items-center bg-white/5 border border-white/8 p-4 rounded-2xl hover:bg-white/8 transition-colors group">
+            <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden shrink-0">
+              @if (item.product.images?.length) {
+                <img [src]="item.product.images[0]" class="w-full h-full object-cover">
+              } @else {
+                <span class="material-symbols-outlined !text-[20px] text-white/40">inventory_2</span>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-sm leading-tight truncate">{{ item.product.name }}</h4>
+              <p class="text-indigo-400 font-bold text-sm mt-0.5">{{ item.product.selling_price | appCurrency }}</p>
+            </div>
+            <!-- Quantity Controls -->
+            <div class="flex items-center gap-1 shrink-0">
+              <button (click)="decreaseQuantity(item.product.id)"
+                      class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors active:scale-90 text-lg font-black">
+                −
+              </button>
+              <span class="w-8 text-center font-black text-lg tabular-nums">{{ item.qty }}</span>
+              <button (click)="increaseQuantity(item.product.id)"
+                      class="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center transition-colors active:scale-90 text-lg font-black">
+                +
+              </button>
+              <button (click)="removeFromCart(item.product.id)"
+                      class="ml-1 w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors active:scale-90 opacity-0 group-hover:opacity-100">
+                <span class="material-symbols-outlined !text-[18px]">delete</span>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (cart().length === 0) {
+          <div class="flex flex-col justify-center items-center h-full text-white/20 py-20 gap-4">
+            <span class="material-symbols-outlined !text-[72px]">shopping_basket</span>
+            <p class="text-xl font-bold">Your order is empty</p>
+            <p class="text-sm text-center">Tap a menu item to add it here</p>
+          </div>
+        }
+      </div>
+
+      <!-- Cart Footer -->
+      <div class="p-6 bg-black/30 border-t border-white/10 shrink-0">
+        <div class="flex justify-between items-center mb-5">
+          <span class="text-lg font-bold text-white/60">Total</span>
+          <span class="text-4xl font-black">{{ cartTotal() | appCurrency }}</span>
+        </div>
+        <button [disabled]="cart().length === 0 || isProcessing()" (click)="openPaymentModal()"
+                class="w-full py-5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">
+          @if (isProcessing()) {
+            <div class="flex items-center justify-center gap-3">
+              <div class="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              Processing...
+            </div>
+          } @else {
+            Pay Now
+          }
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

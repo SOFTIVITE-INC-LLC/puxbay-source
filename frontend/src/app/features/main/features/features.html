@@ -1,0 +1,49 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" />
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<div class="features-page-wrapper">
+  
+  <!-- HERO SECTION -->
+  <section class="features-hero">
+    <h1>Powering Every Aspect of Your Business</h1>
+    <p>From checkout to inventory, e-commerce to analytics. Puxbay provides all the tools you need to sell, manage, and scale.</p>
+  </section>
+
+  <!-- STICKY NAVIGATION -->
+  <div class="features-nav-container">
+    <nav class="features-nav">
+      @for (category of categories; track category.id) {
+        <button class="nav-pill" (click)="scrollToCategory(category.id)">
+          {{ category.title }}
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- CATEGORIES & FEATURES -->
+  <main class="features-container">
+    @for (category of categories; track category.id) {
+      <section [id]="category.id" class="category-section">
+        
+        <div class="category-header">
+          <h2>{{ category.title }}</h2>
+          <p>{{ category.subtitle }}</p>
+        </div>
+
+        <div class="feature-grid">
+          @for (feature of category.features; track feature.title) {
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i [class]="feature.icon"></i>
+              </div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.description }}</p>
+            </div>
+          }
+        </div>
+
+      </section>
+    }
+  </main>
+</div>

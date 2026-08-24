@@ -1,0 +1,211 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+  
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-pink-600">
+        Gift Cards & Wallet
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Manage gift cards, store credit, and loyalty points.</p>
+    </div>
+    <div class="flex gap-3">
+      <button (click)="isBalanceCheckOpen.set(true)" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 font-bold hover:bg-slate-200 transition-colors">
+        Check Balance
+      </button>
+      <button (click)="isCreateModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors">
+        + Create Gift Card
+      </button>
+    </div>
+  </div>
+
+  <!-- Gift Cards Grid -->
+  <div>
+    <h2 class="text-lg font-bold mb-4">Gift Cards</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      @for (card of giftCardService.cards(); track card.id) {
+        <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-xl shadow-rose-500/20 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-8 -translate-x-8"></div>
+          
+          <div class="relative z-10">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <p class="text-xs font-bold opacity-80 uppercase tracking-wider mb-1">Gift Card</p>
+                <p class="font-mono font-bold text-lg tracking-widest">{{ card.code }}</p>
+              </div>
+              <span class="px-2 py-1 text-xs font-black rounded-full uppercase bg-white/20" [class.opacity-50]="card.status !== 'active'">
+                {{ card.status }}
+              </span>
+            </div>
+            
+            <!-- Balance Bar -->
+            <div class="mb-4">
+              <div class="flex justify-between text-xs mb-1.5">
+                <span class="opacity-80">Balance</span>
+                <span class="font-black">{{ card.current_balance | appCurrency }} / {{ card.initial_balance | appCurrency }}</span>
+              </div>
+              <div class="h-2 bg-white/20 rounded-full overflow-hidden">
+                <div class="h-full bg-white rounded-full transition-all" [style.width.%]="getBalancePercent(card)"></div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <p class="text-xs opacity-70">{{ card.expires_at ? 'Expires ' + (card.expires_at | date:'shortDate') : 'No Expiry' }}</p>
+              @if (card.status === 'active') {
+                <button (click)="disableCard(card.id)" class="text-xs font-bold bg-white/20 px-2 py-1 rounded-lg hover:bg-white/30 transition-colors">Disable</button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (giftCardService.cards().length === 0) {
+        <div class="col-span-4 text-center py-16 text-zinc-500">
+          <p class="text-5xl mb-3">🎁</p>
+          <p class="font-bold">No gift cards yet</p>
+          <p class="text-sm mt-1">Create your first gift card.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Store Credit / Loyalty Section -->
+  <div>
+    <h2 class="text-lg font-bold mb-4">Customer Wallets</h2>
+    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900">
+      <table class="w-full text-sm">
+        <thead class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500">
+          <tr>
+            <th class="px-6 py-4 font-semibold text-left">Customer</th>
+            <th class="px-6 py-4 font-semibold text-right">Loyalty Points</th>
+            <th class="px-6 py-4 font-semibold text-right">Store Credit</th>
+            <th class="px-6 py-4 font-semibold text-right">Debt</th>
+            <th class="px-6 py-4 font-semibold text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+          @for (c of customerService.customers(); track c.id) {
+            @if (c.loyalty_pts > 0 || c.store_credit > 0) {
+              <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 font-bold">{{ c.name }}</td>
+                <td class="px-6 py-4 text-right">
+                  <span class="font-black text-emerald-600">{{ c.loyalty_pts }}</span>
+                  <span class="text-xs text-zinc-400 ml-1">pts</span>
+                </td>
+                <td class="px-6 py-4 text-right font-bold text-indigo-600">{{ c.store_credit | appCurrency }}</td>
+                <td class="px-6 py-4 text-right font-bold text-rose-500">{{ c.debt_balance | appCurrency }}</td>
+                <td class="px-6 py-4">
+                  <button (click)="openCreditModal(c)" class="px-3 py-1 text-xs font-bold bg-indigo-100 dark:bg-indigo-900/20 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">Adjust Points</button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Create Gift Card Modal -->
+@if (isCreateModalOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+    <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+      <h2 class="text-xl font-black">Create Gift Card</h2>
+      <button (click)="isCreateModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-bold mb-1">Initial Value</label>
+        <div class="flex gap-2 mb-2">
+          @for (preset of [10, 25, 50, 100, 200]; track preset) {
+            <button (click)="newCard.update(c => ({...c, initial_balance: preset}))"
+                    [class.bg-rose-600]="newCard().initial_balance === preset" [class.text-white]="newCard().initial_balance === preset"
+                    [class.bg-slate-100]="newCard().initial_balance !== preset" [class.dark:bg-zinc-800]="newCard().initial_balance !== preset"
+                    class="flex-1 py-2 rounded-xl text-sm font-bold transition-colors">{{ preset | appCurrency }}</button>
+          }
+        </div>
+        <input type="number" [ngModel]="newCard().initial_balance" (ngModelChange)="newCard.update(c => ({...c, initial_balance: $event}))"
+               min="1" step="0.01" class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl font-black text-center">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">Link to Customer (optional)</label>
+        <select [ngModel]="newCard().purchaser_id" (ngModelChange)="newCard.update(c => ({...c, purchaser_id: $event}))"
+                class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950">
+          <option value="">No customer</option>
+          @for (c of customerService.customers(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">Expiry Date (optional)</label>
+        <input type="date" [ngModel]="newCard().expires_at" (ngModelChange)="newCard.update(c => ({...c, expires_at: $event}))"
+               class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950">
+      </div>
+      <button (click)="createCard()" class="w-full py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors">
+        Create Gift Card
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Balance Check Modal -->
+@if (isBalanceCheckOpen()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+    <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+      <h2 class="text-xl font-black">Check Card Balance</h2>
+      <button (click)="isBalanceCheckOpen.set(false); checkedCard.set(null)" class="text-slate-400 hover:text-rose-500">✕</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="flex gap-2">
+        <input type="text" [ngModel]="balanceCheckCode()" (ngModelChange)="balanceCheckCode.set($event)"
+               placeholder="Enter gift card code..." class="flex-1 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 font-mono">
+        <button (click)="checkBalance()" class="px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors">Check</button>
+      </div>
+      @if (checkedCard()) {
+        <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+          <p class="text-sm font-bold text-emerald-600 mb-2">Card Found</p>
+          <div class="flex justify-between">
+            <span class="text-zinc-600 dark:text-zinc-400">Current Balance</span>
+            <span class="font-black text-2xl text-emerald-700 dark:text-emerald-400">{{ checkedCard().current_balance | appCurrency }}</span>
+          </div>
+          <div class="mt-2 h-2 bg-emerald-200 dark:bg-emerald-900/50 rounded-full overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" [style.width.%]="getBalancePercent(checkedCard())"></div>
+          </div>
+          <p class="text-xs text-zinc-400 mt-2">{{ checkedCard().current_balance | appCurrency }} / {{ checkedCard().initial_value | appCurrency }} remaining</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}
+
+<!-- Loyalty Points Adjust Modal -->
+@if (isCreditModalOpen() && selectedCustomer()) {
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+    <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+      <h2 class="text-xl font-black">Adjust Points — {{ selectedCustomer().name }}</h2>
+      <button (click)="isCreditModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex justify-between">
+        <span class="text-zinc-500">Current Balance</span>
+        <span class="font-black text-2xl text-emerald-600">{{ selectedCustomer().loyalty_pts }} pts</span>
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">Adjustment (+ add, - deduct)</label>
+        <input type="number" [ngModel]="creditAdjustment().points" (ngModelChange)="creditAdjustment.update(a => ({...a, points: $event}))"
+               class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl font-black text-center">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">Reason / Description</label>
+        <input type="text" [ngModel]="creditAdjustment().description" (ngModelChange)="creditAdjustment.update(a => ({...a, description: $event}))"
+               placeholder="e.g. Manual bonus, promotion..."
+               class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950">
+      </div>
+      <button (click)="adjustLoyaltyPoints()" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">Apply Adjustment</button>
+    </div>
+  </div>
+</div>
+}

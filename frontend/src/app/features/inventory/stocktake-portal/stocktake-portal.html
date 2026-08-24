@@ -1,0 +1,124 @@
+<div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white flex flex-col max-w-md mx-auto shadow-2xl relative overflow-hidden font-sans">
+  
+  <!-- Ambient Background Glows -->
+  <div class="fixed top-[-10%] left-[-10%] w-[300px] h-[300px] bg-emerald-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-teal-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 p-5 sticky top-0 z-30 flex justify-between items-center shadow-sm">
+    <div>
+      <h1 class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-500 tracking-tight">Stocktake Portal</h1>
+      <p class="text-xs font-bold text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1" *ngIf="session()">
+        <span class="material-symbols-outlined !text-[14px]">storefront</span>
+        {{ session().branch?.name || 'Loading Branch...' }}
+      </p>
+    </div>
+    <div class="text-right" *ngIf="session()">
+      <span class="text-[10px] uppercase font-black tracking-widest px-3 py-1.5 rounded-full"
+            [ngClass]="session().status === 'completed' ? 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'">
+        {{ session().status === 'completed' ? 'Closed' : 'Active' }}
+      </span>
+    </div>
+  </header>
+
+  <!-- Closed Message -->
+  <div *ngIf="session()?.status === 'completed'" class="flex-1 flex flex-col items-center justify-center p-8 text-center relative z-10">
+    <div class="w-24 h-24 bg-gradient-to-br from-zinc-200 to-zinc-100 dark:from-zinc-800 dark:to-zinc-900 text-zinc-400 rounded-3xl shadow-inner flex items-center justify-center mb-6 transform rotate-3">
+      <span class="material-symbols-outlined !text-5xl">lock</span>
+    </div>
+    <h2 class="text-3xl font-black text-zinc-900 dark:text-white mb-3">Session Closed</h2>
+    <p class="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed max-w-xs">
+      This stocktake session has been finalized. No further counts can be submitted.
+    </p>
+  </div>
+
+  <!-- App Body -->
+  <div *ngIf="session() && session().status !== 'completed'" class="flex flex-col flex-1 relative z-10">
+    
+    <!-- Search / Scan Input -->
+    <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 p-4 sticky top-[73px] z-20">
+      <div class="flex gap-3">
+        <div class="relative flex-1 group">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-emerald-500 transition-colors">
+            <span class="material-symbols-outlined !text-[20px]">search</span>
+          </div>
+          <input
+            type="text"
+            [ngModel]="query()"
+            (ngModelChange)="updateQuery($event)"
+            (keyup.enter)="searchProduct()"
+            placeholder="Search SKU or barcode..."
+            class="w-full bg-zinc-100 dark:bg-zinc-800/50 border-0 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-emerald-500/50 transition-all placeholder:text-zinc-400"
+          >
+        </div>
+        <button (click)="searchProduct()" class="w-14 h-14 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 active:scale-95 transition-all">
+          <span class="material-symbols-outlined !text-[24px]">barcode_scanner</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Product List -->
+    <div class="flex-1 overflow-y-auto pb-24">
+      <div *ngIf="results().length === 0" class="flex flex-col items-center justify-center h-64 p-8 text-center text-zinc-400 dark:text-zinc-500">
+        <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mb-5 border border-zinc-200/50 dark:border-zinc-700/50">
+          <span class="material-symbols-outlined !text-4xl opacity-50">inventory_2</span>
+        </div>
+        <p class="font-bold text-zinc-600 dark:text-zinc-400 text-lg mb-1">Ready to Scan</p>
+        <p class="text-sm max-w-[200px]">Type a product name, SKU, or scan a barcode to begin.</p>
+      </div>
+
+      <div class="p-4 space-y-4">
+        <div *ngFor="let product of results(); trackBy: trackById" class="bg-white dark:bg-zinc-900 rounded-3xl p-5 shadow-sm border border-zinc-200/50 dark:border-zinc-800 flex flex-col gap-4 relative overflow-hidden group">
+          
+          <!-- Subtle glow inside card -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+
+          <div class="flex gap-4 items-center">
+            <div class="w-14 h-14 bg-zinc-50 dark:bg-zinc-800 rounded-2xl flex-shrink-0 flex items-center justify-center text-zinc-400 shadow-inner border border-zinc-100 dark:border-zinc-700/50">
+              <span class="material-symbols-outlined !text-2xl">category</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-zinc-900 dark:text-white truncate text-lg">{{ product.name }}</h3>
+              <p class="text-xs text-zinc-500 font-mono mt-1 tracking-wide">
+                {{ product.sku || 'N/A' }} <span class="mx-1 text-zinc-300 dark:text-zinc-700">|</span> {{ product.barcode || 'N/A' }}
+              </p>
+            </div>
+          </div>
+          
+          <!-- Divider -->
+          <div class="h-px w-full bg-zinc-100 dark:bg-zinc-800/50"></div>
+
+          <!-- Counter Controls -->
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest">Counted</p>
+            <div class="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-1.5 border border-zinc-100 dark:border-zinc-800">
+              <button (click)="updateCount(product, -1)" [disabled]="updating()[product.id]" class="w-10 h-10 rounded-xl bg-white dark:bg-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-600 text-zinc-600 dark:text-zinc-300 flex items-center justify-center transition-colors shadow-sm disabled:opacity-50 active:scale-95">
+                <span class="material-symbols-outlined !text-[20px]">remove</span>
+              </button>
+              
+              <div class="relative w-16">
+                <input 
+                  type="number" 
+                  [ngModel]="product.current_count" 
+                  (ngModelChange)="setExactCount(product, $event)"
+                  [disabled]="updating()[product.id]"
+                  class="w-full text-center font-black text-2xl text-emerald-600 dark:text-emerald-400 tabular-nums bg-transparent border-0 focus:ring-0 p-0 disabled:opacity-50 [&::-webkit-inner-spin-button]:appearance-none"
+                  min="0"
+                >
+                <div *ngIf="updating()[product.id]" class="absolute inset-0 bg-zinc-50/50 dark:bg-zinc-800/50 flex items-center justify-center rounded-lg backdrop-blur-sm">
+                  <span class="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></span>
+                </div>
+              </div>
+              
+              <button (click)="updateCount(product, 1)" [disabled]="updating()[product.id]" class="w-10 h-10 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors shadow-md shadow-emerald-500/30 disabled:opacity-50 active:scale-95">
+                <span class="material-symbols-outlined !text-[20px]">add</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

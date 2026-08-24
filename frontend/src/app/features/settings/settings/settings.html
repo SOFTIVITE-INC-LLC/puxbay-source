@@ -1,0 +1,476 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white relative min-h-screen">
+  
+  <!-- Decorative Background Blobs for Glassmorphism -->
+  <div class="absolute -top-20 -right-20 w-[30rem] h-[30rem] bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute -bottom-20 -left-20 w-[30rem] h-[30rem] bg-fuchsia-500/10 dark:bg-fuchsia-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <!-- ── Page Header ── -->
+  <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400">
+        Global Settings
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-2 font-medium">
+        Configure system-wide preferences, hardware, and integrations.
+      </p>
+    </div>
+  </div>
+
+  @if (settingsService.loading()) {
+    <div class="flex flex-col items-center justify-center py-24 text-zinc-500 gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-current border-t-transparent"></div>
+      <p class="font-bold animate-pulse">Loading settings...</p>
+    </div>
+  }
+
+  @if (!settingsService.loading() && settingsService.settings(); as config) {
+    <div class="flex flex-col md:flex-row gap-8 items-start">
+      
+      <!-- ── Sidebar Navigation ── -->
+      <div class="w-full md:w-64 flex-shrink-0 flex flex-col gap-2">
+        <button (click)="activeTab.set('store')"
+                [class.bg-white]="activeTab() === 'store'"
+                [class.dark:bg-zinc-800]="activeTab() === 'store'"
+                [class.shadow-sm]="activeTab() === 'store'"
+                [class.text-indigo-600]="activeTab() === 'store'"
+                [class.dark:text-indigo-400]="activeTab() === 'store'"
+                [class.font-bold]="activeTab() === 'store'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">storefront</span>
+          Store Details
+        </button>
+        <button (click)="activeTab.set('hardware')"
+                [class.bg-white]="activeTab() === 'hardware'"
+                [class.dark:bg-zinc-800]="activeTab() === 'hardware'"
+                [class.shadow-sm]="activeTab() === 'hardware'"
+                [class.text-indigo-600]="activeTab() === 'hardware'"
+                [class.dark:text-indigo-400]="activeTab() === 'hardware'"
+                [class.font-bold]="activeTab() === 'hardware'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">point_of_sale</span>
+          Hardware Proxy
+        </button>
+        <button (click)="activeTab.set('payments')"
+                [class.bg-white]="activeTab() === 'payments'"
+                [class.dark:bg-zinc-800]="activeTab() === 'payments'"
+                [class.shadow-sm]="activeTab() === 'payments'"
+                [class.text-indigo-600]="activeTab() === 'payments'"
+                [class.dark:text-indigo-400]="activeTab() === 'payments'"
+                [class.font-bold]="activeTab() === 'payments'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">credit_card</span>
+          Payment Methods
+        </button>
+        <button (click)="activeTab.set('notifications')"
+                [class.bg-white]="activeTab() === 'notifications'"
+                [class.dark:bg-zinc-800]="activeTab() === 'notifications'"
+                [class.shadow-sm]="activeTab() === 'notifications'"
+                [class.text-indigo-600]="activeTab() === 'notifications'"
+                [class.dark:text-indigo-400]="activeTab() === 'notifications'"
+                [class.font-bold]="activeTab() === 'notifications'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">notifications_active</span>
+          Notifications
+        </button>
+        <button (click)="activeTab.set('domains')"
+                [class.bg-white]="activeTab() === 'domains'"
+                [class.dark:bg-zinc-800]="activeTab() === 'domains'"
+                [class.shadow-sm]="activeTab() === 'domains'"
+                [class.text-indigo-600]="activeTab() === 'domains'"
+                [class.dark:text-indigo-400]="activeTab() === 'domains'"
+                [class.font-bold]="activeTab() === 'domains'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">language</span>
+          Custom Domains
+        </button>
+        <button (click)="activeTab.set('roles')"
+                [class.bg-white]="activeTab() === 'roles'"
+                [class.dark:bg-zinc-800]="activeTab() === 'roles'"
+                [class.shadow-sm]="activeTab() === 'roles'"
+                [class.text-indigo-600]="activeTab() === 'roles'"
+                [class.dark:text-indigo-400]="activeTab() === 'roles'"
+                [class.font-bold]="activeTab() === 'roles'"
+                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
+          <span class="material-symbols-outlined !text-[20px]">manage_accounts</span>
+          Roles & Permissions
+        </button>
+      </div>
+
+      <!-- ── Content Area ── -->
+      <div class="flex-1 w-full relative z-10 glass-panel bg-white/70 dark:bg-zinc-900/70 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden min-h-[500px]">
+        
+        <!-- Store Details Tab -->
+        @if (activeTab() === 'store') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-xl font-black tracking-tight mb-1">Store Details</h2>
+              <p class="text-sm text-zinc-500">Manage basic information, localization, and receipts.</p>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <!-- General Settings -->
+              <div class="space-y-5">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px]">public</span> Localization
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-bold mb-2">Currency</label>
+                    <div class="relative">
+                      <select [(ngModel)]="config.currency" class="w-full pl-4 pr-10 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-medium appearance-none">
+                        <option value="USD">USD (US Dollar - $)</option>
+                        <option value="GHS">GHS (Ghana Cedi - GH₵)</option>
+                        <option value="EUR">EUR (Euro - €)</option>
+                        <option value="GBP">GBP (British Pound - £)</option>
+                        <option value="NGN">NGN (Nigerian Naira - ₦)</option>
+                        <option value="ZAR">ZAR (South African Rand - R)</option>
+                      </select>
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold mb-2">Timezone</label>
+                    <div class="relative">
+                      <select [(ngModel)]="config.timezone" class="w-full pl-4 pr-10 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-medium appearance-none">
+                        <option value="UTC">UTC (Universal Coordinated Time)</option>
+                        <option value="EST">EST (Eastern Standard Time)</option>
+                        <option value="PST">PST (Pacific Standard Time)</option>
+                      </select>
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="border-zinc-100 dark:border-zinc-800" />
+
+              <!-- Promotions Settings -->
+              <div class="space-y-5">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px]">local_offer</span> POS Promotions
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-bold mb-2">Auto-Discount Threshold Amount</label>
+                    <div class="relative">
+                      <input type="number" [(ngModel)]="config.promo_threshold" class="w-full pl-4 pr-10 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-medium" placeholder="100.00">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold mb-2">Discount Percentage (%)</label>
+                    <div class="relative">
+                      <input type="number" [(ngModel)]="config.promo_discount_percent" class="w-full pl-4 pr-10 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-medium" placeholder="10">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="border-zinc-100 dark:border-zinc-800" />
+
+              <!-- Communication Settings -->
+              <div class="space-y-5">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px]">mail</span> Communication
+                </h3>
+                
+                <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                  <div>
+                    <h4 class="font-black text-zinc-900 dark:text-white">Enable Email Receipts</h4>
+                    <p class="text-sm text-zinc-500 mt-0.5">Automatically email receipts to customers upon checkout.</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [(ngModel)]="config.enable_email_receipts" class="sr-only peer" />
+                    <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                  </label>
+                </div>
+              </div>
+
+              <hr class="border-zinc-100 dark:border-zinc-800" />
+
+              <!-- Storefront / Paystack Settings -->
+              @if (storefrontService.settings(); as sfConfig) {
+                <div class="space-y-5">
+                  <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                    <span class="material-symbols-outlined !text-[18px]">shopping_bag</span> Storefront & Payments
+                  </h3>
+                  
+                  <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                    <div>
+                      <h4 class="font-black text-zinc-900 dark:text-white">Enable Paystack</h4>
+                      <p class="text-sm text-zinc-500 mt-0.5">Accept payments via Paystack on your storefront.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" [(ngModel)]="sfConfig.enable_paystack" class="sr-only peer" />
+                      <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                    </label>
+                  </div>
+
+                  @if (sfConfig.enable_paystack) {
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                      <div>
+                        <label class="block text-sm font-bold mb-2">Paystack Public Key</label>
+                        <input type="text" [(ngModel)]="sfConfig.paystack_public_key" placeholder="pk_test_..." class="w-full px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-sm font-mono" />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-bold mb-2">Paystack Subaccount Code</label>
+                        <input type="text" [(ngModel)]="sfConfig.paystack_subaccount_code" placeholder="ACCT_..." class="w-full px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-sm font-mono" />
+                        <p class="text-xs text-zinc-500 mt-2">Required for Split Payments</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Action Bar -->
+              <div class="pt-4 flex justify-end gap-3">
+                @if (storefrontService.settings()) {
+                  <button (click)="saveStorefrontSettings()" class="px-8 py-3.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold rounded-xl shadow-sm hover:shadow transition-all">
+                    Save Storefront
+                  </button>
+                }
+                <button (click)="saveSettings()" class="px-8 py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                  Save Global
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Hardware Proxy Tab -->
+        @if (activeTab() === 'hardware') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-xl font-black tracking-tight mb-1">Hardware Proxy</h2>
+              <p class="text-sm text-zinc-500">Configure connections to local hardware like receipt printers and scales.</p>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <div>
+                  <h4 class="font-black text-zinc-900 dark:text-white">Enable Hardware Proxy</h4>
+                  <p class="text-sm text-zinc-500 mt-0.5">Allow POS to communicate with local devices.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="config.enable_hardware_proxy" class="sr-only peer" />
+                  <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                </label>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold mb-2">Proxy URL</label>
+                <input type="text" [(ngModel)]="config.hardware_proxy_url" placeholder="http://localhost:8081" class="w-full px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all font-mono text-sm" />
+              </div>
+              
+              <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <div>
+                  <h4 class="font-black text-zinc-900 dark:text-white">Auto-Print Receipts</h4>
+                  <p class="text-sm text-zinc-500 mt-0.5">Automatically print physical receipts after successful checkout.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="config.auto_print_receipts" class="sr-only peer" />
+                  <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                </label>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="pt-4 flex justify-end">
+                <button (click)="saveSettings()" class="px-8 py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Notifications Tab -->
+        @if (activeTab() === 'notifications') {
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-xl font-black tracking-tight mb-1">Notifications</h2>
+              <p class="text-sm text-zinc-500">Manage internal alerts and customer notifications.</p>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <div>
+                  <h4 class="font-black text-zinc-900 dark:text-white">SMS Notifications</h4>
+                  <p class="text-sm text-zinc-500 mt-0.5">Send SMS receipts and alerts to customers.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="config.enable_sms_notifications" class="sr-only peer" />
+                  <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <div>
+                  <h4 class="font-black text-zinc-900 dark:text-white">Push Notifications</h4>
+                  <p class="text-sm text-zinc-500 mt-0.5">Receive browser push notifications for critical alerts.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="config.enable_push_notifications" class="sr-only peer" />
+                  <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                </label>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold mb-2">Admin Notification Email</label>
+                <input type="email" [(ngModel)]="config.admin_notification_email" placeholder="admin@store.com" class="w-full px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-sm" />
+                <p class="text-xs text-zinc-500 mt-2">Daily summaries and high-priority alerts will be sent here.</p>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="pt-4 flex justify-end">
+                <button (click)="saveSettings()" class="px-8 py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Payment Methods Tab -->
+        @if (activeTab() === 'payments') {
+          <div class="animate-fade-in flex flex-col h-full">
+            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h2 class="text-xl font-black tracking-tight mb-1">Payment Methods</h2>
+                  <p class="text-sm text-zinc-500">Configure available payment options at checkout.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-8 flex-1">
+              @if (paymentMethodService.loading()) {
+                <div class="flex justify-center items-center py-20">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                </div>
+              } @else {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  @for (method of paymentMethodService.methods(); track method.id) {
+                    <div class="p-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
+                      <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
+                          <span class="material-symbols-outlined !text-[24px]">
+                            {{ method.provider === 'cash' ? 'payments' : method.provider === 'card' ? 'credit_card' : 'account_balance_wallet' }}
+                          </span>
+                        </div>
+                        <div>
+                          <h4 class="font-bold text-zinc-900 dark:text-white">{{ method.name }}</h4>
+                          <p class="text-xs text-zinc-500 uppercase tracking-wider font-bold">{{ method.provider }}</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold px-2 py-1 rounded-md" 
+                              [class]="method.is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'">
+                          {{ method.is_active ? 'Active' : 'Disabled' }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                  
+                  @if (paymentMethodService.methods().length === 0) {
+                    <div class="col-span-full py-12 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                      <span class="material-symbols-outlined !text-[48px] text-zinc-300 dark:text-zinc-700 mb-3">credit_card_off</span>
+                      <p class="text-lg font-bold text-zinc-600 dark:text-zinc-400">No payment methods found</p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Custom Domains Tab -->
+        @if (activeTab() === 'domains') {
+
+          <div class="animate-fade-in">
+            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-xl font-black tracking-tight mb-1">Custom Domains</h2>
+              <p class="text-sm text-zinc-500">Manage custom domains for your storefront.</p>
+            </div>
+            
+            <div class="p-8 space-y-8">
+              <!-- Add new domain -->
+              <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <input type="text" 
+                       [(ngModel)]="newDomainName"
+                       placeholder="e.g. shop.mybusiness.com" 
+                       class="flex-1 w-full bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all" />
+                <button (click)="addDomain()" 
+                        class="px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl font-bold hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shrink-0">
+                  Add Domain
+                </button>
+              </div>
+
+              <!-- Domain List -->
+              <div class="space-y-4">
+                @for (domain of domains(); track domain.id) {
+                  <div class="p-6 border border-zinc-200 dark:border-zinc-700 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                      <div class="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-zinc-500">language</span>
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                          {{domain.domain_name}}
+                          @if (domain.is_primary) {
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-full">Primary</span>
+                          }
+                          @if (domain.is_verified) {
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300 rounded-full">Verified</span>
+                          } @else {
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 rounded-full">Pending</span>
+                          }
+                        </h3>
+                        <p class="text-sm text-zinc-500 mt-1">Added {{domain.created_at | date}}</p>
+                      </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-2">
+                      @if (!domain.is_verified) {
+                        <button (click)="verifyDomain(domain.id)"
+                                class="px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
+                          Verify
+                        </button>
+                      }
+                      
+                      @if (domain.is_verified && !domain.is_primary) {
+                        <button (click)="setPrimary(domain.id)"
+                                class="px-4 py-2 text-sm font-semibold text-zinc-700 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-300 rounded-xl hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
+                          Set Primary
+                        </button>
+                      }
+                      
+                      <button (click)="removeDomain(domain.id)"
+                              class="w-10 h-10 flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+                
+                @if (domains().length === 0) {
+                  <div class="text-center py-12 text-zinc-500">
+                    <span class="material-symbols-outlined text-4xl mb-2 opacity-50">link_off</span>
+                    <p>No custom domains added yet.</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        
+        <!-- Roles Tab -->
+        @if (activeTab() === 'roles') {
+          <div class="animate-fade-in">
+            <app-roles></app-roles>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

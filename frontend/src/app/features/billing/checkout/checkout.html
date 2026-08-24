@@ -1,0 +1,124 @@
+<div class="h-full flex flex-col p-6 space-y-6 max-w-4xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
+  <div class="flex justify-between items-center mb-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500">
+        Checkout
+      </h1>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+        Review your order and apply a promo code before completing your payment.
+      </p>
+    </div>
+  </div>
+
+  @if (!plan()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Order Summary -->
+      <div>
+        <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden h-full">
+          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-6">Order Summary</h2>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Plan</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ plan()?.name }}</span>
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Billing Cycle</span>
+              <span class="font-bold text-zinc-900 dark:text-white capitalize">{{ billingCycle() }}</span>
+            </div>
+            
+            <div class="border-t border-zinc-200 dark:border-zinc-800 my-4"></div>
+            
+            <div class="flex justify-between items-center">
+              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Subtotal</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ originalPrice() | appCurrency }}</span>
+            </div>
+
+            @if (promoSuccess()) {
+              <div class="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
+                <span class="font-medium">Discount ({{ promoCode() }})</span>
+                <span class="font-bold">-{{ discountAmount() | appCurrency }}</span>
+              </div>
+            }
+
+            <div class="border-t border-zinc-200 dark:border-zinc-800 my-4"></div>
+
+            <div class="flex justify-between items-center text-xl">
+              <span class="font-bold text-zinc-900 dark:text-white">Total due today</span>
+              <span class="font-black text-blue-600 dark:text-blue-400">{{ finalTotal() | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment / Promo Form -->
+      <div class="space-y-6">
+        <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md">
+          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-4">Promo Code</h2>
+          
+          @if (!promoSuccess()) {
+            <div class="flex gap-3">
+              <input 
+                type="text" 
+                [(ngModel)]="promoCode"
+                placeholder="Enter code here"
+                class="flex-1 px-4 py-3 bg-white/50 dark:bg-zinc-800/50 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-zinc-900 dark:text-white transition-all uppercase placeholder-normal"
+                [disabled]="promoLoading()"
+              >
+              <button 
+                (click)="applyPromo()"
+                [disabled]="promoLoading() || !promoCode().trim()"
+                class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                @if (promoLoading()) {
+                  <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></span>
+                }
+                Apply
+              </button>
+            </div>
+          } @else {
+            <div class="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+              <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span class="font-bold uppercase tracking-wider">{{ promoCode() }} applied</span>
+              </div>
+              <button (click)="removePromo()" class="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">Remove</button>
+            </div>
+          }
+          
+          @if (promoError()) {
+            <p class="mt-2 text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px]">error</span>
+              {{ promoError() }}
+            </p>
+          }
+        </div>
+
+        <button 
+          (click)="processPayment()"
+          [disabled]="isProcessing()"
+          class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-3"
+        >
+          @if (isProcessing()) {
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
+            Processing...
+          } @else {
+            <span>Proceed to Payment</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+          }
+        </button>
+        
+        <p class="text-center text-xs text-zinc-500 dark:text-zinc-400 mt-4 flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px]">lock</span>
+          Payments are securely processed by Paystack.
+        </p>
+      </div>
+    </div>
+  }
+</div>

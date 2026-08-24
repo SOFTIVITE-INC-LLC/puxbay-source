@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center mb-6">
+      <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+        <span class="material-symbols-outlined text-white !text-[32px]">inventory_2</span>
+      </div>
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+      Supplier Portal
+    </h2>
+    <p class="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
+      Sign in to view your purchase orders
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white dark:bg-zinc-900 py-8 px-4 shadow-xl shadow-zinc-200/50 dark:shadow-none sm:rounded-3xl sm:px-10 border border-zinc-200 dark:border-zinc-800">
+      <form class="space-y-6" (ngSubmit)="onSubmit()">
+        <div>
+          <label for="email" class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Email address</label>
+          <div class="mt-2 relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+              <span class="material-symbols-outlined !text-[20px]">mail</span>
+            </div>
+            <input id="email" name="email" type="email" autocomplete="email" required [(ngModel)]="email"
+              class="block w-full pl-10 px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              placeholder="supplier@example.com">
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Password</label>
+          <div class="mt-2 relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+              <span class="material-symbols-outlined !text-[20px]">lock</span>
+            </div>
+            <input id="password" name="password" type="password" autocomplete="current-password" required [(ngModel)]="password"
+              class="block w-full pl-10 px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              placeholder="••••••••">
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" [disabled]="loading() || !email || !password"
+            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/25 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50">
+            {{ loading() ? 'Signing in...' : 'Sign in' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

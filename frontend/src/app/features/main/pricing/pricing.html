@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-zinc-50  font-sans text-zinc-900  overflow-hidden relative">
+  <!-- Ambient background glow -->
+  <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-32 lg:py-40">
+    <!-- Header Section -->
+    <div class="text-center max-w-3xl mx-auto mb-20 space-y-6">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50/80 border border-indigo-200/50 text-indigo-700 text-xs font-black uppercase tracking-widest shadow-sm">
+        Transparent Pricing
+      </div>
+      <h1 class="text-5xl lg:text-7xl font-black tracking-tight leading-tight text-slate-900">
+        Scaling with your <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Retail Success</span>
+      </h1>
+      <p class="text-lg lg:text-xl text-zinc-500  font-medium leading-relaxed max-w-2xl mx-auto">
+        Choose the perfect plan to automate your inventory, optimize your supply chain, and delight your customers with AI-driven insights.
+      </p>
+
+      <!-- Billing Toggle -->
+      <div class="flex items-center justify-center gap-4 mt-10">
+        <span class="text-sm font-bold transition-colors" [ngClass]="billingCycle() === 'monthly' ? 'text-zinc-900 ' : 'text-zinc-400 '">
+          Monthly
+        </span>
+        
+        <button (click)="toggleBilling()" class="relative w-14 h-8 rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 :ring-offset-zinc-950" [ngClass]="billingCycle() === 'yearly' ? 'bg-indigo-500' : 'bg-zinc-200 '">
+          <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ease-in-out" [ngClass]="billingCycle() === 'yearly' ? 'translate-x-6' : 'translate-x-0'"></span>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold transition-colors" [ngClass]="billingCycle() === 'yearly' ? 'text-zinc-900 ' : 'text-zinc-400 '">
+            Yearly
+          </span>
+          <span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600  bg-emerald-50  rounded-md border border-emerald-100 ">
+            Save 20%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Cards Grid -->
+    <div *ngIf="isLoading()" class="flex justify-center my-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <div *ngIf="!isLoading()" class="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
+      <ng-container *ngFor="let plan of plans()">
+        <div class="relative flex flex-col p-8 lg:p-10 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-slate-200/50 shadow-xl shadow-slate-200/40 group hover:-translate-y-2 transition-all duration-300"
+             [ngClass]="{'ring-4 ring-indigo-500/20 shadow-2xl shadow-indigo-500/20 lg:-translate-y-4 lg:hover:-translate-y-6': plan.is_popular}">
+          
+          <div *ngIf="plan.is_popular" class="absolute -top-4 inset-x-0 mx-auto w-max px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30">
+            Most Popular
+          </div>
+
+          <div class="mb-8">
+            <h3 class="text-2xl font-black mb-2">{{ plan.name }}</h3>
+            <p class="text-sm text-zinc-500  font-medium h-10">{{ plan.description }}</p>
+          </div>
+
+          <div class="mb-10 flex items-baseline gap-2">
+            <ng-container *ngIf="plan.price_monthly === 0 && plan.price_yearly === 0; else showPrice">
+              <span class="text-5xl font-black tracking-tight">Free</span>
+            </ng-container>
+            <ng-template #showPrice>
+              <span class="text-5xl font-black tracking-tight">
+                GH₵{{ billingCycle() === 'monthly' ? plan.price_monthly : plan.price_yearly }}
+              </span>
+              <span class="text-zinc-500  font-bold text-sm">
+                /mo
+              </span>
+            </ng-template>
+          </div>
+
+          <ul class="flex-1 space-y-4 mb-10">
+            <li *ngFor="let feature of plan.features" class="flex items-start gap-3">
+              <span class="material-symbols-outlined shrink-0 mt-0.5" [ngClass]="feature.is_available ? 'text-indigo-500' : 'text-zinc-300'">
+                {{ feature.is_available ? 'check_circle' : 'cancel' }}
+              </span>
+              <span class="text-sm font-medium" [ngClass]="feature.is_available ? 'text-zinc-700' : 'text-zinc-400 line-through'">{{ feature.text }}</span>
+            </li>
+          </ul>
+
+          <a (click)="selectPlan(plan)" class="cursor-pointer w-full py-4 px-6 rounded-2xl text-center text-sm font-black uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+             [ngClass]="plan.is_popular ? 'bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200'">
+            {{ plan.button_text }}
+            <span class="material-symbols-outlined !text-[18px]">arrow_forward</span>
+          </a>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- ROI Calculator Section -->
+    <div class="mt-32 max-w-4xl mx-auto bg-white/70 backdrop-blur-xl border border-indigo-200/50 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl shadow-indigo-500/10 reveal">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-black text-slate-900 mb-4">Calculate Your ROI</h2>
+        <p class="text-slate-600 font-medium">See how much you can save by switching from legacy hardware and manual inventory tracking.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- Sliders -->
+        <div class="space-y-8">
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <label class="font-bold text-slate-700">Retail Locations</label>
+              <span class="text-indigo-600 font-black text-xl">{{ storeCount() }}</span>
+            </div>
+            <input type="range" min="1" max="50" [ngModel]="storeCount()" (ngModelChange)="storeCount.set($event)"
+                   class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <label class="font-bold text-slate-700">Total Registers</label>
+              <span class="text-indigo-600 font-black text-xl">{{ registerCount() }}</span>
+            </div>
+            <input type="range" min="1" max="200" [ngModel]="registerCount()" (ngModelChange)="registerCount.set($event)"
+                   class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="bg-indigo-50/50 border border-indigo-100 rounded-3xl p-8 text-center flex flex-col justify-center h-full">
+          <p class="text-indigo-900/60 font-bold uppercase tracking-widest text-xs mb-4">Estimated Monthly Savings</p>
+          <div class="text-5xl lg:text-6xl font-black text-indigo-600 mb-2">
+            GH₵{{ estimatedSavings() | number:'1.0-0' }}
+          </div>
+          <p class="text-slate-500 text-sm font-medium mt-4">
+            Based on reduced shrinkage, lower hardware costs, and eliminated manual data entry.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Comparison Section -->
+    <div class="mt-40 text-center">
+      <h2 class="text-3xl lg:text-4xl font-black tracking-tight mb-4">Compare Features</h2>
+      <p class="text-zinc-500  font-medium max-w-2xl mx-auto mb-16">
+        Everything you need to run your business efficiently, broken down by plan.
+      </p>
+
+      <div class="bg-white/50  backdrop-blur-xl border border-zinc-200/50  rounded-[2rem] overflow-hidden shadow-xl shadow-zinc-200/20 ">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr class="border-b border-zinc-200/50  bg-zinc-50/50 ">
+                <th class="p-6 text-xs font-bold uppercase tracking-widest text-zinc-500  w-2/5">Feature</th>
+                <th class="p-6 text-xs font-bold uppercase tracking-widest text-zinc-900  text-center w-1/5">Starter</th>
+                <th class="p-6 text-xs font-bold uppercase tracking-widest text-indigo-600  text-center w-1/5">Pro</th>
+                <th class="p-6 text-xs font-bold uppercase tracking-widest text-zinc-900  text-center w-1/5">Enterprise</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200/50 ">
+              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+                <td class="p-6 text-sm font-semibold text-zinc-700 ">SKU Capacity</td>
+                <td class="p-6 text-sm font-medium text-center text-zinc-600 ">500</td>
+                <td class="p-6 text-sm font-bold text-center text-indigo-600 ">Unlimited</td>
+                <td class="p-6 text-sm font-medium text-center text-zinc-600 ">Custom</td>
+              </tr>
+              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+                <td class="p-6 text-sm font-semibold text-zinc-700 ">AI Demand Forecasting</td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300 ">remove</span></td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+                <td class="p-6 text-sm font-semibold text-zinc-700 ">Inventory Reports</td>
+                <td class="p-6 text-sm font-medium text-center text-zinc-600 ">Basic</td>
+                <td class="p-6 text-sm font-bold text-center text-indigo-600 ">Advanced</td>
+                <td class="p-6 text-sm font-medium text-center text-zinc-600 ">Custom Real-time</td>
+              </tr>
+              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+                <td class="p-6 text-sm font-semibold text-zinc-700 ">Multi-Warehouse</td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300 ">remove</span></td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
+              </tr>
+              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+                <td class="p-6 text-sm font-semibold text-zinc-700 ">API Access</td>
+                <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300 ">remove</span></td>
+                <td class="p-6 text-sm font-bold text-center text-indigo-600 ">Standard</td>
+                <td class="p-6 text-sm font-medium text-center text-zinc-600 ">Custom Rate Limits</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

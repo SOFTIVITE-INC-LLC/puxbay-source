@@ -1,0 +1,701 @@
+<div class="h-full flex flex-col overflow-hidden" style="font-family: 'Outfit', sans-serif;">
+  <div class="flex-1 overflow-y-auto p-6 space-y-6 max-w-7xl mx-auto w-full">
+
+    <!-- ── Header ── -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          Supply Chain
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage stock transfers, purchase orders, stocktakes, and low-stock alerts.</p>
+      </div>
+      @if (activeView() !== 'low-stock') {
+        <button (click)="openCreateDrawer()"
+          class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all text-sm">
+          <span class="material-symbols-outlined !text-[18px]">add</span>
+          New {{ activeView() === 'transfers' ? 'Transfer' : activeView() === 'purchase-orders' ? 'Purchase Order' : 'Stocktake' }}
+        </button>
+      }
+    </div>
+
+    <!-- ── KPI Cards ── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Transfers -->
+      <div (click)="activeView.set('transfers')"
+        class="cursor-pointer group rounded-2xl p-5 border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        [ngClass]="activeView() === 'transfers'
+          ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30 shadow-md shadow-indigo-500/10'
+          : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-500/20'">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+            [ngClass]="activeView() === 'transfers' ? 'bg-indigo-500 text-white' : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500'">
+            <span class="material-symbols-outlined !text-[18px]">sync_alt</span>
+          </div>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Transfers</p>
+        </div>
+        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ transfers().length }}</p>
+        <p class="text-xs text-slate-500 mt-0.5">Total records</p>
+      </div>
+
+      <!-- Purchase Orders -->
+      <div (click)="activeView.set('purchase-orders')"
+        class="cursor-pointer group rounded-2xl p-5 border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        [ngClass]="activeView() === 'purchase-orders'
+          ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-500/30 shadow-md shadow-purple-500/10'
+          : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/5 hover:border-purple-200 dark:hover:border-purple-500/20'">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+            [ngClass]="activeView() === 'purchase-orders' ? 'bg-purple-500 text-white' : 'bg-purple-50 dark:bg-purple-500/10 text-purple-500'">
+            <span class="material-symbols-outlined !text-[18px]">receipt_long</span>
+          </div>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Purchase Orders</p>
+        </div>
+        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ purchaseOrders().length }}</p>
+        <p class="text-xs text-slate-500 mt-0.5">Total orders</p>
+      </div>
+
+      <!-- Stocktakes -->
+      <div (click)="activeView.set('stocktakes')"
+        class="cursor-pointer group rounded-2xl p-5 border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        [ngClass]="activeView() === 'stocktakes'
+          ? 'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30 shadow-md shadow-sky-500/10'
+          : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/5 hover:border-sky-200 dark:hover:border-sky-500/20'">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+            [ngClass]="activeView() === 'stocktakes' ? 'bg-sky-500 text-white' : 'bg-sky-50 dark:bg-sky-500/10 text-sky-500'">
+            <span class="material-symbols-outlined !text-[18px]">inventory</span>
+          </div>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Stocktakes</p>
+        </div>
+        <p class="text-2xl font-black text-slate-900 dark:text-white">{{ stocktakes().length }}</p>
+        <p class="text-xs text-slate-500 mt-0.5">Sessions</p>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div (click)="activeView.set('low-stock')"
+        class="cursor-pointer group rounded-2xl p-5 border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        [ngClass]="activeView() === 'low-stock'
+          ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 shadow-md shadow-rose-500/10'
+          : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/5 hover:border-rose-200 dark:hover:border-rose-500/20'">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+            [ngClass]="activeView() === 'low-stock' ? 'bg-rose-500 text-white' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-500'">
+            <span class="material-symbols-outlined !text-[18px]">warning</span>
+          </div>
+          <p class="text-[11px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Low Stock</p>
+        </div>
+        <p class="text-2xl font-black text-slate-900 dark:text-white" [ngClass]="lowStockProducts().length > 0 ? 'text-rose-600 dark:text-rose-400' : ''">{{ lowStockProducts().length }}</p>
+        <p class="text-xs text-slate-500 mt-0.5">Items need restocking</p>
+      </div>
+    </div>
+
+    <!-- ── Tab Pills ── -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      @for (tab of tabs; track tab.id) {
+        <button (click)="activeView.set(tab.id)"
+          class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all border"
+          [ngClass]="activeView() === tab.id
+            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+            : 'bg-white dark:bg-white/[0.02] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/5 hover:border-indigo-300 dark:hover:border-indigo-500/30'">
+          {{ tab.label }}
+          @if (tab.id === 'low-stock' && lowStockProducts().length > 0) {
+            <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black rounded-full"
+              [ngClass]="activeView() === 'low-stock' ? 'bg-white/20 text-white' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400'">{{ lowStockProducts().length }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- ── Transfers Tab ── -->
+    @if (activeView() === 'transfers') {
+      <div class="bg-white dark:bg-white/[0.02] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Stock Transfers</h2>
+          <span class="text-sm text-slate-500 font-medium">{{ transfers().length }} record{{ transfers().length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-white/[0.02]">
+              <tr>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Reference</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Route</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Progress</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Date</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+              @for (t of transfers(); track t.reference_no) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer" (click)="viewTransfer(t)">
+                  <td class="px-6 py-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ t.reference_no }}</td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
+                      <span class="px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-xs font-bold truncate max-w-[100px] block">{{ getBranchName(t.from_branch_id) }}</span>
+                      <span class="material-symbols-outlined !text-[14px] text-slate-400">arrow_forward</span>
+                      <span class="px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-xs font-bold truncate max-w-[100px] block">{{ getBranchName(t.to_branch_id) }}</span>
+                    </div>
+                  </td>
+                  <!-- Status Timeline -->
+                  <td class="px-6 py-4">
+                    @let stepIdx = getStepIndex(t.status || 'requested', transferSteps);
+                    <div class="flex items-center gap-1">
+                      @for (step of transferSteps; track step; let si = $index) {
+                        <div class="flex items-center gap-1">
+                          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black transition-all"
+                            [ngClass]="si <= stepIdx
+                              ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-500/40'
+                              : 'bg-slate-200 dark:bg-white/10 text-slate-400'">
+                            @if (si < stepIdx) {
+                              <span class="material-symbols-outlined !text-[12px]">check</span>
+                            } @else {
+                              {{ si + 1 }}
+                            }
+                          </div>
+                          @if (si < transferSteps.length - 1) {
+                            <div class="w-6 h-0.5 rounded-full transition-all"
+                              [ngClass]="si < stepIdx ? 'bg-indigo-400' : 'bg-slate-200 dark:bg-white/10'"></div>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1 capitalize">{{ t.status || 'requested' }}</p>
+                  </td>
+                  <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-sm">{{ t.shipped_at | date:'mediumDate' }}</td>
+                  <td class="px-6 py-4 text-right space-x-1">
+                    @if (t.status === 'requested' || t.status === 'pending') {
+                      <button (click)="approveTransfer(t); $event.stopPropagation()" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors">Approve</button>
+                    }
+                    @if (t.status === 'approved') {
+                      <button (click)="shipTransfer(t); $event.stopPropagation()" class="px-3 py-1.5 bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-bold hover:bg-sky-100 transition-colors">Ship</button>
+                    }
+                    @if (t.status === 'shipped') {
+                      <button (click)="receiveTransfer(t); $event.stopPropagation()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">Receive</button>
+                    }
+                  </td>
+                </tr>
+              }
+              @if (transfers().length === 0) {
+                <tr>
+                  <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-600">
+                      <span class="material-symbols-outlined !text-5xl">sync_alt</span>
+                      <p class="font-bold text-base">No stock transfers yet</p>
+                      <p class="text-sm">Create a new transfer to move inventory between branches.</p>
+                      <button (click)="openCreateDrawer()" class="mt-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:-translate-y-0.5 transition-all shadow-md shadow-indigo-500/20">+ New Transfer</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- ── Purchase Orders Tab ── -->
+    @if (activeView() === 'purchase-orders') {
+      <div class="bg-white dark:bg-white/[0.02] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Purchase Orders</h2>
+          <span class="text-sm text-slate-500 font-medium">{{ purchaseOrders().length }} order{{ purchaseOrders().length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-white/[0.02]">
+              <tr>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">PO Number</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Supplier</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Progress</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-right">Total</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Expected</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+              @for (po of purchaseOrders(); track po.po_number) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer" (click)="viewPO(po)">
+                  <td class="px-6 py-4 font-mono font-bold text-purple-600 dark:text-purple-400">{{ po.po_number }}</td>
+                  <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">{{ getSupplierName(po.supplier_id) }}</td>
+                  <!-- PO Status Timeline -->
+                  <td class="px-6 py-4">
+                    @let poStepIdx = getStepIndex(po.status || 'pending', poSteps);
+                    <div class="flex items-center gap-1">
+                      @for (step of poSteps; track step; let si = $index) {
+                        <div class="flex items-center gap-1">
+                          <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black transition-all"
+                            [ngClass]="si <= poStepIdx
+                              ? 'bg-purple-500 text-white shadow-sm shadow-purple-500/40'
+                              : 'bg-slate-200 dark:bg-white/10 text-slate-400'">
+                            @if (si < poStepIdx) {
+                              <span class="material-symbols-outlined !text-[12px]">check</span>
+                            } @else {
+                              {{ si + 1 }}
+                            }
+                          </div>
+                          @if (si < poSteps.length - 1) {
+                            <div class="w-6 h-0.5 rounded-full transition-all"
+                              [ngClass]="si < poStepIdx ? 'bg-purple-400' : 'bg-slate-200 dark:bg-white/10'"></div>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1 capitalize">{{ po.status }}</p>
+                  </td>
+                  <td class="px-6 py-4 text-right font-black text-slate-900 dark:text-white">{{ po.total_amount | appCurrency }}</td>
+                  <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-sm">{{ po.expected_date | date:'mediumDate' }}</td>
+                  <td class="px-6 py-4 text-right">
+                    @if (po.status !== 'received') {
+                      <button (click)="quickReceivePO(po); $event.stopPropagation()" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">Receive</button>
+                    }
+                  </td>
+                </tr>
+              }
+              @if (purchaseOrders().length === 0) {
+                <tr>
+                  <td colspan="6" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-600">
+                      <span class="material-symbols-outlined !text-5xl">receipt_long</span>
+                      <p class="font-bold text-base">No purchase orders yet</p>
+                      <p class="text-sm">Create a PO to track supplier orders and incoming stock.</p>
+                      <button (click)="openCreateDrawer()" class="mt-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:-translate-y-0.5 transition-all shadow-md shadow-purple-500/20">+ New Purchase Order</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- ── Stocktakes Tab ── -->
+    @if (activeView() === 'stocktakes') {
+      <div class="bg-white dark:bg-white/[0.02] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between">
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Stocktake Sessions</h2>
+          <span class="text-sm text-slate-500 font-medium">{{ stocktakes().length }} session{{ stocktakes().length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-white/[0.02]">
+              <tr>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Session Name</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Status</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Notes</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-left">Completed</th>
+                <th class="px-6 py-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+              @for (s of stocktakes(); track s.name) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer" (click)="viewStocktake(s)">
+                  <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">{{ s.name }}</td>
+                  <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-[11px] font-extrabold rounded-full uppercase"
+                      [ngClass]="{
+                        'bg-sky-100 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400': s.status === 'in_progress',
+                        'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400': s.status === 'completed',
+                        'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400': !s.status
+                      }">{{ s.status || 'in_progress' }}</span>
+                  </td>
+                  <td class="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{{ s.notes || '—' }}</td>
+                  <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-sm">{{ (s.completed_at | date:'medium') || '—' }}</td>
+                  <td class="px-6 py-4 text-right">
+                    @if (s.status === 'in_progress') {
+                      <button (click)="finalizeStocktake(s); $event.stopPropagation()" class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-colors">Finalize</button>
+                    }
+                  </td>
+                </tr>
+              }
+              @if (stocktakes().length === 0) {
+                <tr>
+                  <td colspan="5" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-600">
+                      <span class="material-symbols-outlined !text-5xl">inventory</span>
+                      <p class="font-bold text-base">No stocktake sessions yet</p>
+                      <p class="text-sm">Start a new session to count and reconcile your inventory.</p>
+                      <button (click)="openCreateDrawer()" class="mt-2 px-4 py-2 rounded-xl bg-sky-600 text-white text-sm font-bold hover:-translate-y-0.5 transition-all shadow-md shadow-sky-500/20">+ Start Stocktake</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <!-- ── Low Stock Alerts Tab (Supplier-Grouped) ── -->
+    @if (activeView() === 'low-stock') {
+      @if (lowStockProducts().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-600 gap-3">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-4xl text-emerald-500">check_circle</span>
+          </div>
+          <p class="font-bold text-lg text-slate-700 dark:text-slate-300">All inventory levels are healthy!</p>
+          <p class="text-sm text-center max-w-xs">No products are below their reorder threshold. Great stock management!</p>
+        </div>
+      } @else {
+        <div class="flex items-center justify-between mb-1">
+          <p class="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+            <span class="material-symbols-outlined !text-[16px]">warning</span>
+            {{ lowStockProducts().length }} product{{ lowStockProducts().length !== 1 ? 's' : '' }} need restocking
+          </p>
+        </div>
+
+        <!-- Grouped by Supplier -->
+        <div class="space-y-6">
+          @for (group of lowStockBySupplier(); track $index) {
+            <div class="bg-white dark:bg-white/[0.02] rounded-2xl border border-rose-100 dark:border-rose-500/20 overflow-hidden">
+              <!-- Group Header -->
+              <div class="px-5 py-3 bg-rose-50/50 dark:bg-rose-500/5 border-b border-rose-100 dark:border-rose-500/15 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined !text-[18px] text-rose-500">storefront</span>
+                  <h3 class="font-bold text-sm text-slate-800 dark:text-white">
+                    {{ group.supplier?.name || 'No Supplier Assigned' }}
+                  </h3>
+                  <span class="px-2 py-0.5 bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-black rounded-full">
+                    {{ group.products.length }} item{{ group.products.length !== 1 ? 's' : '' }}
+                  </span>
+                </div>
+                @if (group.supplier) {
+                  <button (click)="generatePOFromLowStock(group)"
+                    class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined !text-[14px]">add_shopping_cart</span>
+                    1-Click Generate PO
+                  </button>
+                }
+              </div>
+
+              <!-- Products within group -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+                @for (p of group.products; track p.id) {
+                  <div class="rounded-xl border border-slate-100 dark:border-white/5 p-4 hover:shadow-md hover:shadow-rose-500/5 transition-all">
+                    <div class="flex justify-between items-start mb-3">
+                      <div class="flex-1 min-w-0 mr-3">
+                        <p class="font-bold text-slate-900 dark:text-white truncate text-sm">{{ p.name }}</p>
+                        <p class="text-xs text-slate-500 mt-0.5 font-mono">{{ p.sku }}</p>
+                      </div>
+                      <span class="flex-shrink-0 px-2 py-0.5 bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[9px] font-extrabold rounded-full uppercase tracking-wider">
+                        Low Stock
+                      </span>
+                    </div>
+                    <!-- Stock Bar -->
+                    <div>
+                      <div class="flex justify-between text-xs font-bold text-slate-500 mb-1.5">
+                        <span>{{ p.current_stock }} {{ p.stock_unit || 'units' }} left</span>
+                        <span>Reorder at {{ p.reorder_level }}</span>
+                      </div>
+                      <div class="h-2 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-rose-500 to-orange-400 rounded-full transition-all"
+                          [style.width.%]="p.reorder_level > 0 ? Math.min(100, ((p.current_stock || 0) / p.reorder_level) * 100) : 0">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE-OUT SIDE DRAWER                                        -->
+<!-- ════════════════════════════════════════════════════════════ -->
+@if (isDrawerOpen()) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" (click)="isDrawerOpen.set(false)"></div>
+
+  <!-- Drawer Panel -->
+  <div class="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[560px] bg-white dark:bg-[#0f172a] border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden"
+    style="animation: slideInRight 0.25s cubic-bezier(.16,1,.3,1)">
+
+    <!-- Drawer Header -->
+    <div class="p-5 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-slate-50 dark:bg-white/[0.02] shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+          [ngClass]="{
+            'bg-gradient-to-br from-indigo-500 to-purple-600': activeView() === 'transfers',
+            'bg-gradient-to-br from-purple-500 to-pink-600': activeView() === 'purchase-orders',
+            'bg-gradient-to-br from-sky-500 to-indigo-600': activeView() === 'stocktakes'
+          }">
+          <span class="material-symbols-outlined !text-[18px] text-white">
+            {{ activeView() === 'transfers' ? 'sync_alt' : activeView() === 'purchase-orders' ? 'receipt_long' : 'inventory' }}
+          </span>
+        </div>
+        <h2 class="text-xl font-black text-slate-900 dark:text-white">
+          @if ((activeView() === 'transfers' && selectedTransfer()) || (activeView() === 'purchase-orders' && selectedPO())) {
+            {{ activeView() === 'transfers' ? 'Transfer Details' : 'PO Details' }}
+          } @else {
+            New {{ activeView() === 'transfers' ? 'Stock Transfer' : activeView() === 'purchase-orders' ? 'Purchase Order' : 'Stocktake Session' }}
+          }
+        </h2>
+      </div>
+      <button (click)="isDrawerOpen.set(false)" class="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 p-6 space-y-5 overflow-y-auto">
+
+      <!-- ── Transfer Details ── -->
+      @if (activeView() === 'transfers' && selectedTransfer()) {
+        <!-- Timeline Visual -->
+        <div class="flex items-center justify-between px-4 py-5 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl border border-indigo-100 dark:border-indigo-500/20">
+          @let tsi = getStepIndex(selectedTransfer().status || 'requested', transferSteps);
+          @for (step of transferSteps; track step; let si = $index) {
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm transition-all"
+                [ngClass]="si <= tsi ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30' : 'bg-white dark:bg-white/10 text-slate-400 border border-slate-200 dark:border-white/10'">
+                @if (si < tsi) {
+                  <span class="material-symbols-outlined !text-[16px]">check</span>
+                } @else {
+                  {{ si + 1 }}
+                }
+              </div>
+              <span class="text-[10px] font-bold text-center capitalize"
+                [ngClass]="si <= tsi ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'">{{ step }}</span>
+            </div>
+            @if (si < transferSteps.length - 1) {
+              <div class="h-0.5 flex-1 rounded-full mb-5 transition-all"
+                [ngClass]="si < tsi ? 'bg-indigo-400' : 'bg-slate-200 dark:bg-white/10'"></div>
+            }
+          }
+        </div>
+
+        <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">Transfer Reference</h3>
+          <p class="font-mono font-bold text-slate-900 dark:text-white">{{ selectedTransfer().reference_no }}</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+            <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">From</h3>
+            <p class="font-bold text-slate-900 dark:text-white truncate">{{ getBranchName(selectedTransfer().from_branch_id) }}</p>
+          </div>
+          <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+            <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">To</h3>
+            <p class="font-bold text-slate-900 dark:text-white truncate">{{ getBranchName(selectedTransfer().to_branch_id) }}</p>
+          </div>
+        </div>
+        <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-3">Items</h3>
+          <ul class="space-y-2.5">
+            @for (item of selectedTransfer().items; track item.id) {
+              <li class="flex justify-between items-center text-sm font-medium">
+                <span class="text-slate-700 dark:text-slate-300">{{ item.product?.name || getProductName(item.product_id) }}</span>
+                <span class="font-black text-slate-900 dark:text-white">× {{ item.quantity }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- ── Transfer Form ── -->
+      @if (activeView() === 'transfers' && !selectedTransfer()) {
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Reference No.</label>
+          <input [(ngModel)]="newTransfer.reference_no" placeholder="e.g. TRF-001"
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white font-mono placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">From Branch</label>
+            <app-searchable-select
+              [(ngModel)]="newTransfer.from_branch_id"
+              [options]="branchOptions()"
+              placeholder="Select branch">
+            </app-searchable-select>
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">To Branch</label>
+            <app-searchable-select
+              [(ngModel)]="newTransfer.to_branch_id"
+              [options]="branchOptions()"
+              placeholder="Select branch">
+            </app-searchable-select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Notes</label>
+          <textarea [(ngModel)]="newTransfer.notes" rows="2" placeholder="Optional notes..."
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all resize-none"></textarea>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-extrabold uppercase tracking-widest text-slate-500">Items</label>
+            <button (click)="newTransferItems.push({product_id: '', quantity: 1})" class="text-indigo-600 dark:text-indigo-400 text-xs font-bold hover:underline">+ Add Row</button>
+          </div>
+          <div class="space-y-2">
+            @for (item of newTransferItems; track $index) {
+              <div class="flex gap-2 items-center">
+                <div class="flex-1">
+                  <app-searchable-select
+                    [(ngModel)]="item.product_id"
+                    [options]="productOptions()"
+                    placeholder="Select product">
+                  </app-searchable-select>
+                </div>
+                <input type="number" [(ngModel)]="item.quantity" placeholder="Qty" min="0"
+                  class="w-20 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white text-sm text-center outline-none focus:ring-2 focus:ring-indigo-500/30">
+                <button (click)="newTransferItems.splice($index, 1)" class="p-2 rounded-lg text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <button (click)="createTransfer()"
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all">
+          <span class="material-symbols-outlined !text-[16px] align-middle mr-1">sync_alt</span>
+          Create Transfer
+        </button>
+      }
+
+      <!-- ── PO Details ── -->
+      @if (activeView() === 'purchase-orders' && selectedPO()) {
+        <!-- PO Timeline Visual -->
+        <div class="flex items-center justify-between px-4 py-5 bg-purple-50 dark:bg-purple-500/10 rounded-2xl border border-purple-100 dark:border-purple-500/20">
+          @let posi = getStepIndex(selectedPO().status || 'pending', poSteps);
+          @for (step of poSteps; track step; let si = $index) {
+            <div class="flex flex-col items-center gap-1.5 flex-1">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-sm transition-all"
+                [ngClass]="si <= posi ? 'bg-purple-500 text-white shadow-md shadow-purple-500/30' : 'bg-white dark:bg-white/10 text-slate-400 border border-slate-200 dark:border-white/10'">
+                @if (si < posi) {
+                  <span class="material-symbols-outlined !text-[16px]">check</span>
+                } @else {
+                  {{ si + 1 }}
+                }
+              </div>
+              <span class="text-[10px] font-bold text-center capitalize"
+                [ngClass]="si <= posi ? 'text-purple-600 dark:text-purple-400' : 'text-slate-400'">{{ step }}</span>
+            </div>
+            @if (si < poSteps.length - 1) {
+              <div class="h-0.5 flex-1 rounded-full mb-5 transition-all"
+                [ngClass]="si < posi ? 'bg-purple-400' : 'bg-slate-200 dark:bg-white/10'"></div>
+            }
+          }
+        </div>
+
+        <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5 flex justify-between items-center">
+          <div>
+            <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">PO Number</h3>
+            <p class="font-mono font-bold text-slate-900 dark:text-white">{{ selectedPO().po_number }}</p>
+          </div>
+          <div class="text-right">
+            <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">Total</h3>
+            <p class="font-bold text-purple-600 dark:text-purple-400">{{ selectedPO().total_amount | appCurrency }}</p>
+          </div>
+        </div>
+        <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-1">Supplier</h3>
+          <p class="font-bold text-slate-900 dark:text-white">{{ getSupplierName(selectedPO().supplier_id) }}</p>
+        </div>
+        <div class="p-4 bg-slate-50 dark:bg-white/[0.02] rounded-xl border border-slate-100 dark:border-white/5">
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-3">Items</h3>
+          <ul class="space-y-3">
+            @for (item of selectedPO().items; track item.id) {
+              <li class="flex justify-between items-center text-sm">
+                <span class="font-medium text-slate-700 dark:text-slate-300">{{ item.product?.name || getProductName(item.product_id) }}</span>
+                <div class="text-right">
+                  <p class="font-bold text-slate-900 dark:text-white">{{ item.quantity_received }} / {{ item.quantity_ordered }}</p>
+                  <p class="text-xs text-slate-500">{{ item.unit_cost | appCurrency }} ea</p>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- ── PO Form ── -->
+      @if (activeView() === 'purchase-orders' && !selectedPO()) {
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">PO Number</label>
+            <input [(ngModel)]="newPO.po_number" placeholder="e.g. PO-2026-001"
+              class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white font-mono placeholder-slate-400 outline-none focus:ring-2 focus:ring-purple-500/30 transition-all">
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Supplier</label>
+            <app-searchable-select
+              [(ngModel)]="newPO.supplier_id"
+              [options]="supplierOptions()"
+              placeholder="Select supplier">
+            </app-searchable-select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Notes</label>
+          <textarea [(ngModel)]="newPO.notes" rows="2" placeholder="Optional notes..."
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-purple-500/30 transition-all resize-none"></textarea>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-extrabold uppercase tracking-widest text-slate-500">Items</label>
+            <button (click)="newPOItems.push({product_id: '', quantity_ordered: 1, unit_cost: 0})" class="text-purple-600 dark:text-purple-400 text-xs font-bold hover:underline">+ Add Row</button>
+          </div>
+          <div class="space-y-2">
+            @for (item of newPOItems; track $index) {
+              <div class="flex gap-2 items-center">
+                <div class="flex-1">
+                  <app-searchable-select
+                    [(ngModel)]="item.product_id"
+                    [options]="productOptions()"
+                    placeholder="Select product">
+                  </app-searchable-select>
+                </div>
+                <input type="number" [(ngModel)]="item.quantity_ordered" placeholder="Qty" min="0"
+                  class="w-20 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white text-sm text-center outline-none focus:ring-2 focus:ring-purple-500/30">
+                <input type="number" [(ngModel)]="item.unit_cost" placeholder="Cost" min="0"
+                  class="w-24 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white text-sm text-center outline-none focus:ring-2 focus:ring-purple-500/30">
+                <button (click)="newPOItems.splice($index, 1)" class="p-2 rounded-lg text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-500/10 rounded-xl border border-purple-100 dark:border-purple-500/20">
+          <span class="text-sm font-bold text-slate-600 dark:text-slate-300">PO Total</span>
+          <span class="font-black text-lg text-purple-600 dark:text-purple-400">{{ poTotal() | appCurrency }}</span>
+        </div>
+        <button (click)="createPO()"
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold shadow-lg shadow-purple-500/20 hover:-translate-y-0.5 transition-all">
+          <span class="material-symbols-outlined !text-[16px] align-middle mr-1">receipt_long</span>
+          Create Purchase Order
+        </button>
+      }
+
+      <!-- ── Stocktake Form ── -->
+      @if (activeView() === 'stocktakes') {
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Session Name</label>
+          <input [(ngModel)]="newStocktake.name" placeholder="e.g. Monthly Count — August 2026"
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-sky-500/30 transition-all">
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-1.5">Notes</label>
+          <textarea [(ngModel)]="newStocktake.notes" rows="3" placeholder="Optional notes about this session..."
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-sky-500/30 transition-all resize-none"></textarea>
+        </div>
+        <button (click)="createStocktake()"
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-bold shadow-lg shadow-sky-500/20 hover:-translate-y-0.5 transition-all">
+          <span class="material-symbols-outlined !text-[16px] align-middle mr-1">inventory</span>
+          Start Stocktake Session
+        </button>
+      }
+
+    </div>
+  </div>
+}
+
+<style>
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+</style>

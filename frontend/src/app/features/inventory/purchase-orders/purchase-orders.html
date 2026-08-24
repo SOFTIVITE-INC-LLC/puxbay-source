@@ -1,0 +1,260 @@
+<div class="h-full flex flex-col p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto animate-fade-in font-outfit relative">
+  <!-- Decorative Background Elements -->
+  <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
+    <div>
+      <h1 class="text-3xl lg:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+        Purchase Orders
+      </h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm lg:text-base">Manage stock ordering and receiving operations seamlessly.</p>
+    </div>
+    <button (click)="openCreateModal()" class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-bold shadow-[0_4px_16px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.4)] hover:scale-[1.02] transition-all duration-300">
+      <span class="material-symbols-outlined !text-[18px]">add</span>
+      Create PO
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-32 relative z-10">
+      <div class="relative w-16 h-16">
+        <div class="absolute inset-0 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+        <div class="absolute inset-2 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+      </div>
+    </div>
+  }
+
+  <!-- PO List -->
+  @if (!loading()) {
+    @if (pos().length === 0) {
+      <div class="flex flex-col items-center justify-center py-32 gap-4 bg-white/70 dark:bg-[#05070f]/70 backdrop-blur-2xl rounded-3xl border border-slate-200/50 dark:border-white/10 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.5)] relative z-10">
+        <div class="w-20 h-20 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 mb-2">
+          <span class="material-symbols-outlined !text-[40px]">receipt_long</span>
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">No Purchase Orders Yet</h3>
+        <p class="text-slate-500 text-sm max-w-md text-center">Create your first purchase order to restock your inventory and manage your suppliers efficiently.</p>
+        <button (click)="openCreateModal()" class="mt-4 px-6 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-all">
+          Create PO Now
+        </button>
+      </div>
+    } @else {
+      <div class="bg-white/70 dark:bg-[#05070f]/70 backdrop-blur-2xl rounded-3xl border border-slate-200/50 dark:border-white/10 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_-12px_rgba(0,0,0,0.5)] overflow-hidden relative z-10 transition-all duration-300">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50/50 dark:bg-white/5 border-b border-slate-200/50 dark:border-white/10 backdrop-blur-md">
+                <th class="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">PO Number</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Supplier</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Total Amount</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100/50 dark:divide-white/5">
+              @for (po of pos(); track po.id) {
+                <tr class="hover:bg-white/50 dark:hover:bg-white/[0.02] transition-colors group">
+                  <td class="px-6 py-4">
+                    <span class="font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg text-sm">{{ po.po_number }}</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                        {{ getSupplierName(po.supplier_id).charAt(0) }}
+                      </div>
+                      <span class="font-medium text-slate-600 dark:text-slate-300">{{ getSupplierName(po.supplier_id) }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
+                          [class]="po.status === 'received' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20' :
+                                   po.status === 'partially_received' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20' :
+                                   'bg-slate-50 text-slate-600 dark:bg-white/5 dark:text-slate-300 border border-slate-200/50 dark:border-white/10'">
+                      @if (po.status === 'received') {
+                        <span class="material-symbols-outlined !text-[14px]">check_circle</span>
+                      }
+                      {{ statusLabel(po.status) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <span class="font-black text-slate-800 dark:text-white">{{ po.total_amount | appCurrency }}</span>
+                  </td>
+                  <td class="px-6 py-4 text-center">
+                    @if (po.status !== 'received' && po.status !== 'cancelled') {
+                      <button (click)="openReceiveModal(po)" class="px-4 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-xs font-bold transition-colors border border-indigo-100/50 dark:border-indigo-500/20">
+                        Receive Stock
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+
+</div>
+
+<!-- ── Create PO Modal ── -->
+@if (isCreateModalOpen()) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+    <!-- Backdrop Blur -->
+    <div class="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md transition-opacity" (click)="closeCreateModal()"></div>
+    
+    <div class="relative w-full max-w-4xl bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] border border-slate-200/50 dark:border-white/10 flex flex-col max-h-[90vh] overflow-hidden animate-slide-up">
+
+      <div class="p-6 sm:p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0 bg-white/50 dark:bg-white/5">
+        <div>
+          <h3 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Create Purchase Order</h3>
+          <p class="text-xs font-medium text-slate-500 mt-1">Draft a new order for your suppliers.</p>
+        </div>
+        <button (click)="closeCreateModal()" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors border border-slate-200/50 dark:border-white/5">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 sm:p-8 overflow-y-auto space-y-8 custom-scrollbar">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Supplier *</label>
+            <div class="relative">
+              <select [(ngModel)]="newPO().supplier_id" class="w-full px-4 py-3.5 bg-slate-50/50 dark:bg-black/20 border border-slate-200/50 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none text-slate-800 dark:text-white">
+                <option value="" disabled selected>Select Supplier</option>
+                @for (s of suppliers(); track s.id) {
+                  <option [value]="s.id">{{ s.name }}</option>
+                }
+              </select>
+              <span class="material-symbols-outlined absolute right-4 top-3.5 text-slate-400 pointer-events-none">expand_more</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">PO Number</label>
+            <input type="text" [(ngModel)]="newPO().po_number" class="w-full px-4 py-3.5 bg-slate-100/50 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 rounded-xl text-sm font-bold text-slate-500 outline-none cursor-not-allowed" disabled />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-end mb-4">
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Order Items</label>
+              <p class="text-xs text-slate-400 mt-0.5">Select products and quantities.</p>
+            </div>
+            <button (click)="addItem()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors border border-indigo-100/50 dark:border-indigo-500/10">
+              <span class="material-symbols-outlined !text-[14px]">add</span> Add Item
+            </button>
+          </div>
+          
+          <div class="space-y-3">
+            @for (item of newPOItems(); track $index) {
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-slate-50/50 dark:bg-white/[0.02] p-3 rounded-2xl border border-slate-200/50 dark:border-white/5 hover:border-indigo-500/30 transition-colors">
+                <div class="flex-1 w-full relative">
+                  <select [(ngModel)]="item.product_id" class="w-full px-3 py-2.5 bg-white dark:bg-[#080c16] border border-slate-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500 appearance-none text-slate-800 dark:text-white shadow-sm">
+                    <option value="" disabled selected>Select Product...</option>
+                    @for (p of products(); track p.id) {
+                      <option [value]="p.id">{{ p.name }} (Stock: {{ p.current_stock }})</option>
+                    }
+                  </select>
+                  <span class="material-symbols-outlined absolute right-3 top-2.5 text-slate-400 pointer-events-none !text-[20px]">expand_more</span>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                  <div class="w-24">
+                    <input type="number" [(ngModel)]="item.quantity_ordered" min="1" placeholder="Qty" class="w-full px-3 py-2.5 bg-white dark:bg-[#080c16] border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-center outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-slate-800 dark:text-white" />
+                  </div>
+                  <div class="w-32 relative">
+                    <span class="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
+                    <input type="number" [(ngModel)]="item.unit_cost" min="0" step="0.01" placeholder="Cost" class="w-full pl-7 pr-3 py-2.5 bg-white dark:bg-[#080c16] border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-slate-800 dark:text-white" />
+                  </div>
+                  <button (click)="removeItem($index)" class="w-10 h-10 flex-shrink-0 flex items-center justify-center text-slate-400 hover:text-rose-500 bg-white dark:bg-[#080c16] hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-slate-200 dark:border-white/10 hover:border-rose-200 dark:hover:border-rose-500/20 rounded-xl transition-colors shadow-sm">
+                    <span class="material-symbols-outlined !text-[18px]">delete</span>
+                  </button>
+                </div>
+              </div>
+            }
+            @if (newPOItems().length === 0) {
+              <div class="text-center p-8 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-3xl bg-slate-50/50 dark:bg-white/[0.02]">
+                <div class="w-12 h-12 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center text-slate-400 mx-auto mb-3">
+                  <span class="material-symbols-outlined !text-[24px]">shopping_cart</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 font-medium text-sm">No items added yet.<br>Click "Add Item" to start building your order.</p>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <div class="p-6 sm:p-8 border-t border-slate-200/50 dark:border-white/10 flex justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/5">
+        <button (click)="closeCreateModal()" class="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 rounded-xl transition-all shadow-sm">Cancel</button>
+        <button (click)="createPO()" [disabled]="!newPO().supplier_id || newPOItems().length === 0 || creating()" class="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-[0_4px_16px_rgba(99,102,241,0.3)] hover:shadow-[0_8px_24px_rgba(99,102,241,0.4)] transition-all disabled:opacity-50 disabled:hover:shadow-none min-w-[140px]">
+          @if (creating()) {
+            <span class="flex items-center justify-center gap-2">
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              Creating...
+            </span>
+          } @else {
+            Create Order
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Receive PO Modal ── -->
+@if (isReceiveModalOpen() && selectedPO()) {
+  <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+    <!-- Backdrop Blur -->
+    <div class="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md transition-opacity" (click)="closeReceiveModal()"></div>
+    
+    <div class="relative w-full max-w-3xl bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-[2rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] border border-slate-200/50 dark:border-white/10 flex flex-col max-h-[90vh] overflow-hidden animate-slide-up">
+
+      <div class="p-6 sm:p-8 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center shrink-0 bg-white/50 dark:bg-white/5">
+        <div>
+          <h3 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Receive Inventory</h3>
+          <p class="text-xs font-medium text-slate-500 mt-1">Order: <span class="text-indigo-500 font-bold">{{ selectedPO()?.po_number }}</span></p>
+        </div>
+        <button (click)="closeReceiveModal()" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors border border-slate-200/50 dark:border-white/5">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-6 sm:p-8 overflow-y-auto space-y-4 custom-scrollbar">
+        @for (item of receiveItems(); track item.item_id) {
+          <div class="bg-slate-50/50 dark:bg-white/[0.02] p-5 rounded-2xl border border-slate-200/50 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1">
+              <p class="font-bold text-slate-800 dark:text-white text-base">{{ item.product_name }}</p>
+              <div class="text-xs text-slate-500 mt-2 flex gap-4">
+                <span class="bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">Ordered: <b class="text-slate-700 dark:text-slate-300">{{ item.quantity_ordered }}</b></span>
+                <span class="bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md text-indigo-600 dark:text-indigo-400">Received: <b>{{ item.quantity_previously_received }}</b></span>
+              </div>
+            </div>
+            <div class="w-full sm:w-40 bg-white dark:bg-[#080c16] p-3 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-2 text-center">Qty Arriving Now</label>
+              <div class="flex items-center">
+                <input type="number" [(ngModel)]="item.quantity_to_receive" min="0" [max]="item.quantity_ordered - item.quantity_previously_received" class="w-full bg-transparent text-xl font-black text-center outline-none text-slate-800 dark:text-white" />
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="p-6 sm:p-8 border-t border-slate-200/50 dark:border-white/10 flex justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-white/5">
+        <button (click)="closeReceiveModal()" class="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 rounded-xl transition-all shadow-sm">Cancel</button>
+        <button (click)="receivePO()" [disabled]="receiving()" class="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-[0_4px_16px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_24px_rgba(16,185,129,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 min-w-[160px]">
+          @if (receiving()) {
+            <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            Processing...
+          } @else {
+            <span class="material-symbols-outlined !text-[18px]">inventory_2</span>
+            Confirm Receipt
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

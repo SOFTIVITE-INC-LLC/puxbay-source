@@ -1,0 +1,115 @@
+<div class="animate-fade-in max-w-3xl mx-auto">
+  <div class="text-center mb-10">
+    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center mx-auto mb-4">
+      <span class="material-symbols-outlined !text-[32px] text-indigo-400">local_shipping</span>
+    </div>
+    <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Track Your Order</h1>
+    <p class="text-slate-500 dark:text-zinc-400">Enter your order number to see the latest status updates.</p>
+  </div>
+
+  <div class="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800/60 p-6 sm:p-8 mb-8 shadow-xl">
+    <form (ngSubmit)="track()" class="flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 relative">
+        <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 dark:text-zinc-500">
+          <span class="material-symbols-outlined !text-[20px]">tag</span>
+        </span>
+        <input type="text" [ngModel]="orderNumber()" (ngModelChange)="orderNumber.set($event)" name="orderNumber" placeholder="e.g. ORD-12345678"
+               class="w-full pl-11 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl text-slate-900 dark:text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono">
+      </div>
+      <button type="submit" [disabled]="!orderNumber() || isTracking()"
+              class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+        @if (isTracking()) {
+          <span class="material-symbols-outlined animate-spin !text-[20px]">refresh</span> Tracking...
+        } @else {
+          Track Order
+        }
+      </button>
+    </form>
+    
+    @if (errorMsg()) {
+      <div class="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 animate-fade-in">
+        <span class="material-symbols-outlined text-rose-400">error</span>
+        <p class="text-sm text-rose-400 font-medium">{{ errorMsg() }}</p>
+      </div>
+    }
+  </div>
+
+  @if (order()) {
+    <div class="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800/60 overflow-hidden animate-slide-up">
+      <div class="p-6 sm:p-8 border-b border-slate-200 dark:border-zinc-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <p class="text-sm text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold mb-1">Order Number</p>
+          <p class="text-xl font-black text-slate-900 dark:text-white font-mono">{{ order().order_number }}</p>
+        </div>
+        <div class="text-left sm:text-right">
+          <p class="text-sm text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold mb-1">Date Placed</p>
+          <p class="text-slate-900 dark:text-white font-medium">{{ order().created_at | date:'mediumDate' }}</p>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="p-6 sm:p-10">
+        <div class="relative max-w-xl mx-auto">
+          <!-- Connector Line -->
+          <div class="absolute left-6 top-10 bottom-10 w-0.5 bg-slate-100 dark:bg-zinc-800 -z-10"></div>
+          
+          <div class="space-y-8">
+            <!-- Step 1: Placed/Pending -->
+            <div class="flex items-start gap-6 relative">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
+                   [ngClass]="getStepStatus(order().status, 0) === 'completed' || getStepStatus(order().status, 0) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : (getStepStatus(order().status, 0) === 'cancelled' ? 'bg-rose-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500')">
+                <span class="material-symbols-outlined !text-[20px]">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'cancel' : 'receipt_long' }}</span>
+              </div>
+              <div class="pt-2">
+                <h4 class="text-base font-bold text-slate-900 dark:text-white">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'Order Cancelled' : 'Order Placed' }}</h4>
+                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1">We have received your order.</p>
+              </div>
+            </div>
+
+            <!-- Step 2: Processing -->
+            <div class="flex items-start gap-6 relative">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
+                   [ngClass]="getStepStatus(order().status, 1) === 'completed' || getStepStatus(order().status, 1) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
+                <span class="material-symbols-outlined !text-[20px]">inventory_2</span>
+              </div>
+              <div class="pt-2">
+                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 1) === 'pending'}">Processing</h4>
+                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 1) === 'pending'}">Your order is being prepared for shipping.</p>
+              </div>
+            </div>
+
+            <!-- Step 3: Shipped -->
+            <div class="flex items-start gap-6 relative">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
+                   [ngClass]="getStepStatus(order().status, 2) === 'completed' || getStepStatus(order().status, 2) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
+                <span class="material-symbols-outlined !text-[20px]">local_shipping</span>
+              </div>
+              <div class="pt-2">
+                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 2) === 'pending'}">Shipped</h4>
+                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 2) === 'pending'}">Your order has been handed over to the carrier.</p>
+              </div>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div class="flex items-start gap-6 relative">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
+                   [ngClass]="getStepStatus(order().status, 3) === 'completed' || getStepStatus(order().status, 3) === 'active' ? 'bg-emerald-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
+                <span class="material-symbols-outlined !text-[20px]">home</span>
+              </div>
+              <div class="pt-2">
+                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 3) === 'pending'}">Delivered</h4>
+                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 3) === 'pending'}">Your order has been delivered.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Order Total Summary -->
+      <div class="bg-slate-50 dark:bg-zinc-950/50 p-6 border-t border-slate-200 dark:border-zinc-800/60 flex justify-between items-center">
+        <span class="text-sm font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Total Amount</span>
+        <span class="text-xl font-black text-slate-900 dark:text-white">{{ order().total_amount | appCurrency }}</span>
+      </div>
+    </div>
+  }
+</div>

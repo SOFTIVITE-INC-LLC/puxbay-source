@@ -1,0 +1,76 @@
+<div class="relative w-full" (click)="$event.stopPropagation()">
+  <!-- Selected Value / Input Trigger -->
+  <div 
+    class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-sm transition-all cursor-pointer shadow-sm group"
+    [class.ring-2]="isOpen()"
+    [class.ring-indigo-500]="isOpen()"
+    [class.border-indigo-500]="isOpen()"
+    (click)="toggleOpen()">
+    
+    <div class="flex-1 truncate text-slate-900 dark:text-white" [class.text-slate-400]="!selectedOption()">
+      {{ selectedOption() ? selectedOption()!.label : placeholder }}
+    </div>
+
+    <!-- Clear / Arrow Icons -->
+    <div class="flex items-center gap-1 text-slate-400">
+      @if (selectedOption() && clearable) {
+        <span class="material-symbols-outlined !text-[18px] hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-0.5 rounded-md hover:bg-slate-200 dark:hover:bg-white/10" (click)="clearSelection($event)">close</span>
+      }
+      <span class="material-symbols-outlined !text-[20px] transition-transform duration-200" [class.rotate-180]="isOpen()">expand_more</span>
+    </div>
+  </div>
+
+  <!-- Dropdown Panel -->
+  @if (isOpen()) {
+    <div 
+      class="absolute left-0 right-0 top-[calc(100%+8px)] z-[100] max-h-60 flex flex-col bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl dark:shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+      
+      <!-- Search Input -->
+      <div class="p-2 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-black/20">
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[18px] text-slate-400">search</span>
+          <input 
+            type="text" 
+            #searchInput
+            [placeholder]="searchPlaceholder"
+            [value]="searchQuery()"
+            (input)="onSearch($event)"
+            class="w-full pl-9 pr-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+            (keydown.arrowDown)="onKeyDown($event)"
+            (keydown.arrowUp)="onKeyUp($event)"
+            (keydown.enter)="onEnter($event)"
+            (keydown.escape)="close()">
+        </div>
+      </div>
+
+      <!-- Options List -->
+      <div class="flex-1 overflow-y-auto p-1 custom-scrollbar">
+        @if (filteredOptions().length === 0) {
+          <div class="px-4 py-3 text-sm text-slate-500 text-center">
+            No results found
+          </div>
+        } @else {
+          @for (option of filteredOptions(); track option.value; let i = $index) {
+            <div 
+              class="px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors flex items-center justify-between"
+              [class.bg-indigo-50]="highlightedIndex() === i"
+              [class.dark:bg-indigo-500/10]="highlightedIndex() === i"
+              [class.text-indigo-600]="highlightedIndex() === i"
+              [class.dark:text-indigo-400]="highlightedIndex() === i"
+              [class.hover:bg-slate-100]="highlightedIndex() !== i"
+              [class.dark:hover:bg-white/5]="highlightedIndex() !== i"
+              [class.text-slate-700]="highlightedIndex() !== i"
+              [class.dark:text-slate-200]="highlightedIndex() !== i"
+              (mouseenter)="highlightedIndex.set(i)"
+              (click)="selectOption(option)">
+              <span>{{ option.label }}</span>
+              @if (selectedOption()?.value === option.value) {
+                <span class="material-symbols-outlined !text-[18px] text-indigo-500">check</span>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

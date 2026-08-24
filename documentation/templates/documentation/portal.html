@@ -1,0 +1,327 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>{{ title }} - PuxDocs Reference</title>
+ 
+ <!-- Fonts -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+ 
+ <!-- Icons -->
+ <link rel="stylesheet" href="{% static 'css/material-symbols-outlined.css' %}">
+
+ <!-- Tailwind Play CDN -->
+ {% load static %}
+ <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+ 
+ <style>
+ /* Standard Scrollbars */
+ .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+ .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+ .custom-scrollbar::-webkit-scrollbar-thumb { background: rgb(0, 0, 0); border-radius: 10px; }
+ .dark-scrollbar::-webkit-scrollbar-thumb { background: rgb(255, 255, 255); }
+
+ /* Hide Scrollbar helper */
+ .no-scrollbar::-webkit-scrollbar { display: none; }
+ .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+ 
+ /* Modern Code Styles */
+ pre {
+ @apply bg-slate-900 text-slate-300 p-6 rounded-2xl border border-slate-700 font-mono text-sm leading-relaxed overflow-x-auto shadow-sm;
+ }
+ 
+ /* Active States */
+ .feature-link.active {
+ @apply text-blue-400 bg-slate-800 border-r-2 border-brand !important;
+ }
+
+ .endpoint-link.active {
+ @apply text-brand bg-blue-50/50 border-r-2 border-brand font-bold !important;
+ }
+
+ .sdk-tab-btn.active {
+ @apply bg-white text-brand shadow-sm border-slate-200 !important;
+ }
+
+ /* Standard Typography */
+ .prose-standard h2 { font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+ .prose-standard h3 { font-family: 'Inter', sans-serif; font-weight: 700; color: #0f172a; }
+ .prose-standard p { line-height: 1.7; color: #475569; }
+
+ /* Sidebar Section Transitions */
+ .right-sidebar-section {
+ transition: opacity 0.2s ease-in-out;
+ }
+ .right-sidebar-section.hidden {
+ display: none;
+ opacity: 0;
+ }
+ </style>
+</head>
+<body class="flex min-h-screen text-slate-900 bg-white antialiased font-sans m-0 p-0 overflow-x-hidden">
+
+ <!-- 1. LEFT SIDEBAR: FEATURES (PROFESSIONAL DARK) -->
+ <aside class="w-64 bg-slate-900 text-slate-300 fixed h-full z-30 flex flex-col border-r border-slate-700 overflow-hidden">
+ <div class="p-6 flex flex-col h-full bg-gradient-to-b from-slate-900 to-black">
+ <!-- Brand -->
+ <a href="/" class="flex items-center gap-3 mb-12 no-underline group px-2">
+ <div class="w-9 h-9 bg-brand rounded-lg flex items-center justify-center shadow shadow-brand/20 group-hover:scale-105 transition-transform">
+ <span class="material-symbols-outlined text-white text-xl">bolt</span>
+ </div>
+ <div class="flex flex-col">
+ <span class="text-lg font-black tracking-tighter text-white font-display leading-none uppercase">PuxDocs</span>
+ <span class="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-1">v1.2.4 Standard</span>
+ </div>
+ </a>
+
+ <!-- Feature Navigation -->
+ <h5 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 px-4">API Modules</h5>
+ <nav id="left-sidebar-nav" class="flex-1 space-y-0.5 overflow-y-auto no-scrollbar -mx-2 px-2 pb-10">
+ {% for section in sections %}
+ <a href="#feature-{{ section.id }}" 
+ data-section-id="{{ section.id }}"
+ class="feature-link flex items-center gap-3 px-4 py-2 text-sm font-medium hover:text-white hover:bg-slate-800 rounded-lg transition-all no-underline">
+ <span class="material-symbols-outlined text-lg opacity-60">{{ section.icon|default:'terminal' }}</span>
+ {{ section.title }}
+ </a>
+ {% endfor %}
+ </nav>
+
+ <!-- Bottom Support -->
+ <div class="mt-auto pt-6 border-t border-slate-700 px-2">
+ <a href="http://{{ ROOT_DOMAIN }}/dashboard/" class="flex items-center gap-3 p-3 bg-brand/10 hover:bg-brand/20 rounded-xl transition-all group no-underline">
+ <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white">
+ <span class="material-symbols-outlined text-sm">rocket_launch</span>
+ </div>
+ <span class="text-[11px] font-bold text-blue-400">Go to Console</span>
+ </a>
+ </div>
+ </div>
+ </aside>
+
+ <!-- 2. MAIN CENTER: CONTENT (CLEAN REFERENCE) -->
+ <main class="flex-1 ml-64 mr-72 bg-white min-h-screen border-r border-slate-100 relative">
+ <!-- Sticky Subheader -->
+ <header class="sticky top-0 z-20 bg-white border-b border-slate-100 h-16 flex items-center justify-between px-12">
+ <div class="flex items-center gap-4">
+ <div class="relative group">
+ <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+ <input type="text" placeholder="Search resources..." 
+ class="pl-10 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs focus:ring-4 focus:ring-brand/10 focus:border-brand w-72 transition-all">
+ </div>
+ </div>
+
+ <!-- Global SDK Toggle (Always visible) -->
+ <div class="flex items-center gap-3">
+ <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Language:</span>
+ <select id="global-sdk-switcher" class="bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black uppercase tracking-widest px-3 py-1.5 focus:ring-2 focus:ring-brand/20 cursor-pointer hover:bg-white transition-colors">
+ <option value="js">JavaScript / TS</option>
+ <option value="python">Python</option>
+ <option value="php">PHP</option>
+ <option value="go">Go</option>
+ <option value="java">Java</option>
+ <option value="ruby">Ruby</option>
+ <option value="rust">Rust</option>
+ <option value="swift">Swift</option>
+ <option value="dart">Dart</option>
+ <option value="kotlin">Kotlin</option>
+ <option value="dotnet">.NET</option>
+ </select>
+ </div>
+ </header>
+
+ <div class="px-16 py-20 max-w-4xl mx-auto prose-standard">
+ <!-- Documentation Introduction -->
+ <div class="mb-32">
+ <h1 class="text-6xl font-black text-slate-900 mb-8 font-display tracking-tight leading-none">Developer <span class="text-brand">Reference.</span></h1>
+ <p class="text-xl text-slate-500 font-medium leading-relaxed max-w-2xl">
+ Standardized, RESTful endpoints for enterprise retail integration. Build your own storefront, ERP connector, or IoT integration on Puxbay.
+ </p>
+ </div>
+
+ <!-- Main Sections -->
+ <div class="space-y-48">
+ {% for section in sections %}
+ <section id="feature-{{ section.id }}" class="feature-section scroll-mt-24">
+ <div class="flex items-center gap-4 mb-16 border-b border-slate-100 pb-6">
+ <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+ <span class="material-symbols-outlined text-brand">{{ section.icon|default:'terminal' }}</span>
+ </div>
+ <h2 class="text-4xl text-slate-900 !m-0 uppercase tracking-tighter">{{ section.title }}</h2>
+ </div>
+
+ <div class="space-y-32">
+ {% for article in section.articles.all %}
+ <article id="{{ article.slug }}" class="endpoint-article group scroll-mt-32" data-section-id="{{ section.id }}">
+ <div class="flex items-center gap-3 mb-8">
+ <h3 class="text-3xl text-slate-900 !m-0 tracking-tight">{{ article.title }}</h3>
+ <a href="#{{ article.slug }}" class="text-slate-200 hover:text-brand opacity-0 group-hover:opacity-100 transition-all no-underline text-2xl font-light">#</a>
+ </div>
+ <div class="article-content prose prose-slate max-w-none prose-p:text-slate-600 prose-headings:text-slate-900">
+ {{ article.content|safe }}
+ </div>
+ </article>
+ {% endfor %}
+ </div>
+ </section>
+ {% endfor %}
+ </div>
+ </div>
+
+ <footer class="px-12 py-24 border-t border-slate-50 mt-40">
+ <div class="max-w-4xl mx-auto flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all">
+ <span class="text-xs font-bold uppercase tracking-widest">Puxbay Retail Systems &copy; 2025</span>
+ <div class="flex gap-6 text-[10px] font-black uppercase tracking-widest">
+ <a href="#" class="no-underline text-slate-900 hover:text-brand">Compliance</a>
+ <a href="#" class="no-underline text-slate-900 hover:text-brand">v1.2 Stable</a>
+ </div>
+ </div>
+ </footer>
+ </main>
+
+ <!-- 3. RIGHT SIDEBAR: ENDPOINTS (CONTEXTUAL REFERENCE) -->
+ <aside class="w-72 bg-slate-50 fixed right-0 h-full z-20 flex flex-col border-l border-slate-100 shadow-inner shadow-black/5">
+ <div class="p-8 flex flex-col h-full bg-white ">
+ <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+ <span class="w-1.5 h-1.5 bg-brand rounded-full"></span>
+ Contextual Endpoints
+ </h5>
+
+ <!-- This container will be toggled by JS -->
+ <div id="endpoint-list-container" class="flex-1 space-y-0.5 overflow-y-auto no-scrollbar -mx-4 px-4 pb-20">
+ {% for section in sections %}
+ <div id="right-sidebar-section-{{ section.id }}" class="right-sidebar-section hidden opacity-0 transition-opacity">
+ <div class="mb-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">
+ {{ section.title }} Reference
+ </div>
+ {% for article in section.articles.all %}
+ <a href="#{{ article.slug }}" class="endpoint-link block px-4 py-2 text-xs font-medium text-slate-500 hover:text-brand hover:bg-blue-50/50 rounded-lg transition-all no-underline truncate">
+ {{ article.title }}
+ </a>
+ {% endfor %}
+ </div>
+ {% endfor %}
+ </div>
+
+ <!-- Helpful Tooltip -->
+ <div class="mt-auto p-6 bg-slate-900 rounded-2xl text-white shadow relative overflow-hidden group">
+ <div class="absolute -top-10 -right-10 w-24 h-24 bg-brand/20 blur-2xl group-hover:scale-150 transition-transform"></div>
+ <h6 class="text-[11px] font-black mb-1 relative z-10">Rate Limits</h6>
+ <p class="text-[9px] text-slate-400 leading-normal relative z-10 mb-3">Live keys permit 10k requests/min. Need more scale?</p>
+ <a href="#" class="text-[9px] font-black uppercase text-blue-400 no-underline hover:text-white transition-colors relative z-10">Request CLI Limit Up</a>
+ </div>
+ </div>
+ </aside>
+
+ <script>
+ // Global SDK Switching Logic
+ const globalSwitcher = document.getElementById('global-sdk-switcher');
+ 
+ function switchSDK(sdk, btn) {
+ if (globalSwitcher) globalSwitcher.value = sdk;
+ document.querySelectorAll('.sdk-container').forEach(container => {
+ const contents = container.querySelectorAll('.sdk-content');
+ const buttons = container.querySelectorAll('.sdk-tab-btn');
+ contents.forEach(c => c.classList.toggle('hidden', !c.classList.contains(sdk)));
+ buttons.forEach(b => {
+ const isActive = b.innerText.toLowerCase().includes(sdk === 'kt' ? 'kotlin' : (sdk === 'js' ? 'javascript' : sdk));
+ b.classList.toggle('active', isActive);
+ b.classList.toggle('text-slate-400', !isActive);
+ });
+ });
+ }
+ globalSwitcher.addEventListener('change', (e) => switchSDK(e.target.value));
+
+ // Navigation Sync Logic (Feature -> Endpoint mapping)
+ const leftLinks = document.querySelectorAll('.feature-link');
+ const rightSections = document.querySelectorAll('.right-sidebar-section');
+ const endpointLinks = document.querySelectorAll('.endpoint-link');
+ const featureSections = document.querySelectorAll('.feature-section');
+ const articles = document.querySelectorAll('.endpoint-article');
+
+ function toggleRightSidebar(sectionId) {
+ rightSections.forEach(rs => {
+ const match = rs.getAttribute('id') === `right-sidebar-section-${sectionId}`;
+ if (match) {
+ rs.classList.remove('hidden');
+ setTimeout(() => rs.classList.add('opacity-100'), 10);
+ } else {
+ rs.classList.add('hidden');
+ rs.classList.remove('opacity-100');
+ }
+ });
+ }
+
+ function updateUI(activeId, type) {
+ if (type === 'feature') {
+ leftLinks.forEach(l => {
+ const isActive = l.getAttribute('href') === `#${activeId}`;
+ l.classList.toggle('active', isActive);
+ if (isActive) toggleRightSidebar(l.dataset.sectionId);
+ });
+ } else {
+ endpointLinks.forEach(l => {
+ l.classList.toggle('active', l.getAttribute('href') === `#${activeId}`);
+ });
+ }
+ }
+
+ // Feature Level Observer (20% visible = active section)
+ const featureObserver = new IntersectionObserver(entries => {
+ entries.forEach(entry => {
+ if(entry.isIntersecting && entry.intersectionRatio >= 0.2) {
+ updateUI(entry.target.id, 'feature');
+ }
+ });
+ }, { threshold: [0.2] });
+
+ // Endpoint Level Observer (Half visible = active link)
+ const articleObserver = new IntersectionObserver(entries => {
+ entries.forEach(entry => {
+ if(entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+ updateUI(entry.target.id, 'article');
+ }
+ });
+ }, { threshold: [0.5] });
+
+ featureSections.forEach(s => featureObserver.observe(s));
+ articles.forEach(a => articleObserver.observe(a));
+
+ // Manual Navigation logic (Clicks)
+ leftLinks.forEach(link => {
+ link.addEventListener('click', (e) => {
+ const sectionId = link.dataset.sectionId;
+ toggleRightSidebar(sectionId);
+ });
+ });
+
+ // Initialize first section on load
+ window.addEventListener('load', () => {
+ if (leftLinks.length > 0) {
+ const firstId = leftLinks[0].dataset.sectionId;
+ toggleRightSidebar(firstId);
+ leftLinks[0].classList.add('active');
+ }
+ });
+
+ // Smooth Scroll with Offset
+ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+ anchor.addEventListener('click', function (e) {
+ e.preventDefault();
+ const target = document.querySelector(this.getAttribute('href'));
+ if (target) {
+ const offset = 100;
+ const bodyRect = document.body.getBoundingClientRect().top;
+ const elementRect = target.getBoundingClientRect().top;
+ const offsetPosition = (elementRect - bodyRect) - offset;
+ window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+ }
+ });
+ });
+ </script>
+</body>
+</html>
