@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,19 +13,17 @@ import (
 // It ensures that mutating requests provide a valid X-CSRF-Token header.
 //
 // NOTE: CSRF attacks are only possible with cookie-based auth. Requests that
-// supply an Authorization: Bearer token (mobile apps, API clients) are exempt,
-// since an attacker cannot forge a cross-origin request with a custom header.
+// supply an Authorization: Bearer token WITHOUT any cookies (mobile apps, API
+// clients) are exempt, since an attacker cannot forge a cross-origin request
+// with a custom header.
+//
+// Browser sessions now use the HttpOnly pux_session cookie. This means all
+// browser-originated requests will have cookies and MUST pass CSRF validation.
 func CSRFMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Skip CSRF for Bearer-token authenticated requests (mobile / API clients)
-		if strings.HasPrefix(c.GetHeader("Authorization"), "Bearer ") {
-			c.Next()
-			return
-		}
-
-		// Skip CSRF when no Cookie header is present.
-		// CSRF requires the browser to silently attach cookies to cross-origin requests;
-		// clients that never send cookies (mobile apps, API tools) are inherently immune.
+		// Skip CSRF when no Cookie header is present at all.
+		// Clients that never send cookies (mobile apps, API tools) are inherently
+		// immune to CSRF attacks.
 		if c.GetHeader("Cookie") == "" {
 			c.Next()
 			return
@@ -40,10 +37,10 @@ func CSRFMiddleware() gin.HandlerFunc {
 
 			// Use secure cookie settings in production
 			isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
-			c.SetCookie("csrf_token", cookie, 3600, "/", "", isProduction, isProduction)
+			c.SetCookie("csrf_token", cookie, 86400, "/", "", isProduction, false) // NOT HttpOnly so JS can read it
 		}
 
-		// Always expose the token so the frontend can read it
+		// Always expose the token so the frontend can read it from the response header
 		c.Header("X-CSRF-Token", cookie)
 
 		// Validate token on mutating methods

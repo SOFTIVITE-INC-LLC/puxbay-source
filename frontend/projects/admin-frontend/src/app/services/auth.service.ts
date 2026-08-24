@@ -10,11 +10,8 @@ export interface User {
   is_superuser?: boolean;
 }
 
+// AuthResponse no longer contains tokens — set as HttpOnly cookies by backend.
 export interface AuthResponse {
-  tokens: {
-    access: string;
-    refresh: string;
-  };
   user: User;
 }
 
@@ -23,7 +20,7 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/v1/auth'; // Using the global auth endpoint
+  private apiUrl = '/api/v1/auth';
 
   currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
@@ -34,28 +31,28 @@ export class AuthService {
   }
 
   private restoreSession() {
-    const token = localStorage.getItem('admin_auth_token');
-    if (token) {
-      this.isAuthenticated.set(true);
-      try {
-        const userStr = localStorage.getItem('admin_user');
-        if (userStr) {
-          this.currentUser.set(JSON.parse(userStr));
+    // Restore session by calling the backend with the HttpOnly pux_session cookie.
+    // The browser sends it automatically due to withCredentials: true.
+    this.http.get<User>(this.apiUrl + '/session', { withCredentials: true }).subscribe({
+      next: (user) => {
+        if (user && user.id) {
+          this.currentUser.set(user);
+          this.isAuthenticated.set(true);
         }
-      } catch (e) {
-        console.error('Failed to parse user from local storage', e);
+      },
+      error: () => {
+        this.isAuthenticated.set(false);
       }
-    }
+    });
   }
 
   login(credentials: any): Observable<AuthResponse> {
     this.loading.set(true);
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials, { withCredentials: true }).pipe(
       tap({
         next: (res) => {
-          if (res && res.tokens && res.tokens.access) {
-            localStorage.setItem('admin_auth_token', res.tokens.access);
-            localStorage.setItem('admin_user', JSON.stringify(res.user));
+          if (res && res.user) {
+            // Tokens set as HttpOnly cookies by the backend
             this.currentUser.set(res.user);
             this.isAuthenticated.set(true);
           }
@@ -67,13 +64,17 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('admin_auth_token');
-    localStorage.removeItem('admin_user');
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {},
+      error: () => {}
+    });
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
   }
 
+  // getToken() is no longer applicable — tokens are HttpOnly cookies.
+  // Kept for compatibility but always returns null.
   getToken(): string | null {
-    return localStorage.getItem('admin_auth_token');
+    return null;
   }
 }

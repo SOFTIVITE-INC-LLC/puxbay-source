@@ -1,6 +1,6 @@
 import { ToastService } from '../../../core/services/toast';
 import { ExportService } from '../../../core/services/export.service';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -108,11 +108,12 @@ export class Inventory implements OnInit {
 
   private _lastScrollTime = 0;
 
-  onScroll(event: Event) {
-    const el = event.target as HTMLElement;
-    if (el.scrollHeight - el.scrollTop <= el.clientHeight + 150) {
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const scrolled = window.scrollY + window.innerHeight;
+    const total = document.documentElement.scrollHeight;
+    if (total - scrolled <= 150) {
       if (!this.catalogService.loading() && this.currentPage() < this.totalPages) {
-        // Debounce to prevent multiple fires
         const now = Date.now();
         if (now - this._lastScrollTime > 500) {
           this._lastScrollTime = now;

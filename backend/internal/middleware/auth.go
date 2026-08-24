@@ -24,25 +24,36 @@ const (
 )
 
 // AuthMiddleware validates JWT tokens and sets user context.
+// It first checks for the HttpOnly `pux_session` cookie (browser sessions),
+// then falls back to the `Authorization: Bearer` header (API clients / mobile).
 func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var tokenString string
-		authHeader := c.GetHeader("Authorization")
-		if authHeader != "" {
-			parts := strings.SplitN(authHeader, " ", 2)
-			if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
-				tokenString = parts[1]
+
+		// 1. Prefer the HttpOnly session cookie (XSS-safe)
+		if cookie, err := c.Cookie("pux_session"); err == nil && cookie != "" {
+			tokenString = cookie
+		}
+
+		// 2. Fallback: Authorization: Bearer header (mobile apps / API clients)
+		if tokenString == "" {
+			authHeader := c.GetHeader("Authorization")
+			if authHeader != "" {
+				parts := strings.SplitN(authHeader, " ", 2)
+				if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+					tokenString = parts[1]
+				}
 			}
 		}
 
-		// Fallback to query parameter (mainly for WebSockets)
+		// 3. Fallback to query parameter (mainly for WebSockets)
 		if tokenString == "" {
 			tokenString = c.Query("token")
 		}
 
 		if tokenString == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "Authorization header or token query parameter is required",
+				"error": "Authentication required",
 			})
 			return
 		}
@@ -81,7 +92,6 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 		if claims.RoleID != nil {
 			permissions, _ = authService.GetRolePermissions(claims.RoleID)
 		} else {
-			// Superadmins or others without a specific RoleID might have all or predefined
 			permissions = []string{}
 		}
 

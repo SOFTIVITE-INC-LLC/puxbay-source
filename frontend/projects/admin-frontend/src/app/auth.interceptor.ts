@@ -1,19 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from './services/auth.service';
 
+/**
+ * Auth interceptor — this is now a passthrough.
+ *
+ * Authentication is handled via HttpOnly `pux_session` cookies sent automatically
+ * by the browser. No Authorization header is needed.
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
-
-  if (token) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return next(cloned);
-  }
-
   return next(req);
 };

@@ -1,3 +1,35 @@
+:host {
+  --surface-color: #ffffff;
+  --border-color: #f4f4f5; /* zinc-100 */
+  --text-color: #18181b; /* zinc-900 */
+  --text-secondary: #71717a; /* zinc-500 */
+  --text-muted: #a1a1aa; /* zinc-400 */
+  --bg-secondary: #f4f4f5; /* zinc-100 */
+  --bg-hover: #f4f4f5; /* zinc-100 */
+  --bg-info: #e0f2fe;
+  --text-info: #0284c7;
+  --bg-success: #dcfce7;
+  --text-success: #16a34a;
+  --bg-danger: #fee2e2;
+  --text-danger: #dc2626;
+}
+
+:host-context(.dark) {
+  --surface-color: rgba(39, 39, 42, 0.4); /* zinc-800 translucent */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-color: #ffffff;
+  --text-secondary: #a1a1aa; /* zinc-400 */
+  --text-muted: #52525b; /* zinc-600 */
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(255, 255, 255, 0.1);
+  --bg-info: rgba(56, 189, 248, 0.1); /* sky-400 translucent */
+  --text-info: #38bdf8; /* sky-400 */
+  --bg-success: rgba(74, 222, 128, 0.1); /* green-400 translucent */
+  --text-success: #4ade80; /* green-400 */
+  --bg-danger: rgba(239, 68, 68, 0.1); /* red-500 translucent */
+  --text-danger: #ef4444; /* red-500 */
+}
+
 .roles-container {
   padding: 2rem;
   max-width: 1200px;
@@ -98,8 +130,8 @@
 }
 
 .btn-icon.text-danger:hover {
-  color: var(--danger-color, #dc2626);
-  background: #fee2e2;
+  color: var(--text-danger, #dc2626);
+  background: var(--bg-danger, #fee2e2);
 }
 
 .role-desc {

@@ -33,7 +33,7 @@ export class ApiService {
       }
     }
 
-    return this.http.get<T>(url, options as any).pipe(
+    return this.http.get<T>(url, { ...(options as any), withCredentials: true }).pipe(
       tap((data: any) => {
         if (!bypassCache && options?.responseType !== 'blob' && options?.responseType !== 'arraybuffer') {
           this.cache.set(cacheKey, { data, timestamp: Date.now() });
@@ -56,7 +56,7 @@ export class ApiService {
 
   post<T>(path: string, body: any, options?: ApiOptions): Observable<T> {
     const url = `${this.apiUrl}${path}`;
-    return (this.http.post<T>(url, body, options as any) as Observable<T>).pipe(
+    return (this.http.post<T>(url, body, { ...(options as any), withCredentials: true }) as Observable<T>).pipe(
       tap(() => this.cache.clear()),
       catchError((error: HttpErrorResponse) => this.handleOfflineMutation<T>(error, url, 'POST', body, options))
     );
@@ -64,7 +64,7 @@ export class ApiService {
 
   put<T>(path: string, body: any, options?: ApiOptions): Observable<T> {
     const url = `${this.apiUrl}${path}`;
-    return (this.http.put<T>(url, body, options as any) as Observable<T>).pipe(
+    return (this.http.put<T>(url, body, { ...(options as any), withCredentials: true }) as Observable<T>).pipe(
       tap(() => this.cache.clear()),
       catchError((error: HttpErrorResponse) => this.handleOfflineMutation<T>(error, url, 'PUT', body, options))
     );
@@ -72,7 +72,7 @@ export class ApiService {
 
   patch<T>(path: string, body: any, options?: ApiOptions): Observable<T> {
     const url = `${this.apiUrl}${path}`;
-    return (this.http.patch<T>(url, body, options as any) as Observable<T>).pipe(
+    return (this.http.patch<T>(url, body, { ...(options as any), withCredentials: true }) as Observable<T>).pipe(
       tap(() => this.cache.clear()),
       catchError((error: HttpErrorResponse) => this.handleOfflineMutation<T>(error, url, 'PATCH', body, options))
     );
@@ -80,7 +80,7 @@ export class ApiService {
 
   delete<T>(path: string, options?: ApiOptions): Observable<T> {
     const url = `${this.apiUrl}${path}`;
-    return (this.http.delete<T>(url, options as any) as Observable<T>).pipe(
+    return (this.http.delete<T>(url, { ...(options as any), withCredentials: true }) as Observable<T>).pipe(
       tap(() => this.cache.clear()),
       catchError((error: HttpErrorResponse) => this.handleOfflineMutation<T>(error, url, 'DELETE', null, options))
     );

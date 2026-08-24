@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -260,6 +261,7 @@ func (h *MarketingHandler) DeleteSegment(c *gin.Context) {
 func (h *MarketingHandler) ListPromotions(c *gin.Context) {
 	promos, err := h.service(c).ListPromotions()
 	if err != nil {
+		log.Printf("[ERROR] ListPromotions failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch promotions"})
 		return
 	}
@@ -309,6 +311,7 @@ func (h *MarketingHandler) DeletePromotion(c *gin.Context) {
 func (h *MarketingHandler) ListDiscounts(c *gin.Context) {
 	discounts, err := h.service(c).ListDiscounts()
 	if err != nil {
+		log.Printf("[ERROR] ListDiscounts failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch discounts"})
 		return
 	}

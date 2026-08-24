@@ -68,7 +68,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	smsService := services.NewSMSService(cfg.SMS)
 
 	// Initialize handlers
-	authHandler := handlers.NewAuthHandler(db, authService, cfg.SMTP)
+	authHandler := handlers.NewAuthHandler(db, authService, cfg.SMTP, cfg.App.RootDomain, cfg.JWT)
 	healthHandler := handlers.NewHealthHandler(db, redisClient)
 	branchHandler := handlers.NewBranchHandler(db)
 	productHandler := handlers.NewProductHandler(db)
@@ -190,6 +190,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 		{
 			authProtected.POST("/logout", authHandler.Logout)
 			authProtected.GET("/user", authHandler.CurrentUser)
+			authProtected.GET("/session", authHandler.GetSession) // SSO session restore
 			authProtected.PUT("/me", authHandler.UpdateMe)
 		}
 

@@ -10,11 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-
-
 	"github.com/softivite/puxbay/internal/config"
 	"github.com/softivite/puxbay/internal/database"
 	"github.com/softivite/puxbay/internal/logger"
@@ -63,195 +58,45 @@ func main() {
 	validation.InitTranslations()
 
 	// 3. Database Migrations
-	if cfg.App.Env == "development" || cfg.App.Env == "production" {
-		logger.Log.Info("📦 Running public schema auto-migrations...")
+	logger.Log.Info("📦 Running public schema auto-migrations...")
 
-		// Ensure we are in the public schema
-		database.ClearTenantSchema(db)
+	// Ensure we are in the public schema
+	database.ClearTenantSchema(db)
 
-		// Public Models
-		err = db.AutoMigrate(
-			&models.Tenant{},
-			&models.Domain{},
-			&models.User{},
-			&models.UserProfile{},
-			&models.Plan{},
-			&models.PricingPlan{},
-			&models.PlanFeature{},
-			&models.AdminRole{},
-			&models.AdminUser{},
-			&models.IPAllowlist{},
-			&models.MasterAPIKey{},
-
-			// RBAC Dynamic Permissions
-			&models.Permission{},
-			&models.Role{},
-
-			&models.TelemetryLog{},
-
-			&models.AuditLog{},
-			&models.Subscription{},
-			&models.BillingPayment{},
-			&models.PromoCode{},
-			&models.ReferralReward{},
-			&models.BillingSettings{},
-			&models.CrossTenantAuditLog{},
-			&models.LegalDocument{},
-			&models.BlogPost{},
-			&models.DatabaseBackup{},
-			&models.TenantMetrics{},
-			&models.FeatureFlag{},
-			&models.SEOSettings{},
-			&models.Broadcast{},
-		)
-		if err != nil {
-			log.Fatalf("Failed to run public migrations: %v", err)
-		}
-
-		// Seed RBAC Default Roles and Permissions
-		if err := database.SeedRBAC(db); err != nil {
-			log.Fatalf("Failed to seed RBAC: %v", err)
-		}
-
-		log.Println("📦 Running tenant schema auto-migrations...")
-		var schemas []string
-		db.Table("tenants").Select("schema_name").Where("schema_name != ''").Pluck("schema_name", &schemas)
-
-		for _, schema := range schemas {
-			log.Printf("Migrating schema: %s", schema)
-
-			// Create schema if it doesn't exist
-			database.CreateTenantSchema(db, schema)
-
-			err = db.Transaction(func(tx *gorm.DB) error {
-				if err := database.SetTenantSchema(tx, schema).Error; err != nil {
-					return err
-				}
-
-				return tx.AutoMigrate(
-					&models.Branch{},
-					&models.CashDrawerSession{},
-					&models.Shift{},
-					&models.StaffShift{},
-					&models.PrintJob{},
-					&models.Category{},
-					&models.Product{},
-					&models.ProductVariant{},
-					&models.ProductComponent{},
-					&models.ProductHistory{},
-					&models.StockTransfer{},
-					&models.StockTransferItem{},
-					&models.PurchaseOrder{},
-					&models.PurchaseOrderItem{},
-					&models.StocktakeSession{},
-					&models.StockMovement{},
-					&models.Order{},
-					&models.OrderItem{},
-					&models.CustomerTier{},
-					&models.Customer{},
-					&models.LoyaltyTransaction{},
-					&models.GiftCard{},
-					&models.Supplier{},
-					&models.AuditLog{},
-					&models.SupplierProfile{},
-					&models.SupplierProduct{},
-					&models.SupplierLedgerEntry{},
-					&models.ExpenseCategory{},
-					&models.Expense{},
-					&models.CustomerSegment{},
-					&models.AbandonedCart{},
-
-					&models.Domain{},
-					&models.StockBatch{},
-					&models.PaymentMethod{},
-					&models.Payment{},
-					&models.TaxConfiguration{},
-					&models.Return{},
-					&models.ReturnItem{},
-					&models.CRMSettings{},
-					&models.MarketingCampaign{},
-					&models.Promotion{},
-					&models.DiscountCode{},
-					&models.CustomerFeedback{},
-					&models.DiningTable{},
-					&models.KDSTicket{},
-					&models.SplitBillGroup{},
-					&models.PayrollPeriod{},
-					&models.StorefrontSettings{},
-					&models.ProductReview{},
-					&models.Wishlist{},
-					&models.Coupon{},
-					&models.NewsletterSubscription{},
-					&models.AbandonedCart{},
-					&models.ProductImageGallery{},
-					&models.TenantIntegration{},
-					&models.PayrollRecord{},
-					&models.LeaveRequest{},
-					&models.Attendance{},
-					&models.ServiceCategory{},
-					&models.Service{},
-					&models.Appointment{},
-					&models.ServiceCommissionRule{},
-					&models.ServiceCommissionRecord{},
-					&models.Quotation{},
-					&models.QuotationItem{},
-					&models.AuditLog{},
-					&models.APIRequestLog{},
-					&models.HoneypotAttempt{},
-					&models.APIKey{},
-					&models.ExternalSystem{},
-					&models.WebhookEndpoint{},
-					&models.WebhookEvent{},
-					&models.Notification{},
-					&models.StocktakeEntry{},
-					&models.NotificationSetting{},
-					&models.DeliveryDriver{},
-					&models.DeliveryOrder{},
-					&models.LedgerAccount{},
-					&models.JournalEntry{},
-					&models.LedgerLine{},
-					&models.StockAlert{},
-					&models.SupportTicket{},
-					&models.TicketMessage{},
-					&models.StockBatch{},
-					&models.StockMovement{},
-				)
-			})
-			if err != nil {
-				log.Fatalf("Failed to run tenant migrations for %s: %v", schema, err)
-			}
-		}
-
-		// Reset back to public
-		database.ClearTenantSchema(db)
-
-		log.Println("✅ All migrations complete")
-	} else {
-		// Run golang-migrate in staging/production
-		logger.Log.Info("📦 Running database migrations via golang-migrate...")
-
-		dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-			cfg.Database.User,
-			cfg.Database.Password,
-			cfg.Database.Host,
-			cfg.Database.Port,
-			cfg.Database.DBName,
-			cfg.Database.SSLMode,
-		)
-
-		m, err := migrate.New(
-			"file://internal/db/migrations",
-			dbURL,
-		)
-		if err != nil {
-			log.Fatalf("Failed to initialize migrations: %v", err)
-		}
-
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to run migrations: %v", err)
-		}
-		logger.Log.Info("✅ Database migrations applied successfully")
+	if err := models.MigratePublicModels(db); err != nil {
+		log.Fatalf("Failed to run public migrations: %v", err)
 	}
+
+	// Seed RBAC Default Roles and Permissions
+	if err := database.SeedRBAC(db); err != nil {
+		log.Fatalf("Failed to seed RBAC: %v", err)
+	}
+
+	log.Println("📦 Running tenant schema auto-migrations...")
+	var schemas []string
+	db.Table("tenants").Select("schema_name").Where("schema_name != ''").Pluck("schema_name", &schemas)
+
+	for _, schema := range schemas {
+		log.Printf("Migrating schema: %s", schema)
+
+		// Create schema if it doesn't exist
+		database.CreateTenantSchema(db, schema)
+
+		err = db.Transaction(func(tx *gorm.DB) error {
+			if err := database.SetTenantSchema(tx, schema).Error; err != nil {
+				return err
+			}
+			return models.MigrateTenantModels(tx)
+		})
+		if err != nil {
+			log.Fatalf("Failed to run tenant migrations for %s: %v", schema, err)
+		}
+	}
+
+	// Reset back to public
+	database.ClearTenantSchema(db)
+
+	log.Println("✅ All migrations complete")
 
 	// 4. Setup WebSocket Hub
 	hub := websocket.NewHub()
@@ -272,8 +117,6 @@ func main() {
 
 	// 5. Setup router
 	r := router.Setup(cfg, db, hub)
-
-
 
 	// 6. Setup Asynq Worker Server
 	workerServer := workers.NewWorkerServer(cfg, db)

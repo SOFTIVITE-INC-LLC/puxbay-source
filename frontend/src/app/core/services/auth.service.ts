@@ -17,11 +17,8 @@ export interface User {
   subdomain?: string;
 }
 
+// AuthResponse no longer contains tokens — they are set as HttpOnly cookies by the backend.
 export interface AuthResponse {
-  tokens: {
-    access: string;
-    refresh: string;
-  };
   user: User;
 }
 
@@ -43,80 +40,58 @@ export class AuthService {
   }
 
   private restoreSession() {
-    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    if (typeof window === 'undefined') {
       this.isInitialized.set(true);
       return;
     }
-    // Check for impersonation token in URL
+
+    // Check for impersonation token in URL (support tool)
     const urlParams = new URLSearchParams(window.location.search);
     const supportToken = urlParams.get('support_token');
-    
     if (supportToken) {
-      localStorage.setItem('auth_token', supportToken);
-      this.isImpersonating.set(true);
+      // For impersonation, temporarily attach via Authorization header (handled by API clients)
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (localStorage.getItem('is_impersonating') === 'true') {
       this.isImpersonating.set(true);
     }
 
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      this.isAuthenticated.set(true);
-      
-      try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          this.currentUser.set(JSON.parse(userStr));
-        }
-      } catch (e) {
-        console.error('Failed to parse user from local storage', e);
-      }
+    // Restore session by calling the backend with our HttpOnly pux_session cookie.
+    // The browser sends the cookie automatically — the backend validates it and returns the user profile.
+    this.api.get<User & { subdomain?: string }>('/auth/session').subscribe({
+      next: (res) => {
+        if (res && res.id) {
+          this.currentUser.set(res);
+          this.isAuthenticated.set(true);
 
-      this.api.get<User & {subdomain?: string}>('/auth/user').subscribe({
-        next: (res) => {
-          if (res && res.id) {
-            this.currentUser.set(res);
-            localStorage.setItem('user', JSON.stringify(res));
-            
-            if (res.subdomain && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-              localStorage.setItem('dev_tenant', res.subdomain);
-              this.tenantStore?.setSubdomain(res.subdomain);
-            }
-            
-            if (supportToken) {
-              localStorage.setItem('is_impersonating', 'true');
-            }
-            this.isAuthenticated.set(true);
+          if (res.subdomain && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            localStorage.setItem('dev_tenant', res.subdomain);
+            this.tenantStore?.setSubdomain(res.subdomain);
           }
-          this.isInitialized.set(true);
-        },
-        error: () => {
-          this.logout();
-          this.isInitialized.set(true);
         }
-      });
-    } else {
-      this.isInitialized.set(true);
-    }
+        this.isInitialized.set(true);
+      },
+      error: () => {
+        // No valid session cookie — user is logged out, which is fine.
+        this.isAuthenticated.set(false);
+        this.isInitialized.set(true);
+      }
+    });
   }
 
   login(credentials: any): Observable<AuthResponse> {
     this.loading.set(true);
     return this.api.post<AuthResponse>('/auth/login', credentials).pipe(
       tap(res => {
-        if (res && res.tokens && res.tokens.access) {
-          localStorage.setItem('auth_token', res.tokens.access);
-          localStorage.setItem('refresh_token', res.tokens.refresh);
-          localStorage.setItem('user', JSON.stringify(res.user));
+        if (res && res.user) {
+          // Tokens are set as HttpOnly cookies by the backend — no localStorage needed.
           this.currentUser.set(res.user);
-          
+
           const anyUser = res.user as any;
           if (anyUser.subdomain && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             localStorage.setItem('dev_tenant', anyUser.subdomain);
             this.tenantStore?.setSubdomain(anyUser.subdomain);
           }
-          
+
           this.isAuthenticated.set(true);
         }
         this.loading.set(false);
@@ -128,18 +103,16 @@ export class AuthService {
     this.loading.set(true);
     return this.api.post<AuthResponse>('/auth/change-temporary-password', { username, temporary_password, new_password }).pipe(
       tap(res => {
-        if (res && res.tokens && res.tokens.access) {
-          localStorage.setItem('auth_token', res.tokens.access);
-          localStorage.setItem('refresh_token', res.tokens.refresh);
-          localStorage.setItem('user', JSON.stringify(res.user));
+        if (res && res.user) {
+          // Tokens set as HttpOnly cookies by backend
           this.currentUser.set(res.user);
-          
+
           const anyUser = res.user as any;
           if (anyUser.subdomain && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             localStorage.setItem('dev_tenant', anyUser.subdomain);
             this.tenantStore?.setSubdomain(anyUser.subdomain);
           }
-          
+
           this.isAuthenticated.set(true);
         }
         this.loading.set(false);
@@ -176,18 +149,18 @@ export class AuthService {
   logout() {
     this.isAuthenticated.set(false);
     this.currentUser.set(null);
+    this.isImpersonating.set(false);
+    // Clean up non-sensitive localStorage items (branch preferences, tenant, etc.)
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
       localStorage.removeItem('is_impersonating');
       localStorage.removeItem('puxbay_active_branch');
     }
+    // Tell the backend to clear the HttpOnly session cookies
     this.api.post('/auth/logout', {}).subscribe({
       next: () => {},
       error: () => {}
     });
-    this.isImpersonating.set(false);
   }
 
   hasPermission(permissionCode: string | string[]): boolean {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,16 +14,60 @@ import (
 	"gorm.io/gorm"
 )
 
+// setAuthCookies writes the access and refresh JWT tokens as HttpOnly, domain-wide cookies.
+// Using HttpOnly prevents JavaScript from reading the tokens (XSS immunity).
+// Setting the domain to the root domain (e.g. .puxbay.com) enables cross-subdomain SSO.
+func setAuthCookies(c *gin.Context, tokens *services.TokenPair, rootDomain string, jwtCfg config.JWTConfig) {
+	isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
+
+	// Cookie domain: prepend "." to share across all subdomains.
+	// For localhost we use an empty string so the browser accepts it.
+	cookieDomain := ""
+	if isProduction && rootDomain != "" {
+		// Strip port if present, then prepend dot.
+		domain := rootDomain
+		if idx := strings.LastIndex(domain, ":"); idx != -1 {
+			domain = domain[:idx]
+		}
+		cookieDomain = "." + domain
+	}
+
+	accessMaxAge := int(jwtCfg.AccessExpiry.Seconds())
+	refreshMaxAge := int(jwtCfg.RefreshExpiry.Seconds())
+
+	// Access token cookie — shorter lived
+	c.SetCookie("pux_session", tokens.AccessToken, accessMaxAge, "/", cookieDomain, isProduction, true)
+	// Refresh token cookie — longer lived
+	c.SetCookie("pux_refresh", tokens.RefreshToken, refreshMaxAge, "/", cookieDomain, isProduction, true)
+}
+
+// clearAuthCookies removes the session cookies from the browser.
+func clearAuthCookies(c *gin.Context, rootDomain string) {
+	isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
+	cookieDomain := ""
+	if isProduction && rootDomain != "" {
+		domain := rootDomain
+		if idx := strings.LastIndex(domain, ":"); idx != -1 {
+			domain = domain[:idx]
+		}
+		cookieDomain = "." + domain
+	}
+	c.SetCookie("pux_session", "", -1, "/", cookieDomain, isProduction, true)
+	c.SetCookie("pux_refresh", "", -1, "/", cookieDomain, isProduction, true)
+}
+
 // AuthHandler handles authentication endpoints.
 type AuthHandler struct {
 	db          *gorm.DB
 	authService *services.AuthService
 	smtpCfg     config.SMTPConfig
+	rootDomain  string
+	jwtCfg      config.JWTConfig
 }
 
 // NewAuthHandler creates a new auth handler.
-func NewAuthHandler(db *gorm.DB, authService *services.AuthService, smtpCfg config.SMTPConfig) *AuthHandler {
-	return &AuthHandler{db: db, authService: authService, smtpCfg: smtpCfg}
+func NewAuthHandler(db *gorm.DB, authService *services.AuthService, smtpCfg config.SMTPConfig, rootDomain string, jwtCfg config.JWTConfig) *AuthHandler {
+	return &AuthHandler{db: db, authService: authService, smtpCfg: smtpCfg, rootDomain: rootDomain, jwtCfg: jwtCfg}
 }
 
 type LoginRequest struct {
@@ -71,8 +116,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		perms, _ = h.authService.GetRolePermissions(&profile.Role.ID)
 	}
 
+	// Set HttpOnly session cookies — tokens are NOT returned in the body.
+	setAuthCookies(c, tokens, h.rootDomain, h.jwtCfg)
+
 	c.JSON(http.StatusOK, gin.H{
-		"tokens": tokens,
 		"user": gin.H{
 			"id":          profile.ID,
 			"user_id":     profile.UserID,
@@ -109,8 +156,10 @@ func (h *AuthHandler) ChangeTemporaryPassword(c *gin.Context) {
 		return
 	}
 
+	// Set HttpOnly session cookies
+	setAuthCookies(c, tokens, h.rootDomain, h.jwtCfg)
+
 	c.JSON(http.StatusOK, gin.H{
-		"tokens": tokens,
 		"user": gin.H{
 			"id":         profile.ID,
 			"user_id":    profile.UserID,
@@ -126,40 +175,74 @@ func (h *AuthHandler) ChangeTemporaryPassword(c *gin.Context) {
 	})
 }
 
-// RefreshToken generates a new access token from a refresh token.
+// RefreshToken silently issues a new access token using the pux_refresh HttpOnly cookie.
 // POST /api/v1/auth/refresh
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	var req struct {
-		Refresh string `json:"refresh" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Refresh token is required"})
+	// Read refresh token from HttpOnly cookie
+	refreshToken, err := c.Cookie("pux_refresh")
+	if err != nil || refreshToken == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Refresh token cookie missing"})
 		return
 	}
 
-	tokens, err := h.authService.RefreshAccessToken(req.Refresh)
+	tokens, err := h.authService.RefreshAccessToken(refreshToken)
 	if err != nil {
+		clearAuthCookies(c, h.rootDomain)
 		c.Error(middleware.NewAppError(http.StatusUnauthorized, "Invalid or expired refresh token", err))
 		return
 	}
 
-	c.JSON(http.StatusOK, tokens)
+	// Rotate cookies with fresh tokens
+	setAuthCookies(c, tokens, h.rootDomain, h.jwtCfg)
+	c.JSON(http.StatusOK, gin.H{"message": "Token refreshed"})
 }
 
 // Logout invalidates the current token.
 // POST /api/v1/auth/logout
 func (h *AuthHandler) Logout(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader != "" {
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
-			tokenString := parts[1]
-			// We ignore errors here since failing to blacklist shouldn't block the user from logging out locally
-			_ = h.authService.Logout(c.Request.Context(), tokenString)
-		}
+	// Attempt to blacklist the session token if present
+	if tokenString, err := c.Cookie("pux_session"); err == nil && tokenString != "" {
+		_ = h.authService.Logout(c.Request.Context(), tokenString)
+	}
+	// Clear cookies from the browser
+	clearAuthCookies(c, h.rootDomain)
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}
+
+// GetSession returns the authenticated user's profile if a valid pux_session cookie exists.
+// This is used by the frontend to restore the session on page load / subdomain navigation.
+// GET /api/v1/auth/session
+func (h *AuthHandler) GetSession(c *gin.Context) {
+	userID, _ := c.Get("user_id")
+	tenantID, _ := c.Get("tenant_id")
+
+	profile, err := h.authService.CurrentUser(userID.(uuid.UUID), tenantID.(uuid.UUID))
+	if err != nil {
+		clearAuthCookies(c, h.rootDomain)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session invalid"})
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+	c.JSON(http.StatusOK, gin.H{
+		"id":                profile.ID,
+		"user_id":           profile.UserID,
+		"tenant_id":         profile.TenantID,
+		"branch_id":         profile.BranchID,
+		"role": func() string {
+			if profile.Role != nil {
+				return profile.Role.Name
+			}
+			return ""
+		}(),
+		"permissions":       c.GetStringSlice(middleware.ContextKeyPermissions),
+		"username":          profile.User.Username,
+		"email":             profile.User.Email,
+		"first_name":        profile.User.FirstName,
+		"last_name":         profile.User.LastName,
+		"is_2fa_enabled":    profile.Is2FAEnabled,
+		"is_email_verified": profile.IsEmailVerified,
+		"subdomain":         profile.Tenant.Subdomain,
+	})
 }
 
 // CurrentUser returns the authenticated user's details.
