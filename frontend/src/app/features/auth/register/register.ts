@@ -72,7 +72,7 @@ export class Register {
             if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
               const parts = hostname.split('.');
               const currentSubdomain = (parts.length >= 2 && parts[0] !== 'www' && parts[0] !== 'api') ? parts[0] : null;
-              
+
               if (currentSubdomain !== formVal.subdomain) {
                 if (currentSubdomain) {
                   parts[0] = formVal.subdomain as string;
@@ -81,7 +81,7 @@ export class Register {
                 }
                 const newHostname = parts.join('.');
                 const port = window.location.port ? `:${window.location.port}` : '';
-                window.location.href = `${window.location.protocol}//${newHostname}${port}/dashboard`;
+                window.location.href = `https://${formVal.subdomain}.puxbay.com/dashboard`;
                 return;
               }
             }
