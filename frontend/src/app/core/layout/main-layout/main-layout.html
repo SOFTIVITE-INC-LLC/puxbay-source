@@ -15,7 +15,7 @@
 
     <!-- ── Sidebar (Floating Panel) ── -->
     <div
-      class="print:hidden flex-shrink-0 z-40 flex flex-col h-[calc(100dvh-24px)] sticky top-3 self-start rounded-2xl overflow-hidden shadow-xl dark:shadow-2xl dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-white/[0.06] fixed md:sticky md:translate-x-0 transition-transform duration-300"
+      class="print:hidden flex-shrink-0 z-40 flex flex-col h-[calc(100dvh-24px)] fixed top-3 left-3 self-start rounded-2xl overflow-hidden shadow-xl dark:shadow-2xl dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-white/[0.06] md:sticky md:left-auto md:translate-x-0 transition-transform duration-300"
       [class.-translate-x-[120%]]="isSidebarCollapsed" [class.translate-x-0]="!isSidebarCollapsed">
       <app-sidebar ngSkipHydration class="h-full" [isCollapsed]="isSidebarCollapsed" (toggleCollapse)="toggleSidebar()"></app-sidebar>
     </div>

@@ -129,7 +129,7 @@ func Load() (*Config, error) {
 	viper.SetDefault("DB_CONN_MAX_LIFETIME", "5m")
 	viper.SetDefault("REDIS_URL", "redis://localhost:6379/0")
 	viper.SetDefault("JWT_SECRET", "change-me-in-production")
-	viper.SetDefault("JWT_ACCESS_EXPIRY", "400m")
+	viper.SetDefault("JWT_ACCESS_EXPIRY", "168h") // 7 days
 	viper.SetDefault("JWT_REFRESH_EXPIRY", "168h") // 7 days
 	viper.SetDefault("CORS_ALLOWED_ORIGINS", "http://localhost:4200")
 	viper.SetDefault("PAYSTACK_CALLBACK_URL", "http://localhost:4200/billing")
