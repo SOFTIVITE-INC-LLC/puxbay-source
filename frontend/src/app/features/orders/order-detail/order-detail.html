@@ -1,260 +1,352 @@
-<div class="h-full flex flex-col w-full mx-auto text-zinc-900 dark:text-white bg-zinc-50 dark:bg-zinc-950 overflow-y-auto relative">
-
-  <!-- Background decorative elements -->
-  <div class="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-indigo-50/50 to-transparent dark:from-indigo-900/10 pointer-events-none"></div>
+<div class="min-h-full flex flex-col text-zinc-900 dark:text-white bg-zinc-50 dark:bg-[#05070f]">
 
   @if (loading()) {
-    <div class="flex-1 flex flex-col items-center justify-center gap-4 text-indigo-500 z-10">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-current border-t-transparent shadow-lg shadow-indigo-500/20"></div>
-      <p class="font-bold text-sm tracking-wide">Loading order details...</p>
+    <div class="flex-1 flex flex-col items-center justify-center gap-5 py-32">
+      <div class="relative w-16 h-16">
+        <div class="absolute inset-0 rounded-full border-4 border-indigo-100 dark:border-indigo-900/30"></div>
+        <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-500 animate-spin"></div>
+        <div class="absolute inset-[6px] rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+          <span class="material-symbols-outlined !text-[20px] text-indigo-500">receipt_long</span>
+        </div>
+      </div>
+      <div class="text-center">
+        <p class="font-black text-zinc-900 dark:text-white">Loading Order</p>
+        <p class="text-sm text-zinc-500 mt-1">Please wait...</p>
+      </div>
     </div>
-  } @else if (order()) {
-    
-    <!-- Top Action Bar (Glassmorphic) -->
-    <div class="sticky top-0 z-50 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-800/50 px-8 py-4 flex items-center justify-between shadow-sm">
-      <button (click)="goBack()" class="flex items-center gap-2 text-zinc-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-bold text-sm bg-zinc-100/50 dark:bg-zinc-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 px-4 py-2 rounded-xl">
-        <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
-        Back to Orders
-      </button>
+  }
 
-      <div class="flex items-center gap-3">
-        <button (click)="printReceipt()" class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-sm hover:shadow">
-          <span class="material-symbols-outlined !text-[18px]">print</span> Print Receipt
+  @else if (order()) {
+
+    <!-- ═══ HERO HEADER ═══ -->
+    <div class="relative overflow-hidden"
+         [ngClass]="{
+           'bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600': order()!.status === 'completed',
+           'bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500': order()!.status === 'pending',
+           'bg-gradient-to-br from-zinc-500 via-slate-600 to-zinc-700': order()!.status === 'cancelled' || order()!.status === 'voided',
+           'bg-gradient-to-br from-indigo-500 via-purple-600 to-violet-700': !['completed','pending','cancelled','voided'].includes(order()!.status || '')
+         }">
+
+      <!-- Decorative blobs -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-12 -left-12 w-56 h-56 bg-black/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <!-- Top Nav Bar -->
+      <div class="relative z-10 flex items-center justify-between px-4 md:px-8 pt-4 pb-2">
+        <button (click)="goBack()" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold text-sm bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl border border-white/20 backdrop-blur-sm">
+          <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
+          <span class="hidden sm:inline">Orders</span>
         </button>
-        
-        @if (order()!.status === 'completed') {
-          <button (click)="quickReturn()" class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 text-sky-700 dark:text-sky-400 hover:from-sky-100 hover:to-blue-100 dark:hover:from-sky-900/40 dark:hover:to-blue-900/40 transition-all border border-sky-200/50 dark:border-sky-800/50 shadow-sm hover:shadow hover:-translate-y-0.5">
-            <span class="material-symbols-outlined !text-[18px]">assignment_return</span> Quick Return
-          </button>
-        }
 
-        @if (order()!.status === 'pending') {
-          <button (click)="markCompleted()" [disabled]="completingOrder()" class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white transition-all shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none">
-            <span class="material-symbols-outlined !text-[18px]">check_circle</span> {{ completingOrder() ? 'Completing...' : 'Mark Completed' }}
+        <!-- Action buttons -->
+        <div class="flex items-center gap-2 overflow-x-auto">
+          <button (click)="printReceipt()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all whitespace-nowrap shrink-0">
+            <span class="material-symbols-outlined !text-[15px]">print</span>
+            <span class="hidden sm:inline">Print</span>
           </button>
-        }
-        
-        @if (order()!.status === 'completed' || order()!.status === 'pending') {
-          <button (click)="confirmVoidOrder()" [disabled]="voidingOrder()" class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-white dark:bg-zinc-900 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shadow-sm hover:shadow disabled:opacity-50">
-            <span class="material-symbols-outlined !text-[18px]">block</span> {{ voidingOrder() ? 'Voiding...' : 'Void Order' }}
-          </button>
-        }
+
+          @if (order()!.status === 'completed') {
+            <button (click)="quickReturn()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm transition-all whitespace-nowrap shrink-0">
+              <span class="material-symbols-outlined !text-[15px]">assignment_return</span>
+              <span class="hidden sm:inline">Return</span>
+            </button>
+          }
+
+          @if (order()!.status === 'pending') {
+            <button (click)="markCompleted()" [disabled]="completingOrder()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white text-emerald-600 hover:bg-emerald-50 transition-all shadow-lg whitespace-nowrap shrink-0 disabled:opacity-60">
+              <span class="material-symbols-outlined !text-[15px]">check_circle</span>
+              <span>{{ completingOrder() ? 'Processing...' : 'Complete' }}</span>
+            </button>
+          }
+
+          @if (order()!.status === 'completed' || order()!.status === 'pending') {
+            <button (click)="confirmVoidOrder()" [disabled]="voidingOrder()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-black/20 hover:bg-black/30 text-white border border-white/20 backdrop-blur-sm transition-all whitespace-nowrap shrink-0 disabled:opacity-60">
+              <span class="material-symbols-outlined !text-[15px]">block</span>
+              <span class="hidden sm:inline">{{ voidingOrder() ? 'Voiding...' : 'Void' }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="relative z-10 px-4 md:px-8 pt-4 pb-8 md:pb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <!-- Status chip -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm mb-4">
+              <span class="w-2 h-2 rounded-full animate-pulse"
+                    [ngClass]="{
+                      'bg-emerald-200': order()!.status === 'completed',
+                      'bg-amber-200': order()!.status === 'pending',
+                      'bg-zinc-200': order()!.status === 'cancelled' || order()!.status === 'voided'
+                    }"></span>
+              <span class="text-white/90 text-xs font-black uppercase tracking-wider">{{ order()!.status }}</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight font-mono">#{{ order()!.order_number }}</h1>
+            <p class="text-white/60 text-sm mt-2 flex items-center gap-2 font-medium">
+              <span class="material-symbols-outlined !text-[15px]">schedule</span>
+              {{ order()!.created_at | date:'EEE, MMM d, y' }} &bull; {{ order()!.created_at | date:'h:mm a' }}
+            </p>
+          </div>
+
+          <!-- Total Hero Display -->
+          <div class="bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-5 py-4 sm:text-right">
+            <p class="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Order Total</p>
+            <p class="text-white font-black text-3xl sm:text-4xl tracking-tight">{{ (order()?.total || 0) | appCurrency }}</p>
+            <p class="text-white/50 text-xs mt-1">via {{ order()!.payment_method | uppercase }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wave bottom -->
+      <div class="relative z-10 h-6 -mb-px">
+        <svg viewBox="0 0 1440 24" class="w-full h-full" preserveAspectRatio="none">
+          <path class="fill-zinc-50 dark:fill-[#05070f]" d="M0,24 C360,0 1080,24 1440,24 L1440,24 L0,24 Z"/>
+        </svg>
       </div>
     </div>
 
-    <div class="max-w-6xl mx-auto w-full p-8 space-y-8 z-10 relative">
+    <!-- ═══ BODY ═══ -->
+    <div class="flex-1 max-w-6xl mx-auto w-full px-4 md:px-8 pt-6 pb-12 space-y-6">
+
       <!-- Void Confirmation Banner -->
       @if (showVoidConfirm()) {
-        <div class="px-6 py-5 rounded-2xl bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 border border-rose-200/50 dark:border-rose-800/50 flex items-center justify-between gap-4 animate-fade-in shadow-sm backdrop-blur-sm">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center text-rose-500">
-              <span class="material-symbols-outlined">warning</span>
+        <div class="p-4 md:p-5 rounded-2xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center text-rose-500 shrink-0">
+              <span class="material-symbols-outlined !text-[20px]">warning</span>
             </div>
             <div>
-              <p class="font-black text-rose-700 dark:text-rose-400 text-base">Void Order #{{ order()!.order_number }}?</p>
-              <p class="text-sm text-rose-600/80 mt-0.5">This action cannot be undone. Inventory will be returned to stock.</p>
+              <p class="font-black text-rose-700 dark:text-rose-400">Void Order #{{ order()!.order_number }}?</p>
+              <p class="text-xs text-rose-600/80 dark:text-rose-500/80 mt-0.5">This cannot be undone. Stock will be returned to inventory.</p>
             </div>
           </div>
-          <div class="flex gap-3">
-            <button (click)="cancelVoid()" class="px-5 py-2.5 text-sm font-bold rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 transition-colors shadow-sm">
-              Cancel
-            </button>
-            <button (click)="voidOrder()" class="px-5 py-2.5 text-sm font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-lg shadow-rose-500/25 hover:-translate-y-0.5">
-              Yes, Void It
-            </button>
+          <div class="flex gap-2 shrink-0">
+            <button (click)="cancelVoid()" class="flex-1 sm:flex-none px-4 py-2 text-sm font-bold rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 transition-colors">Cancel</button>
+            <button (click)="voidOrder()" class="flex-1 sm:flex-none px-4 py-2 text-sm font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-sm">Yes, Void</button>
           </div>
         </div>
       }
 
-      <!-- Header Section -->
-      <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-3xl p-8 border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4 relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-64 h-64 bg-gradient-to-bl from-indigo-100/50 to-transparent dark:from-indigo-900/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        
-        <div class="relative z-10">
-          <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-            Order Details
-          </p>
-          <div class="flex items-center gap-4 mb-2">
-            <h1 class="text-4xl font-black tracking-tight font-mono text-zinc-900 dark:text-white">#{{ order()!.order_number }}</h1>
-            <span class="inline-flex items-center px-4 py-1.5 text-xs font-black rounded-xl border uppercase tracking-wider shadow-sm backdrop-blur-md"
-                  [ngClass]="{
-                    'bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-400': order()!.status === 'completed',
-                    'bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-400': order()!.status === 'pending',
-                    'bg-rose-500/10 text-rose-700 border-rose-500/20 dark:text-rose-400': order()!.status === 'cancelled' || order()!.status === 'voided'
-                  }">
-              {{ order()!.status }}
-            </span>
-          </div>
-          <p class="text-sm text-zinc-500 font-medium flex items-center gap-2">
-            <span class="material-symbols-outlined !text-[16px]">calendar_today</span>
-            {{ order()!.created_at | date:'fullDate' }} at {{ order()!.created_at | date:'shortTime' }}
-          </p>
-        </div>
-      </div>
+      <!-- ── Fulfillment + Details Row ── -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-      <!-- Fulfillment Banner -->
-      <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-indigo-500/20 relative overflow-hidden flex flex-col sm:flex-row gap-6 sm:items-center justify-between">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-        <div class="relative z-10">
-          <p class="text-indigo-100 font-bold uppercase tracking-wider text-xs mb-1">Fulfillment Method</p>
+        <!-- Fulfillment type -->
+        <div class="sm:col-span-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-3 shadow-sm">
+          <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Fulfillment</p>
           <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined !text-[32px]">
-              {{ order()!.order_type === 'delivery' ? 'local_shipping' : order()!.order_type === 'pickup' ? 'storefront' : 'shopping_bag' }}
-            </span>
-            <h2 class="text-3xl font-black">{{ order()!.order_type === 'delivery' ? 'For Delivery' : order()!.order_type === 'pickup' ? 'Pay at Pickup' : order()!.order_type === 'in_store' ? 'In-Store' : (order()!.order_type | titlecase) }}</h2>
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                 [ngClass]="{
+                   'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500': order()!.order_type === 'delivery',
+                   'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500': order()!.order_type === 'pickup',
+                   'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': order()!.order_type === 'in_store' || !order()!.order_type
+                 }">
+              <span class="material-symbols-outlined !text-[22px]">
+                {{ order()!.order_type === 'delivery' ? 'local_shipping' : order()!.order_type === 'pickup' ? 'storefront' : 'shopping_bag' }}
+              </span>
+            </div>
+            <div>
+              <p class="font-black text-zinc-900 dark:text-white">
+                {{ order()!.order_type === 'delivery' ? 'Delivery' : order()!.order_type === 'pickup' ? 'Pickup' : order()!.order_type === 'in_store' ? 'In-Store' : (order()!.order_type | titlecase) }}
+              </p>
+              <p class="text-xs text-zinc-400 mt-0.5">{{ order()!.order_type === 'kiosk' ? 'Self-service kiosk' : order()!.order_type === 'online' ? 'Online storefront' : 'At the store' }}</p>
+            </div>
           </div>
         </div>
 
-        @if (order()!.order_type === 'delivery' && getDeliveryAddress(order())) {
-          <div class="relative z-10 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 max-w-sm w-full">
-            <p class="text-indigo-100 font-bold uppercase tracking-wider text-xs flex items-center gap-1.5 mb-2">
-              <span class="material-symbols-outlined !text-[14px]">location_on</span>
-              Delivery Address
-            </p>
-            <p class="text-white font-medium text-sm mb-4 leading-relaxed">{{ getDeliveryAddress(order()) }}</p>
-            <button (click)="openGoogleMaps(getDeliveryAddress(order())!)" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-indigo-600 hover:bg-indigo-50 transition-colors rounded-xl font-bold text-sm">
-              <span class="material-symbols-outlined !text-[18px]">map</span>
-              Open in Maps
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- Info Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-8 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-          <div class="absolute -right-4 -top-4 w-32 h-32 bg-gradient-to-bl from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full blur-2xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
-          <div class="flex items-center gap-3 text-indigo-500 dark:text-indigo-400 mb-6 z-10 relative">
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center">
-              <span class="material-symbols-outlined !text-[20px]">person</span>
+        <!-- Customer -->
+        <div class="sm:col-span-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-3 shadow-sm">
+          <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Customer</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-violet-50 dark:bg-violet-900/20 text-violet-500 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined !text-[22px]">person</span>
             </div>
-            <span class="text-sm font-black uppercase tracking-widest">Customer Details</span>
-          </div>
-          <p class="text-2xl font-black text-zinc-900 dark:text-white z-10 relative">{{ getCustomerName(order()) }}</p>
-          @if ($any(order())?.customer) {
-            <div class="mt-5 flex gap-3 text-sm z-10 relative">
+            <div class="min-w-0">
+              <p class="font-black text-zinc-900 dark:text-white truncate">{{ getCustomerName(order()) }}</p>
               @if ($any(order())?.customer?.debt_balance > 0) {
-                <span class="px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-bold rounded-xl border border-rose-100 dark:border-rose-800/30 backdrop-blur-sm flex items-center gap-2">
-                  <span class="material-symbols-outlined !text-[16px]">account_balance_wallet</span>
+                <p class="text-xs text-rose-500 font-bold mt-0.5">
                   Debt: {{ $any(order())?.customer?.debt_balance | appCurrency }}
-                </span>
-              }
-              @if ($any(order())?.customer?.store_credit > 0) {
-                <span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-bold rounded-xl border border-emerald-100 dark:border-emerald-800/30 backdrop-blur-sm flex items-center gap-2">
-                  <span class="material-symbols-outlined !text-[16px]">savings</span>
+                </p>
+              } @else if ($any(order())?.customer?.store_credit > 0) {
+                <p class="text-xs text-emerald-500 font-bold mt-0.5">
                   Credit: {{ $any(order())?.customer?.store_credit | appCurrency }}
-                </span>
+                </p>
+              } @else {
+                <p class="text-xs text-zinc-400 mt-0.5">Walk-in customer</p>
               }
             </div>
-          }
+          </div>
         </div>
 
-        <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-8 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-          <div class="absolute -right-4 -top-4 w-32 h-32 bg-gradient-to-bl from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30 rounded-full blur-2xl opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"></div>
-          <div class="flex items-center gap-3 text-blue-500 dark:text-blue-400 mb-6 z-10 relative">
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-              <span class="material-symbols-outlined !text-[20px]">payments</span>
+        <!-- Payment -->
+        <div class="sm:col-span-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-3 shadow-sm">
+          <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Payment</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined !text-[22px]">payments</span>
             </div>
-            <span class="text-sm font-black uppercase tracking-widest">Payment Information</span>
+            <div>
+              <p class="font-black text-zinc-900 dark:text-white uppercase">{{ order()!.payment_method || 'Unknown' }}</p>
+              <p class="text-xs text-zinc-400 mt-0.5">
+                Paid: <span class="text-zinc-700 dark:text-zinc-300 font-bold">{{ order()!.amount_paid | appCurrency }}</span>
+              </p>
+            </div>
           </div>
-          <p class="text-2xl font-black text-zinc-900 dark:text-white z-10 relative">{{ order()!.payment_method || 'Unknown' | uppercase }}</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Items List -->
-        <div class="lg:col-span-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl shadow-sm overflow-hidden flex flex-col">
-          <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 flex items-center gap-4 bg-zinc-50/50 dark:bg-zinc-800/20">
-            <div class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-              <span class="material-symbols-outlined">shopping_cart</span>
+      <!-- Delivery address (if delivery) -->
+      @if (order()!.order_type === 'delivery' && getDeliveryAddress(order())) {
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined !text-[18px]">location_on</span>
             </div>
-            <div class="mt-4">
-            <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Order Items</h3>
-            <p class="text-lg font-semibold text-zinc-900 dark:text-white mt-0.5">{{ order()!.items?.length || 0 }} {{ (order()!.items?.length || 0) === 1 ? 'item' : 'items' }}</p>
+            <div>
+              <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-0.5">Delivery Address</p>
+              <p class="text-sm text-indigo-900 dark:text-indigo-100 font-medium">{{ getDeliveryAddress(order()) }}</p>
+            </div>
           </div>
+          <button (click)="openGoogleMaps(getDeliveryAddress(order())!)" class="flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors rounded-xl font-bold text-sm shrink-0">
+            <span class="material-symbols-outlined !text-[16px]">map</span>
+            Open in Maps
+          </button>
         </div>
-          <div class="flex-1 overflow-x-auto p-4">
-            <table class="w-full text-left text-sm whitespace-nowrap border-separate border-spacing-y-2">
-              <thead class="text-xs uppercase tracking-wider text-zinc-400 font-black">
-                <tr>
-                  <th class="px-6 py-2">Item</th>
-                  <th class="px-6 py-2 text-center">Qty</th>
-                  <th class="px-6 py-2 text-right">Price</th>
-                  <th class="px-6 py-2 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of order()!.items; track item) {
-                  <tr class="group">
-                    <td class="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-l-2xl border-y border-l border-zinc-100 dark:border-zinc-800/50 group-hover:bg-zinc-100/50 dark:group-hover:bg-zinc-800/60 transition-colors">
-                      <p class="font-bold text-zinc-900 dark:text-white text-base">{{ item.product?.name || 'Unknown Product' }}</p>
-                      @if (item.variant_id) {
-                        <p class="text-xs text-zinc-500 mt-1 font-mono bg-zinc-200/50 dark:bg-zinc-700/50 inline-block px-2 py-0.5 rounded">Variant ID: {{ item.variant_id }}</p>
-                      }
-                    </td>
-                    <td class="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-800/30 border-y border-zinc-100 dark:border-zinc-800/50 text-center font-bold text-zinc-600 dark:text-zinc-400 group-hover:bg-zinc-100/50 dark:group-hover:bg-zinc-800/60 transition-colors">
-                      <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-900 shadow-sm border border-zinc-100 dark:border-zinc-800">
-                        {{ item.quantity }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-800/30 border-y border-zinc-100 dark:border-zinc-800/50 text-right font-medium text-zinc-500 dark:text-zinc-400 group-hover:bg-zinc-100/50 dark:group-hover:bg-zinc-800/60 transition-colors">{{ item.unit_price | appCurrency }}</td>
-                    <td class="px-6 py-4 bg-zinc-50/50 dark:bg-zinc-800/30 rounded-r-2xl border-y border-r border-zinc-100 dark:border-zinc-800/50 text-right font-black text-zinc-900 dark:text-white text-base group-hover:bg-zinc-100/50 dark:group-hover:bg-zinc-800/60 transition-colors">{{ item.total | appCurrency }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
+      }
 
-        <!-- Totals -->
-        <div class="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl p-8 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-sm flex flex-col justify-between sticky top-[100px] h-fit relative overflow-hidden">
-          
-          <div class="absolute -right-12 -top-12 w-48 h-48 bg-gradient-to-bl from-teal-100/50 to-blue-100/50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- ── Items + Summary ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          <div class="space-y-5 relative z-10">
-            <div class="flex items-center gap-4 mb-8 pb-6 border-b border-zinc-100 dark:border-zinc-800/50">
-              <div class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
-                <span class="material-symbols-outlined">receipt_long</span>
+        <!-- Items List -->
+        <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500">
+                <span class="material-symbols-outlined !text-[17px]">shopping_cart</span>
               </div>
               <div>
-                <h3 class="text-xl font-black tracking-tight text-zinc-900 dark:text-white">Summary</h3>
-                <p class="text-sm text-zinc-500 mt-0.5">Financial breakdown</p>
+                <h3 class="font-black text-zinc-900 dark:text-white text-sm">Order Items</h3>
+                <p class="text-xs text-zinc-400">{{ order()!.items?.length || 0 }} {{ (order()!.items?.length || 0) === 1 ? 'item' : 'items' }}</p>
               </div>
-            </div>
-            
-            <div class="flex justify-between text-base font-medium text-zinc-500 items-center">
-              <span>Subtotal</span>
-              <span class="text-zinc-900 dark:text-white font-bold">{{ order()!.subtotal | appCurrency }}</span>
-            </div>
-            <div class="flex justify-between text-base font-medium text-zinc-500 items-center">
-              <span>Tax</span>
-              <span class="text-zinc-900 dark:text-white font-bold">{{ order()!.tax | appCurrency }}</span>
-            </div>
-            <div class="flex justify-between text-base font-medium text-zinc-500 items-center">
-              <span>Discount</span>
-              <span class="text-rose-500 font-bold bg-rose-50 dark:bg-rose-900/20 px-2 py-0.5 rounded-lg">-{{ order()!.discount | appCurrency }}</span>
             </div>
           </div>
-          
-          <div class="mt-8 pt-6 border-t-2 border-dashed border-zinc-200 dark:border-zinc-700/50 relative z-10">
-            <div class="flex justify-between items-end mb-6">
-              <span class="text-lg font-black text-zinc-500 uppercase tracking-widest">Total</span>
-              <span class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 tracking-tight">{{ (order()?.total || 0) | appCurrency }}</span>
-            </div>
-            
-            <div class="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 space-y-3">
-              <div class="flex justify-between items-center text-sm">
-                <span class="font-bold text-zinc-500 uppercase tracking-wider text-xs">Amount Paid</span>
-                <span class="font-black text-zinc-900 dark:text-white text-lg">{{ order()!.amount_paid | appCurrency }}</span>
-              </div>
-              
-              @if ((order()!.amount_paid || 0) > (order()?.total || 0)) {
-                <div class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex justify-between items-center text-sm">
-                  <span class="font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider text-xs">Change Due</span>
-                  <span class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ ((order()!.amount_paid || 0) - (order()?.total || 0)) | appCurrency }}</span>
+
+          <!-- Items -->
+          <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+            @for (item of order()!.items; track item) {
+              <div class="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors group">
+                <!-- Product avatar -->
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 flex items-center justify-center text-indigo-400 shrink-0">
+                  <span class="material-symbols-outlined !text-[18px]">inventory_2</span>
                 </div>
+                <!-- Name -->
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-zinc-900 dark:text-white text-sm truncate">{{ item.product?.name || 'Unknown Product' }}</p>
+                  @if (item.variant_id) {
+                    <p class="text-xs text-zinc-400 font-mono mt-0.5">Variant #{{ item.variant_id }}</p>
+                  }
+                </div>
+                <!-- Qty badge -->
+                <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-2.5 py-1 shrink-0">
+                  <span class="text-xs font-black text-zinc-600 dark:text-zinc-300">×{{ item.quantity }}</span>
+                </div>
+                <!-- Unit price -->
+                <div class="text-right shrink-0 hidden sm:block">
+                  <p class="text-xs text-zinc-400">each</p>
+                  <p class="text-sm font-bold text-zinc-600 dark:text-zinc-300">{{ item.unit_price | appCurrency }}</p>
+                </div>
+                <!-- Line total -->
+                <div class="text-right shrink-0 w-24">
+                  <p class="text-xs text-zinc-400">total</p>
+                  <p class="font-black text-zinc-900 dark:text-white">{{ item.total | appCurrency }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Footer totals row -->
+          <div class="px-5 py-4 bg-zinc-50 dark:bg-zinc-800/40 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-4 text-sm text-zinc-500 flex-wrap">
+              <span>Subtotal: <strong class="text-zinc-900 dark:text-white">{{ order()!.subtotal | appCurrency }}</strong></span>
+              @if ((order()!.tax || 0) > 0) {
+                <span>Tax: <strong class="text-zinc-900 dark:text-white">{{ order()!.tax | appCurrency }}</strong></span>
               }
+              @if ((order()!.discount || 0) > 0) {
+                <span>Discount: <strong class="text-rose-500">-{{ order()!.discount | appCurrency }}</strong></span>
+              }
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs text-zinc-400 uppercase tracking-wider font-bold block">Grand Total</span>
+              <span class="text-xl font-black text-zinc-900 dark:text-white">{{ (order()?.total || 0) | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Summary Sidebar -->
+        <div class="lg:col-span-1 flex flex-col gap-4">
+
+          <!-- Payment card -->
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden lg:sticky lg:top-4">
+            <!-- Gradient top strip -->
+            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            <div class="p-5 space-y-4">
+              <div class="flex items-center gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center">
+                  <span class="material-symbols-outlined !text-[17px]">receipt_long</span>
+                </div>
+                <h3 class="font-black text-zinc-900 dark:text-white text-sm">Payment Summary</h3>
+              </div>
+
+              <!-- Breakdown lines -->
+              <div class="space-y-2.5 text-sm">
+                <div class="flex justify-between items-center">
+                  <span class="text-zinc-500">Subtotal</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">{{ order()!.subtotal | appCurrency }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-zinc-500">Tax</span>
+                  <span class="font-bold text-zinc-900 dark:text-white">{{ order()!.tax | appCurrency }}</span>
+                </div>
+                @if ((order()!.discount || 0) > 0) {
+                  <div class="flex justify-between items-center">
+                    <span class="text-zinc-500">Discount</span>
+                    <span class="font-bold text-rose-500 bg-rose-50 dark:bg-rose-900/20 px-2 py-0.5 rounded-lg">-{{ order()!.discount | appCurrency }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Total -->
+              <div class="pt-3 border-t-2 border-dashed border-zinc-200 dark:border-zinc-700">
+                <div class="flex justify-between items-center">
+                  <span class="font-black text-zinc-500 text-xs uppercase tracking-widest">Total</span>
+                  <span class="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">{{ (order()?.total || 0) | appCurrency }}</span>
+                </div>
+              </div>
+
+              <!-- Paid / Change -->
+              <div class="rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50 p-4 space-y-2.5">
+                <div class="flex justify-between items-center">
+                  <span class="text-xs font-black text-zinc-400 uppercase tracking-widest">Amount Paid</span>
+                  <span class="font-black text-lg text-zinc-900 dark:text-white">{{ order()!.amount_paid | appCurrency }}</span>
+                </div>
+                @if ((order()!.amount_paid || 0) > (order()?.total || 0)) {
+                  <div class="flex justify-between items-center pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Change Due</span>
+                    <span class="font-black text-lg text-emerald-600 dark:text-emerald-400">{{ ((order()!.amount_paid || 0) - (order()?.total || 0)) | appCurrency }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Print action -->
+              <button (click)="printReceipt()" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-sm">
+                <span class="material-symbols-outlined !text-[18px]">print</span>
+                Print Receipt
+              </button>
             </div>
           </div>
         </div>
@@ -267,7 +359,7 @@
 <app-receipt [order]="order()"></app-receipt>
 
 @if (showOverrideModal()) {
-  <app-pos-override-modal 
+  <app-pos-override-modal
     [actionName]="'Void Order'"
     (confirm)="voidOrder($event)"
     (cancel)="showOverrideModal.set(false)">

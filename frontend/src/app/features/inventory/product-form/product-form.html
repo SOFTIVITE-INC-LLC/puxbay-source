@@ -624,10 +624,10 @@
 
 /* TOP BAR */
 .pf-topbar { @apply sticky top-0 z-30 bg-white/80 dark:bg-[#05070f]/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/5; }
-.pf-topbar-inner { @apply grid items-center max-w-7xl mx-auto px-6 py-3.5 gap-4; grid-template-columns: 1fr auto 1fr; }
-.pf-topbar-left  { @apply flex items-center gap-3; }
-.pf-topbar-center { @apply flex items-center gap-2.5 justify-center min-w-0; }
-.pf-topbar-right { @apply flex items-center gap-2.5 justify-end; }
+.pf-topbar-inner { @apply flex flex-wrap items-center max-w-7xl mx-auto px-4 md:px-6 py-3 gap-3; }
+.pf-topbar-left  { @apply flex items-center gap-2 md:gap-3; }
+.pf-topbar-center { @apply hidden md:flex items-center gap-2.5 flex-1 justify-center min-w-0; }
+.pf-topbar-right { @apply flex items-center gap-2 ml-auto; }
 
 .pf-back-btn { @apply flex items-center justify-center w-9 h-9 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 cursor-pointer transition-all flex-shrink-0 hover:bg-slate-50 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white; }
 .pf-breadcrumb { @apply flex items-center gap-1.5 text-xs; }
@@ -644,16 +644,16 @@
 @keyframes pfPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 /* TABS */
-.pf-tabs-strip { @apply border-t border-slate-200 dark:border-white/5; }
-.pf-tabs-inner { @apply flex max-w-7xl mx-auto px-6; }
+.pf-tabs-strip { @apply border-t border-slate-200 dark:border-white/5 overflow-x-auto; }
+.pf-tabs-inner { @apply flex max-w-7xl mx-auto px-4 md:px-6 min-w-max; }
 .pf-tab { @apply flex items-center gap-2 px-4 py-3 text-[13px] font-semibold text-slate-500 dark:text-slate-400 bg-transparent border-none border-b-2 border-transparent cursor-pointer transition-all relative top-[1px] hover:text-slate-700 dark:hover:text-slate-300; font-family: inherit; }
 .pf-tab-active { @apply text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400; }
 .pf-tab-icon { @apply text-[16px] !important; }
 
 /* BODY */
-.pf-body { @apply max-w-7xl mx-auto px-6 pt-7 pb-16; }
-.pf-content-grid { @apply grid gap-6 items-start; grid-template-columns: 1fr 300px; }
-@media (max-width: 1024px) { .pf-content-grid { grid-template-columns: 1fr; } }
+.pf-body { @apply max-w-7xl mx-auto px-4 md:px-6 pt-5 md:pt-7 pb-16; }
+.pf-content-grid { @apply flex flex-col-reverse lg:grid gap-6 items-start; }
+@media (min-width: 1024px) { .pf-content-grid { grid-template-columns: 1fr 300px; } }
 
 /* PANELS */
 .pf-panel { @apply rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.025] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-black/40; }
@@ -748,7 +748,7 @@
 .pf-btn-discard { @apply block w-full p-2.5 border-none bg-transparent text-[13px] font-semibold text-slate-500 dark:text-slate-400 cursor-pointer transition-colors text-center hover:text-slate-700 dark:hover:text-slate-200; font-family: inherit; }
 
 /* SIDEBAR */
-.pf-sidebar { @apply flex flex-col gap-4 sticky top-[122px]; }
+.pf-sidebar { @apply flex flex-col gap-4 lg:sticky lg:top-[122px]; }
 .pf-side-card { @apply rounded-2xl border border-slate-200 dark:border-white/5 bg-white dark:bg-white/[0.025] overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-black/30; }
 .pf-side-card-title { @apply text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] m-0; }
 

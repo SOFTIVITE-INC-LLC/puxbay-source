@@ -1,19 +1,19 @@
-<div class="p-8 max-w-7xl mx-auto space-y-8 animate-[fadeIn_0.4s_ease-out]">
+<div class="p-4 md:p-8 max-w-7xl mx-auto space-y-6 md:space-y-8 animate-[fadeIn_0.4s_ease-out]">
   
   <!-- Header -->
-  <div class="flex justify-between items-center">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Platform Overview</h1>
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Platform Overview</h1>
       <p class="text-slate-500 mt-1 text-sm font-medium">Monitor the health and activity of Puxbay.</p>
     </div>
     <div class="flex gap-3">
-      <button class="px-4 py-2.5 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all focus:ring-2 focus:ring-slate-200 focus:outline-none flex items-center gap-2">
-        <span class="material-symbols-outlined text-[20px]">download</span>
-        Export Report
+      <button class="px-3 py-2 bg-white border border-slate-200 shadow-sm rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">download</span>
+        <span class="hidden sm:inline">Export Report</span>
       </button>
-      <button class="px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold shadow-sm hover:bg-indigo-500 transition-all shadow-indigo-500/25 hover:shadow-indigo-500/40 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none flex items-center gap-2">
-        <span class="material-symbols-outlined text-[20px]">refresh</span>
-        Refresh Data
+      <button class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold shadow-sm hover:bg-indigo-500 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">refresh</span>
+        <span class="hidden sm:inline">Refresh Data</span>
       </button>
     </div>
   </div>
@@ -194,7 +194,7 @@
     </div>
     
     <!-- System Health Widget -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex items-center justify-between">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm" [ngClass]="healthStatus()?.status === 'healthy' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'">
           <span class="material-symbols-outlined text-[24px]">health_and_safety</span>

@@ -15,10 +15,10 @@
     </div>
   </div>
 
-  <div class="flex-1 flex max-w-7xl mx-auto w-full px-8 py-8 gap-6">
+  <div class="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 md:px-8 py-6 md:py-8 gap-6">
 
-    <!-- ── Left Sidebar ── -->
-    <aside class="w-64 shrink-0">
+    <!-- Settings Sidebar (horizontal scrolling tabs on mobile) -->
+    <aside class="w-full lg:w-64 shrink-0">
       
       @if (isLoading()) {
         <div class="flex flex-col items-center justify-center py-16 text-slate-400">
@@ -28,10 +28,12 @@
       }
 
       @if (!isLoading()) {
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-3 shadow-sm space-y-1">
+        <!-- Mobile: horizontal scroll tabs | Desktop: vertical sidebar -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-2 shadow-sm">
+          <div class="flex lg:flex-col gap-1 overflow-x-auto no-scrollbar">
           <!-- General -->
           <button (click)="setTab('general')"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer relative"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 lg:w-full"
                   [class.bg-slate-800]="activeTab() === 'general'"
                   [class.text-white]="activeTab() === 'general'"
                   [class.shadow-md]="activeTab() === 'general'"
@@ -40,12 +42,12 @@
                   [class.dark:text-slate-400]="activeTab() !== 'general'"
                   [class.dark:hover:bg-zinc-800]="activeTab() !== 'general'">
             <span class="material-symbols-outlined text-[18px]">tune</span>
-            <span class="font-bold text-sm">General</span>
+            <span class="font-bold text-sm whitespace-nowrap">General</span>
           </button>
           
           <!-- Features -->
           <button (click)="setTab('features')"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer relative"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 lg:w-full"
                   [class.bg-slate-800]="activeTab() === 'features'"
                   [class.text-white]="activeTab() === 'features'"
                   [class.shadow-md]="activeTab() === 'features'"
@@ -54,12 +56,12 @@
                   [class.dark:text-slate-400]="activeTab() !== 'features'"
                   [class.dark:hover:bg-zinc-800]="activeTab() !== 'features'">
             <span class="material-symbols-outlined text-[18px]">flag</span>
-            <span class="font-bold text-sm">Feature Flags</span>
+            <span class="font-bold text-sm whitespace-nowrap">Feature Flags</span>
           </button>
           
           <!-- Security -->
           <button (click)="setTab('security')"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer relative"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 lg:w-full"
                   [class.bg-slate-800]="activeTab() === 'security'"
                   [class.text-white]="activeTab() === 'security'"
                   [class.shadow-md]="activeTab() === 'security'"
@@ -68,12 +70,12 @@
                   [class.dark:text-slate-400]="activeTab() !== 'security'"
                   [class.dark:hover:bg-zinc-800]="activeTab() !== 'security'">
             <span class="material-symbols-outlined text-[18px]">shield</span>
-            <span class="font-bold text-sm">Security</span>
+            <span class="font-bold text-sm whitespace-nowrap">Security</span>
           </button>
 
           <!-- Billing -->
           <button (click)="setTab('billing')"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer relative"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 lg:w-full"
                   [class.bg-slate-800]="activeTab() === 'billing'"
                   [class.text-white]="activeTab() === 'billing'"
                   [class.shadow-md]="activeTab() === 'billing'"
@@ -82,14 +84,15 @@
                   [class.dark:text-slate-400]="activeTab() !== 'billing'"
                   [class.dark:hover:bg-zinc-800]="activeTab() !== 'billing'">
             <span class="material-symbols-outlined text-[18px]">payments</span>
-            <span class="font-bold text-sm">Billing</span>
+            <span class="font-bold text-sm whitespace-nowrap">Billing</span>
           </button>
 
-          <div class="h-px bg-slate-100 dark:bg-zinc-800 my-2 mx-2"></div>
+          <div class="hidden lg:block h-px bg-slate-100 dark:bg-zinc-800 my-2 mx-2"></div>
+          <div class="block lg:hidden w-px bg-slate-100 dark:bg-zinc-800 mx-1 self-stretch"></div>
 
           <!-- Danger Zone -->
           <button (click)="setTab('danger')"
-                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer relative"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all cursor-pointer relative shrink-0 lg:w-full"
                   [class.bg-rose-600]="activeTab() === 'danger'"
                   [class.text-white]="activeTab() === 'danger'"
                   [class.shadow-md]="activeTab() === 'danger'"
@@ -97,8 +100,9 @@
                   [class.hover:bg-rose-50]="activeTab() !== 'danger'"
                   [class.dark:hover:bg-rose-900/10]="activeTab() !== 'danger'">
             <span class="material-symbols-outlined text-[18px]">warning</span>
-            <span class="font-bold text-sm">Danger Zone</span>
+            <span class="font-bold text-sm whitespace-nowrap">Danger Zone</span>
           </button>
+          </div>
         </div>
       }
     </aside>
