@@ -2,6 +2,9 @@
 
   <!-- Left Side: Navigation / Breadcrumbs -->
   <div class="flex items-center gap-4">
+    <button (click)="layout.toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-500 hover:text-indigo-600 rounded-xl hover:bg-slate-50 transition cursor-pointer">
+      <span class="material-symbols-outlined text-[24px]">menu</span>
+    </button>
     <div class="flex items-center gap-2 text-slate-500 font-medium">
       <span class="material-symbols-outlined text-xl">home</span>
       <span class="text-sm">/</span>

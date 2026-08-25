@@ -1,167 +1,263 @@
-<div class="p-8 max-w-7xl mx-auto">
-  <div class="flex justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Custom Domains</h1>
-      <p class="text-slate-500 mt-1">White-labeling hub — manage DNS verification and SSL for tenant domains.</p>
-    </div>
-  </div>
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col">
 
-  <!-- Toolbar -->
-  <div class="flex flex-col md:flex-row gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-    <div class="flex-1 flex gap-4">
-      <input 
-        type="text" 
-        [ngModel]="search()" 
-        (ngModelChange)="onSearch($event)" 
-        placeholder="Search domains..." 
-        class="w-full md:w-64 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      >
-      <select 
-        [ngModel]="status()" 
-        (ngModelChange)="onStatusChange($event)" 
-        class="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      >
-        <option value="all">All Statuses</option>
-        <option value="verified">Verified (SSL)</option>
-        <option value="pending">Pending DNS</option>
-      </select>
-    </div>
-    <div class="flex items-center gap-3">
-      <span class="text-sm text-slate-500 font-medium">{{ selectedIds().size }} selected</span>
-      <button 
-        [disabled]="selectedIds().size === 0"
-        (click)="bulkVerify()" 
-        class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-      >
-        <span class="material-symbols-outlined text-sm align-middle mr-1">check_circle</span>
-        Force Verify Selected
-      </button>
-    </div>
-  </div>
-
-  <div *ngIf="isLoading()" class="flex justify-center p-20">
-    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-  </div>
-
-  <ng-container *ngIf="!isLoading()">
-    <!-- Domains List -->
-    <div class="space-y-4">
-      <!-- Select All Header (Optional but good for UX) -->
-      <div *ngIf="domains().length > 0" class="flex items-center gap-4 px-6 py-2">
-        <input type="checkbox" (change)="toggleAll($event)" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-        <span class="text-xs font-bold uppercase text-slate-500">Select All on Page</span>
-      </div>
-
-      <div *ngFor="let d of domains()" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <!-- Domain Row -->
-        <div class="flex flex-wrap items-center gap-4 px-6 py-4">
-          <input 
-            type="checkbox" 
-            [checked]="selectedIds().has(d.id)"
-            (change)="toggleSelection(d.id)"
-            class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-          >
-
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-outlined text-slate-500">language</span>
-              <span class="text-lg font-bold text-slate-900 font-mono">{{ d.domain }}</span>
-              <span *ngIf="d.is_primary" class="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-700 rounded">Primary</span>
-            </div>
-            <!-- Tenant Badge -->
-            <div class="mt-2 flex items-center gap-2">
-              <span class="text-xs text-slate-500">Tenant:</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
-                {{ d.tenant?.name || 'Unknown' }} ({{ d.tenant?.subdomain }})
-              </span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <!-- DNS / SSL Status Badge -->
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                  [ngClass]="d.is_verified ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
-              <span class="material-symbols-outlined text-[14px]">{{ d.is_verified ? 'verified' : 'pending' }}</span>
-              {{ d.is_verified ? 'SSL Active' : 'Pending DNS' }}
-            </span>
-
-            <!-- Actions -->
-            <button (click)="loadDiagnostics(d.id)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition cursor-pointer">
-              <span class="material-symbols-outlined text-[16px]">troubleshoot</span> Diagnostics
-            </button>
-            <button (click)="deleteDomain(d.id)" class="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition cursor-pointer">
-              <span class="material-symbols-outlined text-[16px]">delete</span> Remove
-            </button>
-          </div>
+  <!-- Page Header -->
+  <div class="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800">
+    <div class="max-w-7xl mx-auto px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-blue-900/30">
+          <span class="material-symbols-outlined text-white text-[22px]">public</span>
         </div>
-
-        <!-- Diagnostics Panel -->
-        <div *ngIf="diagnostics()[d.id]" class="border-t border-slate-100 bg-slate-50 p-6">
-          <div *ngIf="diagnostics()[d.id].isLoading" class="flex items-center gap-3 text-sm text-slate-500">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
-            Running live DNS lookup...
-          </div>
-          
-          <div *ngIf="!diagnostics()[d.id].isLoading && diagnostics()[d.id].data" class="space-y-4">
-            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <span class="material-symbols-outlined text-indigo-600">dns</span> Support Diagnostics
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- CNAME Record -->
-              <div class="bg-white p-4 rounded-xl border border-slate-200">
-                <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">CNAME Record</p>
-                <div *ngIf="diagnostics()[d.id].data?.cname" class="font-mono text-sm text-emerald-700 font-medium">
-                  {{ diagnostics()[d.id].data?.cname }}
-                </div>
-                <div *ngIf="diagnostics()[d.id].data?.cname_error" class="text-xs text-rose-600">
-                  {{ diagnostics()[d.id].data?.cname_error }}
-                </div>
-              </div>
-              
-              <!-- A Records (IPs) -->
-              <div class="bg-white p-4 rounded-xl border border-slate-200">
-                <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">A Records (IPs)</p>
-                <div *ngIf="diagnostics()[d.id].data?.ips?.length" class="font-mono text-sm text-emerald-700 font-medium space-y-1">
-                  <div *ngFor="let ip of diagnostics()[d.id].data?.ips">{{ ip }}</div>
-                </div>
-                <div *ngIf="diagnostics()[d.id].data?.ips_error" class="text-xs text-rose-600">
-                  {{ diagnostics()[d.id].data?.ips_error }}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Custom Domains</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">White-labeling hub — manage DNS verification and SSL for tenant domains.</p>
         </div>
-
       </div>
+    </div>
+  </div>
 
-      <div *ngIf="domains().length === 0" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
-        <span class="material-symbols-outlined text-5xl text-slate-300 mb-3 block">domain_disabled</span>
-        <p class="text-slate-500 font-medium">No custom domains found.</p>
-      </div>
+  <div class="max-w-7xl mx-auto px-8 py-8 w-full flex-1 flex flex-col min-h-0">
+
+    <!-- Toolbar -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 bg-white dark:bg-zinc-900 p-2 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
       
-      <!-- Pagination Controls -->
-      <div *ngIf="total() > limit" class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 mt-4">
-        <span class="text-sm text-slate-500">
-          Showing {{ (page() - 1) * limit + 1 }} to {{ page() * limit > total() ? total() : page() * limit }} of {{ total() }}
+      <div class="flex flex-1 w-full gap-2 md:gap-4 items-center">
+        <!-- Search -->
+        <div class="relative flex-1 max-w-sm">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-[20px]">search</span>
+          <input type="text"
+                 [ngModel]="search()"
+                 (ngModelChange)="onSearch($event)"
+                 placeholder="Search domains..."
+                 class="w-full pl-11 pr-4 py-3 bg-transparent outline-none text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500">
+        </div>
+        
+        <div class="h-px w-full md:w-px md:h-8 bg-slate-200 dark:bg-zinc-700 hidden md:block mx-1"></div>
+        
+        <!-- Filter -->
+        <div class="relative min-w-[150px]">
+          <select [ngModel]="status()"
+                  (ngModelChange)="onStatusChange($event)"
+                  class="w-full pl-4 pr-10 py-3 bg-transparent text-sm font-bold text-slate-700 dark:text-slate-300 outline-none appearance-none cursor-pointer">
+            <option value="all">All Statuses</option>
+            <option value="verified">Verified (SSL)</option>
+            <option value="pending">Pending DNS</option>
+          </select>
+          <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 px-3 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 border-slate-100 dark:border-zinc-800 pt-3 md:pt-0 mt-2 md:mt-0">
+        <span class="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+          {{ selectedIds().size }} selected
         </span>
-        <div class="flex gap-2">
-          <button 
-            [disabled]="page() === 1" 
-            (click)="changePage(page() - 1)" 
-            class="px-3 py-1 rounded border border-slate-200 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button 
-            [disabled]="page() === totalPages()" 
-            (click)="changePage(page() + 1)" 
-            class="px-3 py-1 rounded border border-slate-200 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        <button [disabled]="selectedIds().size === 0"
+                (click)="bulkVerify()"
+                class="px-5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm flex items-center gap-2 cursor-pointer text-sm">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          Force Verify
+        </button>
       </div>
-      
     </div>
-  </ng-container>
+
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-24 text-slate-400">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-sm font-medium">Loading domains...</p>
+      </div>
+    }
+
+    @if (!isLoading()) {
+      <div class="flex-1 flex flex-col min-h-0 relative">
+        
+        @if (domains().length > 0) {
+          <!-- Select All Header -->
+          <div class="flex items-center gap-4 px-7 py-3 mb-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-sm">
+            <div class="relative flex items-center">
+              <input type="checkbox" (change)="toggleAll($event)" class="peer sr-only">
+              <div class="w-5 h-5 rounded border-2 border-slate-300 dark:border-zinc-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 flex items-center justify-center transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100 font-bold">check</span>
+              </div>
+            </div>
+            <span class="text-xs font-black uppercase text-slate-500 dark:text-zinc-400 tracking-wider">Select All on Page</span>
+          </div>
+        }
+
+        <!-- Domains List -->
+        <div class="space-y-4 pb-20 custom-scrollbar overflow-y-auto pr-1">
+          @for (d of domains(); track d.id) {
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-800 overflow-hidden transition-shadow hover:shadow-md group">
+              
+              <!-- Domain Row -->
+              <div class="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5">
+                
+                <div class="flex items-center gap-4">
+                  <!-- Custom Checkbox -->
+                  <div class="relative flex items-center" (click)="toggleSelection(d.id)">
+                    <input type="checkbox" [checked]="selectedIds().has(d.id)" class="peer sr-only">
+                    <div class="w-5 h-5 rounded border-2 border-slate-300 dark:border-zinc-600 peer-checked:bg-blue-500 peer-checked:border-blue-500 flex items-center justify-center transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined text-white text-[16px] opacity-0 peer-checked:opacity-100 font-bold">check</span>
+                    </div>
+                  </div>
+                  
+                  <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-slate-400 dark:text-zinc-500">language</span>
+                  </div>
+                </div>
+
+                <div class="flex-1 min-w-0 flex flex-col justify-center">
+                  <div class="flex items-center gap-3">
+                    <span class="text-lg font-black text-slate-900 dark:text-white font-mono tracking-tight truncate">{{ d.domain }}</span>
+                    @if (d.is_primary) {
+                      <span class="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 rounded-md">Primary</span>
+                    }
+                  </div>
+                  <div class="mt-1 flex items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Tenant:</span>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ d.tenant?.name || 'Unknown' }}</span>
+                    <span class="text-[10px] font-mono text-slate-400 dark:text-zinc-500">({{ d.tenant?.subdomain }})</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center flex-wrap lg:flex-nowrap gap-3 mt-4 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-0 border-slate-100 dark:border-zinc-800">
+                  
+                  <!-- DNS / SSL Status Badge -->
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border"
+                        [class.bg-emerald-50]="d.is_verified"
+                        [class.text-emerald-700]="d.is_verified"
+                        [class.border-emerald-200]="d.is_verified"
+                        [class.dark:bg-emerald-900/20]="d.is_verified"
+                        [class.dark:text-emerald-400]="d.is_verified"
+                        [class.dark:border-emerald-800]="d.is_verified"
+                        
+                        [class.bg-amber-50]="!d.is_verified"
+                        [class.text-amber-700]="!d.is_verified"
+                        [class.border-amber-200]="!d.is_verified"
+                        [class.dark:bg-amber-900/20]="!d.is_verified"
+                        [class.dark:text-amber-400]="!d.is_verified"
+                        [class.dark:border-amber-800]="!d.is_verified">
+                    <span class="material-symbols-outlined text-[16px]">{{ d.is_verified ? 'verified_user' : 'pending' }}</span>
+                    {{ d.is_verified ? 'SSL Active' : 'Pending DNS' }}
+                  </span>
+
+                  <div class="w-px h-6 bg-slate-200 dark:bg-zinc-700 hidden lg:block mx-1"></div>
+
+                  <!-- Actions -->
+                  <button (click)="loadDiagnostics(d.id)" 
+                          class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-xl transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">troubleshoot</span> 
+                    <span class="hidden sm:inline">Diagnostics</span>
+                  </button>
+                  <button (click)="deleteDomain(d.id)" 
+                          class="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 rounded-xl transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">delete</span>
+                    <span class="hidden sm:inline">Remove</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Diagnostics Panel -->
+              @if (diagnostics()[d.id]) {
+                <div class="border-t border-slate-100 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900/50 p-6 md:px-8">
+                  @if (diagnostics()[d.id].isLoading) {
+                    <div class="flex items-center justify-center gap-3 py-8 text-sm font-bold text-slate-500 dark:text-zinc-400">
+                      <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                      Running live DNS lookup...
+                    </div>
+                  }
+                  
+                  @if (!diagnostics()[d.id].isLoading && diagnostics()[d.id].data) {
+                    <div class="space-y-5 animate-slide-up">
+                      <h4 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-500">dns</span> DNS Diagnostics
+                      </h4>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <!-- CNAME Record -->
+                        <div class="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+                          <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-black uppercase text-slate-400 dark:text-zinc-500 tracking-wider">CNAME Record</p>
+                            @if (diagnostics()[d.id].data?.cname) {
+                              <span class="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+                            }
+                          </div>
+                          @if (diagnostics()[d.id].data?.cname) {
+                            <div class="font-mono text-sm font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-slate-100 dark:border-zinc-800 break-all">
+                              {{ diagnostics()[d.id].data?.cname }}
+                            </div>
+                          }
+                          @if (diagnostics()[d.id].data?.cname_error) {
+                            <div class="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 p-3 rounded-lg flex items-start gap-2">
+                              <span class="material-symbols-outlined text-[16px] shrink-0 mt-0.5">error</span>
+                              {{ diagnostics()[d.id].data?.cname_error }}
+                            </div>
+                          }
+                        </div>
+                        
+                        <!-- A Records (IPs) -->
+                        <div class="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
+                          <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-black uppercase text-slate-400 dark:text-zinc-500 tracking-wider">A Records (IPs)</p>
+                            @if (diagnostics()[d.id].data?.ips?.length) {
+                              <span class="material-symbols-outlined text-[16px] text-emerald-500">check_circle</span>
+                            }
+                          </div>
+                          @if (diagnostics()[d.id].data?.ips?.length) {
+                            <div class="font-mono text-sm font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-slate-100 dark:border-zinc-800 space-y-2">
+                              @for (ip of diagnostics()[d.id].data?.ips; track ip) {
+                                <div class="flex items-center gap-2">
+                                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                  {{ ip }}
+                                </div>
+                              }
+                            </div>
+                          }
+                          @if (diagnostics()[d.id].data?.ips_error) {
+                            <div class="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 p-3 rounded-lg flex items-start gap-2">
+                              <span class="material-symbols-outlined text-[16px] shrink-0 mt-0.5">error</span>
+                              {{ diagnostics()[d.id].data?.ips_error }}
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if (domains().length === 0) {
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-800 p-16 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-5 border border-slate-200 dark:border-zinc-700">
+              <span class="material-symbols-outlined text-4xl text-slate-400 dark:text-zinc-500">domain_disabled</span>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">No custom domains found</h3>
+            <p class="text-slate-500 dark:text-zinc-400 text-sm max-w-md mx-auto">None of the tenants have configured a custom domain yet, or your search query didn't match any results.</p>
+          </div>
+        }
+        
+        <!-- Pagination Controls (Floating at bottom) -->
+        @if (total() > limit) {
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-slate-900/90 dark:bg-black/90 backdrop-blur-md px-6 py-3 rounded-full shadow-2xl border border-slate-700 z-20">
+            <span class="text-xs font-black tracking-wider text-slate-300">
+              <span class="text-white">{{ (page() - 1) * limit + 1 }}</span> – <span class="text-white">{{ page() * limit > total() ? total() : page() * limit }}</span> OF <span class="text-white">{{ total() }}</span>
+            </span>
+            <div class="flex gap-2">
+              <button [disabled]="page() === 1"
+                      (click)="changePage(page() - 1)"
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 disabled:hover:bg-white/10 transition cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <button [disabled]="page() === totalPages()"
+                      (click)="changePage(page() + 1)"
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 disabled:hover:bg-white/10 transition cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>

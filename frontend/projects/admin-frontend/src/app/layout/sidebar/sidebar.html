@@ -16,6 +16,7 @@
       <div class="space-y-1">
         <a *ngFor="let item of cat.items"
            [routerLink]="item.route"
+           (click)="layout.closeSidebar()"
            routerLinkActive="bg-indigo-50 text-indigo-600 font-semibold shadow-sm"
            [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-slate-50 group border border-transparent hover:border-slate-100 cursor-pointer">

@@ -1,11 +1,12 @@
 {
-  "name": "Puxbay App",
+  "name": "Puxbay",
   "short_name": "Puxbay",
+  "description": "Puxbay - The Best E-commerce Solution",
   "display": "standalone",
   "theme_color": "#4f46e5",
   "background_color": "#ffffff",
   "scope": "./",
-  "start_url": "./",
+  "start_url": "/",
   "icons": [
     {
       "src": "icons/icon-72x72.png",

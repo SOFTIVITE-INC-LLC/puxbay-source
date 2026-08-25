@@ -1,12 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BroadcastService, Broadcast } from '../../services/broadcast.service';
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'broadcastCount', standalone: true })
+export class BroadcastCountPipe implements PipeTransform {
+  transform(broadcasts: Broadcast[], type: string): number {
+    return broadcasts.filter(b => b.type === type).length;
+  }
+}
 
 @Component({
   selector: 'app-broadcasts',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TitleCasePipe, BroadcastCountPipe],
   templateUrl: './broadcasts.html',
 })
 export class BroadcastsComponent implements OnInit {
@@ -23,6 +31,14 @@ export class BroadcastsComponent implements OnInit {
     type: 'info',
     target_audience: 'all'
   });
+
+  audiences = [
+    { value: 'all', label: 'All Tenants', icon: 'groups' },
+    { value: 'active', label: 'Active Only', icon: 'verified' },
+    { value: 'trialing', label: 'Trialing', icon: 'hourglass_top' },
+    { value: 'past_due', label: 'Past Due', icon: 'schedule' },
+    { value: 'suspended', label: 'Suspended', icon: 'block' },
+  ];
 
   ngOnInit() {
     this.loadBroadcasts();
@@ -49,6 +65,10 @@ export class BroadcastsComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen.set(false);
+  }
+
+  setFormField(field: keyof Broadcast, value: string) {
+    this.form.update(f => ({ ...f, [field]: value }));
   }
 
   createBroadcast() {

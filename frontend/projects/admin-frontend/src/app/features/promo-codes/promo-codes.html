@@ -1,175 +1,296 @@
-<div class="p-8 max-w-7xl mx-auto">
-  <div class="flex justify-between items-center mb-8">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900">Promo Codes</h1>
-      <p class="text-slate-500 mt-1">Manage marketing campaigns, discounts, and referrals.</p>
-    </div>
-    <button (click)="openModal()" class="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition shadow-sm flex items-center gap-2">
-      <span class="material-symbols-outlined text-[20px]">add</span> New Code
-    </button>
-  </div>
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col">
 
-  <div *ngIf="isLoading()" class="flex justify-center p-20">
-    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-  </div>
-
-  <ng-container *ngIf="!isLoading()">
-    <!-- KPI Row -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="stats()">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Active Codes</h3>
-          <span class="material-symbols-outlined text-indigo-500 bg-indigo-50 p-2 rounded-xl">local_activity</span>
+  <!-- Page Header -->
+  <div class="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800">
+    <div class="max-w-7xl mx-auto px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-200 dark:shadow-amber-900/30">
+          <span class="material-symbols-outlined text-white text-[22px]">local_activity</span>
         </div>
-        <p class="text-4xl font-extrabold text-slate-800">{{ stats().active_codes }}</p>
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Promo Codes</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage marketing campaigns, discounts, and referrals.</p>
+        </div>
       </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6 flex flex-col justify-between bg-emerald-50/20">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-emerald-700 text-sm font-bold uppercase tracking-wider">Total Redemptions</h3>
-          <span class="material-symbols-outlined text-emerald-500 bg-emerald-100 p-2 rounded-xl">redeem</span>
-        </div>
-        <p class="text-4xl font-extrabold text-emerald-800">{{ stats().total_redemptions }}</p>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-6 flex flex-col justify-between bg-amber-50/30">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-amber-600 text-sm font-bold uppercase tracking-wider">Top Performing Code</h3>
-          <span class="material-symbols-outlined text-amber-500 bg-amber-100 p-2 rounded-xl">star</span>
-        </div>
-        <p class="text-3xl font-black text-amber-600 tracking-widest">{{ stats().top_code }}</p>
+      <div class="flex items-center gap-3">
+        <button (click)="openModal()"
+                class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 active:scale-95 text-white dark:text-slate-900 font-bold rounded-xl transition shadow-sm text-sm cursor-pointer">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          New Code
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-slate-50 border-b border-slate-200">
-          <tr>
-            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Code & Expiry</th>
-            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Discount</th>
-            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Burn Rate / Usage</th>
-            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let code of codes()" class="hover:bg-slate-50 transition-colors" [ngClass]="{'opacity-60': !code.is_active || isExpired(code.valid_until)}">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div class="inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-lg border border-slate-800 border-dashed">
-                  <span class="text-sm font-mono font-bold tracking-widest">{{ code.code }}</span>
-                  <button (click)="copyToClipboard(code.code)" class="text-slate-400 hover:text-white transition-colors cursor-pointer" title="Copy to clipboard">
-                    <span class="material-symbols-outlined text-[14px]">content_copy</span>
-                  </button>
-                </div>
-              </div>
-              <div class="mt-2 text-xs font-semibold" [ngClass]="isExpired(code.valid_until) ? 'text-rose-500' : 'text-slate-400'">
-                <span *ngIf="code.valid_until">Expires: {{ code.valid_until | date:'mediumDate' }}</span>
-                <span *ngIf="!code.valid_until">No Expiration Date</span>
-                <span *ngIf="isExpired(code.valid_until)" class="ml-1 uppercase tracking-wider font-bold">(Expired)</span>
-              </div>
-            </td>
-            
-            <td class="px-6 py-4">
-              <div class="text-lg font-extrabold text-slate-800">
-                <span *ngIf="code.discount_type === 'percentage'">{{ code.discount_value }}% OFF</span>
-                <span *ngIf="code.discount_type === 'fixed'">GH₵{{ code.discount_value }} OFF</span>
-              </div>
-            </td>
+  <div class="max-w-7xl mx-auto px-8 py-8 w-full flex-1 flex flex-col min-h-0">
 
-            <td class="px-6 py-4 w-64">
-              <!-- Unlimited -->
-              <div *ngIf="!code.max_uses || code.max_uses === 0" class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-slate-400">all_inclusive</span>
-                <div class="text-sm font-bold text-slate-700">{{ code.current_uses || 0 }} total uses</div>
-              </div>
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-24 text-slate-400">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
+        <p class="text-sm font-medium">Loading codes...</p>
+      </div>
+    }
 
-              <!-- Capped -->
-              <div *ngIf="code.max_uses > 0">
-                <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-1 tracking-wider uppercase">
-                  <span>Redemptions</span>
-                  <span [ngClass]="{'text-rose-500': ((code.current_uses || 0) / code.max_uses) > 0.9}">
-                    {{ code.current_uses || 0 }} / {{ code.max_uses }}
-                  </span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-1.5">
-                  <div class="h-1.5 rounded-full transition-all" 
-                       [style.width]="((code.current_uses || 0) / code.max_uses * 100) + '%'"
-                       [ngClass]="((code.current_uses || 0) / code.max_uses) > 0.9 ? 'bg-rose-500' : 'bg-indigo-500'">
+    @if (!isLoading()) {
+      <!-- KPI Row -->
+      @if (stats()) {
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 shadow-sm border-2 border-indigo-50 dark:border-indigo-900/20 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/10 rounded-full blur-3xl -mr-10 -mt-10 transition group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/20"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[14px] text-indigo-600 dark:text-indigo-400">check_circle</span>
                   </div>
+                  <h3 class="text-xs font-black uppercase text-indigo-700 dark:text-indigo-400 tracking-wider">Active Codes</h3>
                 </div>
               </div>
-            </td>
+              <p class="text-3xl font-black text-slate-900 dark:text-white">{{ stats().active_codes }}</p>
+            </div>
+          </div>
 
-            <td class="px-6 py-4 text-right">
-              <button (click)="toggleCode(code.id!)" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer" [ngClass]="code.is_active ? 'bg-indigo-600' : 'bg-slate-200'" title="Toggle Status">
-                <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform" [ngClass]="code.is_active ? 'translate-x-6' : 'translate-x-1'"></span>
-              </button>
-            </td>
-          </tr>
-          
-          <tr *ngIf="codes().length === 0">
-            <td colspan="4" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center justify-center">
-                <span class="material-symbols-outlined text-4xl text-slate-300 mb-3">local_activity</span>
-                <p class="text-slate-500 font-medium">No promo codes generated yet.</p>
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 shadow-sm border-2 border-emerald-50 dark:border-emerald-900/20 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-emerald-50 dark:bg-emerald-900/10 rounded-full blur-3xl -mr-10 -mt-10 transition group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/20"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[14px] text-emerald-600 dark:text-emerald-400">redeem</span>
+                  </div>
+                  <h3 class="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-wider">Total Redemptions</h3>
+                </div>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </ng-container>
+              <p class="text-3xl font-black text-slate-900 dark:text-white">{{ stats().total_redemptions }}</p>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 shadow-sm border-2 border-amber-100 dark:border-amber-900/30 relative overflow-hidden group">
+            <div class="absolute right-0 top-0 w-32 h-32 bg-amber-50 dark:bg-amber-900/10 rounded-full blur-3xl -mr-10 -mt-10 transition group-hover:bg-amber-100 dark:group-hover:bg-amber-900/20"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-sm">
+                    <span class="material-symbols-outlined text-[14px] text-white">star</span>
+                  </div>
+                  <h3 class="text-xs font-black uppercase text-amber-600 dark:text-amber-500 tracking-wider">Top Performing Code</h3>
+                </div>
+              </div>
+              <p class="text-2xl font-black text-slate-900 dark:text-white tracking-widest font-mono mt-1">{{ stats().top_code }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Data Table -->
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-slate-200 dark:border-zinc-800 flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div class="overflow-x-auto flex-1 min-h-0 custom-scrollbar">
+          <table class="w-full text-left border-collapse min-w-[800px]">
+            <thead class="bg-slate-50/50 dark:bg-zinc-800/30 border-b border-slate-100 dark:border-zinc-800 sticky top-0 z-10 backdrop-blur-sm">
+              <tr>
+                <th class="px-6 py-4 text-xs font-black text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Promo Code</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Discount</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-400 dark:text-zinc-500 uppercase tracking-wider">Usage & Limits</th>
+                <th class="px-6 py-4 text-xs font-black text-slate-400 dark:text-zinc-500 uppercase tracking-wider text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/50">
+              @for (code of codes(); track code.id) {
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-zinc-800/20 transition-colors group" [class.opacity-50]="!code.is_active || isExpired(code.valid_until)">
+                  <td class="px-6 py-5">
+                    <div class="flex items-center gap-3">
+                      <div class="inline-flex items-center bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-lg p-1 pr-3">
+                        <button (click)="copyToClipboard(code.code)" class="w-7 h-7 flex items-center justify-center rounded bg-white dark:bg-zinc-700 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:shadow-sm transition cursor-pointer" title="Copy to clipboard">
+                          <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                        </button>
+                        <span class="ml-3 text-sm font-mono font-black text-slate-900 dark:text-white tracking-widest">{{ code.code }}</span>
+                      </div>
+                    </div>
+                    <div class="mt-3 flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[14px] text-slate-400 dark:text-zinc-500">event</span>
+                      <span class="text-xs font-semibold" [class.text-rose-500]="isExpired(code.valid_until)" [class.text-slate-500]="!isExpired(code.valid_until)" [class.dark:text-slate-400]="!isExpired(code.valid_until)">
+                        @if (code.valid_until) {
+                          Expires: {{ code.valid_until | date:'mediumDate' }}
+                        } @else {
+                          No Expiration
+                        }
+                        @if (isExpired(code.valid_until)) {
+                          <span class="ml-1 uppercase tracking-wider font-black">(Expired)</span>
+                        }
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <td class="px-6 py-5 align-top pt-6">
+                    <div class="inline-flex flex-col">
+                      <span class="text-xl font-black text-amber-600 dark:text-amber-500 tracking-tight">
+                        @if (code.discount_type === 'percentage') {
+                          {{ code.discount_value }}% OFF
+                        } @else {
+                          GH₵{{ code.discount_value }} OFF
+                        }
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-5 align-top pt-6 w-72">
+                    <!-- Unlimited -->
+                    @if (!code.max_uses || code.max_uses === 0) {
+                      <div class="flex items-center gap-2 bg-slate-50 dark:bg-zinc-800/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-zinc-800">
+                        <span class="material-symbols-outlined text-indigo-500 text-[18px]">all_inclusive</span>
+                        <div class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ code.current_uses || 0 }} total uses</div>
+                      </div>
+                    }
+
+                    <!-- Capped -->
+                    @if (code.max_uses > 0) {
+                      <div class="bg-slate-50 dark:bg-zinc-800/50 rounded-lg px-4 py-3 border border-slate-100 dark:border-zinc-800">
+                        <div class="flex justify-between text-[10px] font-black text-slate-400 dark:text-zinc-500 mb-2 tracking-wider uppercase">
+                          <span>Redemptions</span>
+                          <span [class.text-rose-500]="((code.current_uses || 0) / code.max_uses) > 0.9">
+                            {{ code.current_uses || 0 }} / {{ code.max_uses }}
+                          </span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
+                          <div class="h-full transition-all duration-500 rounded-full" 
+                               [style.width]="((code.current_uses || 0) / code.max_uses * 100) + '%'"
+                               [class.bg-rose-500]="((code.current_uses || 0) / code.max_uses) > 0.9"
+                               [class.bg-indigo-500]="((code.current_uses || 0) / code.max_uses) <= 0.9">
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </td>
+
+                  <td class="px-6 py-5 text-right align-top pt-6">
+                    <button (click)="toggleCode(code.id!)" 
+                            class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer border-2 border-transparent"
+                            [class.bg-indigo-600]="code.is_active" 
+                            [class.bg-slate-200]="!code.is_active"
+                            [class.dark:bg-slate-700]="!code.is_active"
+                            title="Toggle Status">
+                      <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out" 
+                            [class.translate-x-5]="code.is_active" 
+                            [class.translate-x-0.5]="!code.is_active"></span>
+                    </button>
+                    <div class="mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      {{ code.is_active ? 'Active' : 'Disabled' }}
+                    </div>
+                  </td>
+                </tr>
+              }
+              
+              @if (codes().length === 0) {
+                <tr>
+                  <td colspan="4" class="px-6 py-20 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4 border border-slate-200 dark:border-zinc-700">
+                      <span class="material-symbols-outlined text-3xl text-slate-400 dark:text-zinc-500">local_activity</span>
+                    </div>
+                    <h3 class="font-bold text-slate-700 dark:text-white mb-1">No promo codes yet</h3>
+                    <p class="text-slate-500 dark:text-zinc-400 text-sm">Create your first campaign to get started.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
 </div>
 
 <!-- Modal -->
-<div *ngIf="isModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
+@if (isModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeModal()"></div>
     
-    <div class="flex justify-between items-center p-6 border-b border-slate-200">
-      <h2 class="text-xl font-bold text-slate-900">Create Promo Code</h2>
-      <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-
-    <div class="p-6 space-y-5">
-      <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1">Code</label>
-        <input type="text" [(ngModel)]="form().code" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-mono text-slate-900 font-bold" placeholder="e.g. BFCM2026">
-      </div>
+    <div class="relative bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-zinc-700 animate-slide-up">
       
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Discount Type</label>
-          <select [(ngModel)]="form().discount_type" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-slate-900 font-medium">
-            <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed Amount (GH₵)</option>
-          </select>
+      <!-- Header -->
+      <div class="flex justify-between items-center px-7 py-6 border-b border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-500 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[20px]">local_activity</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Create Promo Code</h2>
+            <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Generate a new discount campaign</p>
+          </div>
         </div>
+        <button (click)="closeModal()" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="px-7 py-6 space-y-5">
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Value</label>
-          <input type="number" [(ngModel)]="form().discount_value" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 font-bold" min="1">
+          <label class="block text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">Code</label>
+          <div class="relative">
+            <input type="text" [(ngModel)]="form().code" 
+                   class="w-full pl-11 pr-4 py-3 border-2 border-slate-200 dark:border-zinc-700 rounded-xl focus:ring-0 focus:border-amber-500 outline-none uppercase font-mono text-slate-900 dark:text-white font-black bg-slate-50 dark:bg-zinc-900/50 transition placeholder:text-slate-300 dark:placeholder:text-zinc-700" 
+                   placeholder="e.g. BFCM2026">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-[18px]">tag</span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">Discount Type</label>
+            <div class="relative">
+              <select [(ngModel)]="form().discount_type" 
+                      class="w-full pl-10 pr-4 py-3 border-2 border-slate-200 dark:border-zinc-700 rounded-xl focus:ring-0 focus:border-amber-500 outline-none bg-slate-50 dark:bg-zinc-900/50 text-slate-900 dark:text-white font-bold transition appearance-none">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed (GH₵)</option>
+              </select>
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-[18px]">sell</span>
+              <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-[20px] pointer-events-none">expand_more</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2">Value</label>
+            <input type="number" [(ngModel)]="form().discount_value" 
+                   class="w-full px-4 py-3 border-2 border-slate-200 dark:border-zinc-700 rounded-xl focus:ring-0 focus:border-amber-500 outline-none text-slate-900 dark:text-white font-bold bg-slate-50 dark:bg-zinc-900/50 transition text-right" 
+                   min="1" placeholder="0">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2 text-nowrap truncate">Max Uses (0 = unlimited)</label>
+            <div class="relative">
+              <input type="number" [(ngModel)]="form().max_uses" 
+                     class="w-full pl-10 pr-4 py-3 border-2 border-slate-200 dark:border-zinc-700 rounded-xl focus:ring-0 focus:border-amber-500 outline-none text-slate-900 dark:text-white font-bold bg-slate-50 dark:bg-zinc-900/50 transition" 
+                     min="0" placeholder="0">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 text-[18px]">people</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-2 text-nowrap truncate">Valid Until (Expiry)</label>
+            <input type="date" [(ngModel)]="form().valid_until" 
+                   class="w-full px-4 py-3 border-2 border-slate-200 dark:border-zinc-700 rounded-xl focus:ring-0 focus:border-amber-500 outline-none text-slate-900 dark:text-white font-bold bg-slate-50 dark:bg-zinc-900/50 transition dark:[color-scheme:dark]">
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Max Uses (0 = unlimited)</label>
-          <input type="number" [(ngModel)]="form().max_uses" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 font-medium" min="0">
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1">Valid Until (Expiry)</label>
-          <input type="date" [(ngModel)]="form().valid_until" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 font-medium">
-        </div>
+      <!-- Footer -->
+      <div class="px-7 py-5 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-3 bg-slate-50 dark:bg-zinc-800/50">
+        <button (click)="closeModal()" 
+                class="px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-600 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-700 cursor-pointer transition shadow-sm">
+          Cancel
+        </button>
+        <button (click)="createCode()" 
+                [disabled]="isSaving() || !form().code || !form().discount_value" 
+                class="px-6 py-2.5 text-sm font-bold text-slate-900 dark:text-slate-900 bg-amber-400 hover:bg-amber-500 disabled:opacity-50 disabled:bg-slate-200 disabled:text-slate-400 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
+          @if (isSaving()) {
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-slate-900"></div>
+            Saving...
+          } @else {
+            <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+            Generate Code
+          }
+        </button>
       </div>
-    </div>
-
-    <div class="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
-      <button (click)="closeModal()" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 cursor-pointer transition">Cancel</button>
-      <button (click)="createCode()" [disabled]="isSaving() || !form().code || !form().discount_value" class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:opacity-50 cursor-pointer transition shadow-sm">
-        {{ isSaving() ? 'Saving...' : 'Generate Code' }}
-      </button>
     </div>
   </div>
-</div>
+}

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { LayoutService } from '../layout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class SidebarComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  public layout = inject(LayoutService);
   
   currentRoute = signal<string>('');
 

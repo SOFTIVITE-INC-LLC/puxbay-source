@@ -30,6 +30,17 @@ export class BlogEditComponent implements OnInit {
     status: 'draft'
   });
 
+  categoryColors = [
+    { value: 'cyan', label: 'Cyan', bg: '#06b6d4' },
+    { value: 'purple', label: 'Purple', bg: '#a855f7' },
+    { value: 'green', label: 'Green', bg: '#22c55e' },
+    { value: 'slate', label: 'Slate', bg: '#64748b' },
+    { value: 'rose', label: 'Rose', bg: '#f43f5e' },
+    { value: 'orange', label: 'Orange', bg: '#f97316' },
+    { value: 'indigo', label: 'Indigo', bg: '#6366f1' },
+    { value: 'amber', label: 'Amber', bg: '#f59e0b' },
+  ];
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {

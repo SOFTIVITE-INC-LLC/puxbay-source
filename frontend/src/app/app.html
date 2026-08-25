@@ -1,1 +1,17 @@
 <router-outlet></router-outlet>
+
+@if(showInstallPrompt()) {
+<div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 w-[90%] max-w-md border border-gray-700 animate-fade-in-up">
+  <div class="bg-indigo-600 rounded-lg p-2 shadow-inner">
+    <span class="material-symbols-outlined text-white block">download</span>
+  </div>
+  <div class="flex-1">
+    <h3 class="font-semibold text-gray-50">Install Puxbay App</h3>
+    <p class="text-sm text-gray-400">Install on your device for a better experience</p>
+  </div>
+  <div class="flex gap-2">
+    <button (click)="dismissPrompt()" class="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors cursor-pointer">Later</button>
+    <button (click)="installPwa()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white rounded-lg transition-colors shadow-lg cursor-pointer">Install</button>
+  </div>
+</div>
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FaqService, FAQ } from '../../services/faq.service';
@@ -16,6 +16,10 @@ export class FaqsComponent implements OnInit {
   isLoading = signal(true);
   isModalOpen = signal(false);
   isSaving = signal(false);
+  expandedId = signal<number | null>(null);
+
+  publishedCount = computed(() => this.faqs().filter(f => f.is_published).length);
+  draftCount = computed(() => this.faqs().filter(f => !f.is_published).length);
 
   form = signal<FAQ>({
     question: '',
@@ -48,6 +52,14 @@ export class FaqsComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen.set(false);
+  }
+
+  setFormField(field: keyof FAQ, value: string) {
+    this.form.update(f => ({ ...f, [field]: value }));
+  }
+
+  toggleExpand(id: number) {
+    this.expandedId.set(this.expandedId() === id ? null : id);
   }
 
   createFaq() {

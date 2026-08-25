@@ -1,118 +1,221 @@
-<div class="p-8 max-w-4xl mx-auto">
-  <div class="flex items-center gap-4 mb-8">
-    <a routerLink="/blog" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer">
-      <span class="material-symbols-outlined text-[24px]">arrow_back</span>
-    </a>
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900">{{ isNew() ? 'New Blog Post' : 'Edit Blog Post' }}</h1>
-      <p class="text-slate-500 mt-1">Publish news and updates to the main platform.</p>
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 px-6 py-3 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <a routerLink="/blog" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+      </a>
+      <div class="w-px h-5 bg-slate-200 dark:bg-zinc-700"></div>
+      <div>
+        <h1 class="text-base font-bold text-slate-900 dark:text-white leading-tight">
+          {{ isNew() ? 'New Blog Post' : 'Edit Blog Post' }}
+        </h1>
+        <p class="text-xs text-slate-400">{{ isNew() ? 'Draft a new post for the platform blog' : 'Update an existing blog post' }}</p>
+      </div>
     </div>
-  </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Status badge -->
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
+           [class.bg-amber-50]="post().status === 'draft'"
+           [class.text-amber-700]="post().status === 'draft'"
+           [class.border]="true"
+           [class.border-amber-200]="post().status === 'draft'"
+           [class.bg-emerald-50]="post().status === 'published'"
+           [class.text-emerald-700]="post().status === 'published'"
+           [class.border-emerald-200]="post().status === 'published'">
+        <span class="w-1.5 h-1.5 rounded-full inline-block"
+              [class.bg-amber-400]="post().status === 'draft'"
+              [class.bg-emerald-400]="post().status === 'published'"></span>
+        {{ post().status === 'draft' ? 'Draft' : 'Published' }}
+      </div>
+
+      <a routerLink="/blog" class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-zinc-800 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition cursor-pointer">
+        Cancel
+      </a>
+      <button (click)="save()" [disabled]="isSaving()"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl disabled:opacity-50 transition shadow-sm flex items-center gap-2 cursor-pointer">
+        @if (isSaving()) {
+          <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+          <span>Saving...</span>
+        } @else {
+          <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+          <span>{{ isNew() ? 'Publish Post' : 'Save Changes' }}</span>
+        }
+      </button>
+    </div>
+  </header>
 
   @if (isLoading()) {
-    <div class="flex justify-center p-20">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+    <div class="flex-1 flex items-center justify-center">
+      <div class="flex flex-col items-center gap-4 text-slate-400">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+        <p class="text-sm font-medium">Loading post...</p>
+      </div>
     </div>
   } @else {
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      
-      @if (error()) {
-        <div class="p-4 bg-red-50 text-red-600 border-b border-red-100 font-medium">
-          {{ error() }}
-        </div>
-      }
 
-      <div class="p-6 space-y-6">
-        <!-- Title & Slug -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Title</label>
-            <input type="text"
-                   [value]="post().title"
-                   (input)="updateField('title', $any($event.target).value)"
-                   (blur)="generateSlug()"
-                   placeholder="e.g. New Feature Launch"
-                   class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Slug</label>
+    @if (error()) {
+      <div class="mx-6 mt-4 p-4 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-sm font-medium flex items-center gap-3">
+        <span class="material-symbols-outlined text-[18px] shrink-0">error</span>
+        {{ error() }}
+      </div>
+    }
+
+    <div class="flex-1 flex gap-0 max-w-screen-2xl mx-auto w-full p-6 gap-6">
+
+      <!-- Left Panel: Metadata -->
+      <aside class="w-80 shrink-0 space-y-4">
+
+        <!-- Slug -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-5 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Post URL</h3>
+          <label class="block text-xs font-semibold text-slate-500 mb-1.5">Slug</label>
+          <div class="flex items-center bg-slate-50 dark:bg-zinc-800 rounded-xl border border-slate-200 dark:border-zinc-700 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition">
+            <span class="pl-3 text-slate-400 text-xs font-mono shrink-0">/blog/</span>
             <input type="text"
                    [value]="post().slug"
                    (input)="updateField('slug', $any($event.target).value)"
-                   placeholder="e.g. new-feature-launch"
-                   class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                   placeholder="my-post-slug"
+                   class="flex-1 px-2 py-2.5 text-sm bg-transparent outline-none font-mono text-slate-700 dark:text-slate-300">
           </div>
         </div>
 
         <!-- Category -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Category Name</label>
-            <input type="text"
-                   [value]="post().category"
-                   (input)="updateField('category', $any($event.target).value)"
-                   placeholder="e.g. Product Update"
-                   class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-5 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Category</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1.5">Category Name</label>
+              <input type="text"
+                     [value]="post().category"
+                     (input)="updateField('category', $any($event.target).value)"
+                     placeholder="e.g. Product Update"
+                     class="w-full px-3.5 py-2.5 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-2">Badge Color</label>
+              <div class="grid grid-cols-4 gap-2">
+                @for (color of categoryColors; track color.value) {
+                  <button (click)="updateField('category_color', color.value)"
+                          class="h-8 rounded-lg border-2 transition-all cursor-pointer"
+                          [class.border-indigo-500]="post().category_color === color.value"
+                          [class.scale-110]="post().category_color === color.value"
+                          [class.border-transparent]="post().category_color !== color.value"
+                          [style.background]="color.bg"
+                          [title]="color.label">
+                  </button>
+                }
+              </div>
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Category Color</label>
-            <select [value]="post().category_color"
-                    (change)="updateField('category_color', $any($event.target).value)"
-                    class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-              <option value="cyan">Cyan</option>
-              <option value="purple">Purple</option>
-              <option value="green">Green</option>
-              <option value="slate">Slate (Default)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Excerpt -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Excerpt</label>
-          <textarea [value]="post().excerpt || ''"
-                    (input)="updateField('excerpt', $any($event.target).value)"
-                    rows="2"
-                    placeholder="Brief summary shown on the blog listing..."
-                    class="w-full px-4 py-3 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-y"></textarea>
-        </div>
-
-        <!-- Content -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Content</label>
-          <textarea [value]="post().content"
-                    (input)="updateField('content', $any($event.target).value)"
-                    rows="15"
-                    placeholder="Full blog post content (HTML supported)..."
-                    class="w-full px-4 py-3 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none resize-y font-mono"></textarea>
         </div>
 
         <!-- Status -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Status</label>
-          <select [value]="post().status"
-                  (change)="updateField('status', $any($event.target).value)"
-                  class="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-            <option value="draft">Draft (Hidden)</option>
-            <option value="published">Published</option>
-          </select>
-        </div>
-      </div>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-5 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Visibility</h3>
+          <div class="space-y-2">
+            <button (click)="updateField('status', 'draft')"
+                    class="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer"
+                    [class.border-amber-400]="post().status === 'draft'"
+                    [class.bg-amber-50]="post().status === 'draft'"
+                    [class.dark:bg-amber-900/10]="post().status === 'draft'"
+                    [class.border-slate-200]="post().status !== 'draft'"
+                    [class.dark:border-zinc-700]="post().status !== 'draft'">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                   [class.bg-amber-100]="post().status === 'draft'"
+                   [class.bg-slate-100]="post().status !== 'draft'"
+                   [class.dark:bg-zinc-700]="post().status !== 'draft'">
+                <span class="material-symbols-outlined text-[16px]"
+                      [class.text-amber-600]="post().status === 'draft'"
+                      [class.text-slate-400]="post().status !== 'draft'">edit_note</span>
+              </div>
+              <div class="text-left">
+                <p class="text-sm font-bold text-slate-800 dark:text-white">Draft</p>
+                <p class="text-xs text-slate-400">Hidden from visitors</p>
+              </div>
+              @if (post().status === 'draft') {
+                <span class="material-symbols-outlined text-indigo-500 ml-auto text-[18px]">check_circle</span>
+              }
+            </button>
 
-      <!-- Footer Action -->
-      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-        <a routerLink="/blog" class="px-5 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition cursor-pointer">
-          Cancel
-        </a>
-        <button (click)="save()" [disabled]="isSaving()" class="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition shadow-sm flex items-center gap-2 cursor-pointer">
-          @if (isSaving()) {
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            Saving...
-          } @else {
-            <span class="material-symbols-outlined text-[18px]">save</span>
-            Save Post
-          }
-        </button>
+            <button (click)="updateField('status', 'published')"
+                    class="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer"
+                    [class.border-emerald-400]="post().status === 'published'"
+                    [class.bg-emerald-50]="post().status === 'published'"
+                    [class.dark:bg-emerald-900/10]="post().status === 'published'"
+                    [class.border-slate-200]="post().status !== 'published'"
+                    [class.dark:border-zinc-700]="post().status !== 'published'">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                   [class.bg-emerald-100]="post().status === 'published'"
+                   [class.bg-slate-100]="post().status !== 'published'"
+                   [class.dark:bg-zinc-700]="post().status !== 'published'">
+                <span class="material-symbols-outlined text-[16px]"
+                      [class.text-emerald-600]="post().status === 'published'"
+                      [class.text-slate-400]="post().status !== 'published'">public</span>
+              </div>
+              <div class="text-left">
+                <p class="text-sm font-bold text-slate-800 dark:text-white">Published</p>
+                <p class="text-xs text-slate-400">Visible to the public</p>
+              </div>
+              @if (post().status === 'published') {
+                <span class="material-symbols-outlined text-indigo-500 ml-auto text-[18px]">check_circle</span>
+              }
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Right Panel: Main Content -->
+      <div class="flex-1 min-w-0 space-y-4">
+
+        <!-- Title -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-6 shadow-sm">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Post Title</label>
+          <input type="text"
+                 [value]="post().title"
+                 (input)="updateField('title', $any($event.target).value)"
+                 (blur)="generateSlug()"
+                 placeholder="e.g. Announcing New Inventory Features for 2025"
+                 class="w-full text-2xl font-bold bg-transparent outline-none text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-zinc-600 border-none focus:ring-0">
+        </div>
+
+        <!-- Excerpt -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Excerpt</label>
+            <span class="text-xs text-slate-400">{{ post().excerpt?.length || 0 }} / 300</span>
+          </div>
+          <textarea [value]="post().excerpt || ''"
+                    (input)="updateField('excerpt', $any($event.target).value)"
+                    rows="3"
+                    maxlength="300"
+                    placeholder="A short summary shown on the blog listing page..."
+                    class="w-full text-sm bg-transparent outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-300 dark:placeholder:text-zinc-600 resize-none border-none focus:ring-0 leading-relaxed">
+          </textarea>
+        </div>
+
+        <!-- Content Editor -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+          <!-- Editor toolbar -->
+          <div class="flex items-center gap-1 px-4 py-2 border-b border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mr-2">Content</span>
+            <div class="w-px h-4 bg-slate-200 dark:bg-zinc-700 mr-1"></div>
+            <span class="text-[10px] text-slate-400 font-mono bg-slate-100 dark:bg-zinc-700 px-2 py-0.5 rounded">HTML supported</span>
+            <div class="ml-auto text-xs text-slate-400">{{ post().content?.length || 0 }} chars</div>
+          </div>
+          <div class="p-6">
+            <textarea [value]="post().content"
+                      (input)="updateField('content', $any($event.target).value)"
+                      rows="24"
+                      placeholder="Write your full blog post here. HTML tags are supported for rich formatting..."
+                      class="w-full text-sm bg-transparent outline-none text-slate-700 dark:text-slate-300 placeholder:text-slate-300 dark:placeholder:text-zinc-600 resize-y border-none focus:ring-0 font-mono leading-relaxed">
+            </textarea>
+          </div>
+        </div>
+
       </div>
 
     </div>
