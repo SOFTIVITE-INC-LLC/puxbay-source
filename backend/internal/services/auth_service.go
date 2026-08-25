@@ -89,6 +89,15 @@ func (s *AuthService) GetRolePermissions(roleID *uuid.UUID) ([]string, error) {
 	return permissions, err
 }
 
+// ClearPermissionsCache clears the in-memory permissions cache,
+// forcing subsequent requests to re-fetch from the database.
+func (s *AuthService) ClearPermissionsCache() {
+	s.permsCache.Range(func(key, value any) bool {
+		s.permsCache.Delete(key)
+		return true
+	})
+}
+
 // GenerateTokenPair creates a new access + refresh token pair.
 func (s *AuthService) GenerateTokenPair(userID, tenantID uuid.UUID, branchID *uuid.UUID, role string, roleID *uuid.UUID, version int) (*TokenPair, error) {
 	accessToken, err := s.generateToken(userID, tenantID, branchID, role, roleID, "access", version, s.accessExpiry)
