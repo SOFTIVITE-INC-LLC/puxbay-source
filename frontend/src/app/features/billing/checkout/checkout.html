@@ -1,123 +1,174 @@
-<div class="h-full flex flex-col p-6 space-y-6 max-w-4xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
-  <div class="flex justify-between items-center mb-4">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500">
-        Checkout
-      </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
-        Review your order and apply a promo code before completing your payment.
-      </p>
-    </div>
+<div class="min-h-[calc(100vh-4rem)] flex flex-col p-4 md:p-8 space-y-8 max-w-5xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
+  
+  <div class="flex flex-col mb-2 text-center md:text-left">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 mb-2">
+      Complete Your Upgrade
+    </h1>
+    <p class="text-zinc-500 dark:text-zinc-400 text-lg">
+      You are just one step away from unlocking premium features.
+    </p>
   </div>
 
   @if (!plan()) {
-    <div class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    <div class="flex flex-col justify-center items-center py-32 space-y-4">
+      <div class="animate-spin rounded-full h-14 w-14 border-4 border-zinc-200 dark:border-zinc-800 border-t-blue-600 dark:border-t-blue-500"></div>
+      <p class="text-zinc-500 font-medium">Preparing your checkout...</p>
     </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Order Summary -->
-      <div>
-        <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden h-full">
-          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-6">Order Summary</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+      
+      <!-- Order Summary Card -->
+      <div class="lg:col-span-3 space-y-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 shadow-2xl shadow-blue-900/5 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden group">
+          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+          
+          <div class="flex items-start justify-between mb-8">
+            <div>
+              <div class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+                Selected Plan
+              </div>
+              <h2 class="text-3xl font-black text-zinc-900 dark:text-white">{{ plan()?.name }}</h2>
+              <p class="text-zinc-500 dark:text-zinc-400 mt-1">{{ plan()?.description }}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-3xl font-bold text-zinc-900 dark:text-white">{{ originalPrice() | appCurrency }}</div>
+              <div class="text-sm text-zinc-500 dark:text-zinc-400 font-medium">/ {{ billingCycle() === 'monthly' ? 'month' : 'year' }}</div>
+            </div>
+          </div>
+          
+          <!-- Features List -->
+          @if (plan()?.features?.length) {
+            <div class="mb-8">
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider mb-4">What's included</h3>
+              <ul class="space-y-3">
+                @for (feature of plan()?.features; track feature.text) {
+                  @if (feature.is_available) {
+                    <li class="flex items-start gap-3">
+                      <div class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center mt-0.5">
+                        <span class="material-symbols-outlined text-[14px] text-emerald-600 dark:text-emerald-400 font-bold">check</span>
+                      </div>
+                      <span class="text-zinc-700 dark:text-zinc-300">{{ feature.text }}</span>
+                    </li>
+                  }
+                }
+              </ul>
+            </div>
+          }
+
+          <div class="border-t border-dashed border-zinc-200 dark:border-zinc-800 my-6"></div>
           
           <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Plan</span>
-              <span class="font-bold text-zinc-900 dark:text-white">{{ plan()?.name }}</span>
-            </div>
-            
-            <div class="flex justify-between items-center">
-              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Billing Cycle</span>
-              <span class="font-bold text-zinc-900 dark:text-white capitalize">{{ billingCycle() }}</span>
-            </div>
-            
-            <div class="border-t border-zinc-200 dark:border-zinc-800 my-4"></div>
-            
-            <div class="flex justify-between items-center">
-              <span class="text-zinc-500 dark:text-zinc-400 font-medium">Subtotal</span>
+            <div class="flex justify-between items-center text-lg">
+              <span class="text-zinc-600 dark:text-zinc-400">Subtotal</span>
               <span class="font-bold text-zinc-900 dark:text-white">{{ originalPrice() | appCurrency }}</span>
             </div>
-
+            
             @if (promoSuccess()) {
-              <div class="flex justify-between items-center text-emerald-600 dark:text-emerald-400">
-                <span class="font-medium">Discount ({{ promoCode() }})</span>
-                <span class="font-bold">-{{ discountAmount() | appCurrency }}</span>
+              <div class="flex justify-between items-center text-lg text-emerald-600 dark:text-emerald-400 p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20">
+                <div class="flex flex-col">
+                  <span class="font-bold">Discount Applied</span>
+                  <span class="text-sm opacity-80 uppercase tracking-wider">Code: {{ promoCode() }}</span>
+                </div>
+                <span class="font-black text-xl">-{{ discountAmount() | appCurrency }}</span>
               </div>
             }
 
-            <div class="border-t border-zinc-200 dark:border-zinc-800 my-4"></div>
-
-            <div class="flex justify-between items-center text-xl">
-              <span class="font-bold text-zinc-900 dark:text-white">Total due today</span>
-              <span class="font-black text-blue-600 dark:text-blue-400">{{ finalTotal() | appCurrency }}</span>
+            <div class="flex justify-between items-end pt-4">
+              <span class="text-xl font-bold text-zinc-900 dark:text-white">Total due today</span>
+              <span class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                {{ finalTotal() | appCurrency }}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Payment / Promo Form -->
-      <div class="space-y-6">
-        <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-4">Promo Code</h2>
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Promo Code Box -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 shadow-xl border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+              <span class="material-symbols-outlined text-[18px]">sell</span>
+            </div>
+            <h2 class="text-xl font-bold text-zinc-900 dark:text-white">Have a promo code?</h2>
+          </div>
           
           @if (!promoSuccess()) {
-            <div class="flex gap-3">
+            <div class="flex flex-col gap-3">
               <input 
                 type="text" 
                 [(ngModel)]="promoCode"
-                placeholder="Enter code here"
-                class="flex-1 px-4 py-3 bg-white/50 dark:bg-zinc-800/50 border border-zinc-300 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-zinc-900 dark:text-white transition-all uppercase placeholder-normal"
+                placeholder="Enter promo code"
+                class="w-full px-5 py-4 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-300 dark:border-zinc-700 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none text-zinc-900 dark:text-white transition-all uppercase placeholder-normal font-medium text-center tracking-widest"
                 [disabled]="promoLoading()"
               >
               <button 
                 (click)="applyPromo()"
                 [disabled]="promoLoading() || !promoCode().trim()"
-                class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg active:scale-[0.98]"
               >
                 @if (promoLoading()) {
-                  <span class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></span>
+                  <span class="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent"></span>
                 }
-                Apply
+                Apply Discount
               </button>
             </div>
           } @else {
-            <div class="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-              <div class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-                <span class="material-symbols-outlined">check_circle</span>
-                <span class="font-bold uppercase tracking-wider">{{ promoCode() }} applied</span>
+            <div class="flex flex-col items-center justify-center p-6 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-2xl space-y-3">
+              <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2">
+                <span class="material-symbols-outlined text-[24px]">check</span>
               </div>
-              <button (click)="removePromo()" class="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">Remove</button>
+              <div class="text-center">
+                <p class="text-emerald-700 dark:text-emerald-400 font-bold uppercase tracking-widest">{{ promoCode() }}</p>
+                <p class="text-sm text-emerald-600 dark:text-emerald-500">Successfully applied</p>
+              </div>
+              <button (click)="removePromo()" class="mt-2 text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white underline transition-colors">
+                Remove promo code
+              </button>
             </div>
           }
           
           @if (promoError()) {
-            <p class="mt-2 text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1">
-              <span class="material-symbols-outlined text-[16px]">error</span>
-              {{ promoError() }}
-            </p>
+            <div class="mt-4 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 flex items-start gap-3">
+              <span class="material-symbols-outlined text-red-600 dark:text-red-400 mt-0.5 text-[18px]">error</span>
+              <p class="text-sm text-red-600 dark:text-red-400 font-medium leading-tight">
+                {{ promoError() }}
+              </p>
+            </div>
           }
         </div>
 
-        <button 
-          (click)="processPayment()"
-          [disabled]="isProcessing()"
-          class="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-3"
-        >
-          @if (isProcessing()) {
-            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-            Processing...
-          } @else {
-            <span>Proceed to Payment</span>
-            <span class="material-symbols-outlined">arrow_forward</span>
-          }
-        </button>
+        <!-- Checkout Action -->
+        <div class="relative group">
+          <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500 group-hover:duration-200"></div>
+          <button 
+            (click)="processPayment()"
+            [disabled]="isProcessing()"
+            class="relative w-full px-8 py-5 bg-gradient-to-r from-blue-600 hover:from-blue-700 to-indigo-600 hover:to-indigo-700 text-white font-black text-xl rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-3 overflow-hidden"
+          >
+            <!-- Shine effect -->
+            <div class="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] group-hover:animate-shine"></div>
+            
+            @if (isProcessing()) {
+              <div class="animate-spin rounded-full h-6 w-6 border-3 border-white/30 border-t-white"></div>
+              <span>Processing...</span>
+            } @else {
+              <span class="material-symbols-outlined">lock</span>
+              <span>Pay {{ finalTotal() | appCurrency }}</span>
+              <span class="material-symbols-outlined ml-2 transition-transform group-hover:translate-x-1">arrow_forward</span>
+            }
+          </button>
+        </div>
         
-        <p class="text-center text-xs text-zinc-500 dark:text-zinc-400 mt-4 flex items-center justify-center gap-1.5">
-          <span class="material-symbols-outlined text-[14px]">lock</span>
-          Payments are securely processed by Paystack.
-        </p>
+        <div class="flex items-center justify-center gap-4 text-zinc-400 dark:text-zinc-500">
+          <span class="material-symbols-outlined text-[24px]">verified_user</span>
+          <p class="text-xs font-medium leading-relaxed max-w-[200px] text-center">
+            Payments are securely encrypted and processed by Paystack.
+          </p>
+        </div>
+        
       </div>
     </div>
   }

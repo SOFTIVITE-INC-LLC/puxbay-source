@@ -268,8 +268,9 @@ func (h *BillingHandler) ProcessPayment(c *gin.Context) {
 		"currency":     req.Currency,
 		"callback_url": callbackURL,
 		"metadata": map[string]string{
-			"tenant_id": tenantID.(uuid.UUID).String(),
-			"plan_id":   planID,
+			"tenant_id":     tenantID.(uuid.UUID).String(),
+			"plan_id":       planID,
+			"billing_cycle": req.BillingCycle,
 		},
 	}
 
@@ -422,9 +423,17 @@ func (h *BillingHandler) VerifyPayment(c *gin.Context) {
 		sub.PaystackCustomerCode = &verifyResp.Data.Customer.CustomerCode
 	}
 
-	// Set period end based on plan interval
+	// Read billing cycle from metadata
+	billingCycle := "monthly"
+	if cycleIntf, ok := verifyResp.Data.Metadata["billing_cycle"]; ok {
+		if cStr, ok := cycleIntf.(string); ok && cStr != "" {
+			billingCycle = cStr
+		}
+	}
+
+	// Set period end based on billing cycle or plan interval
 	newEnd := time.Now()
-	if verifyResp.Data.Plan.Interval == "annually" {
+	if billingCycle == "yearly" || verifyResp.Data.Plan.Interval == "annually" {
 		newEnd = newEnd.AddDate(1, 0, 0)
 	} else {
 		newEnd = newEnd.AddDate(0, 1, 0)

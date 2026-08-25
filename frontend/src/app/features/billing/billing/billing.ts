@@ -68,7 +68,6 @@ export class Billing implements OnInit {
   }
 
   upgradePlan() {
-    // Navigate to the global pricing page
-    window.location.href = window.location.protocol + '//' + window.location.hostname.replace(/^[a-zA-Z0-9-]+\./, '') + (window.location.port ? ':' + window.location.port : '') + '/pricing';
+    this.router.navigate(['/pricing']);
   }
 }

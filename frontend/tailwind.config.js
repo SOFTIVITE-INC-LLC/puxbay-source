@@ -8,6 +8,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        shine: 'shine 1s forwards',
+      },
+      keyframes: {
+        shine: {
+          '100%': { left: '200%' },
+        },
+      },
       colors: {
         primary: {
           500: '#0ea5e9',
