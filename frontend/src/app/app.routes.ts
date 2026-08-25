@@ -199,7 +199,7 @@ export const routes: Routes = [
       {
         path: 'staff',
         canActivate: [permissionGuard],
-        data: { roles: ['admin', 'superadmin'] },
+        data: { roles: ['admin', 'manager', 'superadmin'] },
         loadComponent: () => import('./features/staff/staff/staff').then(m => m.Staff)
       },
       {
