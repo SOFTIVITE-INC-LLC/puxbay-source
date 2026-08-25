@@ -9,6 +9,7 @@ import { Product } from '../../core/models/product.models';
 import { ToastrService } from 'ngx-toastr';
 import { OfflineDbService } from '../../core/services/offline-db.service';
 import { PrinterService } from '../../core/services/printer.service';
+import { GiftCardService } from '../../core/services/gift-card.service';
 
 @Injectable({ providedIn: 'root' })
 export class PosFacade {
@@ -20,12 +21,13 @@ export class PosFacade {
   private settingsService = inject(SettingsService);
   readonly offlineDb = inject(OfflineDbService);
   readonly printer = inject(PrinterService);
+  private giftCardService = inject(GiftCardService);
 
   // --- CORE STATE ---
   searchQuery = signal('');
   selectedCategoryId = signal<string | null>('all');
   cart = signal<{ product: Product, quantity: number, discount: number, discountType: 'fixed' | 'percent' }[]>([]);
-  payments = signal<{ method: string, amount: number }[]>([]);
+  payments = signal<{ method: string, amount: number, code?: string }[]>([]);
   selectedCustomer = signal<Customer | null>(null);
 
   // --- UI STATE ---
@@ -43,6 +45,7 @@ export class PosFacade {
   isOffline = signal(!navigator.onLine);
   isFullscreen = signal(false);
   isCheckoutLoading = signal(false);
+  paymentAmountInput = signal<number | null>(null);
 
   // --- ADVANCED STATE ---
   parkedSales = signal<{ cart: any[], customer: any, time: Date }[]>([]);
@@ -287,6 +290,7 @@ export class PosFacade {
   private resetCartState() {
     this.cart.set([]);
     this.payments.set([]);
+    this.paymentAmountInput.set(null);
     this.selectedCustomer.set(null);
     this.isSentToKitchen.set(false);
     this.pointsRedeemed.set(0);
@@ -348,16 +352,30 @@ export class PosFacade {
     this.isCheckoutModalOpen.set(false);
     this.isSuccessModalOpen.set(false);
     this.payments.set([]);
+    this.paymentAmountInput.set(null);
   }
 
-  addPaymentMethod(method: string, amount: number) {
-    if (amount <= 0) return;
-    const existing = this.payments().find(p => p.method === method);
-    if (existing) {
-      this.payments.update(p => p.map(x => x.method === method ? { ...x, amount: x.amount + amount } : x));
-    } else {
-      this.payments.update(p => [...p, { method, amount }]);
+  addPaymentMethod(method: string, amount?: number, code?: string) {
+    let amt = amount;
+    if (amt === undefined) {
+      // If paymentAmountInput is populated, use it. Otherwise, use remaining balance.
+      amt = this.paymentAmountInput() || this.remainingBalance();
     }
+    
+    // Cap at remaining balance (but we could allow overpayment if we want change, but let's just cap for now)
+    if (amt > this.remainingBalance()) {
+      amt = this.remainingBalance();
+    }
+
+    if (amt <= 0) return;
+    
+    const existing = this.payments().find(p => p.method === method);
+    if (existing && !code) {
+      this.payments.update(p => p.map(x => x.method === method ? { ...x, amount: x.amount + amt } : x));
+    } else {
+      this.payments.update(p => [...p, { method, amount: amt, code }]);
+    }
+    this.paymentAmountInput.set(null); // Clear input after adding
   }
 
   removePaymentMethod(index: number) {
@@ -427,6 +445,15 @@ export class PosFacade {
         this.closeCheckout();
         this.checkoutSuccessOrder.set(res);
         this.isSuccessModalOpen.set(true);
+
+        // Redeem any gift cards that were applied
+        const gcPayments = this.payments().filter(p => p.method === 'gift_card' && p.code);
+        gcPayments.forEach(p => {
+          this.giftCardService.redeemCard(p.code!, p.amount).subscribe({
+            error: (err) => console.error('Failed to redeem gift card after sale', err)
+          });
+        });
+
         // Trigger sync of any queued offline orders now that we're back online
         this._syncOfflineOrders();
       },

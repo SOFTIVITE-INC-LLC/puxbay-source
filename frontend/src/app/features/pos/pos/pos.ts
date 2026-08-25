@@ -6,6 +6,8 @@ import { Product } from '../../../core/models/models';
 import { PosFacade } from '../pos.facade';
 import { RouterModule } from '@angular/router';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { GiftCardService } from '../../../core/services/gift-card.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-pos',
@@ -79,9 +81,17 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 })
 export class Pos implements OnInit, OnDestroy {
   facade = inject(PosFacade);
+  giftCardService = inject(GiftCardService);
+  toastr = inject(ToastrService);
+  
   Math = Math;
   current_date = new Date();
   isCartOpen = false;
+
+  // Gift Card Prompt State
+  isGiftCardPromptOpen = signal(false);
+  giftCardCodeInput = signal('');
+  isCheckingGiftCard = signal(false);
 
   // Camera scanner state
   showCameraScanner = signal(false);
@@ -99,6 +109,48 @@ export class Pos implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopCameraScanner();
+  }
+
+  // ── Gift Card ───────────────────────────────────────────────
+  promptGiftCard() {
+    this.isGiftCardPromptOpen.set(true);
+    this.giftCardCodeInput.set('');
+    this.isCheckingGiftCard.set(false);
+  }
+
+  closeGiftCardPrompt() {
+    this.isGiftCardPromptOpen.set(false);
+    this.giftCardCodeInput.set('');
+  }
+
+  applyGiftCard() {
+    const code = this.giftCardCodeInput().trim();
+    if (!code) return;
+
+    this.isCheckingGiftCard.set(true);
+    this.giftCardService.checkBalance(code).subscribe({
+      next: (res) => {
+        this.isCheckingGiftCard.set(false);
+        const balance = res.gift_card.current_balance;
+        if (balance <= 0) {
+          this.toastr.error('This gift card has no remaining balance.');
+          return;
+        }
+
+        let amountToUse = this.facade.paymentAmountInput() || this.facade.remainingBalance();
+        if (amountToUse > balance) {
+          amountToUse = balance; // can only use up to the balance
+        }
+
+        this.facade.addPaymentMethod('gift_card', amountToUse, code);
+        this.toastr.success(`Applied ${amountToUse} from Gift Card`);
+        this.closeGiftCardPrompt();
+      },
+      error: () => {
+        this.isCheckingGiftCard.set(false);
+        this.toastr.error('Invalid or expired gift card code.');
+      }
+    });
   }
 
   // ── Camera Scanner ──────────────────────────────────────────
@@ -192,6 +244,7 @@ export class Pos implements OnInit, OnDestroy {
     
     if (event.key === 'Escape') {
       if (this.showCameraScanner()) { this.closeCameraScanner(); return; }
+      if (this.isGiftCardPromptOpen()) { this.closeGiftCardPrompt(); return; }
       if (this.facade.isCheckoutModalOpen()) this.facade.closeCheckout();
       else if (this.facade.isParkedSalesModalOpen()) this.facade.isParkedSalesModalOpen.set(false);
       else {

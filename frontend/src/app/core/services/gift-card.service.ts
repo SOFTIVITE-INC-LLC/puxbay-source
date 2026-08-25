@@ -59,4 +59,8 @@ export class GiftCardService {
   checkBalance(code: string): Observable<{gift_card: GiftCard}> {
     return this.api.get<{gift_card: GiftCard}>(`/gift-cards/check?code=${code}`);
   }
+
+  redeemCard(code: string, amount: number): Observable<GiftCard> {
+    return this.api.post<GiftCard>('/gift-cards/redeem', { code, amount });
+  }
 }
