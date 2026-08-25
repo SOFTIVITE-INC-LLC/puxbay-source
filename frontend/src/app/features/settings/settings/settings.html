@@ -1,8 +1,10 @@
 <div class="flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white relative min-h-full">
   
   <!-- Decorative Background Blobs for Glassmorphism -->
-  <div class="absolute -top-20 -right-20 w-[30rem] h-[30rem] bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[120px] pointer-events-none"></div>
-  <div class="absolute -bottom-20 -left-20 w-[30rem] h-[30rem] bg-fuchsia-500/10 dark:bg-fuchsia-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute -top-20 -right-20 w-[30rem] h-[30rem] bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[120px]"></div>
+    <div class="absolute -bottom-20 -left-20 w-[30rem] h-[30rem] bg-fuchsia-500/10 dark:bg-fuchsia-500/20 rounded-full blur-[120px]"></div>
+  </div>
 
   <!-- ── Page Header ── -->
   <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -97,7 +99,7 @@
       </div>
 
       <!-- ── Content Area ── -->
-      <div class="flex-1 w-full relative z-10 glass-panel bg-white/70 dark:bg-zinc-900/70 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden min-h-[500px]">
+      <div class="flex-1 w-full relative z-10 glass-panel bg-white/70 dark:bg-zinc-900/70 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl min-h-[500px]">
         
         <!-- Store Details Tab -->
         @if (activeTab() === 'store') {
