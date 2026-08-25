@@ -1,10 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { StockTransfer, PurchaseOrder, StocktakeSession } from '../models/inventory.models';
 import { ApiService } from './api.service';
-import { inject } from '@angular/core';
 
 export interface TransferCreateInput {
   reference_no: string;
@@ -27,68 +24,75 @@ export interface POCreateInput {
 })
 export class InventoryService {
   private api = inject(ApiService);
-  private readonly apiUrl = `${environment.apiUrl}/inventory`;
-
-  constructor(private http: HttpClient) {}
 
   // ---------------------------------------------------------
   // Transfers
   // ---------------------------------------------------------
   listTransfers(): Observable<StockTransfer[]> {
-    return this.http.get<StockTransfer[]>(`${this.apiUrl}/transfers`);
+    return this.api.get<StockTransfer[]>('/inventory/transfers');
   }
 
   createTransfer(input: TransferCreateInput): Observable<StockTransfer> {
-    return this.http.post<StockTransfer>(`${this.apiUrl}/transfers`, input);
+    return this.api.post<StockTransfer>('/inventory/transfers', input);
   }
 
   getTransfer(id: string): Observable<StockTransfer> {
-    return this.http.get<StockTransfer>(`${this.apiUrl}/transfers/${id}`);
+    return this.api.get<StockTransfer>(`/inventory/transfers/${id}`);
   }
 
   approveTransfer(id: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/transfers/${id}/approve`, {});
+    return this.api.post<any>(`/inventory/transfers/${id}/approve`, {});
   }
 
   shipTransfer(id: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/transfers/${id}/ship`, {});
+    return this.api.post<any>(`/inventory/transfers/${id}/ship`, {});
   }
 
   receiveTransfer(id: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/transfers/${id}/receive`, {});
+    return this.api.post<any>(`/inventory/transfers/${id}/receive`, {});
   }
 
   // ---------------------------------------------------------
   // Purchase Orders
   // ---------------------------------------------------------
   listPOs(): Observable<PurchaseOrder[]> {
-    return this.http.get<PurchaseOrder[]>(`${this.apiUrl}/purchase-orders`);
+    return this.api.get<PurchaseOrder[]>('/inventory/purchase-orders');
   }
 
   createPO(input: POCreateInput): Observable<PurchaseOrder> {
-    return this.http.post<PurchaseOrder>(`${this.apiUrl}/purchase-orders`, input);
+    return this.api.post<PurchaseOrder>('/inventory/purchase-orders', input);
   }
 
   getPO(id: string): Observable<PurchaseOrder> {
-    return this.http.get<PurchaseOrder>(`${this.apiUrl}/purchase-orders/${id}`);
+    return this.api.get<PurchaseOrder>(`/inventory/purchase-orders/${id}`);
   }
 
   receivePO(id: string, input: { items: { item_id: string; quantity_received: number }[] }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/purchase-orders/${id}/receive`, input);
+    return this.api.post<any>(`/inventory/purchase-orders/${id}/receive`, input);
   }
 
   // ---------------------------------------------------------
   // Stocktakes
   // ---------------------------------------------------------
   listStocktakes(): Observable<StocktakeSession[]> {
-    return this.http.get<StocktakeSession[]>(`${this.apiUrl}/stocktakes`);
+    return this.api.get<StocktakeSession[]>('/inventory/stocktakes');
   }
 
-  createStocktake(data: any): Observable<any> { return this.api.post<any>('/inventory/stocktakes', data); }
-  
-  finalizeStocktake(id: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/stocktakes/${id}/finalize`, {});
+  getStocktake(id: string): Observable<any> {
+    return this.api.get<any>(`/inventory/stocktakes/${id}`);
   }
+
+  createStocktake(data: any): Observable<any> {
+    return this.api.post<any>('/inventory/stocktakes', data);
+  }
+
+  finalizeStocktake(id: string): Observable<any> {
+    return this.api.post<any>(`/inventory/stocktakes/${id}/finalize`, {});
+  }
+
+  // ---------------------------------------------------------
+  // Movements & Stock
+  // ---------------------------------------------------------
   listMovements(): Observable<any[]> { return this.api.get<any[]>('/inventory/movements'); }
   receiveStock(data: any): Observable<any> { return this.api.post<any>('/inventory/receive', data); }
   lowStockAlerts(): Observable<any[]> { return this.api.get<any[]>('/inventory/low-stock'); }

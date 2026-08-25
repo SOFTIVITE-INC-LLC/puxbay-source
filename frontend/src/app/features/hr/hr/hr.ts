@@ -8,6 +8,7 @@ import { IntelligenceService } from '../../../core/services/intelligence.service
 import { Staff } from '../../../core/models/hr.models';
 import { ToastrService } from 'ngx-toastr';
 import { AlertService } from '../../../core/services/alert.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-hr',
@@ -53,6 +54,9 @@ export class Hr implements OnInit {
   intelligence = inject(IntelligenceService);
   private toastr = inject(ToastrService);
   private alertService = inject(AlertService);
+  authService = inject(AuthService);
+
+  canManagePayroll = this.authService.hasPermission(['hr:manage', 'payroll:manage']);
 
   activeTab = signal<'staff' | 'attendance' | 'leaves' | 'payroll' | 'roster'>('staff');
 
@@ -107,7 +111,9 @@ export class Hr implements OnInit {
     this.hrService.listAttendance().subscribe();
     this.hrService.listLeaveRequests().subscribe();
     this.intelligence.getStaffLeaderboard(30).subscribe();
-    this.loadPayrollPeriods();
+    if (this.canManagePayroll) {
+      this.loadPayrollPeriods();
+    }
   }
 
   loadActiveTabData() {
@@ -148,6 +154,7 @@ export class Hr implements OnInit {
 
   // ... (keep staff logic)
   loadPayrollPeriods() {
+    if (!this.canManagePayroll) return;
     this.hrService.listPayrollPeriods().subscribe(p => this.payrollPeriods.set(p || []));
   }
 

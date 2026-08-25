@@ -152,7 +152,7 @@ func SeedRBAC(db *gorm.DB) error {
 		"finance:read", "finance:write", "finance:manage",
 		"reports:read", "analytics:read",
 		"staff:read", "staff:write", "staff:manage", "shifts:manage",
-		"hr:read", "hr:write",
+		"hr:read", "hr:write", "hr:manage",
 		"marketing:manage", "promotions:manage", "campaigns:manage", "content:manage",
 		"fnb:manage", "fnb:tables:manage", "fnb:kitchen:manage",
 		"b2b:manage", "suppliers:manage",
