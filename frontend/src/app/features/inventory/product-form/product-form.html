@@ -679,8 +679,9 @@
 @keyframes pfPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 /* BODY */
-.pf-body { @apply max-w-7xl mx-auto px-4 md:px-6 pt-5 md:pt-7 pb-16; }
-.pf-content-grid { @apply flex flex-col lg:grid gap-6 items-start; }
+.pf-body { @apply max-w-7xl mx-auto px-4 md:px-6 pt-5 md:pt-7 pb-16 w-full box-border; }
+.pf-content-grid { @apply flex flex-col lg:grid gap-6 lg:items-start w-full; }
+.pf-main { @apply flex flex-col gap-5 min-w-0 w-full; }
 @media (min-width: 1024px) { .pf-content-grid { grid-template-columns: 1fr 300px; } }
 
 /* PANELS */
