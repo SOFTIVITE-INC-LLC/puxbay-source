@@ -94,4 +94,19 @@ export class AdminRolesComponent implements OnInit {
       error: () => this.isSaving.set(false)
     });
   }
+
+  getPermCount(role: AdminRole): number {
+    try {
+      const perms = typeof role.permissions === 'string' ? JSON.parse(role.permissions || '[]') : (role.permissions || []);
+      return perms.length;
+    } catch { return 0; }
+  }
+
+  selectAll() {
+    this.selectedPermissions.set(this.availablePermissions.map(p => p.id));
+  }
+
+  clearAll() {
+    this.selectedPermissions.set([]);
+  }
 }

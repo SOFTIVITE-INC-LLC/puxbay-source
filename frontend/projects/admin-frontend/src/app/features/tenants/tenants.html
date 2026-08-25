@@ -409,7 +409,7 @@
                   <span class="material-symbols-outlined text-[14px]">language</span> Custom Domains
                 </h3>
                 <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-zinc-800">
-                  @for (d of selectedTenant()!.domains; track d.id) {
+                  @for (d of selectedTenant()!.domains; track d.domain) {
                     <div class="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition">
                       <span class="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{{ d.domain }}</span>
                       <span class="text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border"
