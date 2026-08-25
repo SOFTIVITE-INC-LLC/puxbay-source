@@ -644,8 +644,8 @@
 @keyframes pfPulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
 /* TABS */
-.pf-tabs-strip { @apply border-t border-slate-200 dark:border-white/5 overflow-x-auto; }
-.pf-tabs-inner { @apply flex max-w-7xl mx-auto px-4 md:px-6 min-w-max; }
+.pf-tabs-strip { @apply border-t border-slate-200 dark:border-white/5 overflow-x-auto w-full max-w-full; }
+.pf-tabs-inner { @apply flex max-w-7xl mx-auto px-4 md:px-6 w-max; }
 .pf-tab { @apply flex items-center gap-2 px-4 py-3 text-[13px] font-semibold text-slate-500 dark:text-slate-400 bg-transparent border-none border-b-2 border-transparent cursor-pointer transition-all relative top-[1px] hover:text-slate-700 dark:hover:text-slate-300; font-family: inherit; }
 .pf-tab-active { @apply text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400; }
 .pf-tab-icon { @apply text-[16px] !important; }
