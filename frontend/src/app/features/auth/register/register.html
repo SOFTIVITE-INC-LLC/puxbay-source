@@ -1,96 +1,243 @@
 <style>
-  :root { --brand: #6366f1; }
+  :root {
+    --brand: #6366f1;
+  }
 
   /* Left pane styling */
   .auth-left-bg {
     background: #0f172a;
-    position: relative; overflow: hidden;
+    position: relative;
+    overflow: hidden;
   }
+
   .auth-left-bg::before {
-    content: ''; position: absolute;
-    top: -20%; left: -20%; width: 70%; height: 70%;
-    background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
-    border-radius: 50%; pointer-events: none;
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
   }
+
   .auth-left-bg::after {
-    content: ''; position: absolute;
-    bottom: -20%; right: -20%; width: 70%; height: 70%;
-    background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%);
-    border-radius: 50%; pointer-events: none;
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    right: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
   }
 
   /* Right pane inputs (Light Theme) */
   .auth-label {
-    display: block; font-size: 10px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 0.12em; color: #64748b; margin-bottom: 8px;
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    margin-bottom: 8px;
   }
+
   .auth-input {
-    width: 100%; padding: 14px 16px;
-    background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
-    font-size: 14px; font-weight: 500; color: #0f172a; outline: none;
+    width: 100%;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
     transition: all 0.2s;
   }
-  .auth-input::placeholder { color: #94a3b8; }
-  .auth-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
-  .auth-input.error { border-color: #f43f5e; box-shadow: 0 0 0 3px rgba(244,63,94,0.15); }
 
-  .input-wrap { position: relative; }
-  .input-icon { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: #94a3b8; pointer-events: none; transition: color 0.2s; width: 18px; height: 18px; }
-  .input-wrap:focus-within .input-icon { color: #6366f1; }
-  .input-wrap.has-icon .auth-input { padding-left: 44px; }
+  .auth-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .auth-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  }
+
+  .auth-input.error {
+    border-color: #f43f5e;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s;
+    width: 18px;
+    height: 18px;
+  }
+
+  .input-wrap:focus-within .input-icon {
+    color: #6366f1;
+  }
+
+  .input-wrap.has-icon .auth-input {
+    padding-left: 44px;
+  }
 
   .auth-btn-primary {
-    width: 100%; padding: 16px; background: #6366f1; color: white;
-    font-weight: 800; font-size: 14px; border-radius: 10px; border: none;
-    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    padding: 16px;
+    background: #6366f1;
+    color: white;
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  .auth-btn-primary:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
 
-  .auth-divider { display: flex; align-items: center; gap: 16px; margin: 32px 0; }
-  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
-  .auth-divider span { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
+  .auth-btn-primary:hover {
+    background: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #f1f5f9;
+  }
+
+  .auth-divider span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
 
   .auth-btn-google {
-    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
-    color: #0f172a; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
   }
-  .auth-btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-  .split-layout { display: flex; min-height: 100vh; font-family: 'Outfit', sans-serif; }
-  .split-left { flex: 1; display: none; padding: 64px; flex-direction: column; justify-content: space-between; }
-  .split-right { flex: 1; display: flex; flex-direction: column; padding: 48px 24px; position: relative; background: #fff; overflow-y: auto; }
-  
+  .auth-btn-google:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .split-layout {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .split-left {
+    flex: 1;
+    display: none;
+    padding: 64px;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .split-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 24px;
+    position: relative;
+    background: #fff;
+    overflow-y: auto;
+  }
+
   @media (min-width: 1024px) {
-    .split-left { display: flex; }
-    .split-right { max-width: 600px; padding: 64px; }
+    .split-left {
+      display: flex;
+    }
+
+    .split-right {
+      max-width: 600px;
+      padding: 64px;
+    }
   }
 
   /* Spinner animation */
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-  .animate-spin { animation: spin 1s linear infinite; }
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
 </style>
 
 <div class="split-layout">
   <!-- Left Pane -->
   <div class="split-left auth-left-bg">
     <div style="position:relative; z-index:10;">
-      <a routerLink="/" style="display:inline-flex; align-items:center; gap:12px; text-decoration:none; margin-bottom: 64px;">
-        <div style="width:36px; height:36px; background:linear-gradient(135deg, #6366f1, #8b5cf6); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+      <a routerLink="/"
+        style="display:inline-flex; align-items:center; gap:12px; text-decoration:none; margin-bottom: 64px;">
+        <div
+          style="width:36px; height:36px; background:linear-gradient(135deg, #6366f1, #8b5cf6); border-radius:10px; display:flex; align-items:center; justify-content:center;">
           <!-- Using inline SVG -->
-          <svg style="height:20px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <svg style="height:20px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
         <span style="color:#fff; font-weight:900; font-size:22px; letter-spacing:-0.03em;">Puxbay</span>
       </a>
 
       <!-- block left_pane -->
-      <div style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.25); color:#22d3ee; font-size:9px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:24px;">
-        <span style="display:inline-block; width:6px; height:6px; background:#22d3ee; border-radius:50%; margin-right:6px;"></span>
+      <div
+        style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.25); color:#22d3ee; font-size:9px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:24px;">
+        <span
+          style="display:inline-block; width:6px; height:6px; background:#22d3ee; border-radius:50%; margin-right:6px;"></span>
         Retail Intelligence Platform
       </div>
 
-      <h1 style="font-size:clamp(2.2rem, 4.5vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:-0.04em; line-height:1.1; margin-bottom:24px;">
-        Powering the next<br/>generation of <span style="color:#d8b4fe;">retail performance.</span>
+      <h1
+        style="font-size:clamp(2.2rem, 4.5vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:-0.04em; line-height:1.1; margin-bottom:24px;">
+        Powering the next<br />generation of <span style="color:#d8b4fe;">retail performance.</span>
       </h1>
       <p style="font-size:16px; color:#94a3b8; font-weight:500; line-height:1.7; max-width:480px; margin-bottom:48px;">
         Join over 2,000+ businesses scaling their operations with Puxbay's AI-driven inventory and logistics ecosystem.
@@ -98,22 +245,31 @@
 
       <div style="display:flex; flex-direction:column; gap:32px;">
         <div style="display:flex; gap:16px;">
-          <div style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-            <svg style="width:20px;height:20px;color:#818cf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <div
+            style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:20px;height:20px;color:#818cf8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
           <div>
             <h4 style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">99.9% Operational Uptime</h4>
-            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">Industrial-grade reliability for high-volume retail environments.</p>
+            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">
+              Industrial-grade reliability for high-volume retail environments.</p>
           </div>
         </div>
-        
+
         <div style="display:flex; gap:16px;">
-          <div style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-            <svg style="width:20px;height:20px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          <div
+            style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:20px;height:20px;color:#a78bfa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
           </div>
           <div>
             <h4 style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">Predictive Inventory AI</h4>
-            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">Reduce stockouts by 40% using our neural demand forecasting.</p>
+            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">Reduce
+              stockouts by 40% using our neural demand forecasting.</p>
           </div>
         </div>
       </div>
@@ -123,7 +279,8 @@
     <!-- Bottom left optional content -->
     <div style="position:relative; z-index:10;">
       <!-- block left_pane_bottom -->
-      <div style="border-top:1px solid rgba(255,255,255,0.05); padding-top:24px; margin-top:64px; display:flex; gap:32px; align-items:center; opacity:0.3;">
+      <div
+        style="border-top:1px solid rgba(255,255,255,0.05); padding-top:24px; margin-top:64px; display:flex; gap:32px; align-items:center; opacity:0.3;">
         <div style="font-size:12px; font-weight:900; letter-spacing:0.1em; color:#fff;">PAYSTACK</div>
         <div style="font-size:12px; font-weight:900; letter-spacing:0.1em; color:#fff;">STRIPE</div>
         <div style="font-size:12px; font-weight:900; letter-spacing:0.1em; color:#fff;">SHOPIFY</div>
@@ -138,7 +295,8 @@
     <div style="position:absolute; top:32px; right:48px; display:flex; justify-content:flex-end;">
       <!-- block top_right_link -->
       @if (step() === 1) {
-        <span style="font-size:13px; font-weight:600; color:#64748b;">Already have an account? <a routerLink="/login" style="font-weight:700; color:#6366f1; text-decoration:none;">Log in</a></span>
+      <span style="font-size:13px; font-weight:600; color:#64748b;">Already have an account? <a routerLink="/login"
+          style="font-weight:700; color:#6366f1; text-decoration:none;">Log in</a></span>
       }
       <!-- end block -->
     </div>
@@ -146,8 +304,11 @@
     <!-- Mobile logo -->
     <div class="lg:hidden mb-12">
       <a routerLink="/" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none;">
-        <div style="width:32px; height:32px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-          <svg style="height:16px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <div
+          style="width:32px; height:32px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+          <svg style="height:16px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
         <span style="color:#0f172a; font-weight:900; font-size:20px; letter-spacing:-0.03em;">Puxbay</span>
       </a>
@@ -155,128 +316,136 @@
 
     <div style="max-width:400px; width:100%; margin:auto;">
       <div style="margin-bottom:32px;">
-        <h2 style="font-size:28px; font-weight:900; color:#0f172a; letter-spacing:-0.03em; margin-bottom:8px;">Create your account</h2>
-        <p style="font-size:14px; color:#64748b; font-weight:500;">Start your <strong>14-day free trial</strong> today. No credit card required.</p>
+        <h2 style="font-size:28px; font-weight:900; color:#0f172a; letter-spacing:-0.03em; margin-bottom:8px;">Create
+          your account</h2>
+        <p style="font-size:14px; color:#64748b; font-weight:500;">Start your <strong>14-day free trial</strong> today.
+          No credit card required.</p>
       </div>
 
       <!-- block content -->
       <!-- Progress Bar -->
       <div style="display:flex; gap:8px; margin: 32px 0 40px;">
-        <div style="flex:1; height:6px; border-radius:4px;" [ngStyle]="{'background': step() >= 1 ? '#8b5cf6' : '#f1f5f9'}"></div>
-        <div style="flex:1; height:6px; border-radius:4px;" [ngStyle]="{'background': step() >= 2 ? '#8b5cf6' : '#f1f5f9'}"></div>
+        <div style="flex:1; height:6px; border-radius:4px;"
+          [ngStyle]="{'background': step() >= 1 ? '#8b5cf6' : '#f1f5f9'}"></div>
+        <div style="flex:1; height:6px; border-radius:4px;"
+          [ngStyle]="{'background': step() >= 2 ? '#8b5cf6' : '#f1f5f9'}"></div>
       </div>
 
       <form style="display:flex; flex-direction:column; gap:20px;" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
         @if (step() === 1) {
-          <!-- Step 1: User Details -->
-          <div>
-              <label for="first_name" class="auth-label">First Name</label>
-              <input id="first_name" formControlName="first_name" type="text" required class="auth-input" placeholder="Enter first name">
-          </div>
-          <div>
-              <label for="last_name" class="auth-label">Last Name</label>
-              <input id="last_name" formControlName="last_name" type="text" required class="auth-input" placeholder="Enter last name">
-          </div>
-          <div>
-              <label for="email" class="auth-label">Email Address</label>
-              <input id="email" formControlName="email" type="email" required class="auth-input" placeholder="Enter email address">
-          </div>
-          <div>
-              <label for="password" class="auth-label">Password</label>
-              <input id="password" formControlName="password" type="password" required class="auth-input" placeholder="Enter password">
-              
-              <!-- Password Strength UI -->
-              @if (registerForm.get('password')?.value) {
-                <div style="margin-top: 8px;">
-                  <div style="display:flex; gap:4px; margin-bottom:4px;">
-                    <div style="flex:1; height:4px; border-radius:2px;" [ngStyle]="{'background': passwordStrength() >= 1 ? (passwordStrength() <= 2 ? '#ef4444' : (passwordStrength() === 3 ? '#eab308' : '#22c55e')) : '#f1f5f9'}"></div>
-                    <div style="flex:1; height:4px; border-radius:2px;" [ngStyle]="{'background': passwordStrength() >= 2 ? (passwordStrength() <= 2 ? '#ef4444' : (passwordStrength() === 3 ? '#eab308' : '#22c55e')) : '#f1f5f9'}"></div>
-                    <div style="flex:1; height:4px; border-radius:2px;" [ngStyle]="{'background': passwordStrength() >= 3 ? (passwordStrength() === 3 ? '#eab308' : '#22c55e') : '#f1f5f9'}"></div>
-                    <div style="flex:1; height:4px; border-radius:2px;" [ngStyle]="{'background': passwordStrength() >= 4 ? '#22c55e' : '#f1f5f9'}"></div>
-                  </div>
-                  <div style="font-size:10px; font-weight:700; color:#64748b;">
-                    @if (passwordStrength() <= 2) { Weak }
-                    @if (passwordStrength() === 3) { Good }
-                    @if (passwordStrength() >= 4) { Strong }
-                  </div>
-                </div>
-              }
-          </div>
+        <!-- Step 1: User Details -->
+        <div>
+          <label for="first_name" class="auth-label">First Name</label>
+          <input id="first_name" formControlName="first_name" type="text" required class="auth-input"
+            placeholder="Enter first name">
+        </div>
+        <div>
+          <label for="last_name" class="auth-label">Last Name</label>
+          <input id="last_name" formControlName="last_name" type="text" required class="auth-input"
+            placeholder="Enter last name">
+        </div>
+        <div>
+          <label for="email" class="auth-label">Email Address</label>
+          <input id="email" formControlName="email" type="email" required class="auth-input"
+            placeholder="Enter email address">
+        </div>
+        <div>
+          <label for="password" class="auth-label">Password</label>
+          <input id="password" formControlName="password" type="password" required class="auth-input"
+            placeholder="Enter password">
 
-          <div style="margin-top:8px;">
-              <button type="button" class="auth-btn-primary" style="background:#8b5cf6;" (click)="nextStep()">
-                  Continue to Company Details
-                  <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-              </button>
+          <!-- Password Strength UI -->
+          @if (registerForm.get('password')?.value) {
+          <div style="margin-top: 8px;">
+            <div style="display:flex; gap:4px; margin-bottom:4px;">
+              <div style="flex:1; height:4px; border-radius:2px;"
+                [ngStyle]="{'background': passwordStrength() >= 1 ? (passwordStrength() <= 2 ? '#ef4444' : (passwordStrength() === 3 ? '#eab308' : '#22c55e')) : '#f1f5f9'}">
+              </div>
+              <div style="flex:1; height:4px; border-radius:2px;"
+                [ngStyle]="{'background': passwordStrength() >= 2 ? (passwordStrength() <= 2 ? '#ef4444' : (passwordStrength() === 3 ? '#eab308' : '#22c55e')) : '#f1f5f9'}">
+              </div>
+              <div style="flex:1; height:4px; border-radius:2px;"
+                [ngStyle]="{'background': passwordStrength() >= 3 ? (passwordStrength() === 3 ? '#eab308' : '#22c55e') : '#f1f5f9'}">
+              </div>
+              <div style="flex:1; height:4px; border-radius:2px;"
+                [ngStyle]="{'background': passwordStrength() >= 4 ? '#22c55e' : '#f1f5f9'}"></div>
+            </div>
+            <div style="font-size:10px; font-weight:700; color:#64748b;">
+              @if (passwordStrength() <= 2) { Weak } @if (passwordStrength()===3) { Good } @if (passwordStrength()>= 4)
+                { Strong }
+            </div>
           </div>
+          }
+        </div>
 
-          <!-- Google & GitHub Sign-Up -->
-          <div class="auth-divider"><span>Or continue with</span></div>
-          <div style="display:flex; gap:16px;">
-              <button type="button" class="auth-btn-google" style="flex:1;">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
-                  Google
-              </button>
-              <button type="button" class="auth-btn-google" style="flex:1;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/>
-                  </svg>
-                  GitHub
-              </button>
-          </div>
+        <div style="margin-top:8px;">
+          <button type="button" class="auth-btn-primary" style="background:#8b5cf6;" (click)="nextStep()">
+            Continue to Company Details
+            <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+
+
         }
 
         @if (step() === 2) {
-          <!-- Step 2: Company Details -->
-          <div>
-              <label for="company_name" class="auth-label">Company Name</label>
-              <input id="company_name" formControlName="company_name" type="text" required class="auth-input">
-          </div>
-          <div>
-              <label for="subdomain" class="auth-label">Subdomain</label>
-              <input id="subdomain" formControlName="subdomain" type="text" required class="auth-input">
-              <p style="margin-top:4px; font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em;">yourstore.puxbay.com</p>
-          </div>
-          <div>
-              <label for="address" class="auth-label">Address</label>
-              <textarea formControlName="address" id="address" rows="2" class="auth-input"></textarea>
-          </div>
+        <!-- Step 2: Company Details -->
+        <div>
+          <label for="company_name" class="auth-label">Company Name</label>
+          <input id="company_name" formControlName="company_name" type="text" required class="auth-input">
+        </div>
+        <div>
+          <label for="subdomain" class="auth-label">Subdomain</label>
+          <input id="subdomain" formControlName="subdomain" type="text" required class="auth-input">
+          <p
+            style="margin-top:4px; font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em;">
+            yourstore.puxbay.com</p>
+        </div>
+        <div>
+          <label for="address" class="auth-label">Address</label>
+          <textarea formControlName="address" id="address" rows="2" class="auth-input"></textarea>
+        </div>
 
-          <div style="margin-top:8px;">
-              @if (errorMessage()) {
-                <div style="padding: 10px; background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; font-size: 13px; font-weight: 500; margin-bottom: 16px; border-radius: 4px;">
-                  {{ errorMessage() }}
-                </div>
-              }
-              <button type="submit" class="auth-btn-primary" style="background:#8b5cf6;" [disabled]="isLoading()">
-                  @if (isLoading()) {
-                    <svg class="animate-spin" style="width:18px; height:18px; color:white;" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Registering...
-                  } @else {
-                    Complete Registration
-                    <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                  }
-              </button>
+        <div style="margin-top:8px;">
+          @if (errorMessage()) {
+          <div
+            style="padding: 10px; background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; font-size: 13px; font-weight: 500; margin-bottom: 16px; border-radius: 4px;">
+            {{ errorMessage() }}
           </div>
+          }
+          <button type="submit" class="auth-btn-primary" style="background:#8b5cf6;" [disabled]="isLoading()">
+            @if (isLoading()) {
+            <svg class="animate-spin" style="width:18px; height:18px; color:white;" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Registering...
+            } @else {
+            Complete Registration
+            <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+            }
+          </button>
+        </div>
 
-          <div style="text-align:center; margin-top:16px;">
-              <a href="#" (click)="$event.preventDefault(); step.set(1)" style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.15em; text-decoration:none;">← Back</a>
-          </div>
+        <div style="text-align:center; margin-top:16px;">
+          <a href="#" (click)="$event.preventDefault(); step.set(1)"
+            style="font-size:11px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.15em; text-decoration:none;">←
+            Back</a>
+        </div>
         }
 
       </form>
       <!-- end block -->
 
-      <div style="text-align:center; margin-top:64px; font-size:11px; font-weight:700; color:#cbd5e1; letter-spacing:0.1em; text-transform:uppercase;">
+      <div
+        style="text-align:center; margin-top:64px; font-size:11px; font-weight:700; color:#cbd5e1; letter-spacing:0.1em; text-transform:uppercase;">
         &copy; 2026 Puxbay Inc. All Rights Reserved.
       </div>
     </div>
