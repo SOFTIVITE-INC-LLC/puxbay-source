@@ -21,7 +21,7 @@ func (s *B2BService) ListQuotes(tenantID uuid.UUID, role string) ([]models.Quota
 
 	query := s.db.Preload("Customer")
 
-	if role != "admin" && role != "manager" && role != "sales" {
+	if role != "admin" && role != "manager" && role != "sales" && role != "superadmin" {
 		return nil, errors.New("unauthorized to view all quotes")
 	}
 

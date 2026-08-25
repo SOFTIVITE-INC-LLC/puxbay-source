@@ -143,3 +143,42 @@ func (s *WalletService) GetBalance(customerIDStr string) (*models.Customer, erro
 
 	return &customer, nil
 }
+
+type StoreCreditAdjustmentInput struct {
+	Amount float64
+	Note   string
+}
+
+func (s *WalletService) AdjustStoreCredit(customerIDStr string, input StoreCreditAdjustmentInput) (*models.Customer, error) {
+	customerID, err := uuid.Parse(customerIDStr)
+	if err != nil {
+		return nil, errors.New("invalid customer_id")
+	}
+
+	var customer models.Customer
+	if err := s.db.Where("id = ?", customerID).First(&customer).Error; err != nil {
+		return nil, errors.New("customer not found")
+	}
+
+	customer.StoreCredit += input.Amount
+	if err := s.db.Save(&customer).Error; err != nil {
+		return nil, err
+	}
+
+	txType := "adjustment"
+	if input.Amount > 0 {
+		txType = "credit"
+	} else {
+		txType = "debit"
+	}
+
+	creditTx := models.StoreCreditTransaction{
+		CustomerID:      customerID,
+		Amount:          input.Amount,
+		TransactionType: txType,
+		Notes:           input.Note,
+	}
+	s.db.Create(&creditTx)
+
+	return &customer, nil
+}

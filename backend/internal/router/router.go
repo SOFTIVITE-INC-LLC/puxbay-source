@@ -577,10 +577,16 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.PUT("/storefront/settings", storefrontHandler.UpdateSettings)
 
 			// Wallet
+			api.GET("/wallet/dashboard", walletHandler.Dashboard)
+			api.POST("/wallet/lookup", walletHandler.LookupCustomer)
 			api.GET("/wallet/balance", walletHandler.GetBalance)
 			api.GET("/wallet/transactions", walletHandler.ListTransactions)
 			api.POST("/wallet/topup", walletHandler.TopUp)
 			api.POST("/wallet/transfer", walletHandler.Transfer)
+			api.POST("/wallet/customers/:customer_id/loyalty/adjust", walletHandler.AdjustLoyaltyPoints)
+			api.POST("/wallet/customers/:customer_id/store-credit/adjust", walletHandler.AdjustStoreCredit)
+			api.GET("/wallet/customers/:customer_id/gift-cards", walletHandler.GetGiftCards)
+			api.POST("/wallet/gift-cards", walletHandler.CreateGiftCard)
 
 			// Settings / Domains
 			api.GET("/settings", settingsHandler.GetSettings)

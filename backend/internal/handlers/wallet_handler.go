@@ -271,3 +271,36 @@ func (h *WalletAPIHandler) Transfer(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"status": "transfer_successful"})
 }
+
+func (h *WalletAPIHandler) AdjustStoreCredit(c *gin.Context) {
+	customerIDStr := c.Param("customer_id")
+
+	var req struct {
+		Amount float64 `json:"amount" binding:"required"`
+		Note   string  `json:"note"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	input := services.StoreCreditAdjustmentInput{
+		Amount: req.Amount,
+		Note:   req.Note,
+	}
+
+	customer, err := h.service(c).AdjustStoreCredit(customerIDStr, input)
+	if err != nil {
+		if err.Error() == "invalid customer_id" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":       "Store credit adjusted successfully",
+		"store_credit":  customer.StoreCredit,
+	})
+}
