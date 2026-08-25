@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/models"
@@ -21,7 +22,8 @@ func (s *B2BService) ListQuotes(tenantID uuid.UUID, role string) ([]models.Quota
 
 	query := s.db.Preload("Customer")
 
-	if role != "admin" && role != "manager" && role != "sales" && role != "superadmin" {
+	roleLower := strings.ToLower(role)
+	if roleLower != "admin" && roleLower != "manager" && roleLower != "sales" && roleLower != "superadmin" {
 		return nil, errors.New("unauthorized to view all quotes")
 	}
 
