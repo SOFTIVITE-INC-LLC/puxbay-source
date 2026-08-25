@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketingService, Campaign, CustomerSegment } from '../../../core/services/marketing.service';
 import { ToastService } from '../../../core/services/toast';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-marketing',
@@ -14,6 +15,7 @@ import { ToastService } from '../../../core/services/toast';
 export class Marketing implements OnInit {
   marketingService = inject(MarketingService);
   private toastService = inject(ToastService);
+  settingsService = inject(SettingsService);
 
   activeTab = signal<'campaigns' | 'segments' | 'promotions' | 'discounts'>('campaigns');
 

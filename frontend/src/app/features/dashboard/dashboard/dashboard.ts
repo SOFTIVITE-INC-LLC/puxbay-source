@@ -7,6 +7,7 @@ import { BranchService } from '../../../core/services/branch.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router } from '@angular/router';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,6 +44,7 @@ export class Dashboard implements OnInit {
   catalogService = inject(CatalogService);
   authService = inject(AuthService);
   router = inject(Router);
+  settingsService = inject(SettingsService);
 
   readonly Math = Math;
 

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { WalletService } from '../../../core/services/wallet.service';
 import { CustomerService } from '../../../core/services/customer.service';
 import { ToastrService } from 'ngx-toastr';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-wallet',
@@ -38,6 +39,7 @@ export class Wallet implements OnInit {
   walletSvc = inject(WalletService);
   customerSvc = inject(CustomerService);
   private toastr = inject(ToastrService);
+  settingsService = inject(SettingsService);
 
   activeTab = signal<'dashboard' | 'lookup' | 'adjustments'>('dashboard');
   selectedCustomerId = signal<string | null>(null);

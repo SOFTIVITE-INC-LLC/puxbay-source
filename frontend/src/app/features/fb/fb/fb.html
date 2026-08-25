@@ -243,7 +243,7 @@
                       </div>
                     }
                     <div class="absolute top-2 right-2 bg-black/60 backdrop-blur text-white text-xs font-bold px-2 py-1 rounded-lg">
-                      ${{ item.selling_price }}
+                      {{ settingsService.currencySymbol() }}{{ item.selling_price }}
                     </div>
                   </div>
                   <div class="p-4 flex flex-col flex-1">

@@ -117,8 +117,7 @@
       <div class="flex gap-4 mt-3 mb-2 text-sm relative z-10">
         <div class="bg-zinc-100 dark:bg-zinc-800 px-3 py-2 rounded-lg flex-1">
           <p class="text-zinc-500 text-xs">Today's Sales</p>
-          <p class="font-bold dark:text-white">{{ branch.currency_symbol || '$' }}{{ branchMetrics()[branch.id ||
-            '']?.today_revenue || 0 | number:'1.2-2' }}</p>
+          <p class="font-bold dark:text-white">{{ branch.currency_symbol || settingsService.currencySymbol() }}{{ branchMetrics()[branch.id || '']?.today_revenue || 0 | number:'1.2-2' }}</p>
         </div>
         <div class="bg-zinc-100 dark:bg-zinc-800 px-3 py-2 rounded-lg flex-1">
           <p class="text-zinc-500 text-xs">Active Staff</p>

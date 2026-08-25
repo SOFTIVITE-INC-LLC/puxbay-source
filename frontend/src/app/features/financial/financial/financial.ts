@@ -6,6 +6,7 @@ import { provideCharts, withDefaultRegisterables, BaseChartDirective } from 'ng2
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { FinancialService, ExpenseCreateInput } from '../../../core/services/financial.service';
 import { Expense } from '../../../core/models/financial.models';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-financial',
@@ -27,6 +28,7 @@ import { Expense } from '../../../core/models/financial.models';
 export class Financial implements OnInit {
   toastService = inject(ToastService);
   financialService = inject(FinancialService);
+  settingsService = inject(SettingsService);
   activeTab = signal<'pnl' | 'expenses' | 'tax' | 'ledger' | 'journal'>('pnl');
   dateRange = signal<'this_month' | 'this_quarter' | 'this_year' | 'all_time'>('this_month');
   

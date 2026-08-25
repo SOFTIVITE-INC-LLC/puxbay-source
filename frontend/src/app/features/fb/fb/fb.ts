@@ -5,6 +5,7 @@ import { FNBService, DiningTable, KDSTicket } from '../../../core/services/fnb.s
 import { CatalogService } from '../../../core/services/catalog.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastrService } from 'ngx-toastr';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-fb',
@@ -17,6 +18,7 @@ export class Fb implements OnInit {
   catalogService = inject(CatalogService);
   categoryService = inject(CategoryService);
   private toastr = inject(ToastrService);
+  settingsService = inject(SettingsService);
 
   activeTab = signal<'tables' | 'kds' | 'menu'>('tables');
   isModalOpen = signal(false);

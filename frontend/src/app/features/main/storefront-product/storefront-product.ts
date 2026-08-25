@@ -1,7 +1,8 @@
-import { Component, ViewEncapsulation, signal } from '@angular/core';
+import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Testimonials } from '../landing/components/testimonials/testimonials';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-storefront-product',
@@ -11,6 +12,7 @@ import { Testimonials } from '../landing/components/testimonials/testimonials';
   encapsulation: ViewEncapsulation.None,
 })
 export class StorefrontProduct {
+  settingsService = inject(SettingsService);
   isScanning = signal(false);
 
   toggleScan() {

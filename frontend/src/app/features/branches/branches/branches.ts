@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { AlertService } from '../../../core/services/alert.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { BillingService } from '../../../core/services/billing.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-branches',
@@ -31,6 +32,7 @@ export class Branches implements OnInit {
   private alertService = inject(AlertService);
   private authService = inject(AuthService);
   private billingService = inject(BillingService);
+  settingsService = inject(SettingsService);
 
   branches = this.branchService.branches;
   isModalOpen = signal(false);

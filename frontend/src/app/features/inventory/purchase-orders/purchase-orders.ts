@@ -8,6 +8,7 @@ import { SupplierService } from '../../../core/services/supplier.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { PurchaseOrder } from '../../../core/models/inventory.models';
 import { Supplier } from '../../../core/models/financial.models';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-purchase-orders',
@@ -20,6 +21,7 @@ export class PurchaseOrders implements OnInit {
   inventoryService = inject(InventoryService);
   supplierService = inject(SupplierService);
   catalogService = inject(CatalogService);
+  settingsService = inject(SettingsService);
 
   pos = signal<PurchaseOrder[]>([]);
   suppliers = signal<Supplier[]>([]);

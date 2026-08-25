@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { StorefrontService } from '../../../core/services/storefront.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-storefront',
@@ -23,6 +24,7 @@ import { StorefrontService } from '../../../core/services/storefront.service';
 export class Storefront implements OnInit {
   toastService = inject(ToastService);
   storefrontService = inject(StorefrontService);
+  settingsService = inject(SettingsService);
 
   ngOnInit() {
     this.storefrontService.getSettings().subscribe();

@@ -7,6 +7,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { Product } from '../../../core/models/models';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-product-form',
@@ -17,6 +18,7 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 export class ProductForm implements OnInit, OnDestroy {
   toastService = inject(ToastService);
   catalogService = inject(CatalogService);
+  settingsService = inject(SettingsService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 

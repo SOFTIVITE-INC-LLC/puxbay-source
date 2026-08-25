@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { GiftCardService } from '../../../core/services/gift-card.service';
 import { ToastrService } from 'ngx-toastr';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-pos',
@@ -83,6 +84,7 @@ export class Pos implements OnInit, OnDestroy {
   facade = inject(PosFacade);
   giftCardService = inject(GiftCardService);
   toastr = inject(ToastrService);
+  settingsService = inject(SettingsService);
   
   Math = Math;
   current_date = new Date();

@@ -328,7 +328,7 @@
             <div>
               <h3 class="font-bold text-xl font-mono text-indigo-600 dark:text-indigo-400">{{ discount.code }}</h3>
               <p class="text-sm font-medium mt-1">
-                {{ discount.type === 'percentage' ? discount.value + '%' : '$' + discount.value }} off
+                {{ discount.type === 'percentage' ? discount.value + '%' : settingsService.currencySymbol() + discount.value }} off
               </p>
             </div>
             <div class="flex items-center gap-1">
@@ -345,7 +345,7 @@
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-zinc-500">Min. Order Value</span>
-              <span class="font-bold">{{ discount.min_order_value ? '$' + discount.min_order_value : 'None' }}</span>
+              <span class="font-bold">{{ discount.min_order_value ? settingsService.currencySymbol() + discount.min_order_value : 'None' }}</span>
             </div>
             @if (discount.points_required) {
               <div class="flex justify-between text-sm">
@@ -503,7 +503,7 @@
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Description</label>
           <input type="text" [ngModel]="currentSegment().description" (ngModelChange)="currentSegment.update(s => ({...s, description: $event}))"
-            placeholder="e.g. Customers who have spent over $500"
+            placeholder="e.g. Customers who have spent over {{ settingsService.currencySymbol() }}500"
             class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-violet-500/50 outline-none transition-all" />
         </div>
         <div>

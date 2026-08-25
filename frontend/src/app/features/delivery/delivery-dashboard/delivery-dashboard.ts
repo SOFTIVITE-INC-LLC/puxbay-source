@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DeliveryService } from '../../../core/services/delivery.service';
 import { ToastService } from '../../../core/services/toast';
 import { OrderService } from '../../../core/services/order.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-delivery-dashboard',
@@ -25,6 +26,7 @@ import { OrderService } from '../../../core/services/order.service';
 export class DeliveryDashboard implements OnInit {
   deliveryService = inject(DeliveryService);
   toast = inject(ToastService);
+  settingsService = inject(SettingsService);
 
   isDriverModalOpen = signal(false);
   

@@ -53,7 +53,7 @@
                     <p class="text-xs text-slate-500">Whole milk</p>
                   </div>
                 </div>
-                <span class="font-bold text-slate-900">$4.50</span>
+                <span class="font-bold text-slate-900">{{ settingsService.currencySymbol() }}4.50</span>
               </div>
               
               <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
@@ -66,12 +66,12 @@
                     <p class="text-xs text-slate-500">Fresh baked</p>
                   </div>
                 </div>
-                <span class="font-bold text-slate-900">$3.00</span>
+                <span class="font-bold text-slate-900">{{ settingsService.currencySymbol() }}3.00</span>
               </div>
             </div>
             
             <button class="w-full mt-4 py-3 bg-cyan-500 text-slate-900 font-bold rounded-xl text-sm shadow-md shadow-cyan-500/20">
-              Checkout ($7.50)
+              Checkout ({{ settingsService.currencySymbol() }}7.50)
             </button>
           </div>
           
