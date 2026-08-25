@@ -73,13 +73,22 @@
           </button>
         </div>
         
-        <div class="flex-1 w-full max-w-2xl relative group order-1 sm:order-2 shadow-sm rounded-2xl">
-          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">search</span>
-          <input type="text" placeholder="Search or scan barcode (F4)"
-                 [ngModel]="facade.searchQuery()" (ngModelChange)="facade.searchQuery.set($event)"
-                 class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-slate-800 dark:text-white outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm">
-          <button *ngIf="facade.searchQuery()" (click)="facade.searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            <span class="material-symbols-outlined text-sm">close</span>
+        <div class="flex-1 w-full max-w-2xl flex items-center gap-2 order-1 sm:order-2">
+          <!-- Search input -->
+          <div class="relative flex-1 group shadow-sm rounded-2xl">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">search</span>
+            <input type="text" placeholder="Search or scan barcode (F4)"
+                   [ngModel]="facade.searchQuery()" (ngModelChange)="facade.searchQuery.set($event)"
+                   class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-slate-800 dark:text-white outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm">
+            <button *ngIf="facade.searchQuery()" (click)="facade.searchQuery.set('')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+          <!-- Camera scan button -->
+          <button (click)="openCameraScanner()"
+                  class="h-14 w-14 shrink-0 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm"
+                  title="Scan barcode/QR with camera (F2)">
+            <span class="material-symbols-outlined text-[22px]">qr_code_scanner</span>
           </button>
         </div>
 
@@ -688,3 +697,86 @@
     </button>
   </div>
 </div>
+
+<!-- ═══ CAMERA BARCODE/QR SCANNER MODAL ═══ -->
+@if (showCameraScanner()) {
+  <div class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+       (click)="closeCameraScanner()">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative w-full sm:max-w-md bg-white dark:bg-slate-900 sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 pt-5 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+          </div>
+          <div>
+            <h2 class="font-black text-slate-900 dark:text-white text-base">Scan Barcode / QR</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Point camera at product barcode or QR code</p>
+          </div>
+        </div>
+        <button (click)="closeCameraScanner()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Scanner viewport -->
+      <div class="px-5 pb-5">
+        <!-- Success state -->
+        @if (scannerSuccess()) {
+          <div class="flex flex-col items-center justify-center gap-3 py-10 text-center">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[36px] text-emerald-600 dark:text-emerald-400">check_circle</span>
+            </div>
+            <div>
+              <p class="font-black text-slate-900 dark:text-white text-base">Scanned!</p>
+              <p class="text-xs font-mono text-slate-500 dark:text-slate-400 mt-1 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">{{ scannerSuccess() }}</p>
+            </div>
+            <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold animate-pulse">Product added to cart…</p>
+          </div>
+        }
+
+        <!-- Error state -->
+        @if (scannerError() && !scannerSuccess()) {
+          <div class="flex flex-col items-center justify-center gap-3 py-10 text-center">
+            <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[36px] text-rose-600 dark:text-rose-400">camera_off</span>
+            </div>
+            <div>
+              <p class="font-black text-slate-900 dark:text-white text-base">Camera Unavailable</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">{{ scannerError() }}</p>
+            </div>
+            <button (click)="closeCameraScanner()" class="mt-2 px-5 py-2.5 bg-rose-600 text-white font-bold rounded-xl text-sm hover:bg-rose-700 transition-colors">
+              Close
+            </button>
+          </div>
+        }
+
+        <!-- Camera viewport (shown while scanning) -->
+        @if (!scannerSuccess() && !scannerError()) {
+          <div class="relative rounded-2xl overflow-hidden bg-slate-950">
+            <!-- Animated scan line -->
+            <div class="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent z-10 scanner-aim-line pointer-events-none"></div>
+            <!-- Corner marks -->
+            <div class="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-indigo-400 rounded-tl-lg z-10 pointer-events-none"></div>
+            <div class="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-indigo-400 rounded-tr-lg z-10 pointer-events-none"></div>
+            <div class="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-indigo-400 rounded-bl-lg z-10 pointer-events-none"></div>
+            <div class="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-indigo-400 rounded-br-lg z-10 pointer-events-none"></div>
+            <!-- html5-qrcode renders the video feed here -->
+            <div id="pos-camera-scanner-reader"></div>
+          </div>
+          <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-3 flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px]">info</span>
+            Supports EAN-13, UPC, Code 128, QR Code, and more
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+}
+

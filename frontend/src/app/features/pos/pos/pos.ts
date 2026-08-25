@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../core/models/models';
 import { PosFacade } from '../pos.facade';
 import { RouterModule } from '@angular/router';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 @Component({
   selector: 'app-pos',
@@ -43,13 +44,50 @@ import { RouterModule } from '@angular/router';
         width: 100%;
       }
     }
+
+    /* Scanner modal styles */
+    #pos-camera-scanner-reader {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #pos-camera-scanner-reader video {
+      border-radius: 12px;
+    }
+    /* Override html5-qrcode default button styles */
+    #pos-camera-scanner-reader button {
+      background: #6366f1 !important;
+      border-radius: 8px !important;
+      border: none !important;
+      color: white !important;
+      font-weight: bold !important;
+      padding: 8px 16px !important;
+    }
+    #pos-camera-scanner-reader select {
+      border-radius: 8px !important;
+      padding: 6px 10px !important;
+    }
+    .scanner-aim-line {
+      animation: scanner-scan 2s linear infinite;
+    }
+    @keyframes scanner-scan {
+      0% { top: 10%; opacity: 1; }
+      50% { top: 85%; opacity: 0.6; }
+      100% { top: 10%; opacity: 1; }
+    }
   `,
 })
-export class Pos implements OnInit {
+export class Pos implements OnInit, OnDestroy {
   facade = inject(PosFacade);
   Math = Math;
-  current_date = new Date(); // expose for template use in shift variance calculation
+  current_date = new Date();
   isCartOpen = false;
+
+  // Camera scanner state
+  showCameraScanner = signal(false);
+  scannerError = signal<string | null>(null);
+  scannerSuccess = signal<string | null>(null);
+  private html5QrCode: Html5Qrcode | null = null;
 
   toggleCart() {
     this.isCartOpen = !this.isCartOpen;
@@ -59,6 +97,84 @@ export class Pos implements OnInit {
     this.facade.init();
   }
 
+  ngOnDestroy() {
+    this.stopCameraScanner();
+  }
+
+  // ── Camera Scanner ──────────────────────────────────────────
+  openCameraScanner() {
+    this.showCameraScanner.set(true);
+    this.scannerError.set(null);
+    this.scannerSuccess.set(null);
+    // Give DOM time to render the container
+    setTimeout(() => this.startScanner(), 150);
+  }
+
+  private startScanner() {
+    try {
+      this.html5QrCode = new Html5Qrcode('pos-camera-scanner-reader', {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.CODE_93,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.DATA_MATRIX,
+        ],
+        verbose: false,
+      });
+
+      this.html5QrCode
+        .start(
+          { facingMode: 'environment' }, // prefer back camera on mobile
+          { fps: 10, qrbox: { width: 260, height: 180 } },
+          (decodedText) => this.onScanSuccess(decodedText),
+          () => {} // ignore per-frame errors
+        )
+        .catch((err) => {
+          this.scannerError.set('Camera access denied or not available. Please check your browser permissions.');
+          console.error('Camera scan error:', err);
+        });
+    } catch (e) {
+      this.scannerError.set('Could not start the camera scanner.');
+    }
+  }
+
+  private onScanSuccess(decodedText: string) {
+    this.scannerSuccess.set(decodedText);
+    // Pass to POS barcode handler
+    this.facade.scanBarcode(decodedText);
+    // Stop camera after successful scan, close modal after brief delay
+    this.stopCameraScanner();
+    setTimeout(() => {
+      this.showCameraScanner.set(false);
+      this.scannerSuccess.set(null);
+    }, 1200);
+  }
+
+  closeCameraScanner() {
+    this.stopCameraScanner();
+    this.showCameraScanner.set(false);
+    this.scannerError.set(null);
+    this.scannerSuccess.set(null);
+  }
+
+  private stopCameraScanner() {
+    if (this.html5QrCode) {
+      this.html5QrCode
+        .stop()
+        .catch(() => {})
+        .finally(() => {
+          this.html5QrCode = null;
+        });
+    }
+  }
+
+  // ── Keyboard shortcuts ──────────────────────────────────────
   private barcodeBuffer = '';
   private barcodeTimeout: any = null;
 
@@ -75,6 +191,7 @@ export class Pos implements OnInit {
     }
     
     if (event.key === 'Escape') {
+      if (this.showCameraScanner()) { this.closeCameraScanner(); return; }
       if (this.facade.isCheckoutModalOpen()) this.facade.closeCheckout();
       else if (this.facade.isParkedSalesModalOpen()) this.facade.isParkedSalesModalOpen.set(false);
       else {
@@ -93,11 +210,17 @@ export class Pos implements OnInit {
       const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
       if (searchInput) searchInput.focus();
     }
+
+    // F2 to open camera scanner
+    if (event.key === 'F2') {
+      event.preventDefault();
+      if (!this.showCameraScanner()) this.openCameraScanner();
+    }
   }
 
   @HostListener('window:keypress', ['$event'])
   handleBarcodeScan(event: KeyboardEvent) {
-    if (this.facade.isCheckoutModalOpen() || event.target instanceof HTMLInputElement) return;
+    if (this.facade.isCheckoutModalOpen() || this.showCameraScanner() || event.target instanceof HTMLInputElement) return;
 
     if (event.key === 'Enter') {
       if (this.barcodeBuffer.length > 2) {

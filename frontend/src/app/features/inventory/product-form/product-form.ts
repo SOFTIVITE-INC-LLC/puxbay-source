@@ -1,11 +1,12 @@
 import { ToastService } from '../../../core/services/toast';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { Product } from '../../../core/models/models';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 @Component({
   selector: 'app-product-form',
@@ -13,7 +14,7 @@ import { Product } from '../../../core/models/models';
   imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe],
   templateUrl: './product-form.html',
 })
-export class ProductForm implements OnInit {
+export class ProductForm implements OnInit, OnDestroy {
   toastService = inject(ToastService);
   catalogService = inject(CatalogService);
   private router = inject(Router);
@@ -25,6 +26,11 @@ export class ProductForm implements OnInit {
   isSaving = signal(false);
   productId = signal<string | null>(null);
   activeTab: 'basic' | 'pricing' | 'inventory' | 'details' = 'basic';
+
+  // ── Barcode Camera Scanner ────────────────────────────────────
+  showBarcodeScanner = signal(false);
+  barcodeError = signal<string | null>(null);
+  private html5QrCode: Html5Qrcode | null = null;
 
   form = signal<Partial<Product>>({
     name: '',
@@ -117,5 +123,68 @@ export class ProductForm implements OnInit {
 
   cancel() {
     this.router.navigate(['/inventory']);
+  }
+
+  ngOnDestroy() {
+    this.stopBarcodeScanner();
+  }
+
+  openBarcodeScanner() {
+    this.showBarcodeScanner.set(true);
+    this.barcodeError.set(null);
+    setTimeout(() => this.startBarcodeScanner(), 150);
+  }
+
+  private startBarcodeScanner() {
+    try {
+      this.html5QrCode = new Html5Qrcode('pf-barcode-scanner-reader', {
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.CODE_93,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.DATA_MATRIX,
+        ],
+        verbose: false,
+      });
+
+      this.html5QrCode
+        .start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 260, height: 180 } },
+          (decodedText) => this.onBarcodeScanSuccess(decodedText),
+          () => {}
+        )
+        .catch((err) => {
+          this.barcodeError.set('Camera access denied or not available.');
+          console.error('Barcode scan error:', err);
+        });
+    } catch (e) {
+      this.barcodeError.set('Could not start the camera scanner.');
+    }
+  }
+
+  private onBarcodeScanSuccess(decodedText: string) {
+    // Populate the barcode field
+    this.update('barcode', decodedText);
+    this.stopBarcodeScanner();
+    setTimeout(() => this.showBarcodeScanner.set(false), 600);
+  }
+
+  closeBarcodeScanner() {
+    this.stopBarcodeScanner();
+    this.showBarcodeScanner.set(false);
+    this.barcodeError.set(null);
+  }
+
+  private stopBarcodeScanner() {
+    if (this.html5QrCode) {
+      this.html5QrCode.stop().catch(() => {}).finally(() => { this.html5QrCode = null; });
+    }
   }
 }
