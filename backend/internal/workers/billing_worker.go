@@ -62,7 +62,8 @@ func processBillingEmails(db *gorm.DB, emailSvc *services.EmailService) {
 
 			emailSent := false
 
-			if lockedSub.Status == "trialing" {
+			switch lockedSub.Status {
+case "trialing":
 				daysLeft := int(lockedSub.CurrentPeriodEnd.Sub(now).Hours() / 24)
 
 				// Trigger 3-day warning
@@ -79,7 +80,7 @@ func processBillingEmails(db *gorm.DB, emailSvc *services.EmailService) {
 					tx.Model(&lockedSub).Update("status", "past_due")
 					emailSent = true
 				}
-			} else if lockedSub.Status == "past_due" {
+			case "past_due":
 				emailSvc.SendPaymentFailedEmail(lockedSub.Tenant)
 				emailSent = true
 			}
