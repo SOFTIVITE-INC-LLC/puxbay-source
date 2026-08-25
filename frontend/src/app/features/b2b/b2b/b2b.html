@@ -1,21 +1,21 @@
-<div class="h-full flex flex-col space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+<div class="h-full flex flex-col space-y-4 sm:space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
 
   <!-- Header -->
-  <div class="flex justify-between items-center px-6 pt-6">
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 sm:px-6 pt-4 sm:pt-6">
     <div>
-      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-400 dark:to-violet-500">
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-400 dark:to-violet-500">
         B2B &amp; Wholesale
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">Generate quotes, approve proposals, and convert to orders seamlessly.</p>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-xs sm:text-sm">Generate quotes, approve proposals, and convert to orders seamlessly.</p>
     </div>
     <button (click)="isQuoteModalOpen.set(true)"
-      class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2">
+      class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2 self-start sm:self-auto text-sm sm:text-base">
       <span class="material-symbols-outlined text-[20px]">add</span> New Quote
     </button>
   </div>
 
   <!-- Stats Row -->
-  <div class="grid grid-cols-4 gap-4 px-6">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-6">
     @for (stat of [
       {label:'Total Quotes', value: totalQuotes(), icon:'description', color:'indigo', filter:'all'},
       {label:'Pending Review', value: pendingQuotes(), icon:'pending', color:'amber', filter:'pending'},
@@ -24,26 +24,28 @@
     ]; track stat.label) {
       <button (click)="filterStatus.set(stat.filter)"
         [class]="filterStatus() === stat.filter
-          ? 'bg-white dark:bg-zinc-900 rounded-2xl border-2 border-indigo-400 dark:border-indigo-500 p-5 text-left shadow-lg transition-all'
-          : 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 text-left hover:border-zinc-300 dark:hover:border-zinc-600 transition-all'">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="material-symbols-outlined text-[20px] text-{{ stat.color }}-500">{{ stat.icon }}</span>
-          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">{{ stat.label }}</p>
+          ? 'bg-white dark:bg-zinc-900 rounded-2xl border-2 border-indigo-400 dark:border-indigo-500 p-3 sm:p-5 text-left shadow-lg transition-all'
+          : 'bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-5 text-left hover:border-zinc-300 dark:hover:border-zinc-600 transition-all'">
+        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+          <span class="material-symbols-outlined text-[16px] sm:text-[20px] text-{{ stat.color }}-500">{{ stat.icon }}</span>
+          <p class="text-[10px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider">{{ stat.label }}</p>
         </div>
-        <p class="text-4xl font-black">{{ stat.value }}</p>
+        <p class="text-2xl sm:text-4xl font-black">{{ stat.value }}</p>
       </button>
     }
   </div>
 
-  <!-- Quotes Table -->
-  <div class="flex-1 overflow-auto px-6 pb-6">
+  <!-- Quotes Table / Card List -->
+  <div class="flex-1 overflow-auto px-4 sm:px-6 pb-4 sm:pb-6">
     <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900">
       @if (b2bService.loading()) {
         <div class="flex justify-center items-center py-20">
           <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
         </div>
       } @else {
-        <table class="w-full text-sm">
+
+        <!-- Desktop Table (hidden on mobile) -->
+        <table class="w-full text-sm hidden sm:table">
           <thead class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500">
             <tr>
               <th class="px-6 py-4 font-bold text-left">Quote ID</th>
@@ -103,6 +105,54 @@
             }
           </tbody>
         </table>
+
+        <!-- Mobile Card List (visible on mobile only) -->
+        <div class="sm:hidden divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+          @for (q of filteredQuotes(); track q.id) {
+            <div class="p-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" (click)="viewQuote(q)">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <p class="font-mono text-indigo-600 dark:text-indigo-400 font-bold text-xs">{{ q.id.slice(0,8).toUpperCase() }}</p>
+                  <p class="font-semibold text-zinc-700 dark:text-zinc-300 text-sm mt-0.5">{{ q.customer_id }}</p>
+                </div>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide {{ statusBadge(q.status) }}">
+                  {{ q.status }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-xs text-zinc-400">{{ q.created_at | date:'mediumDate' }}</span>
+                <span class="font-black text-sm">{{ q.total | appCurrency }}</span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                @if (q.status === 'pending') {
+                  <button (click)="approveQuote(q.id); $event.stopPropagation()" class="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+                    Approve
+                  </button>
+                  <button (click)="rejectQuote(q.id); $event.stopPropagation()" class="px-3 py-1.5 text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 rounded-xl">
+                    Reject
+                  </button>
+                }
+                @if (q.status === 'approved') {
+                  <button (click)="convertToOrder(q.id); $event.stopPropagation()" class="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                    → Order
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          @if (filteredQuotes().length === 0) {
+            <div class="px-6 py-20 text-center">
+              <div class="space-y-3">
+                <span class="material-symbols-outlined text-[72px] text-zinc-300 dark:text-zinc-600">request_quote</span>
+                <p class="font-bold text-zinc-500">No quotes found</p>
+                <p class="text-sm text-zinc-400">
+                  @if (filterStatus() !== 'all') { No {{ filterStatus() }} quotes. } @else { Create your first B2B quote to get started. }
+                </p>
+              </div>
+            </div>
+          }
+        </div>
+
       }
     </div>
   </div>

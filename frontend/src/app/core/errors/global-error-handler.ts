@@ -4,18 +4,18 @@ import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
-  constructor(private injector: Injector, private zone: NgZone) {}
+  constructor(private injector: Injector, private zone: NgZone) { }
 
   handleError(error: Error | HttpErrorResponse): void {
     const isBrowser = typeof window !== 'undefined';
-    
+
     let message = 'An unexpected error occurred.';
-    
+
     if (error instanceof HttpErrorResponse) {
       if (isBrowser && !navigator.onLine) {
         message = 'No Internet Connection';
       } else {
-        message = error.error?.message || `Server error: ${error.status}`;
+        message = error.error?.message || 'Unknown Error';
       }
     } else {
       // Client Error
