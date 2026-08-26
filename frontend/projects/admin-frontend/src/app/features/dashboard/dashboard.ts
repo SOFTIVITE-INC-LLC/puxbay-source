@@ -77,32 +77,38 @@ export class DashboardComponent implements OnInit {
     this.isLoading.set(true);
     this.service.getDashboardStats().subscribe({
       next: (data) => {
-        this.stats.set(data);
-        
-        if (data.recent_activities) {
-          this.recentActivities = data.recent_activities;
-        }
+        try {
+          if (data) {
+            this.stats.set(data);
+            
+            if (data.recent_activities) {
+              this.recentActivities = data.recent_activities;
+            }
 
-        if (data.platform_growth) {
-          const growth: any[] = data.platform_growth;
-          this.lineChartData = {
-            labels: growth.map(g => g.label),
-            datasets: [
-              {
-                data: growth.map(g => g.value),
-                label: 'Active Tenants',
-                fill: true,
-                tension: 0.5,
-                borderColor: '#4f46e5',
-                backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                pointBackgroundColor: '#4f46e5',
-                pointBorderColor: '#fff',
-              }
-            ]
-          };
+            if (Array.isArray(data.platform_growth) && data.platform_growth.length > 0) {
+              const growth: any[] = data.platform_growth;
+              this.lineChartData = {
+                labels: growth.map(g => g.label || ''),
+                datasets: [
+                  {
+                    data: growth.map(g => g.value || 0),
+                    label: 'Active Tenants',
+                    fill: true,
+                    tension: 0.5,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#fff',
+                  }
+                ]
+              };
+            }
+          }
+        } catch (e) {
+          console.error('Error processing dashboard data', e);
+        } finally {
+          this.isLoading.set(false);
         }
-
-        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Failed to load dashboard stats', err);
