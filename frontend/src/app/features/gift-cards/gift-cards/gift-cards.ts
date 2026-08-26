@@ -79,6 +79,11 @@ export class GiftCards implements OnInit {
     });
   }
 
+  getCustomerName(id: string) {
+    const c = this.customerService.customers().find(x => x.id === id);
+    return c ? c.name : 'Unknown';
+  }
+
   getBalancePercent(card: any) {
     if (!card.initial_balance) return 0;
     return (card.current_balance / card.initial_balance) * 100;

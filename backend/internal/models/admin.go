@@ -24,11 +24,12 @@ type AdminRole struct {
 
 type AdminUser struct {
 	Base
-	UserID      uuid.UUID `gorm:"type:uuid;uniqueIndex;not null" json:"user_id"`
-	AdminRoleID uuid.UUID `gorm:"type:uuid;not null" json:"admin_role_id"`
+	UserID      uuid.UUID  `gorm:"type:uuid;uniqueIndex;not null" json:"user_id"`
+	AdminRoleID *uuid.UUID `gorm:"type:uuid" json:"admin_role_id"`
+	Permissions string     `gorm:"type:jsonb;default:'{}'" json:"permissions"` // Per-user overrides/direct permissions
 
-	User User      `gorm:"foreignKey:UserID" json:"-"`
-	Role AdminRole `gorm:"foreignKey:AdminRoleID" json:"-"`
+	User User       `gorm:"foreignKey:UserID" json:"-"`
+	Role *AdminRole `gorm:"foreignKey:AdminRoleID" json:"-"`
 }
 
 type IPAllowlist struct {

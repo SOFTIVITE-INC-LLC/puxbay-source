@@ -1,41 +1,389 @@
-<!-- Premium Services / Appointment Calendar -->
-<div class="p-8 max-w-7xl mx-auto h-full flex flex-col space-y-6 animate-fade-in">
-  <div class="flex justify-between items-center">
-    <div>
-      <h1 class="text-3xl font-black">Appointments</h1>
-      <p class="text-slate-500 font-medium">Manage your service bookings and schedule.</p>
+<!-- Services & Appointments -->
+<div class="h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white overflow-hidden">
+
+  <!-- Header -->
+  <div class="px-6 pt-6 pb-0 flex-shrink-0">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h1 class="text-3xl font-black tracking-tight">Services & Appointments</h1>
+        <p class="text-zinc-500 dark:text-zinc-400 mt-1 font-medium">Manage bookings, services, and staff schedules.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button (click)="openServiceModal()" class="px-4 py-2.5 rounded-xl border-2 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          New Service
+        </button>
+        <button (click)="openBookingModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">calendar_add_on</span>
+          New Booking
+        </button>
+      </div>
     </div>
-    <button class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-      New Booking
-    </button>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 border-b border-zinc-200 dark:border-zinc-800">
+      @for (tab of [{ id: 'calendar', label: 'Calendar', icon: 'calendar_month' }, { id: 'services', label: 'Services', icon: 'spa' }, { id: 'commissions', label: 'Commissions', icon: 'payments' }]; track tab.id) {
+        <button
+          (click)="activeTab.set($any(tab.id))"
+          [class]="activeTab() === tab.id
+            ? 'px-5 py-3 text-sm font-bold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400 -mb-px flex items-center gap-2'
+            : 'px-5 py-3 text-sm font-bold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white flex items-center gap-2 transition-colors'"
+        >
+          <span class="material-symbols-outlined text-[18px]">{{ tab.icon }}</span>
+          {{ tab.label }}
+        </button>
+      }
+    </div>
   </div>
 
-  <div class="flex-1 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
-    <!-- Calendar Header -->
-    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-      <div class="flex items-center gap-4">
-        <button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </button>
-        <h2 class="text-xl font-bold">October 2026</h2>
-        <button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </button>
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto p-6">
+
+    <!-- ── CALENDAR TAB ── -->
+    @if (activeTab() === 'calendar') {
+      <div class="flex gap-6 h-full">
+
+        <!-- Main Calendar -->
+        <div class="flex-1 flex flex-col">
+          <!-- Calendar Controls -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <button (click)="goToToday()" class="px-3 py-1.5 text-sm font-bold rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">Today</button>
+              <div class="flex items-center gap-1">
+                <button (click)="prevMonth()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                  <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                </button>
+                <button (click)="nextMonth()" class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                  <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                </button>
+              </div>
+              <h2 class="text-xl font-black">{{ currentMonthLabel() }}</h2>
+            </div>
+            <div class="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl text-sm font-bold">
+              @for (v of ['month', 'week', 'day']; track v) {
+                <button
+                  (click)="view.set($any(v))"
+                  [class]="view() === v ? 'px-4 py-1.5 rounded-lg bg-white dark:bg-zinc-700 shadow-sm text-zinc-900 dark:text-white capitalize' : 'px-4 py-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white capitalize transition-colors'"
+                >{{ v }}</button>
+              }
+            </div>
+          </div>
+
+          <!-- Month Calendar Grid -->
+          @if (view() === 'month') {
+            <div class="flex-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+              <!-- Day headers -->
+              <div class="grid grid-cols-7 border-b border-zinc-200 dark:border-zinc-800">
+                @for (day of weekDays; track day) {
+                  <div class="py-3 text-center text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{{ day }}</div>
+                }
+              </div>
+              <!-- Days grid -->
+              <div class="flex-1 grid grid-cols-7" style="grid-template-rows: repeat(6, 1fr);">
+                @for (day of calendarDays(); track day.date.toISOString()) {
+                  <div
+                    (click)="day.isCurrentMonth && openBookingModal(day.date)"
+                    [class]="[
+                      'border-b border-r border-zinc-100 dark:border-zinc-800 p-2 flex flex-col min-h-[100px] transition-colors group relative',
+                      day.isCurrentMonth ? 'cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/10' : 'bg-zinc-50/50 dark:bg-zinc-900/50',
+                    ].join(' ')"
+                  >
+                    <span [class]="[
+                      'w-7 h-7 flex items-center justify-center text-sm font-bold rounded-full mb-1 self-start transition-colors',
+                      day.isToday ? 'bg-indigo-600 text-white' : '',
+                      !day.isCurrentMonth ? 'text-zinc-300 dark:text-zinc-700' : 'text-zinc-700 dark:text-zinc-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400',
+                    ].join(' ')">{{ day.date.getDate() }}</span>
+
+                    @for (apt of day.appointments.slice(0, 2); track apt.start_time) {
+                      <div [class]="'text-[10px] font-bold text-white rounded-md px-1.5 py-0.5 mb-0.5 truncate ' + (statusColors[apt.status] || 'bg-zinc-400')">
+                        {{ formatTime(apt.start_time) }} {{ getServiceName(apt.service_id) }}
+                      </div>
+                    }
+                    @if (day.appointments.length > 2) {
+                      <div class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500">+{{ day.appointments.length - 2 }} more</div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Week / Day: simple placeholder rows -->
+          @if (view() === 'week' || view() === 'day') {
+            <div class="flex-1 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-auto shadow-sm">
+              <div class="min-h-full relative">
+                @for (hour of [7,8,9,10,11,12,13,14,15,16,17,18,19,20]; track hour) {
+                  <div class="flex border-b border-zinc-100 dark:border-zinc-800 group" style="min-height: 64px;">
+                    <div class="w-16 flex-shrink-0 py-2 pr-3 text-right text-xs font-bold text-zinc-400 dark:text-zinc-600 select-none">
+                      {{ hour > 12 ? hour - 12 : hour }}{{ hour >= 12 ? 'PM' : 'AM' }}
+                    </div>
+                    <div class="flex-1 border-l border-zinc-100 dark:border-zinc-800 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/5 transition-colors cursor-pointer" (click)="openBookingModal()">
+                      @for (apt of todaysAppointments(); track apt.start_time) {
+                        @if (view() === 'day' && getAppointmentHour(apt) === hour) {
+                          <div [class]="'m-1 rounded-lg px-2 py-1 text-xs font-bold text-white ' + (statusColors[apt.status] || 'bg-zinc-400')">
+                            {{ formatTime(apt.start_time) }} — {{ apt.customer_name || 'Walk-in' }} · {{ getServiceName(apt.service_id) }}
+                          </div>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Sidebar: Upcoming Appointments -->
+        <div class="w-72 flex-shrink-0 flex flex-col gap-4">
+          <!-- Today's summary -->
+          <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-indigo-500/20">
+            <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest mb-1">Today's Schedule</p>
+            <div class="text-4xl font-black">{{ todaysAppointments().length }}</div>
+            <p class="text-indigo-200 font-medium mt-1">Appointments</p>
+          </div>
+
+          <!-- Upcoming list -->
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm flex-1">
+            <div class="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
+              <h3 class="text-sm font-black text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Upcoming</h3>
+            </div>
+            @if (loading()) {
+              <div class="flex justify-center py-8"><div class="animate-spin rounded-full h-6 w-6 border-2 border-indigo-600 border-t-transparent"></div></div>
+            } @else if (upcomingAppointments().length === 0) {
+              <div class="py-8 text-center">
+                <span class="material-symbols-outlined text-[36px] text-zinc-300 dark:text-zinc-700">event_busy</span>
+                <p class="text-sm text-zinc-400 dark:text-zinc-600 mt-2 font-medium">No upcoming bookings</p>
+              </div>
+            } @else {
+              <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                @for (apt of upcomingAppointments(); track apt.start_time) {
+                  <div class="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <div class="flex items-start gap-3">
+                      <div [class]="'w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ' + (statusColors[apt.status] || 'bg-zinc-400')"></div>
+                      <div class="min-w-0">
+                        <p class="text-sm font-bold text-zinc-900 dark:text-white truncate">{{ apt.customer_name || 'Walk-in' }}</p>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate">{{ getServiceName(apt.service_id) }}</p>
+                        <p class="text-xs font-bold text-indigo-500 mt-1">{{ formatDate(apt.start_time) }} · {{ formatTime(apt.start_time) }}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Status legend -->
+          <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm">
+            <p class="text-xs font-black text-zinc-400 uppercase tracking-wider mb-3">Status Legend</p>
+            <div class="space-y-2">
+              @for (entry of [['scheduled', 'Scheduled'], ['confirmed', 'Confirmed'], ['in_progress', 'In Progress'], ['completed', 'Completed'], ['cancelled', 'Cancelled']]; track entry[0]) {
+                <div class="flex items-center gap-2">
+                  <div [class]="'w-2.5 h-2.5 rounded-full flex-shrink-0 ' + statusColors[entry[0]]"></div>
+                  <span class="text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ entry[1] }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-lg font-medium text-sm">
-        <button class="px-4 py-1.5 rounded-md bg-white dark:bg-slate-700 shadow-sm">Month</button>
-        <button class="px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white">Week</button>
-        <button class="px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white">Day</button>
+    }
+
+    <!-- ── SERVICES TAB ── -->
+    @if (activeTab() === 'services') {
+      @if (loading()) {
+        <div class="flex justify-center py-20"><div class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></div></div>
+      } @else if (services().length === 0) {
+        <div class="flex flex-col items-center justify-center py-24 gap-4">
+          <span class="material-symbols-outlined text-[56px] text-zinc-300 dark:text-zinc-700">spa</span>
+          <h3 class="text-xl font-black text-zinc-700 dark:text-zinc-300">No services yet</h3>
+          <p class="text-zinc-500 dark:text-zinc-400">Add your first service to start taking bookings.</p>
+          <button (click)="openServiceModal()" class="px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors mt-2">Create Service</button>
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          @for (service of services(); track service.name) {
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 group-hover:bg-indigo-600 transition-colors"></div>
+              
+              <div class="flex justify-between items-start mb-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <span class="material-symbols-outlined text-[20px]">spa</span>
+                </div>
+                <span [class]="service.is_active ? 'px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'px-2 py-0.5 text-xs font-bold rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500'">
+                  {{ service.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              
+              <h3 class="font-black text-lg text-zinc-900 dark:text-white mb-1">{{ service.name }}</h3>
+              @if (service.description) {
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4 line-clamp-2">{{ service.description }}</p>
+              }
+              
+              <div class="flex items-center justify-between mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                <div class="flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
+                  <span class="material-symbols-outlined text-[16px]">schedule</span>
+                  <span class="text-sm font-medium">{{ service.duration_minutes }} min</span>
+                </div>
+                <span class="text-lg font-black text-indigo-600 dark:text-indigo-400">{{ service.price | appCurrency }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Add service card -->
+          <button (click)="openServiceModal()" class="bg-white dark:bg-zinc-900 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 p-6 shadow-sm hover:border-indigo-400 dark:hover:border-indigo-600 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all group flex flex-col items-center justify-center gap-3 min-h-[200px]">
+            <div class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 flex items-center justify-center text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-all">
+              <span class="material-symbols-outlined text-[24px]">add</span>
+            </div>
+            <span class="text-sm font-bold text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Add New Service</span>
+          </button>
+        </div>
+      }
+    }
+
+    <!-- ── COMMISSIONS TAB ── -->
+    @if (activeTab() === 'commissions') {
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
+          <h3 class="font-black text-zinc-900 dark:text-white">Commission Records</h3>
+        </div>
+        <div class="flex flex-col items-center justify-center py-20 gap-4 text-center">
+          <span class="material-symbols-outlined text-[56px] text-zinc-300 dark:text-zinc-700">account_balance_wallet</span>
+          <h3 class="text-xl font-black text-zinc-700 dark:text-zinc-300">No commissions yet</h3>
+          <p class="text-zinc-500 dark:text-zinc-400 max-w-sm">Commission records will appear here once your staff completes bookings linked to commission rules.</p>
+        </div>
       </div>
-    </div>
-    
-    <!-- Calendar Grid (Mock) -->
-    <div class="flex-1 p-6 grid grid-cols-7 gap-4">
-      <!-- Mocks omitted for brevity, representing a rich calendar view -->
-      <div class="col-span-7 h-96 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl flex items-center justify-center text-slate-400 font-bold">
-        [ Interactive Calendar Component Loads Here ]
+    }
+  </div>
+</div>
+
+<!-- ── NEW BOOKING MODAL ── -->
+@if (showBookingModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeBookingModal()"></div>
+    <div class="relative bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-lg shadow-2xl border border-zinc-200/50 dark:border-white/10 overflow-hidden">
+      <!-- Modal header gradient -->
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-xl font-black text-white">New Booking</h2>
+            <p class="text-indigo-200 text-sm mt-0.5">Schedule a service appointment</p>
+          </div>
+          <button (click)="closeBookingModal()" class="text-indigo-200 hover:text-white transition-colors p-1">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-8 space-y-5 max-h-[70vh] overflow-y-auto">
+        <!-- Service -->
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Service <span class="text-red-500">*</span></label>
+          <select [(ngModel)]="newBooking().service_id" name="service_id" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+            <option value="">Select a service</option>
+            @for (s of services(); track s.name) {
+              <option [value]="$any(s).id">{{ s.name }} ({{ s.duration_minutes }} min — {{ s.price | appCurrency }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Date & Time -->
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Date & Time <span class="text-red-500">*</span></label>
+          <input type="datetime-local" [(ngModel)]="newBooking().start_time" name="start_time" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+        </div>
+
+        <!-- Staff -->
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Staff Member</label>
+          <select [(ngModel)]="newBooking().staff_member_id" name="staff_id" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+            <option value="">Unassigned</option>
+            @for (m of staff(); track $any(m).id) {
+              <option [value]="$any(m).id">{{ $any(m).first_name }} {{ $any(m).last_name }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="border-t border-zinc-100 dark:border-zinc-800 pt-5 space-y-4">
+          <p class="text-xs font-black text-zinc-400 uppercase tracking-wider">Customer Info</p>
+          <div>
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Full Name</label>
+            <input type="text" [(ngModel)]="newBooking().customer_name" name="customer_name" placeholder="Walk-in customer" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Phone</label>
+              <input type="tel" [(ngModel)]="newBooking().customer_phone" name="customer_phone" placeholder="+233..." class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Email</label>
+              <input type="email" [(ngModel)]="newBooking().customer_email" name="customer_email" placeholder="optional" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Notes</label>
+            <textarea [(ngModel)]="newBooking().notes" name="notes" rows="2" placeholder="Any special instructions..." class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all resize-none"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-8 pb-8 flex gap-3">
+        <button (click)="closeBookingModal()" class="flex-1 py-3 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Cancel</button>
+        <button (click)="saveBooking()" [disabled]="savingBooking()" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2 shadow-lg shadow-indigo-500/20">
+          @if (savingBooking()) { <div class="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> }
+          Book Appointment
+        </button>
       </div>
     </div>
   </div>
-</div>
+}
+
+<!-- ── NEW SERVICE MODAL ── -->
+@if (showServiceModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeServiceModal()"></div>
+    <div class="relative bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md shadow-2xl border border-zinc-200/50 dark:border-white/10">
+      <div class="px-8 pt-8 pb-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
+        <h2 class="text-xl font-black text-zinc-900 dark:text-white">New Service</h2>
+        <button (click)="closeServiceModal()" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-8 space-y-5">
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Service Name <span class="text-red-500">*</span></label>
+          <input type="text" [(ngModel)]="newService().name" name="service_name" placeholder="e.g. Haircut & Styling" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Description</label>
+          <textarea [(ngModel)]="newService().description" name="service_desc" rows="2" placeholder="Brief description..." class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all resize-none"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Price</label>
+            <input type="number" [(ngModel)]="newService().price" name="service_price" min="0" step="0.01" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">Duration (min)</label>
+            <input type="number" [(ngModel)]="newService().duration_minutes" name="service_duration" min="5" step="5" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none dark:text-white transition-all">
+          </div>
+        </div>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <div class="relative">
+            <input type="checkbox" [(ngModel)]="newService().is_active" name="service_active" class="sr-only peer">
+            <div class="w-10 h-6 bg-zinc-200 dark:bg-zinc-700 rounded-full peer-checked:bg-indigo-600 transition-colors"></div>
+            <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+          </div>
+          <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Active (visible for booking)</span>
+        </label>
+      </div>
+      <div class="px-8 pb-8 flex gap-3">
+        <button (click)="closeServiceModal()" class="flex-1 py-3 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 font-bold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Cancel</button>
+        <button (click)="saveService()" [disabled]="savingService() || !newService().name" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+          @if (savingService()) { <div class="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div> }
+          Create Service
+        </button>
+      </div>
+    </div>
+  </div>
+}

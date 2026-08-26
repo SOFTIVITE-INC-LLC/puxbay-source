@@ -38,6 +38,10 @@ export class GrowthService {
     return this.http.get<{ data: WebhookEvent[] }>(`${this.base}/webhook-events`);
   }
 
+  retryWebhookEvent(id: string): Observable<any> {
+    return this.http.post(`${this.base}/webhook-events/${id}/retry`, {});
+  }
+
   getUpcomingRenewals(): Observable<{ data: any[] }> {
     return this.http.get<{ data: any[] }>(`${this.base}/subscriptions/upcoming-renewals`);
   }

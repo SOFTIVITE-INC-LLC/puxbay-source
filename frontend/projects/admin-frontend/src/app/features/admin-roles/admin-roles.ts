@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SecurityService, AdminRole } from '../../services/security.service';
+import { SecurityService, AdminRole, AVAILABLE_PERMISSIONS } from '../../services/security.service';
 
 @Component({
   selector: 'app-admin-roles',
@@ -15,14 +15,7 @@ export class AdminRolesComponent implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
 
-  availablePermissions = [
-    { id: 'billing:read', name: 'View Billing Data' },
-    { id: 'billing:write', name: 'Manage Billing & Subscriptions' },
-    { id: 'tenants:read', name: 'View Tenants' },
-    { id: 'tenants:write', name: 'Manage Tenants (Suspend/Impersonate)' },
-    { id: 'security:read', name: 'View Audit Logs & Roles' },
-    { id: 'security:write', name: 'Manage Security & Roles' },
-  ];
+  availablePermissions = AVAILABLE_PERMISSIONS;
 
   selectedRole = signal<AdminRole | null>(null);
   selectedPermissions = signal<string[]>([]);

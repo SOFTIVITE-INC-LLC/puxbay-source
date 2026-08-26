@@ -25,7 +25,7 @@
   <div *ngIf="!isLoading()" class="space-y-8">
 
     <!-- Top KPI Metrics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <!-- MRR Card (Premium styling) -->
       <div class="bg-gradient-to-br from-indigo-900 to-[#0B0F19] rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-indigo-500/20 group">
@@ -34,7 +34,7 @@
         </div>
         <div class="relative z-10">
           <div class="text-indigo-200 text-sm font-semibold tracking-wide uppercase mb-1 flex items-center gap-2">
-            Monthly Revenue
+            Monthly Revenue (MRR)
           </div>
           <div class="text-4xl font-extrabold tracking-tight mb-2 flex items-end gap-2 mt-4">
             GH₵{{ (stats()?.mrr || 0) | number:'1.2-2' }}
@@ -42,6 +42,45 @@
           <div class="text-sm text-emerald-400 font-medium flex items-center gap-1 bg-emerald-400/10 w-fit px-2 py-0.5 rounded-full">
             <span class="material-symbols-outlined text-[16px]">trending_up</span> +12.5% this month
           </div>
+        </div>
+      </div>
+
+      <!-- Revenue This Month -->
+      <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-emerald-500/20 group">
+        <div class="absolute -right-6 -top-6 text-white/5 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
+          <span class="material-symbols-outlined text-[140px] leading-none">account_balance_wallet</span>
+        </div>
+        <div class="relative z-10">
+          <div class="text-emerald-200 text-sm font-semibold tracking-wide uppercase mb-1 flex items-center gap-2">
+            Collected This Month
+          </div>
+          <div class="text-4xl font-extrabold tracking-tight mb-2 flex items-end gap-2 mt-4">
+            GH₵{{ (stats()?.revenue_this_month || 0) | number:'1.2-2' }}
+          </div>
+          <div class="text-sm text-emerald-400 font-medium flex items-center gap-1 bg-emerald-400/10 w-fit px-2 py-0.5 rounded-full">
+            Processed successfully
+          </div>
+        </div>
+      </div>
+
+      <!-- Failed Payments -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group hover:border-rose-200 hover:shadow-md transition-all"
+           [ngClass]="{'border-rose-200 bg-rose-50/30': (stats()?.failed_payments_count || 0) > 0}">
+        <div class="text-slate-500 text-sm font-bold tracking-wide uppercase mb-1 flex items-center gap-2">
+          Failed Payments
+        </div>
+        <div class="text-4xl font-extrabold text-slate-900 mb-2 mt-4"
+             [ngClass]="(stats()?.failed_payments_count || 0) === 0 ? 'text-slate-900' : 'text-rose-600'">
+          {{ stats()?.failed_payments_count || 0 | number }}
+        </div>
+        <div class="text-sm font-medium flex items-center gap-1"
+             [ngClass]="(stats()?.failed_payments_count || 0) === 0 ? 'text-emerald-600' : 'text-rose-600'">
+          <span class="material-symbols-outlined text-[16px]">{{ (stats()?.failed_payments_count || 0) === 0 ? 'check_circle' : 'warning' }}</span> 
+          {{ (stats()?.failed_payments_count || 0) === 0 ? 'All clear' : 'Needs attention' }}
+        </div>
+        <div class="absolute right-6 top-6 h-12 w-12 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform ring-1 ring-slate-100"
+             [ngClass]="{'from-rose-50 to-rose-100/50 text-rose-600 ring-rose-100': (stats()?.failed_payments_count || 0) > 0}">
+          <span class="material-symbols-outlined text-[24px]">credit_card_off</span>
         </div>
       </div>
 

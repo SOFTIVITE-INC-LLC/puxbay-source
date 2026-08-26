@@ -115,6 +115,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	roleHandler := handlers.NewRoleHandler(db)
 	accountingHandler := handlers.NewAccountingHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
+	deviceHandler := handlers.NewDeviceHandler(db, cfg)
 	// ──────────────────────────────────────────────
 	// Health Check Endpoints (no auth required)
 	// ──────────────────────────────────────────────
@@ -358,6 +359,15 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/branches/:id", branchHandler.Get)
 			api.PUT("/branches/:id", branchHandler.Update)
 			api.DELETE("/branches/:id", branchHandler.Delete)
+
+			// Devices (Hardware Terminals)
+			api.GET("/devices", deviceHandler.List)
+			api.POST("/devices", deviceHandler.Create)
+			api.GET("/devices/:id", deviceHandler.Get)
+			api.PUT("/devices/:id", deviceHandler.Update)
+			api.DELETE("/devices/:id", deviceHandler.Delete)
+			api.POST("/devices/:id/heartbeat", deviceHandler.Heartbeat)
+			api.POST("/devices/:id/print", deviceHandler.PrintDocument)
 
 			// Suppliers
 			api.GET("/suppliers", supplierHandler.List)
@@ -741,12 +751,16 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 		// Public Portal (no auth needed)
 		public := v1.Group("/public")
 		public.Use(middleware.RateLimitMiddleware(redisClient, 20, time.Minute, 15*time.Minute)) // Strict rate limit for tenant discovery
+		
+		// Global public routes that do not require a tenant
+		public.GET("/receipts/:token", orderHandler.GetPublicReceipt)
+
+		// Tenant-specific public routes
 		public.Use(middleware.TenantMiddleware())
 		{
 			public.GET("/tenant-info", publicPortalHandler.GetTenantInfo)
 			public.GET("/products", publicPortalHandler.ListProducts)
 			public.GET("/track-order", publicPortalHandler.TrackOrder)
-			public.GET("/receipts/:id", orderHandler.GetReceipt)
 			public.POST("/feedback", publicPortalHandler.SubmitFeedback)
 		}
 
@@ -794,21 +808,19 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 
 		// Admin-only routes
 		admin := v1.Group("/admin")
-		admin.Use(middleware.AuthMiddleware(authService))
-		// Note: The UI impersonation relies on "superadmin" role check for these routes.
-		admin.Use(middleware.RoleMiddleware("superadmin"))
+		admin.Use(middleware.AdminAuthMiddleware(db, authService))
 		{
 			admin.GET("/health", adminHandler.SystemHealth)
 			admin.GET("/dashboard", adminHandler.GetDashboardStats)
 
 			// Tenant Management
-			admin.GET("/tenants", adminHandler.ListTenants)
-			admin.GET("/tenants/search", adminHandler.SearchTenants)
-			admin.POST("/tenants", adminHandler.CreateTenant)
-			admin.GET("/tenants/:id", adminHandler.GetTenantDetail)
-			admin.PUT("/tenants/:id/notes", adminHandler.UpdateTenantNotes)
-			admin.POST("/tenants/:id/suspend", adminHandler.SuspendTenant)
-			admin.POST("/tenants/:id/impersonate", adminHandler.ImpersonateTenant)
+			admin.GET("/tenants", middleware.RequireAdminPermission("tenants:read"), adminHandler.ListTenants)
+			admin.GET("/tenants/search", middleware.RequireAdminPermission("tenants:read"), adminHandler.SearchTenants)
+			admin.POST("/tenants", middleware.RequireAdminPermission("tenants:write"), adminHandler.CreateTenant)
+			admin.GET("/tenants/:id", middleware.RequireAdminPermission("tenants:read"), adminHandler.GetTenantDetail)
+			admin.PUT("/tenants/:id/notes", middleware.RequireAdminPermission("tenants:write"), adminHandler.UpdateTenantNotes)
+			admin.POST("/tenants/:id/suspend", middleware.RequireAdminPermission("tenants:write"), adminHandler.SuspendTenant)
+			admin.POST("/tenants/:id/impersonate", middleware.RequireAdminPermission("tenants:write"), adminHandler.ImpersonateTenant)
 
 			admin.GET("/plans", adminHandler.ListPlans)
 			admin.POST("/plans", adminHandler.CreatePlan)
@@ -822,14 +834,14 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			admin.DELETE("/pricing-plans/:id", adminHandler.DeletePricingPlan)
 
 			// Billing & Subscriptions
-			admin.GET("/subscriptions", adminHandler.ListSubscriptions)
-			admin.POST("/subscriptions/:id/override", adminHandler.OverrideSubscription)
-			admin.GET("/subscriptions/upcoming-renewals", adminHandler.ListUpcomingRenewals)
-			admin.GET("/payments", adminHandler.ListBillingPayments)
-			admin.GET("/payments/failed", adminHandler.ListFailedPayments)
-			admin.GET("/promo-codes", adminHandler.ListPromoCodes)
-			admin.POST("/promo-codes", adminHandler.CreatePromoCode)
-			admin.POST("/promo-codes/:id/toggle", adminHandler.TogglePromoCode)
+			admin.GET("/subscriptions", middleware.RequireAdminPermission("billing:read"), adminHandler.ListSubscriptions)
+			admin.POST("/subscriptions/:id/override", middleware.RequireAdminPermission("billing:write"), adminHandler.OverrideSubscription)
+			admin.GET("/subscriptions/upcoming-renewals", middleware.RequireAdminPermission("billing:read"), adminHandler.ListUpcomingRenewals)
+			admin.GET("/payments", middleware.RequireAdminPermission("billing:read"), adminHandler.ListBillingPayments)
+			admin.GET("/payments/failed", middleware.RequireAdminPermission("billing:read"), adminHandler.ListFailedPayments)
+			admin.GET("/promo-codes", middleware.RequireAdminPermission("promo_codes:read"), adminHandler.ListPromoCodes)
+			admin.POST("/promo-codes", middleware.RequireAdminPermission("promo_codes:write"), adminHandler.CreatePromoCode)
+			admin.POST("/promo-codes/:id/toggle", middleware.RequireAdminPermission("promo_codes:write"), adminHandler.TogglePromoCode)
 
 			// Content & Security
 			admin.GET("/audit-logs", adminHandler.ListAuditLogs)
@@ -863,25 +875,38 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			admin.GET("/webhook-events", adminHandler.ListWebhookEvents)
 
 			// Security & Access Control
-			admin.GET("/admin-roles", adminHandler.ListAdminRoles)
-			admin.POST("/admin-roles", adminHandler.CreateAdminRole)
-			admin.PUT("/admin-roles/:id", adminHandler.UpdateAdminRole)
-			admin.GET("/ip-allowlist", adminHandler.ListIPAllowlist)
-			admin.POST("/ip-allowlist", adminHandler.AddIPToAllowlist)
-			admin.DELETE("/ip-allowlist/:id", adminHandler.RemoveIPFromAllowlist)
+			admin.GET("/admin-roles", middleware.RequireAdminPermission("security:read"), adminHandler.ListAdminRoles)
+			admin.POST("/admin-roles", middleware.RequireAdminPermission("security:write"), adminHandler.CreateAdminRole)
+			admin.PUT("/admin-roles/:id", middleware.RequireAdminPermission("security:write"), adminHandler.UpdateAdminRole)
+
+			admin.GET("/users", middleware.RequireAdminPermission("admin_users:read"), adminHandler.ListAdminUsers)
+			admin.POST("/users", middleware.RequireAdminPermission("admin_users:write"), adminHandler.CreateAdminUser)
+			admin.PUT("/users/:id/role", middleware.RequireAdminPermission("admin_users:write"), adminHandler.UpdateAdminUserRole)
+			admin.DELETE("/users/:id", middleware.RequireAdminPermission("admin_users:write"), adminHandler.DeleteAdminUser)
+			admin.GET("/ip-allowlist", middleware.RequireAdminPermission("security:read"), adminHandler.ListIPAllowlist)
+			admin.POST("/ip-allowlist", middleware.RequireAdminPermission("security:write"), adminHandler.AddIPToAllowlist)
+			admin.DELETE("/ip-allowlist/:id", middleware.RequireAdminPermission("security:write"), adminHandler.RemoveIPFromAllowlist)
 
 			// API Keys
-			admin.GET("/api-keys", adminHandler.ListMasterAPIKeys)
-			admin.POST("/api-keys", adminHandler.CreateMasterAPIKey)
-			admin.DELETE("/api-keys/:id", adminHandler.RevokeMasterAPIKey)
+			admin.GET("/api-keys", middleware.RequireAdminPermission("api_keys:read"), adminHandler.ListMasterAPIKeys)
+			admin.POST("/api-keys", middleware.RequireAdminPermission("api_keys:write"), adminHandler.CreateMasterAPIKey)
+			admin.DELETE("/api-keys/:id", middleware.RequireAdminPermission("api_keys:write"), adminHandler.RevokeMasterAPIKey)
 
 			// Domains
-			admin.GET("/domains", adminHandler.SearchAllDomains)
-			admin.POST("/domains/verify-bulk", adminHandler.BulkVerifyDomains)
-			admin.GET("/domains/:id/diagnostics", adminHandler.GetDomainDiagnostics)
+			admin.GET("/domains", middleware.RequireAdminPermission("domains:read"), adminHandler.SearchAllDomains)
+			admin.POST("/domains/verify-bulk", middleware.RequireAdminPermission("domains:write"), adminHandler.BulkVerifyDomains)
+			admin.GET("/domains/:id/diagnostics", middleware.RequireAdminPermission("domains:read"), adminHandler.GetDomainDiagnostics)
 
 			// Telemetry Logs
-			admin.GET("/system-traces", adminHandler.ListTelemetryLogs)
+			admin.GET("/system-traces", middleware.RequireAdminPermission("security:read"), adminHandler.ListTelemetryLogs)
+
+			// Webhook retry
+			admin.POST("/webhook-events/:id/retry", middleware.RequireAdminPermission("webhooks:write"), adminHandler.RetryWebhookEvent)
+
+			// Gift Cards (Admin)
+			admin.GET("/gift-cards", middleware.RequireAdminPermission("billing:read"), adminHandler.ListAllGiftCards)
+			admin.POST("/gift-cards", middleware.RequireAdminPermission("billing:write"), adminHandler.CreateGiftCardAdmin)
+			admin.POST("/gift-cards/:id/disable", middleware.RequireAdminPermission("billing:write"), adminHandler.DisableGiftCardAdmin)
 		}
 
 		// Public Marketing Endpoints

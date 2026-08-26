@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -50,18 +51,49 @@ func (h *GiftCardHandler) Get(c *gin.Context) {
 
 // Create creates a new gift card.
 func (h *GiftCardHandler) Create(c *gin.Context) {
-	var card models.GiftCard
-	if err := c.ShouldBindJSON(&card); err != nil {
+	var input struct {
+		InitialBalance float64 `json:"initial_balance"`
+		PurchaserID    string  `json:"purchaser_id"`
+		ExpiresAt      string  `json:"expires_at"`
+		CustomCode     string  `json:"custom_code"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if card.Code == "" {
-		card.Code = "GC-" + uuid.New().String()[:8]
-	}
-	card.CurrentBalance = card.InitialBalance
+	var card models.GiftCard
+	card.InitialBalance = input.InitialBalance
+	card.CurrentBalance = input.InitialBalance
 	card.IsActive = true
 	card.Status = "active"
+
+	if input.CustomCode != "" {
+		card.Code = input.CustomCode
+	} else {
+		card.Code = "GC-" + uuid.New().String()[:8]
+	}
+
+	if input.PurchaserID != "" {
+		pid, err := uuid.Parse(input.PurchaserID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid purchaser ID"})
+			return
+		}
+		card.PurchaserID = &pid
+	}
+
+	if input.ExpiresAt != "" {
+		t, err := time.Parse("2006-01-02", input.ExpiresAt)
+		if err != nil {
+			t, err = time.Parse(time.RFC3339, input.ExpiresAt)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid expiry date format"})
+				return
+			}
+		}
+		card.ExpiresAt = &t
+	}
 
 	if err := h.getDB(c).Create(&card).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create gift card"})

@@ -33,7 +33,9 @@ import { GrowthService, WebhookEvent } from '../../services/growth.service';
         <tr *ngFor="let e of events()" class="hover:bg-slate-50">
           <td class="px-6 py-4 font-mono font-bold text-slate-900">{{ e.event_type }}</td>
           <td class="px-6 py-4">
-            <span class="px-2 py-1 text-xs font-bold rounded-full" [ngClass]="e.status === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'">
+            <span class="px-2 py-1 text-xs font-bold rounded-full" 
+                  [ngClass]="e.status === 'success' ? 'bg-emerald-100 text-emerald-700' : 
+                             e.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'">
               {{ e.status | titlecase }}
             </span>
           </td>
@@ -41,7 +43,11 @@ import { GrowthService, WebhookEvent } from '../../services/growth.service';
           <td class="px-6 py-4 text-sm text-slate-600">{{ e.attempts }}</td>
           <td class="px-6 py-4 text-sm text-slate-500">{{ e.created_at | date:'medium' }}</td>
           <td class="px-6 py-4 text-right">
-            <button class="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition">Details</button>
+            <button (click)="retry(e.id)" 
+                    [disabled]="isRetrying(e.id) || e.status === 'success' || e.status === 'pending'"
+                    class="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 rounded-lg cursor-pointer transition">
+              {{ isRetrying(e.id) ? 'Retrying...' : 'Retry' }}
+            </button>
           </td>
         </tr>
         <tr *ngIf="events().length === 0">
@@ -57,11 +63,41 @@ export class WebhookLogsComponent implements OnInit {
   private service = inject(GrowthService);
   events = signal<WebhookEvent[]>([]);
   isLoading = signal(true);
+  retryingIds = signal<Set<string>>(new Set());
 
   ngOnInit() {
+    this.loadEvents();
+  }
+
+  loadEvents() {
     this.service.getWebhookEvents().subscribe({
       next: (res) => { this.events.set(res.data || []); this.isLoading.set(false); },
       error: () => this.isLoading.set(false)
+    });
+  }
+
+  isRetrying(id: string): boolean {
+    return this.retryingIds().has(id);
+  }
+
+  retry(id: string) {
+    const current = this.retryingIds();
+    current.add(id);
+    this.retryingIds.set(new Set(current));
+
+    this.service.retryWebhookEvent(id).subscribe({
+      next: () => {
+        this.loadEvents(); // Reload to show pending status
+        const next = this.retryingIds();
+        next.delete(id);
+        this.retryingIds.set(new Set(next));
+      },
+      error: () => {
+        const next = this.retryingIds();
+        next.delete(id);
+        this.retryingIds.set(new Set(next));
+        alert('Failed to queue retry');
+      }
     });
   }
 }

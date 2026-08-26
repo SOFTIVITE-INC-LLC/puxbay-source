@@ -54,6 +54,7 @@ export class SidebarComponent {
     {
       category: 'Growth & Content',
       items: [
+        { label: 'Gift Cards', route: '/gift-cards', icon: 'card_giftcard' },
         { label: 'Blog Posts', route: '/blog', icon: 'article' },
         { label: 'Referrals', route: '/referrals', icon: 'group_add' },
         { label: 'Broadcasts', route: '/broadcasts', icon: 'campaign' },
@@ -76,6 +77,7 @@ export class SidebarComponent {
         { label: 'Audit Logs', route: '/audit-logs', icon: 'policy' },
         { label: 'Telemetry Logs', route: '/telemetry', icon: 'timeline' },
         { label: 'Admin Roles', route: '/admin-roles', icon: 'admin_panel_settings' },
+        { label: 'Admin Users', route: '/admin-users', icon: 'manage_accounts' },
         { label: 'Settings', route: '/settings', icon: 'settings' }
       ]
     }

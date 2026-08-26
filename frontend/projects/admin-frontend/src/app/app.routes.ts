@@ -94,6 +94,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin-roles/admin-roles').then(m => m.AdminRolesComponent)
       },
       {
+        path: 'admin-users',
+        loadComponent: () => import('./features/admin-users/admin-users').then(m => m.AdminUsersComponent)
+      },
+      {
         path: 'api-keys',
         loadComponent: () => import('./features/api-keys/api-keys').then(m => m.ApiKeysComponent)
       },
@@ -108,6 +112,10 @@ export const routes: Routes = [
       {
         path: 'blog/:id',
         loadComponent: () => import('./features/blog/blog-edit').then(m => m.BlogEditComponent)
+      },
+      {
+        path: 'gift-cards',
+        loadComponent: () => import('./features/gift-cards/gift-cards').then(m => m.AdminGiftCardsComponent)
       }
     ]
   },

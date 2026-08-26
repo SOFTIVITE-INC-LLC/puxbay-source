@@ -10,6 +10,7 @@ import (
 	"github.com/softivite/puxbay/internal/middleware"
 	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/services"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -35,6 +36,8 @@ type DashboardStatsResponse struct {
 	ActiveTrials        int64   `json:"active_trials"`
 	TrialConversionRate float64 `json:"trial_conversion_rate"`
 	ChurnRate           float64 `json:"churn_rate"`
+	FailedPaymentsCount int64   `json:"failed_payments_count"`
+	RevenueThisMonth    float64 `json:"revenue_this_month"`
 
 	// Real data fields for UI
 	PlatformGrowth   []GrowthData   `json:"platform_growth"`
@@ -102,6 +105,16 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 			h.db.Model(&models.Subscription{}).Where("status IN ?", []string{"past_due", "canceled"}).Count(&currentlyChurned)
 			stats.ChurnRate = float64(currentlyChurned) / float64(everActive) * 100.0
 		}
+
+		// 4. Failed Payments Count
+		h.db.Model(&models.Payment{}).Where("status IN ?", []string{"failed", "declined"}).Count(&stats.FailedPaymentsCount)
+
+		// 5. Revenue This Month
+		startOfMonth := time.Now().UTC().Truncate(24*time.Hour).AddDate(0, 0, -time.Now().Day()+1)
+		h.db.Table("payments").
+			Where("status = ? AND created_at >= ?", "successful", startOfMonth).
+			Select("COALESCE(SUM(amount), 0)").
+			Scan(&stats.RevenueThisMonth)
 	}
 
 	// 1. Fetch System Activities (last 5 audit logs)
@@ -1135,4 +1148,315 @@ func (h *AdminHandler) ListTelemetryLogs(c *gin.Context) {
 	})
 }
 
+// ───── Admin Users Management ─────
 
+func (h *AdminHandler) ListAdminUsers(c *gin.Context) {
+	// We want to return users with their AdminUser information
+	type AdminUserResponse struct {
+		models.User
+		AdminRoleID *uuid.UUID `json:"admin_role_id"`
+		AdminRole   *string    `json:"admin_role_name,omitempty"`
+		Permissions string     `json:"permissions"`
+	}
+
+	var users []models.User
+	if err := h.db.Where("is_superuser = ?", true).Or("id IN (SELECT user_id FROM admin_users)").Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch admin users"})
+		return
+	}
+
+	// Fetch roles
+	var adminUsers []models.AdminUser
+	h.db.Preload("Role").Find(&adminUsers)
+	
+	roleMap := make(map[uuid.UUID]models.AdminUser)
+	for _, au := range adminUsers {
+		roleMap[au.UserID] = au
+	}
+
+	response := make([]AdminUserResponse, len(users))
+	for i, u := range users {
+		res := AdminUserResponse{User: u, Permissions: "[]"}
+		if au, ok := roleMap[u.ID]; ok {
+			res.AdminRoleID = au.AdminRoleID
+			if au.Role != nil {
+				res.AdminRole = &au.Role.Name
+			}
+			if au.Permissions != "" {
+				res.Permissions = au.Permissions
+			}
+		}
+		response[i] = res
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": response})
+}
+
+func (h *AdminHandler) CreateAdminUser(c *gin.Context) {
+	var req struct {
+		FirstName   string     `json:"first_name" binding:"required"`
+		LastName    string     `json:"last_name" binding:"required"`
+		Email       string     `json:"email" binding:"required,email"`
+		Username    string     `json:"username" binding:"required"`
+		Password    string     `json:"password" binding:"required"`
+		AdminRoleID *uuid.UUID `json:"admin_role_id"`
+		IsSuperuser bool       `json:"is_superuser"`
+		Permissions string     `json:"permissions"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+
+	user := models.User{
+		FirstName:   req.FirstName,
+		LastName:    req.LastName,
+		Email:       req.Email,
+		Username:    req.Username,
+		Password:    string(hashedPassword),
+		IsSuperuser: req.IsSuperuser,
+	}
+
+	// Start a transaction
+	tx := h.db.Begin()
+
+	if err := tx.Create(&user).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	if req.AdminRoleID != nil || req.Permissions != "" {
+		adminUser := models.AdminUser{
+			UserID:      user.ID,
+			AdminRoleID: req.AdminRoleID,
+			Permissions: req.Permissions,
+		}
+		if err := tx.Create(&adminUser).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign admin role/permissions"})
+			return
+		}
+	}
+
+	tx.Commit()
+
+	c.JSON(http.StatusCreated, user)
+}
+
+func (h *AdminHandler) UpdateAdminUserRole(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req struct {
+		AdminRoleID *uuid.UUID `json:"admin_role_id"`
+		IsSuperuser bool       `json:"is_superuser"`
+		Permissions string     `json:"permissions"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	tx := h.db.Begin()
+
+	if err := tx.Model(&models.User{}).Where("id = ?", id).Update("is_superuser", req.IsSuperuser).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user status"})
+		return
+	}
+
+	// Update AdminUser record
+	if req.AdminRoleID != nil || req.Permissions != "" {
+		var au models.AdminUser
+		if err := tx.Where("user_id = ?", id).First(&au).Error; err != nil {
+			// Doesn't exist, create it
+			au = models.AdminUser{UserID: id, AdminRoleID: req.AdminRoleID, Permissions: req.Permissions}
+			if err := tx.Create(&au).Error; err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign admin role/permissions"})
+				return
+			}
+		} else {
+			// Update existing
+			updates := map[string]interface{}{
+				"admin_role_id": req.AdminRoleID,
+				"permissions":   req.Permissions,
+			}
+			if err := tx.Model(&au).Updates(updates).Error; err != nil {
+				tx.Rollback()
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update admin role/permissions"})
+				return
+			}
+		}
+	} else {
+		// Remove role
+		tx.Where("user_id = ?", id).Delete(&models.AdminUser{})
+	}
+
+	tx.Commit()
+
+	// Audit log
+	h.writeAdminAudit(c, "update_role", "AdminUser", id.String(), nil)
+
+	c.JSON(http.StatusOK, gin.H{"status": "updated"})
+}
+
+// ───── writeAdminAudit ─────
+
+func (h *AdminHandler) writeAdminAudit(c *gin.Context, action, modelName, objectID string, changes map[string]interface{}) {
+	userIDVal, _ := c.Get(middleware.ContextKeyUserID)
+	ip := c.ClientIP()
+	ua := c.GetHeader("User-Agent")
+
+	log := models.AuditLog{
+		Action:    action,
+		ModelName: modelName,
+	}
+	if objectID != "" {
+		log.ObjectID = &objectID
+	}
+	log.IPAddress = &ip
+	if ua != "" {
+		log.UserAgent = &ua
+	}
+	if uid, ok := userIDVal.(uuid.UUID); ok {
+		log.UserID = &uid
+	}
+	h.db.Create(&log)
+}
+
+// ───── DeleteAdminUser ─────
+
+func (h *AdminHandler) DeleteAdminUser(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	tx := h.db.Begin()
+
+	// Remove from admin_users table
+	tx.Where("user_id = ?", id).Delete(&models.AdminUser{})
+
+	// Revoke superuser flag and bump token_version to invalidate sessions
+	if err := tx.Model(&models.User{}).Where("id = ?", id).
+		Updates(map[string]interface{}{"is_superuser": false, "token_version": h.db.Raw("token_version + 1")}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to revoke admin access"})
+		return
+	}
+
+	tx.Commit()
+
+	h.writeAdminAudit(c, "delete", "AdminUser", id.String(), nil)
+	c.JSON(http.StatusOK, gin.H{"status": "admin access revoked"})
+}
+
+// ───── RetryWebhookEvent ─────
+
+func (h *AdminHandler) RetryWebhookEvent(c *gin.Context) {
+	eventID := c.Param("id")
+
+	var event models.WebhookEvent
+	if err := h.db.First(&event, "id = ?", eventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Webhook event not found"})
+		return
+	}
+
+	// Reset attempts counter and status so the worker will pick it up again
+	if err := h.db.Model(&event).Updates(map[string]interface{}{
+		"status":   "pending",
+		"attempts": 0,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to requeue webhook event"})
+		return
+	}
+
+	h.writeAdminAudit(c, "retry", "WebhookEvent", eventID, nil)
+	c.JSON(http.StatusOK, gin.H{"status": "queued for retry"})
+}
+
+// ───── Gift Cards (Admin) ─────
+
+func (h *AdminHandler) ListAllGiftCards(c *gin.Context) {
+	var cards []models.GiftCard
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit := 50
+	offset := (page - 1) * limit
+
+	var total int64
+	h.db.Model(&models.GiftCard{}).Count(&total)
+	h.db.Order("created_at desc").Limit(limit).Offset(offset).Find(&cards)
+
+	c.JSON(http.StatusOK, gin.H{"data": cards, "total": total})
+}
+
+func (h *AdminHandler) CreateGiftCardAdmin(c *gin.Context) {
+	var req struct {
+		InitialBalance float64 `json:"initial_balance" binding:"required"`
+		CustomCode     string  `json:"custom_code"`
+		ExpiresAt      string  `json:"expires_at"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	card := models.GiftCard{
+		InitialBalance:  req.InitialBalance,
+		CurrentBalance:  req.InitialBalance,
+		IsActive:        true,
+		Status:          "active",
+	}
+
+	if req.CustomCode != "" {
+		card.Code = req.CustomCode
+	} else {
+		card.Code = "GC-" + uuid.New().String()[:8]
+	}
+
+	if req.ExpiresAt != "" {
+		t, err := time.Parse("2006-01-02", req.ExpiresAt)
+		if err == nil {
+			card.ExpiresAt = &t
+		}
+	}
+
+	if err := h.db.Create(&card).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create gift card"})
+		return
+	}
+
+	h.writeAdminAudit(c, "create", "GiftCard", card.ID.String(), nil)
+	c.JSON(http.StatusCreated, card)
+}
+
+func (h *AdminHandler) DisableGiftCardAdmin(c *gin.Context) {
+	var card models.GiftCard
+	if err := h.db.First(&card, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Gift card not found"})
+		return
+	}
+
+	card.Status = "disabled"
+	card.IsActive = false
+
+	if err := h.db.Save(&card).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to disable gift card"})
+		return
+	}
+
+	h.writeAdminAudit(c, "disable", "GiftCard", card.ID.String(), nil)
+	c.JSON(http.StatusOK, card)
+}

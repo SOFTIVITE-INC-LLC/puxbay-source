@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { GlobalErrorHandler } from './core/errors/global-error-handler';
 import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { TenantStore } from './core/services/tenant.store';
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withInterceptors, HttpClient, withFetch } from '@angular/common/http';
@@ -55,6 +56,7 @@ export const appConfig: ApplicationConfig = {
       provide: DEFAULT_CURRENCY_CODE, 
       useFactory: () => typeof localStorage !== 'undefined' ? (localStorage.getItem('currency_code') || 'GHS') : 'GHS'
     },
+    provideAnimations(),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     {
       provide: APP_INITIALIZER,

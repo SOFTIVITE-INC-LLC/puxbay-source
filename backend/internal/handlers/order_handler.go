@@ -603,3 +603,18 @@ func (h *OrderHandler) GetReceipt(c *gin.Context) {
 
 	c.JSON(http.StatusOK, order)
 }
+
+func (h *OrderHandler) GetPublicReceipt(c *gin.Context) {
+	token := c.Param("token")
+	var order models.Order
+	// Use global DB to query across all tenants since token is globally unique
+	if err := h.db.Where("receipt_token = ?", token).
+		Preload("Items.Product").
+		Preload("Branch").
+		Preload("Customer").
+		First(&order).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "receipt not found"})
+		return
+	}
+	c.JSON(http.StatusOK, order)
+}

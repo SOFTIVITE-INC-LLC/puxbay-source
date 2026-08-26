@@ -1,0 +1,339 @@
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col">
+
+  <!-- Page Header -->
+  <div class="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800">
+    <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30">
+          <span class="material-symbols-outlined text-white text-[22px]">manage_accounts</span>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Admin Users</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage HQ users, superusers, and assign direct permissions.</p>
+        </div>
+      </div>
+      <button (click)="openCreateModal()"
+              class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-indigo-200 dark:shadow-indigo-900/30 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">person_add</span>
+        New User
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full px-4 md:px-8 py-6 md:py-8 gap-6">
+
+    <!-- ── Left: Users List ── -->
+    <aside class="w-full lg:w-96 shrink-0 flex flex-col gap-4">
+
+      @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center py-16 text-slate-400">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-3"></div>
+          <p class="text-sm">Loading users...</p>
+        </div>
+      }
+
+      @if (!isLoading()) {
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+
+          @if (users().length === 0) {
+            <div class="p-10 text-center">
+              <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-3">
+                <span class="material-symbols-outlined text-2xl text-slate-400">group_off</span>
+              </div>
+              <p class="font-bold text-sm text-slate-600 dark:text-slate-300 mb-1">No users yet</p>
+              <p class="text-xs text-slate-400 mb-4">Create your first admin user.</p>
+              <button (click)="openCreateModal()"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition cursor-pointer">
+                <span class="material-symbols-outlined text-[14px]">add</span>
+                Create User
+              </button>
+            </div>
+          }
+
+          @for (user of users(); track user.id) {
+            <div (click)="selectUser(user)"
+                 class="w-full flex items-center justify-between px-5 py-4 text-left border-b border-slate-100 dark:border-zinc-800 last:border-0 transition-all cursor-pointer group relative"
+                 [class.bg-indigo-600]="selectedUser()?.id === user.id"
+                 [class.hover:bg-indigo-50]="selectedUser()?.id !== user.id"
+                 [class.dark:hover:bg-zinc-800]="selectedUser()?.id !== user.id"
+                 [class.hover:bg-indigo-700]="selectedUser()?.id === user.id">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold uppercase transition-all"
+                     [class.bg-white/20]="selectedUser()?.id === user.id"
+                     [class.text-white]="selectedUser()?.id === user.id"
+                     [class.bg-indigo-100]="selectedUser()?.id !== user.id"
+                     [class.text-indigo-700]="selectedUser()?.id !== user.id"
+                     [class.dark:bg-indigo-900/50]="selectedUser()?.id !== user.id"
+                     [class.dark:text-indigo-300]="selectedUser()?.id !== user.id">
+                  {{ user.first_name[0] }}{{ user.last_name[0] }}
+                </div>
+                <div>
+                  <p class="text-sm font-bold transition-colors"
+                     [class.text-white]="selectedUser()?.id === user.id"
+                     [class.text-slate-800]="selectedUser()?.id !== user.id"
+                     [class.dark:text-slate-200]="selectedUser()?.id !== user.id">
+                    {{ user.first_name }} {{ user.last_name }}
+                  </p>
+                  <p class="text-[10px] flex items-center gap-1 mt-0.5 transition-colors"
+                     [class.text-indigo-200]="selectedUser()?.id === user.id"
+                     [class.text-slate-500]="selectedUser()?.id !== user.id">
+                    {{ user.email }}
+                    @if (user.is_superuser) {
+                      <span class="px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider font-bold bg-amber-500 text-white">Super</span>
+                    }
+                  </p>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-[18px] transition-colors"
+                    [class.text-white]="selectedUser()?.id === user.id"
+                    [class.text-slate-300]="selectedUser()?.id !== user.id"
+                    [class.dark:text-zinc-600]="selectedUser()?.id !== user.id">
+                chevron_right
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </aside>
+
+    <!-- ── Right: User Details & Permissions Editor ── -->
+    <div class="flex-1 min-w-0">
+      @if (!selectedUser()) {
+        <div class="h-full flex flex-col items-center justify-center text-slate-400 bg-white dark:bg-zinc-900 rounded-2xl border border-dashed border-slate-200 dark:border-zinc-700 p-16">
+          <div class="w-20 h-20 rounded-3xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-5">
+            <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-zinc-600">manage_accounts</span>
+          </div>
+          <h3 class="font-bold text-slate-600 dark:text-slate-400 mb-1">No User Selected</h3>
+          <p class="text-sm text-slate-400 text-center max-w-xs">Select a user from the left panel to manage their permissions and role.</p>
+        </div>
+      }
+
+      @if (selectedUser()) {
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm overflow-hidden flex flex-col h-full">
+
+          <!-- Header -->
+          <div class="px-6 py-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 flex flex-col gap-4">
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold uppercase text-lg">
+                  {{ selectedUser()!.first_name[0] }}{{ selectedUser()!.last_name[0] }}
+                </div>
+                <div>
+                  <h2 class="font-bold text-slate-900 dark:text-white text-lg">{{ selectedUser()!.first_name }} {{ selectedUser()!.last_name }}</h2>
+                  <p class="text-xs text-slate-500 font-mono">@{{ selectedUser()!.username }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button (click)="deleteUser(selectedUser()!, $event)"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-900/20 dark:hover:bg-rose-900/30 dark:text-rose-400 text-sm font-bold rounded-xl transition cursor-pointer">
+                  <span class="material-symbols-outlined text-[17px]">delete</span>
+                  Revoke Access
+                </button>
+                <button (click)="savePermissions()"
+                        [disabled]="isSaving()"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl disabled:opacity-50 transition shadow-sm cursor-pointer">
+                  @if (isSaving()) {
+                    <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+                    Saving...
+                  } @else {
+                    <span class="material-symbols-outlined text-[17px]">save</span>
+                    Save Changes
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Role & Superuser Settings -->
+            <div class="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+              
+              <div class="flex-1 flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-bold text-slate-900 dark:text-white">Superuser</p>
+                  <p class="text-xs text-slate-500">Bypass all permissions</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" [checked]="selectedUser()!.is_superuser" (change)="toggleSuperuser(selectedUser()!, $event)">
+                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-zinc-600 peer-checked:bg-amber-500"></div>
+                </label>
+              </div>
+
+              <div class="w-px h-10 bg-slate-200 dark:bg-zinc-700"></div>
+
+              <div class="flex-1">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Base Role</label>
+                <select class="w-full text-sm border-none bg-slate-50 dark:bg-zinc-800 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                        [disabled]="selectedUser()!.is_superuser"
+                        [value]="selectedUser()!.admin_role_id || 'null'"
+                        (change)="changeRole(selectedUser()!, $event)">
+                  <option value="null">No Role (Direct Permissions Only)</option>
+                  @for (role of roles(); track role.id) {
+                    <option [value]="role.id">{{ role.name }}</option>
+                  }
+                </select>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Permissions Editor -->
+          <div class="p-6 overflow-y-auto">
+            @if (selectedUser()!.is_superuser) {
+              <div class="p-6 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 text-center">
+                <span class="material-symbols-outlined text-amber-500 text-4xl mb-2">admin_panel_settings</span>
+                <h3 class="text-amber-800 dark:text-amber-500 font-bold mb-1">Superuser Access Enabled</h3>
+                <p class="text-sm text-amber-700/80 dark:text-amber-400/80">This user has unrestricted access to all system features. Individual permissions are ignored.</p>
+              </div>
+            } @else {
+              <div class="flex items-center justify-between mb-5">
+                <div>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Direct Permissions</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">These permissions are granted in addition to their base role.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button (click)="selectAll()"
+                          class="text-xs font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 transition cursor-pointer">
+                    Select All
+                  </button>
+                  <span class="text-slate-300 dark:text-zinc-600">·</span>
+                  <button (click)="clearAll()"
+                          class="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 transition cursor-pointer">
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @for (perm of availablePermissions; track perm.id) {
+                  <label (click)="togglePermission(perm.id)"
+                         class="flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-sm group"
+                         [class.border-indigo-300]="selectedPermissions().includes(perm.id)"
+                         [class.bg-indigo-50]="selectedPermissions().includes(perm.id)"
+                         [class.dark:bg-indigo-900/10]="selectedPermissions().includes(perm.id)"
+                         [class.dark:border-indigo-700]="selectedPermissions().includes(perm.id)"
+                         [class.border-slate-200]="!selectedPermissions().includes(perm.id)"
+                         [class.dark:border-zinc-700]="!selectedPermissions().includes(perm.id)"
+                         [class.hover:border-slate-300]="!selectedPermissions().includes(perm.id)">
+                    <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all"
+                         [class.bg-indigo-600]="selectedPermissions().includes(perm.id)"
+                         [class.border-indigo-600]="selectedPermissions().includes(perm.id)"
+                         [class.border-slate-300]="!selectedPermissions().includes(perm.id)"
+                         [class.dark:border-zinc-600]="!selectedPermissions().includes(perm.id)">
+                      @if (selectedPermissions().includes(perm.id)) {
+                        <span class="material-symbols-outlined text-white text-[13px]">check</span>
+                      }
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-bold transition-colors"
+                         [class.text-indigo-800]="selectedPermissions().includes(perm.id)"
+                         [class.dark:text-indigo-300]="selectedPermissions().includes(perm.id)"
+                         [class.text-slate-800]="!selectedPermissions().includes(perm.id)"
+                         [class.dark:text-slate-200]="!selectedPermissions().includes(perm.id)">
+                        {{ perm.name }}
+                      </p>
+                      <p class="text-[11px] font-mono mt-0.5 transition-colors"
+                         [class.text-indigo-400]="selectedPermissions().includes(perm.id)"
+                         [class.text-slate-400]="!selectedPermissions().includes(perm.id)">
+                        {{ perm.id }}
+                      </p>
+                    </div>
+                  </label>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+@if (isModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       (click)="closeCreateModal()">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+    <div class="relative bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-zinc-700"
+         (click)="$event.stopPropagation()">
+      
+      <div class="flex items-center justify-between px-7 pt-7 pb-5 border-b border-slate-100 dark:border-zinc-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-white text-[18px]">person_add</span>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Create Admin User</h2>
+            <p class="text-xs text-slate-400">Add a new user to the HQ system.</p>
+          </div>
+        </div>
+        <button (click)="closeCreateModal()" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg transition cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="px-7 py-6 grid grid-cols-2 gap-4">
+        
+        <div class="col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">First Name</label>
+          <input type="text"
+                 [ngModel]="newUser().first_name"
+                 (ngModelChange)="newUser.set({...newUser(), first_name: $event})"
+                 class="w-full px-4 py-3 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition font-medium">
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Last Name</label>
+          <input type="text"
+                 [ngModel]="newUser().last_name"
+                 (ngModelChange)="newUser.set({...newUser(), last_name: $event})"
+                 class="w-full px-4 py-3 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition font-medium">
+        </div>
+
+        <div class="col-span-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+          <input type="email"
+                 [ngModel]="newUser().email"
+                 (ngModelChange)="newUser.set({...newUser(), email: $event})"
+                 class="w-full px-4 py-3 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition font-medium">
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Username</label>
+          <input type="text"
+                 [ngModel]="newUser().username"
+                 (ngModelChange)="newUser.set({...newUser(), username: $event})"
+                 class="w-full px-4 py-3 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition font-medium font-mono">
+        </div>
+
+        <div class="col-span-1">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+          <input type="password"
+                 [ngModel]="newUser().password"
+                 (ngModelChange)="newUser.set({...newUser(), password: $event})"
+                 class="w-full px-4 py-3 text-sm border border-slate-200 dark:border-zinc-700 rounded-xl bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition font-medium">
+        </div>
+
+      </div>
+
+      <div class="px-7 py-5 border-t border-slate-100 dark:border-zinc-800 flex justify-end gap-3 bg-slate-50 dark:bg-zinc-800/50">
+        <button (click)="closeCreateModal()"
+                class="px-5 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-700 cursor-pointer transition">
+          Cancel
+        </button>
+        <button (click)="createUser()"
+                [disabled]="!newUser().first_name || !newUser().last_name || !newUser().email || !newUser().username || !newUser().password || isSaving()"
+                class="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 rounded-xl cursor-pointer transition shadow-sm flex items-center gap-2">
+          @if (isSaving()) {
+            <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
+            Creating...
+          } @else {
+            <span class="material-symbols-outlined text-[17px]">person_add</span>
+            Create User
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

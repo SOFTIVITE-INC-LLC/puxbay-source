@@ -6,6 +6,7 @@ import "gorm.io/gorm"
 func MigrateTenantModels(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&Branch{},
+		&Device{},
 		&CashDrawerSession{},
 		&Shift{},
 		&StaffShift{},

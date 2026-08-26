@@ -29,7 +29,7 @@ export class AppCurrencyPipe implements PipeTransform {
     let valToFormat = Number(value);
 
     // Check if we are in the storefront based on URL
-    const isStorefront = this.router.url.startsWith('/store') || this.router.url.startsWith('/shop') || this.router.url.includes('/checkout');
+    const isStorefront = this.router.url.startsWith('/store') || this.router.url.startsWith('/shop') || (this.router.url.includes('/checkout') && !this.router.url.includes('/billing'));
 
     // If we're in the storefront and have a CurrencyService, use it to convert!
     if (isStorefront && this.storefrontCurrency) {
