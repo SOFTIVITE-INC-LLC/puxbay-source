@@ -10,26 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CSRFMiddleware implements a Double Submit Cookie CSRF protection.
-// It ensures that mutating requests provide a valid X-CSRF-Token header.
-//
-// NOTE: CSRF attacks are only possible with cookie-based auth. Requests that
-// supply an Authorization: Bearer token WITHOUT any cookies (mobile apps, API
-// clients) are exempt, since an attacker cannot forge a cross-origin request
-// with a custom header.
-//
-// Browser sessions now use the HttpOnly pux_session cookie. This means all
-// browser-originated requests will have cookies and MUST pass CSRF validation.
+// CSRFMiddleware implements Double Submit Cookie CSRF protection.
+// It ensures that authenticated mutating requests (POST/PUT/DELETE/PATCH) provide a valid X-CSRF-Token header.
 func CSRFMiddleware(rootDomain string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Skip CSRF when no Cookie header is present at all.
-		// Clients that never send cookies (mobile apps, API tools) are inherently
-		// immune to CSRF attacks.
-		if c.GetHeader("Cookie") == "" {
-			c.Next()
-			return
-		}
-
 		isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
 
 		// Use the root domain for the cookie so hq.puxbay.com can read a cookie set by api.puxbay.com
@@ -57,10 +41,24 @@ func CSRFMiddleware(rootDomain string) gin.HandlerFunc {
 		// Validate token on mutating methods
 		method := c.Request.Method
 		if method == http.MethodPost || method == http.MethodPut || method == http.MethodDelete || method == http.MethodPatch {
-			headerToken := c.GetHeader("X-CSRF-Token")
-			if headerToken == "" || headerToken != cookie {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "CSRF token mismatch or missing"})
-				return
+			path := c.Request.URL.Path
+
+			// Public auth endpoints don't have an existing session to exploit via CSRF
+			isPublicAuth := strings.HasPrefix(path, "/api/v1/auth/login") ||
+				strings.HasPrefix(path, "/api/v1/auth/register") ||
+				strings.HasPrefix(path, "/api/v1/auth/forgot-password") ||
+				strings.HasPrefix(path, "/api/v1/auth/reset-password") ||
+				strings.HasPrefix(path, "/api/v1/auth/change-temporary-password")
+
+			// If this is not a public auth endpoint, and the client has a session cookie, enforce CSRF
+			_, errSession := c.Cookie("pux_session")
+			hasSession := errSession == nil
+			if !isPublicAuth && hasSession {
+				headerToken := c.GetHeader("X-CSRF-Token")
+				if headerToken == "" || headerToken != cookie {
+					c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "CSRF token mismatch or missing"})
+					return
+				}
 			}
 		}
 

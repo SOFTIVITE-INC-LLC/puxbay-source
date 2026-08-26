@@ -15,7 +15,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/auth/session') && !req.url.includes('/auth/refresh')) {
         // Session expired or invalid — redirect to login
         router.navigate(['/login'], { queryParams: { reason: 'session_expired' } });
-      } else if (error.status === 403) {
+      } else if (error.status === 403 && !req.url.includes('/auth/login')) {
         // Show an in-page notification without disrupting the user
         showToast('⛔ Insufficient permissions for this action', 'error');
       } else if (error.status >= 500) {
