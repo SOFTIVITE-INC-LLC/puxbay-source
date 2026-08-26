@@ -12,7 +12,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      if (error.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/auth/session') && !req.url.includes('/auth/refresh')) {
         // Session expired or invalid — redirect to login
         router.navigate(['/login'], { queryParams: { reason: 'session_expired' } });
       } else if (error.status === 403) {

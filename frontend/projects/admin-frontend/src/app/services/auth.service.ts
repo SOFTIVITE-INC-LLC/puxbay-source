@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, of } from 'rxjs';
 
 export interface User {
   id: string;
@@ -28,23 +28,25 @@ export class AuthService {
   loading = signal<boolean>(false);
 
   constructor() {
-    this.restoreSession();
+    // Session restoration is now handled by APP_INITIALIZER
   }
 
-  private restoreSession() {
-    // Restore session by calling the backend with the HttpOnly pux_session cookie.
-    // The browser sends it automatically due to withCredentials: true.
-    this.http.get<User>(this.apiUrl + '/session', { withCredentials: true }).subscribe({
-      next: (user) => {
-        if (user && user.id) {
-          this.currentUser.set(user);
-          this.isAuthenticated.set(true);
+  // restoreSession is public and returns an Observable so we can wait for it in APP_INITIALIZER
+  restoreSession() {
+    return this.http.get<User>(this.apiUrl + '/session', { withCredentials: true }).pipe(
+      tap({
+        next: (user) => {
+          if (user && user.id) {
+            this.currentUser.set(user);
+            this.isAuthenticated.set(true);
+          }
+        },
+        error: () => {
+          this.isAuthenticated.set(false);
         }
-      },
-      error: () => {
-        this.isAuthenticated.set(false);
-      }
-    });
+      }),
+      catchError(() => of(null)) // Prevent APP_INITIALIZER from crashing the app
+    );
   }
 
   login(credentials: any): Observable<AuthResponse> {
