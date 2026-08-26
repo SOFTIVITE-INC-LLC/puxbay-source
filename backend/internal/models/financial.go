@@ -32,13 +32,14 @@ type Expense struct {
 	CreatedBy          *User      `gorm:"foreignKey:CreatedByID" json:"createdby,omitempty"`
 }
 
-// PaymentMethod configures payment gateways (Stripe, Cash, etc).
+// PaymentMethod configures payment gateways (Stripe, Cash, Paystack Subaccount, etc).
 type PaymentMethod struct {
 	TenantScoped
-	Name       string  `gorm:"size:100;not null" json:"name"`
-	Provider   string  `gorm:"size:20;not null" json:"provider"` // stripe, paypal, cash, card, mobile
-	IsActive   bool    `gorm:"default:true" json:"is_active"`
-	APIKeyHint *string `gorm:"size:50" json:"api_key_hint,omitempty"`
+	Name                   string  `gorm:"size:100;not null" json:"name"`
+	Provider               string  `gorm:"size:40;not null" json:"provider"` // stripe, paystack, paystack_subaccount, cash, card, mobile, bank_transfer
+	IsActive               bool    `gorm:"default:true" json:"is_active"`
+	APIKeyHint             *string `gorm:"size:50" json:"api_key_hint,omitempty"`
+	PaystackSubaccountCode *string `gorm:"size:100" json:"paystack_subaccount_code,omitempty"`
 }
 
 // Payment tracks order payments.

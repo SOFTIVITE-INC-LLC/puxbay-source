@@ -103,7 +103,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	returnHandler := handlers.NewReturnHandler(db)
 	cashDrawerHandler := handlers.NewCashDrawerHandler(db)
 	giftCardHandler := handlers.NewGiftCardHandler(db)
-	paymentMethodHandler := handlers.NewPaymentMethodHandler(db)
+	paymentMethodHandler := handlers.NewPaymentMethodHandler(db, &cfg.Paystack)
 	crmHandler := handlers.NewCRMHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
 	contentHandler := handlers.NewContentHandler(db)
@@ -429,6 +429,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.POST("/payment-methods", paymentMethodHandler.Create)
 			api.PUT("/payment-methods/:id", paymentMethodHandler.Update)
 			api.DELETE("/payment-methods/:id", paymentMethodHandler.Delete)
+			api.GET("/payment-methods/paystack/subaccounts", paymentMethodHandler.ListPaystackSubaccounts)
+			api.GET("/payment-methods/paystack/subaccounts/verify/:code", paymentMethodHandler.VerifyPaystackSubaccount)
 
 			// Staff (read: all authenticated, write: admin only)
 			api.GET("/staff", staffHandler.List)
