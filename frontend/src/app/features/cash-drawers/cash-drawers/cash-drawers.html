@@ -1,23 +1,23 @@
-<div class="h-full flex flex-col p-6 space-y-6 max-w-5xl mx-auto text-zinc-900 dark:text-white">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-5xl mx-auto text-zinc-900 dark:text-white">
   
   <!-- Header -->
-  <div class="flex justify-between items-center">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-green-600">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-green-600">
         Cash Drawers
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Manage POS till sessions and physical cash limits.</p>
+      <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage POS till sessions and physical cash limits.</p>
     </div>
-    <div class="flex gap-3">
+    <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full sm:w-auto">
       @if (drawerService.activeDrawer()) {
-        <button (click)="isFloatModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition-colors">
+        <button (click)="isFloatModalOpen.set(true)" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 active:scale-95 transition-all text-sm text-center">
           Float Adjustment
         </button>
-        <button (click)="isCloseShiftModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors">
+        <button (click)="isCloseShiftModalOpen.set(true)" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 active:scale-95 transition-all text-sm text-center">
           Close Shift
         </button>
       } @else {
-        <button (click)="isOpenShiftModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">
+        <button (click)="isOpenShiftModalOpen.set(true)" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 active:scale-95 transition-all text-sm text-center">
           Open Shift
         </button>
       }
@@ -26,101 +26,103 @@
 
   <!-- Active Shift Banner -->
   @if (drawerService.activeDrawer(); as active) {
-    <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-6 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
-          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+    <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
         </div>
         <div>
-          <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Active Shift</p>
-          <p class="text-xl font-black text-emerald-800 dark:text-emerald-200">Opened at {{ active.opened_at | date:'shortTime' }}</p>
+          <p class="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">Active Shift</p>
+          <p class="text-lg sm:text-xl font-black text-emerald-800 dark:text-emerald-200">Opened at {{ active.opened_at | date:'shortTime' }}</p>
         </div>
       </div>
-      <div class="flex gap-8 text-center">
+      <div class="flex gap-4 sm:gap-8 text-left sm:text-center w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-emerald-200/60 dark:border-emerald-800/60">
         <div>
-          <p class="text-sm text-zinc-500">Opening Balance</p>
-          <p class="text-2xl font-black text-emerald-700 dark:text-emerald-300">{{ active.opening_balance | appCurrency }}</p>
+          <p class="text-xs sm:text-sm text-zinc-500">Opening Balance</p>
+          <p class="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-300">{{ active.opening_balance | appCurrency }}</p>
         </div>
         <div>
-          <p class="text-sm text-zinc-500">Expected In Drawer</p>
-          <p class="text-2xl font-black">{{ active.expected_balance | appCurrency }}</p>
+          <p class="text-xs sm:text-sm text-zinc-500">Expected In Drawer</p>
+          <p class="text-lg sm:text-2xl font-black">{{ active.expected_balance | appCurrency }}</p>
         </div>
       </div>
     </div>
   } @else {
-    <div class="rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-dashed border-slate-300 dark:border-zinc-700 p-10 text-center">
-      <p class="text-slate-500 font-semibold">No active shift. Click "Open Shift" to begin your session.</p>
+    <div class="rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-dashed border-slate-300 dark:border-zinc-700 p-8 sm:p-10 text-center">
+      <p class="text-slate-500 text-sm sm:text-base font-semibold">No active shift. Click "Open Shift" to begin your session.</p>
     </div>
   }
 
   <!-- Shift History -->
   @if (!drawerService.loading() && drawerService.drawers().length > 0) {
     <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900">
-      <div class="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
-        <h2 class="font-bold text-lg">Shift History</h2>
+      <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-zinc-200 dark:border-zinc-800">
+        <h2 class="font-bold text-base sm:text-lg">Shift History</h2>
       </div>
-      <table class="w-full text-sm">
-        <thead class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500">
-          <tr>
-            <th class="px-6 py-4 font-semibold text-left">Opened At</th>
-            <th class="px-6 py-4 font-semibold text-left">Status</th>
-            <th class="px-6 py-4 font-semibold text-right">Opening</th>
-            <th class="px-6 py-4 font-semibold text-right">Expected</th>
-            <th class="px-6 py-4 font-semibold text-right">Actual</th>
-            <th class="px-6 py-4 font-semibold text-right">Variance</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
-          @for (drawer of drawerService.drawers(); track drawer.id) {
-            <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-              <td class="px-6 py-4 font-medium">{{ drawer.opened_at | date:'medium' }}</td>
-              <td class="px-6 py-4">
-                <span class="px-2 py-1 text-xs font-bold rounded-full uppercase" 
-                      [class.bg-green-100]="drawer.status === 'open'"
-                      [class.text-green-700]="drawer.status === 'open'"
-                      [class.bg-zinc-100]="drawer.status !== 'open'"
-                      [class.text-zinc-700]="drawer.status !== 'open'">
-                  {{ drawer.status }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-right">{{ drawer.opening_balance | appCurrency }}</td>
-              <td class="px-6 py-4 text-right">{{ drawer.expected_balance | appCurrency }}</td>
-              <td class="px-6 py-4 text-right">{{ (drawer.actual_balance || 0) | appCurrency }}</td>
-              <td class="px-6 py-4 text-right font-bold"
-                  [class.text-rose-500]="(drawer.actual_balance || 0) < drawer.expected_balance"
-                  [class.text-emerald-500]="(drawer.actual_balance || 0) >= drawer.expected_balance">
-                {{ ((drawer.actual_balance || 0) - drawer.expected_balance) | appCurrency }}
-              </td>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[560px]">
+          <thead class="text-xs uppercase bg-black/5 dark:bg-white/5 text-zinc-500">
+            <tr>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-left">Opened At</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-left">Status</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-right">Opening</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-right">Expected</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-right">Actual</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 font-semibold text-right">Variance</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+            @for (drawer of drawerService.drawers(); track drawer.id) {
+              <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4 font-medium text-xs sm:text-sm">{{ drawer.opened_at | date:'medium' }}</td>
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4">
+                  <span class="px-2 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold rounded-full uppercase" 
+                        [class.bg-green-100]="drawer.status === 'open'"
+                        [class.text-green-700]="drawer.status === 'open'"
+                        [class.bg-zinc-100]="drawer.status !== 'open'"
+                        [class.text-zinc-700]="drawer.status !== 'open'">
+                    {{ drawer.status }}
+                  </span>
+                </td>
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4 text-right text-xs sm:text-sm">{{ drawer.opening_balance | appCurrency }}</td>
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4 text-right text-xs sm:text-sm">{{ drawer.expected_balance | appCurrency }}</td>
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4 text-right text-xs sm:text-sm">{{ (drawer.actual_balance || 0) | appCurrency }}</td>
+                <td class="px-4 sm:px-6 py-3.5 sm:py-4 text-right font-bold text-xs sm:text-sm"
+                    [class.text-rose-500]="(drawer.actual_balance || 0) < drawer.expected_balance"
+                    [class.text-emerald-500]="(drawer.actual_balance || 0) >= drawer.expected_balance">
+                  {{ ((drawer.actual_balance || 0) - drawer.expected_balance) | appCurrency }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   }
 </div>
 
 <!-- Open Shift Modal -->
 @if (isOpenShiftModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-        <h2 class="text-xl font-black">Open Shift</h2>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+        <h2 class="text-lg sm:text-xl font-black">Open Shift</h2>
         <button (click)="isOpenShiftModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
       </div>
-      <div class="p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4">
         <div>
-          <label class="block text-sm font-bold mb-2">Opening Cash Balance</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Opening Cash Balance</label>
           <input type="number" [ngModel]="openingBalance()" (ngModelChange)="openingBalance.set($event)"
-                 class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <div>
-          <label class="block text-sm font-bold mb-2">Notes (optional)</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Notes (optional)</label>
           <textarea [ngModel]="shiftNotes()" (ngModelChange)="shiftNotes.set($event)" rows="2"
-                    class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950" 
+                    class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm" 
                     placeholder="Any notes for this shift..."></textarea>
         </div>
-        <button (click)="openShift()" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">
+        <button (click)="openShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors text-sm">
           Open Shift
         </button>
       </div>
@@ -130,21 +132,21 @@
 
 <!-- Close Shift Modal -->
 @if (isCloseShiftModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-        <h2 class="text-xl font-black">Close Shift</h2>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+        <h2 class="text-lg sm:text-xl font-black">Close Shift</h2>
         <button (click)="isCloseShiftModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
       </div>
-      <div class="p-6 space-y-4">
-        <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-xl text-center">
-          <p class="text-sm text-zinc-500">Expected in Drawer</p>
-          <p class="text-3xl font-black">{{ drawerService.activeDrawer()?.expected_balance | appCurrency }}</p>
+      <div class="p-4 sm:p-6 space-y-4">
+        <div class="p-3 sm:p-4 bg-slate-50 dark:bg-zinc-800 rounded-xl text-center">
+          <p class="text-xs sm:text-sm text-zinc-500">Expected in Drawer</p>
+          <p class="text-2xl sm:text-3xl font-black">{{ drawerService.activeDrawer()?.expected_balance | appCurrency }}</p>
         </div>
         <div>
-          <label class="block text-sm font-bold mb-2">Actual Cash Count</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Actual Cash Count</label>
           <input type="number" [ngModel]="actualBalance()" (ngModelChange)="actualBalance.set($event)"
-                 class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <div class="p-3 rounded-xl text-center"
@@ -152,19 +154,19 @@
              [class.dark:bg-emerald-900/20]="actualBalance() >= (drawerService.activeDrawer()?.expected_balance || 0)"
              [class.bg-rose-50]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)"
              [class.dark:bg-rose-900/20]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)">
-          <p class="text-sm font-semibold">Variance</p>
-          <p class="text-2xl font-black"
+          <p class="text-xs sm:text-sm font-semibold">Variance</p>
+          <p class="text-xl sm:text-2xl font-black"
              [class.text-emerald-600]="actualBalance() >= (drawerService.activeDrawer()?.expected_balance || 0)"
              [class.text-rose-600]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)">
             {{ (actualBalance() - (drawerService.activeDrawer()?.expected_balance || 0)) | appCurrency }}
           </p>
         </div>
         <div>
-          <label class="block text-sm font-bold mb-2">Notes</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Notes</label>
           <textarea [ngModel]="shiftNotes()" (ngModelChange)="shiftNotes.set($event)" rows="2"
-                    class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950"></textarea>
+                    class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm"></textarea>
         </div>
-        <button (click)="closeShift()" class="w-full py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors">
+        <button (click)="closeShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors text-sm">
           Close Shift
         </button>
       </div>
@@ -174,33 +176,33 @@
 
 <!-- Float Adjustment Modal -->
 @if (isFloatModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-        <h2 class="text-xl font-black">Float Adjustment</h2>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+        <h2 class="text-lg sm:text-xl font-black">Float Adjustment</h2>
         <button (click)="isFloatModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
       </div>
-      <div class="p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4">
         <div class="flex gap-2">
           <button (click)="floatType.set('add')" 
                   [class.bg-emerald-600]="floatType() === 'add'" [class.text-white]="floatType() === 'add'"
                   [class.bg-slate-100]="floatType() !== 'add'" [class.dark:bg-zinc-800]="floatType() !== 'add'"
-                  class="flex-1 py-2 rounded-xl font-bold transition-colors">Add Cash</button>
+                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-sm">Add Cash</button>
           <button (click)="floatType.set('remove')"
                   [class.bg-rose-600]="floatType() === 'remove'" [class.text-white]="floatType() === 'remove'"
                   [class.bg-slate-100]="floatType() !== 'remove'" [class.dark:bg-zinc-800]="floatType() !== 'remove'"
-                  class="flex-1 py-2 rounded-xl font-bold transition-colors">Remove Cash</button>
+                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-sm">Remove Cash</button>
         </div>
         <div>
-          <label class="block text-sm font-bold mb-2">Amount</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Amount</label>
           <input type="number" [ngModel]="floatAmount()" (ngModelChange)="floatAmount.set($event)"
-                 class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <button (click)="addRemoveFloat(floatType())" 
                 [class.bg-emerald-600]="floatType() === 'add'" [class.hover:bg-emerald-700]="floatType() === 'add'"
                 [class.bg-rose-600]="floatType() === 'remove'" [class.hover:bg-rose-700]="floatType() === 'remove'"
-                class="w-full py-3 rounded-xl text-white font-bold transition-colors">
+                class="w-full py-2.5 sm:py-3 rounded-xl text-white font-bold transition-colors text-sm">
           {{ floatType() === 'add' ? 'Add Cash to Drawer' : 'Remove Cash from Drawer' }}
         </button>
       </div>

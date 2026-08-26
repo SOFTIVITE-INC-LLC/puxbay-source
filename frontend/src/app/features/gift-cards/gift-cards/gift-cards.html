@@ -1,19 +1,19 @@
-<div class="h-full flex flex-col p-8 space-y-10 max-w-7xl mx-auto text-slate-900 dark:text-slate-100">
+<div class="h-full flex flex-col p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8 md:space-y-10 max-w-7xl mx-auto text-slate-900 dark:text-slate-100">
   
   <!-- Header -->
-  <div class="flex justify-between items-center bg-white dark:bg-zinc-900/50 p-6 rounded-3xl border border-slate-100 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-zinc-900/50 p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl">
     <div>
-      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-pink-600 mb-1">
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-pink-600 mb-1">
         Gift Cards & Wallet
       </h1>
-      <p class="text-slate-500 dark:text-zinc-400 font-medium">Manage store credit, loyalty points, and issue gift cards.</p>
+      <p class="text-xs sm:text-sm md:text-base text-slate-500 dark:text-zinc-400 font-medium">Manage store credit, loyalty points, and issue gift cards.</p>
     </div>
-    <div class="flex gap-3">
-      <button (click)="isBalanceCheckOpen.set(true)" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2">
+    <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full sm:w-auto">
+      <button (click)="isBalanceCheckOpen.set(true)" class="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center justify-center gap-2 text-sm">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         Check Balance
       </button>
-      <button (click)="isCreateModalOpen.set(true)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+      <button (click)="isCreateModalOpen.set(true)" class="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 text-sm">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
         Create Gift Card
       </button>
@@ -21,25 +21,25 @@
   </div>
 
   <!-- Gift Cards Grid -->
-  <div class="space-y-4">
-    <div class="flex justify-between items-end px-2">
-      <h2 class="text-xl font-black text-slate-800 dark:text-white">Active Gift Cards</h2>
-      <span class="text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-3 py-1 rounded-full">{{ giftCardService.cards().length }} Cards</span>
+  <div class="space-y-3 sm:space-y-4">
+    <div class="flex justify-between items-center px-1 sm:px-2">
+      <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white">Active Gift Cards</h2>
+      <span class="text-xs sm:text-sm font-bold text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-2.5 sm:px-3 py-1 rounded-full">{{ giftCardService.cards().length }} Cards</span>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       @for (card of giftCardService.cards(); track card.id) {
-        <div class="group bg-gradient-to-br from-rose-500 to-pink-600 rounded-3xl p-6 text-white shadow-xl shadow-rose-500/10 hover:shadow-rose-500/30 relative overflow-hidden transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 transition-transform duration-500 group-hover:scale-110"></div>
-          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-8 -translate-x-8 transition-transform duration-500 group-hover:scale-110"></div>
+        <div class="group bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-white shadow-xl shadow-rose-500/10 hover:shadow-rose-500/30 relative overflow-hidden transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 transition-transform duration-500 group-hover:scale-110 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-8 -translate-x-8 transition-transform duration-500 group-hover:scale-110 pointer-events-none"></div>
           
-          <div class="relative z-10 flex flex-col h-full gap-5">
+          <div class="relative z-10 flex flex-col h-full gap-4 sm:gap-5">
             <div class="flex justify-between items-start">
               <div>
                 <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-1">Gift Card</p>
-                <p class="font-mono font-bold text-lg tracking-wider">{{ card.code }}</p>
+                <p class="font-mono font-bold text-base sm:text-lg tracking-wider break-all">{{ card.code }}</p>
               </div>
-              <span class="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider backdrop-blur-md" 
+              <span class="px-2.5 py-1 text-[10px] font-black rounded-full uppercase tracking-wider backdrop-blur-md shrink-0" 
                     [class.bg-white/20]="card.status === 'active'"
                     [class.bg-black/20]="card.status !== 'active'"
                     [class.opacity-80]="card.status !== 'active'">
@@ -69,13 +69,13 @@
       }
       
       @if (giftCardService.cards().length === 0) {
-        <div class="col-span-full flex flex-col items-center justify-center py-20 px-4 bg-slate-50/50 dark:bg-zinc-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-zinc-800">
-          <div class="w-20 h-20 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
-            <span class="text-4xl">🎁</span>
+        <div class="col-span-full flex flex-col items-center justify-center py-12 sm:py-20 px-4 bg-slate-50/50 dark:bg-zinc-900/30 rounded-2xl sm:rounded-3xl border-2 border-dashed border-slate-200 dark:border-zinc-800">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
+            <span class="text-3xl sm:text-4xl">🎁</span>
           </div>
-          <h3 class="text-xl font-black text-slate-800 dark:text-white mb-2">No Gift Cards Yet</h3>
-          <p class="text-slate-500 dark:text-zinc-400 text-center max-w-sm mb-6">Create your first gift card to boost sales and retain customers.</p>
-          <button (click)="isCreateModalOpen.set(true)" class="px-6 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+          <h3 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white mb-2">No Gift Cards Yet</h3>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 text-center max-w-sm mb-6">Create your first gift card to boost sales and retain customers.</p>
+          <button (click)="isCreateModalOpen.set(true)" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200 text-sm">
             Create First Card
           </button>
         </div>
@@ -84,105 +84,107 @@
   </div>
 
   <!-- Store Credit / Loyalty Section -->
-  <div class="space-y-4">
-    <div class="flex justify-between items-end px-2">
-      <h2 class="text-xl font-black text-slate-800 dark:text-white">Customer Wallets</h2>
+  <div class="space-y-3 sm:space-y-4">
+    <div class="flex justify-between items-center px-1 sm:px-2">
+      <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white">Customer Wallets</h2>
     </div>
     
-    <div class="rounded-3xl border border-slate-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
-      <table class="w-full text-sm">
-        <thead class="text-xs uppercase bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-400 font-bold tracking-wider">
-          <tr>
-            <th class="px-6 py-4 text-left">Customer</th>
-            <th class="px-6 py-4 text-right">Loyalty Points</th>
-            <th class="px-6 py-4 text-right">Store Credit</th>
-            <th class="px-6 py-4 text-right">Debt</th>
-            <th class="px-6 py-4 text-center w-32">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/50">
-          @for (c of customerService.customers(); track c.id) {
-            @if (c.loyalty_pts > 0 || c.store_credit > 0) {
-              <tr class="hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors group">
-                <td class="px-6 py-5 font-bold flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">
-                    {{ c.name.charAt(0) }}
-                  </div>
-                  {{ c.name }}
-                </td>
-                <td class="px-6 py-5 text-right">
-                  <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10">
-                    <span class="font-black text-emerald-600 dark:text-emerald-400">{{ c.loyalty_pts }}</span>
-                    <span class="text-[10px] font-bold text-emerald-600/70 dark:text-emerald-400/70 uppercase">pts</span>
-                  </div>
-                </td>
-                <td class="px-6 py-5 text-right font-black text-slate-700 dark:text-zinc-200">{{ c.store_credit | appCurrency }}</td>
-                <td class="px-6 py-5 text-right font-black text-rose-500 dark:text-rose-400">{{ c.debt_balance | appCurrency }}</td>
-                <td class="px-6 py-5 text-center">
-                  <button (click)="openCreditModal(c)" class="opacity-0 group-hover:opacity-100 px-3 py-1.5 text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200">Adjust</button>
-                </td>
-              </tr>
+    <div class="rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[560px]">
+          <thead class="text-xs uppercase bg-slate-50 dark:bg-zinc-900/50 text-slate-500 dark:text-zinc-400 font-bold tracking-wider">
+            <tr>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 text-left">Customer</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 text-right">Loyalty Points</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 text-right">Store Credit</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 text-right">Debt</th>
+              <th class="px-4 sm:px-6 py-3.5 sm:py-4 text-center w-28 sm:w-32">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/50">
+            @for (c of customerService.customers(); track c.id) {
+              @if (c.loyalty_pts > 0 || c.store_credit > 0) {
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors group">
+                  <td class="px-4 sm:px-6 py-4 sm:py-5 font-bold flex items-center gap-2.5 sm:gap-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0">
+                      {{ c.name.charAt(0) }}
+                    </div>
+                    <span class="truncate max-w-[140px] sm:max-w-[200px]">{{ c.name }}</span>
+                  </td>
+                  <td class="px-4 sm:px-6 py-4 sm:py-5 text-right">
+                    <div class="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10">
+                      <span class="font-black text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm">{{ c.loyalty_pts }}</span>
+                      <span class="text-[10px] font-bold text-emerald-600/70 dark:text-emerald-400/70 uppercase">pts</span>
+                    </div>
+                  </td>
+                  <td class="px-4 sm:px-6 py-4 sm:py-5 text-right font-black text-slate-700 dark:text-zinc-200 text-xs sm:text-sm">{{ c.store_credit | appCurrency }}</td>
+                  <td class="px-4 sm:px-6 py-4 sm:py-5 text-right font-black text-rose-500 dark:text-rose-400 text-xs sm:text-sm">{{ c.debt_balance | appCurrency }}</td>
+                  <td class="px-4 sm:px-6 py-4 sm:py-5 text-center">
+                    <button (click)="openCreditModal(c)" class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200">Adjust</button>
+                  </td>
+                </tr>
+              }
             }
-          }
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Create Gift Card Modal -->
 @if (isCreateModalOpen()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-[480px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800 transform scale-100 transition-transform">
-    <div class="p-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-900/50 backdrop-blur-md">
-      <h2 class="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-pink-600">Create Gift Card</h2>
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200">
+  <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-[480px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800 transform scale-100 transition-transform flex flex-col max-h-[92vh] sm:max-h-[90vh]">
+    <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-900/50 backdrop-blur-md shrink-0">
+      <h2 class="text-lg sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-pink-600">Create Gift Card</h2>
       <button (click)="isCreateModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all">✕</button>
     </div>
     
-    <div class="p-6 space-y-7">
+    <div class="p-4 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto flex-1">
       
       <!-- Card Preview -->
-      <div class="relative bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl shadow-rose-500/20 overflow-hidden transform hover:scale-[1.02] transition-transform duration-300">
+      <div class="relative bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 sm:p-6 text-white shadow-xl shadow-rose-500/20 overflow-hidden transform hover:scale-[1.01] transition-transform duration-300">
         <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
-        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-8 -translate-x-8"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-8 -translate-x-8 pointer-events-none"></div>
         
-        <div class="relative z-10 flex flex-col h-full justify-between gap-6">
+        <div class="relative z-10 flex flex-col h-full justify-between gap-5 sm:gap-6">
           <div class="flex justify-between items-start">
             <div>
               <p class="text-[10px] font-bold text-white/80 uppercase tracking-[0.2em] mb-1">Gift Card Value</p>
-              <h3 class="font-black text-4xl tracking-tight">{{ newCard().initial_balance | appCurrency }}</h3>
+              <h3 class="font-black text-3xl sm:text-4xl tracking-tight">{{ newCard().initial_balance | appCurrency }}</h3>
             </div>
-            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner">
-              <span class="text-2xl">🎁</span>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner shrink-0">
+              <span class="text-xl sm:text-2xl">🎁</span>
             </div>
           </div>
           
           <div class="flex justify-between items-end">
             <div>
               <p class="text-[10px] text-white/70 font-semibold uppercase tracking-wider mb-0.5">To</p>
-              <p class="font-bold text-sm truncate max-w-[180px]">
+              <p class="font-bold text-xs sm:text-sm truncate max-w-[140px] sm:max-w-[180px]">
                 {{ newCard().purchaser_id ? getCustomerName(newCard().purchaser_id!) : 'Someone Special' }}
               </p>
             </div>
             <div class="text-right">
               <p class="text-[10px] text-white/70 font-semibold uppercase tracking-wider mb-0.5">Valid Until</p>
-              <p class="font-bold text-sm">{{ newCard().expires_at ? (newCard().expires_at | date:'MMM d, y') : 'No Expiry' }}</p>
+              <p class="font-bold text-xs sm:text-sm">{{ newCard().expires_at ? (newCard().expires_at | date:'MMM d, y') : 'No Expiry' }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Form Inputs -->
-      <div class="space-y-5">
+      <div class="space-y-4 sm:space-y-5">
         <div>
-          <label class="flex justify-between text-sm font-bold text-slate-700 dark:text-zinc-300 mb-2">
+          <label class="flex justify-between text-xs sm:text-sm font-bold text-slate-700 dark:text-zinc-300 mb-2">
             <span>Select Amount</span>
           </label>
-          <div class="flex gap-2 mb-3">
+          <div class="grid grid-cols-5 gap-1.5 sm:gap-2 mb-3">
             @for (preset of [10, 25, 50, 100, 200]; track preset) {
               <button (click)="newCard.update(c => ({...c, initial_balance: preset}))"
-                      class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 border"
+                      class="py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 border text-center"
                       [class.bg-rose-500]="newCard().initial_balance === preset" 
                       [class.text-white]="newCard().initial_balance === preset"
                       [class.border-rose-500]="newCard().initial_balance === preset"
@@ -199,19 +201,19 @@
             }
           </div>
           <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Amt</span>
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Amt</span>
             <input type="number" [ngModel]="newCard().initial_balance" (ngModelChange)="newCard.update(c => ({...c, initial_balance: $event}))"
                    min="1" step="0.01" 
-                   class="w-full pl-14 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-xl font-black transition-all">
+                   class="w-full pl-14 p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-lg sm:text-xl font-black transition-all">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
-            <label class="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Recipient <span class="font-normal text-slate-400 text-xs">(Optional)</span></label>
+            <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Recipient <span class="font-normal text-slate-400 text-xs">(Optional)</span></label>
             <div class="relative">
               <select [ngModel]="newCard().purchaser_id" (ngModelChange)="newCard.update(c => ({...c, purchaser_id: $event}))"
-                      class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-sm font-medium transition-all appearance-none cursor-pointer">
+                      class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-xs sm:text-sm font-medium transition-all appearance-none cursor-pointer">
                 <option value="">No recipient</option>
                 @for (c of customerService.customers(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
               </select>
@@ -222,19 +224,19 @@
           </div>
           
           <div>
-            <label class="block text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Expiry <span class="font-normal text-slate-400 text-xs">(Optional)</span></label>
+            <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-zinc-300 mb-1.5">Expiry <span class="font-normal text-slate-400 text-xs">(Optional)</span></label>
             <input type="date" [ngModel]="newCard().expires_at" (ngModelChange)="newCard.update(c => ({...c, expires_at: $event}))"
-                   class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-sm font-medium transition-all">
+                   class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-900/50 focus:bg-white dark:focus:bg-zinc-950 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none text-xs sm:text-sm font-medium transition-all">
           </div>
         </div>
       </div>
     </div>
     
-    <div class="p-5 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex gap-3">
-      <button (click)="isCreateModalOpen.set(false)" class="flex-1 py-3 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-bold hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors shadow-sm">
+    <div class="p-4 sm:p-5 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 flex gap-3 shrink-0">
+      <button (click)="isCreateModalOpen.set(false)" class="flex-1 py-2.5 sm:py-3 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 font-bold hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors shadow-sm text-sm">
         Cancel
       </button>
-      <button (click)="createCard()" class="flex-[2] py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-0.5 transition-all">
+      <button (click)="createCard()" class="flex-[2] py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
         Create Gift Card
       </button>
     </div>
@@ -244,29 +246,29 @@
 
 <!-- Balance Check Modal -->
 @if (isBalanceCheckOpen()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-    <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-      <h2 class="text-xl font-black">Check Card Balance</h2>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+    <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+      <h2 class="text-lg sm:text-xl font-black">Check Card Balance</h2>
       <button (click)="isBalanceCheckOpen.set(false); checkedCard.set(null)" class="text-slate-400 hover:text-rose-500">✕</button>
     </div>
-    <div class="p-6 space-y-4">
+    <div class="p-4 sm:p-6 space-y-4">
       <div class="flex gap-2">
         <input type="text" [ngModel]="balanceCheckCode()" (ngModelChange)="balanceCheckCode.set($event)"
-               placeholder="Enter gift card code..." class="flex-1 p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 font-mono">
-        <button (click)="checkBalance()" class="px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors">Check</button>
+               placeholder="Enter gift card code..." class="flex-1 p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 font-mono text-sm">
+        <button (click)="checkBalance()" class="px-4 py-2.5 sm:py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors text-sm shrink-0">Check</button>
       </div>
       @if (checkedCard()) {
         <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-800">
-          <p class="text-sm font-bold text-emerald-600 mb-2">Card Found</p>
-          <div class="flex justify-between">
-            <span class="text-zinc-600 dark:text-zinc-400">Current Balance</span>
-            <span class="font-black text-2xl text-emerald-700 dark:text-emerald-400">{{ checkedCard().current_balance | appCurrency }}</span>
+          <p class="text-xs sm:text-sm font-bold text-emerald-600 mb-2">Card Found</p>
+          <div class="flex justify-between items-center">
+            <span class="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Current Balance</span>
+            <span class="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-400">{{ checkedCard().current_balance | appCurrency }}</span>
           </div>
           <div class="mt-2 h-2 bg-emerald-200 dark:bg-emerald-900/50 rounded-full overflow-hidden">
             <div class="h-full bg-emerald-500 rounded-full" [style.width.%]="getBalancePercent(checkedCard())"></div>
           </div>
-          <p class="text-xs text-zinc-400 mt-2">{{ checkedCard().current_balance | appCurrency }} / {{ checkedCard().initial_value | appCurrency }} remaining</p>
+          <p class="text-[11px] sm:text-xs text-zinc-400 mt-2">{{ checkedCard().current_balance | appCurrency }} / {{ checkedCard().initial_value | appCurrency }} remaining</p>
         </div>
       }
     </div>
@@ -276,29 +278,29 @@
 
 <!-- Loyalty Points Adjust Modal -->
 @if (isCreditModalOpen() && selectedCustomer()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-zinc-900 rounded-3xl w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-    <div class="p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
-      <h2 class="text-xl font-black">Adjust Points — {{ selectedCustomer().name }}</h2>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
+    <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+      <h2 class="text-lg sm:text-xl font-black truncate max-w-[320px]">Adjust Points — {{ selectedCustomer().name }}</h2>
       <button (click)="isCreditModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
     </div>
-    <div class="p-6 space-y-4">
-      <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex justify-between">
-        <span class="text-zinc-500">Current Balance</span>
-        <span class="font-black text-2xl text-emerald-600">{{ selectedCustomer().loyalty_pts }} pts</span>
+    <div class="p-4 sm:p-6 space-y-4">
+      <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex justify-between items-center">
+        <span class="text-zinc-500 text-xs sm:text-sm">Current Balance</span>
+        <span class="font-black text-xl sm:text-2xl text-emerald-600">{{ selectedCustomer().loyalty_pts }} pts</span>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1">Adjustment (+ add, - deduct)</label>
+        <label class="block text-xs sm:text-sm font-bold mb-1">Adjustment (+ add, - deduct)</label>
         <input type="number" [ngModel]="creditAdjustment().points" (ngModelChange)="creditAdjustment.update(a => ({...a, points: $event}))"
-               class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl font-black text-center">
+               class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-lg sm:text-xl font-black text-center">
       </div>
       <div>
-        <label class="block text-sm font-bold mb-1">Reason / Description</label>
+        <label class="block text-xs sm:text-sm font-bold mb-1">Reason / Description</label>
         <input type="text" [ngModel]="creditAdjustment().description" (ngModelChange)="creditAdjustment.update(a => ({...a, description: $event}))"
                placeholder="e.g. Manual bonus, promotion..."
-               class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950">
+               class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xs sm:text-sm">
       </div>
-      <button (click)="adjustLoyaltyPoints()" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors">Apply Adjustment</button>
+      <button (click)="adjustLoyaltyPoints()" class="w-full py-2.5 sm:py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors text-sm">Apply Adjustment</button>
     </div>
   </div>
 </div>

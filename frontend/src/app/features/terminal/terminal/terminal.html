@@ -1,11 +1,11 @@
-<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
   
-  <div class="flex justify-between items-center">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-600 to-black dark:from-zinc-400 dark:to-white">Hardware Terminals</h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Configure physical receipt printers and payment terminals.</p>
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-600 to-black dark:from-zinc-400 dark:to-white">Hardware Terminals</h1>
+      <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Configure physical receipt printers and payment terminals.</p>
     </div>
-    <button (click)="openAddModal()" class="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl shadow-lg hover:opacity-90 transition-all font-medium flex items-center gap-2">
+    <button (click)="openAddModal()" class="w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition-all font-semibold flex items-center justify-center gap-2 text-sm shrink-0">
       <span class="material-symbols-outlined text-[20px]">add</span>
       Add Device
     </button>
@@ -16,21 +16,21 @@
       <div class="animate-spin rounded-full h-10 w-10 border-4 border-zinc-200 dark:border-zinc-800 border-t-black dark:border-t-white"></div>
     </div>
   } @else if (devices().length === 0) {
-    <div class="glass-panel rounded-2xl p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md text-center py-20">
-      <svg class="w-16 h-16 mx-auto text-zinc-300 dark:text-zinc-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-      <h3 class="text-xl font-bold">No Devices Found</h3>
-      <p class="text-zinc-500 mt-2">Connect a physical printer or payment terminal to your local network.</p>
-      <button (click)="openAddModal()" class="mt-6 px-6 py-2 border-2 border-zinc-200 dark:border-zinc-800 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium">Configure Device</button>
+    <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md text-center py-12 sm:py-20">
+      <svg class="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-zinc-300 dark:text-zinc-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+      <h3 class="text-lg sm:text-xl font-bold">No Devices Found</h3>
+      <p class="text-xs sm:text-sm text-zinc-500 mt-2">Connect a physical printer or payment terminal to your local network.</p>
+      <button (click)="openAddModal()" class="w-full sm:w-auto mt-6 px-6 py-2.5 border-2 border-zinc-200 dark:border-zinc-800 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-sm">Configure Device</button>
     </div>
   } @else {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       @for (device of devices(); track device.id) {
-        <div class="glass-panel rounded-2xl p-6 shadow-lg border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md flex flex-col relative group overflow-hidden">
+        <div class="glass-panel rounded-2xl p-5 sm:p-6 shadow-lg border border-white/20 dark:border-white/10 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md flex flex-col relative group overflow-hidden">
           <div class="absolute top-0 left-0 w-1 h-full bg-black dark:bg-white"></div>
           
           <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300">
-              <span class="material-symbols-outlined">{{ getIcon(device.device_type) }}</span>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shrink-0">
+              <span class="material-symbols-outlined text-[20px] sm:text-[24px]">{{ getIcon(device.device_type) }}</span>
             </div>
             
             <div class="flex items-center gap-2">
@@ -46,10 +46,10 @@
             </div>
           </div>
           
-          <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-1">{{ device.name }}</h3>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400 capitalize mb-4">{{ device.device_type.replace('_', ' ') }}</p>
+          <h3 class="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-1 break-words">{{ device.name }}</h3>
+          <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 capitalize mb-4">{{ device.device_type.replace('_', ' ') }}</p>
           
-          <div class="mt-auto space-y-2 text-sm">
+          <div class="mt-auto space-y-2 text-xs sm:text-sm">
             @if (device.ip_address) {
               <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
                 <span class="material-symbols-outlined text-[16px]">wifi</span>
@@ -71,25 +71,25 @@
 
 <!-- Add Device Modal -->
 @if (showAddModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeAddModal()"></div>
-    <div class="relative bg-white dark:bg-zinc-900 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20 dark:border-white/10 animate-scale-in">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-zinc-900 dark:text-white">Add Device</h2>
+    <div class="relative bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl border border-white/20 dark:border-zinc-800 animate-scale-in max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-5 sm:mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">Add Device</h2>
         <button (click)="closeAddModal()" class="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <form (ngSubmit)="saveDevice()" class="space-y-5">
+      <form (ngSubmit)="saveDevice()" class="space-y-4 sm:space-y-5">
         <div>
-          <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Device Name</label>
-          <input type="text" [(ngModel)]="newDevice().name" name="name" required placeholder="e.g. Front Counter Printer" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white">
+          <label class="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Device Name</label>
+          <input type="text" [(ngModel)]="newDevice().name" name="name" required placeholder="e.g. Front Counter Printer" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white text-sm sm:text-base">
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Device Type</label>
-          <select [(ngModel)]="newDevice().device_type" name="type" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white">
+          <label class="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Device Type</label>
+          <select [(ngModel)]="newDevice().device_type" name="type" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white text-sm sm:text-base">
             <option value="printer">Receipt Printer (ESC/POS)</option>
             <option value="payment_terminal">Payment Terminal (Paystack)</option>
             <option value="cash_drawer">Cash Drawer</option>
@@ -97,21 +97,21 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">IP Address</label>
-          <input type="text" [(ngModel)]="newDevice().ip_address" name="ip" placeholder="192.168.1.100" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white font-mono text-sm">
+          <label class="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">IP Address</label>
+          <input type="text" [(ngModel)]="newDevice().ip_address" name="ip" placeholder="192.168.1.100" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white font-mono text-xs sm:text-sm">
         </div>
 
         @if (newDevice().device_type === 'payment_terminal') {
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Terminal ID</label>
-            <input type="text" [(ngModel)]="newDevice().config" name="config" placeholder="Paystack Terminal ID" class="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white font-mono text-sm">
+            <label class="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Terminal ID</label>
+            <input type="text" [(ngModel)]="newDevice().config" name="config" placeholder="Paystack Terminal ID" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent outline-none transition-all dark:text-white font-mono text-xs sm:text-sm">
             <p class="text-xs text-zinc-500 mt-1">Enter the ID of the physical Paystack terminal</p>
           </div>
         }
 
-        <div class="pt-4 flex gap-3">
-          <button type="button" (click)="closeAddModal()" class="flex-1 px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">Cancel</button>
-          <button type="submit" [disabled]="saving() || !newDevice().name" class="flex-1 px-4 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex justify-center items-center gap-2">
+        <div class="pt-3 sm:pt-4 flex gap-3">
+          <button type="button" (click)="closeAddModal()" class="flex-1 px-4 py-2.5 sm:py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors text-sm">Cancel</button>
+          <button type="submit" [disabled]="saving() || !newDevice().name" class="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold hover:opacity-90 transition-opacity disabled:opacity-50 flex justify-center items-center gap-2 text-sm">
             @if (saving()) {
               <div class="animate-spin rounded-full h-4 w-4 border-2 border-white/20 dark:border-black/20 border-t-white dark:border-t-black"></div>
             }
