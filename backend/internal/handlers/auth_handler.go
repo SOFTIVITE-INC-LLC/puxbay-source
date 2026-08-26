@@ -36,6 +36,12 @@ func setAuthCookies(c *gin.Context, tokens *services.TokenPair, rootDomain strin
 	accessMaxAge := int(jwtCfg.AccessExpiry.Seconds())
 	refreshMaxAge := int(jwtCfg.RefreshExpiry.Seconds())
 
+	if isProduction {
+		c.SetSameSite(http.SameSiteNoneMode)
+	} else {
+		c.SetSameSite(http.SameSiteLaxMode)
+	}
+
 	// Access token cookie — shorter lived
 	c.SetCookie("pux_session", tokens.AccessToken, accessMaxAge, "/", cookieDomain, isProduction, true)
 	// Refresh token cookie — longer lived
@@ -53,6 +59,13 @@ func clearAuthCookies(c *gin.Context, rootDomain string) {
 		}
 		cookieDomain = "." + domain
 	}
+
+	if isProduction {
+		c.SetSameSite(http.SameSiteNoneMode)
+	} else {
+		c.SetSameSite(http.SameSiteLaxMode)
+	}
+
 	c.SetCookie("pux_session", "", -1, "/", cookieDomain, isProduction, true)
 	c.SetCookie("pux_refresh", "", -1, "/", cookieDomain, isProduction, true)
 }

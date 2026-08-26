@@ -32,6 +32,11 @@ func CSRFMiddleware(rootDomain string) gin.HandlerFunc {
 			_, _ = rand.Read(b)
 			cookie = hex.EncodeToString(b)
 
+			if isProduction {
+				c.SetSameSite(http.SameSiteNoneMode)
+			} else {
+				c.SetSameSite(http.SameSiteLaxMode)
+			}
 			c.SetCookie("csrf_token", cookie, 86400, "/", cookieDomain, isProduction, false) // NOT HttpOnly so JS can read it
 		}
 
