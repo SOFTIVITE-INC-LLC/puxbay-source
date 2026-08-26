@@ -107,12 +107,12 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 		}
 
 		// 4. Failed Payments Count
-		h.db.Model(&models.Payment{}).Where("status IN ?", []string{"failed", "declined"}).Count(&stats.FailedPaymentsCount)
+		h.db.Model(&models.BillingPayment{}).Where("status IN ?", []string{"failed", "declined"}).Count(&stats.FailedPaymentsCount)
 
 		// 5. Revenue This Month
 		startOfMonth := time.Now().UTC().Truncate(24*time.Hour).AddDate(0, 0, -time.Now().Day()+1)
-		h.db.Table("payments").
-			Where("status = ? AND created_at >= ?", "successful", startOfMonth).
+		h.db.Model(&models.BillingPayment{}).
+			Where("status IN ? AND (created_at >= ? OR date >= ?)", []string{"succeeded", "successful", "paid"}, startOfMonth, startOfMonth).
 			Select("COALESCE(SUM(amount), 0)").
 			Scan(&stats.RevenueThisMonth)
 	}
