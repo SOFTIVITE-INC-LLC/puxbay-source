@@ -2,19 +2,21 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
 
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/softivite/puxbay/internal/config"
 	"github.com/softivite/puxbay/internal/models"
 )
 
@@ -22,17 +24,31 @@ func main() {
 	fmt.Println("Puxbay Create Superuser")
 	fmt.Println("-----------------------")
 
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+	// Allow passing an explicit path to the .env file
+	envFile := flag.String("env-file", "", "Path to .env file (default: searches cwd and binary dir)")
+	flag.Parse()
+
+	// Resolve the env file path:
+	// 1. Explicit flag  2. cwd/.env  3. <binary-dir>/.env
+	resolvedEnv := resolveEnvFile(*envFile)
+
+	viper.SetConfigFile(resolvedEnv)
+	viper.SetConfigType("env")
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Printf("Warning: could not read %s: %v — using environment variables only", resolvedEnv, err)
+	} else {
+		fmt.Printf("✔ Loaded config from: %s\n", resolvedEnv)
 	}
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		cfg.Database.Host,
-		cfg.Database.User,
-		cfg.Database.Password,
-		cfg.Database.DBName,
-		cfg.Database.Port,
-		cfg.Database.SSLMode,
+
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		viper.GetString("DB_HOST"),
+		viper.GetString("DB_USER"),
+		viper.GetString("DB_PASSWORD"),
+		viper.GetString("DB_NAME"),
+		viper.GetString("DB_PORT"),
+		viper.GetString("DB_SSLMODE"),
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -115,4 +131,32 @@ func main() {
 	}
 
 	fmt.Println("Superuser created successfully with all permissions.")
+}
+
+// resolveEnvFile finds the .env file to use, in priority order:
+//  1. Explicit --env-file flag
+//  2. .env in current working directory
+//  3. .env next to the binary (useful on servers where binary is in /opt/app)
+func resolveEnvFile(explicit string) string {
+	if explicit != "" {
+		return explicit
+	}
+
+	// cwd/.env
+	if _, err := os.Stat(".env"); err == nil {
+		abs, _ := filepath.Abs(".env")
+		return abs
+	}
+
+	// <binary-dir>/.env
+	exe, err := os.Executable()
+	if err == nil {
+		candidate := filepath.Join(filepath.Dir(exe), ".env")
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+
+	// fall back to cwd (viper will warn if missing)
+	return ".env"
 }
