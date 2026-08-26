@@ -84,10 +84,7 @@ export class SidebarComponent {
   ];
 
   get filteredCategories() {
-    return this.menuCategories.map(cat => ({
-      ...cat,
-      items: cat.items.filter(item => this.authService.hasPermission(item.permission))
-    })).filter(cat => cat.items.length > 0);
+    return this.menuCategories;
   }
 
   logout() {
