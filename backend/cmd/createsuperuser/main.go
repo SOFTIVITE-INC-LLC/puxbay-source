@@ -11,7 +11,6 @@ import (
 	"syscall"
 
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 	"gorm.io/driver/postgres"
@@ -24,31 +23,28 @@ func main() {
 	fmt.Println("Puxbay Create Superuser")
 	fmt.Println("-----------------------")
 
-	// Allow passing an explicit path to the .env file
-	envFile := flag.String("env-file", "", "Path to .env file (default: searches cwd and binary dir)")
+	envFile := flag.String("env-file", "", "Path to .env file (default: searches cwd then binary dir)")
 	flag.Parse()
 
-	// Resolve the env file path:
-	// 1. Explicit flag  2. cwd/.env  3. <binary-dir>/.env
+	// Load the .env file into os environment so we can read with os.Getenv
 	resolvedEnv := resolveEnvFile(*envFile)
-
-	viper.SetConfigFile(resolvedEnv)
-	viper.SetConfigType("env")
-	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("Warning: could not read %s: %v — using environment variables only", resolvedEnv, err)
+	if err := loadEnvFile(resolvedEnv); err != nil {
+		log.Printf("Warning: %v — will use existing environment variables", err)
 	} else {
 		fmt.Printf("✔ Loaded config from: %s\n", resolvedEnv)
 	}
 
+	// Read DB settings, falling back to sane defaults
+	dbHost := getEnv("DB_HOST", "localhost")
+	dbPort := getEnv("DB_PORT", "5432")
+	dbUser := getEnv("DB_USER", "postgres")
+	dbPass := getEnv("DB_PASSWORD", "")
+	dbName := getEnv("DB_NAME", "puxbay_go")
+	dbSSL := getEnv("DB_SSLMODE", "disable")
+
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
-		viper.GetString("DB_HOST"),
-		viper.GetString("DB_USER"),
-		viper.GetString("DB_PASSWORD"),
-		viper.GetString("DB_NAME"),
-		viper.GetString("DB_PORT"),
-		viper.GetString("DB_SSLMODE"),
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		dbHost, dbPort, dbUser, dbPass, dbName, dbSSL,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -86,9 +82,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error reading password confirmation: %v", err)
 	}
-	passwordConfirm := string(bytePasswordConfirm)
 
-	if password != passwordConfirm {
+	if password != string(bytePasswordConfirm) {
 		log.Fatal("Passwords do not match.")
 	}
 
@@ -130,33 +125,114 @@ func main() {
 		log.Fatalf("Failed to create superuser: %v", err)
 	}
 
-	fmt.Println("Superuser created successfully with all permissions.")
+	fmt.Println("✅ Superuser created successfully with all permissions.")
+}
+
+// getEnv reads an environment variable, returning fallback if not set or empty.
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
+// loadEnvFile parses a .env file and sets variables into the process environment.
+// It handles:
+//   - Blank lines and whitespace-only lines (skipped)
+//   - Comment lines: # comment, \# comment, // comment (skipped)
+//   - export KEY=VALUE syntax
+//   - Quoted values: KEY="value" or KEY='value'
+//   - Inline comments after values (stripped)
+//   - Already-set env vars are NOT overwritten (os.Setenv only if not set)
+func loadEnvFile(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("could not open %s: %w", path, err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	lineNum := 0
+	for scanner.Scan() {
+		lineNum++
+		line := strings.TrimSpace(scanner.Text())
+
+		// Skip blank lines and comment lines (all variants)
+		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, `\#`) || strings.HasPrefix(line, "//") {
+			continue
+		}
+
+		// Strip leading "export " keyword
+		line = strings.TrimPrefix(line, "export ")
+		line = strings.TrimSpace(line)
+
+		idx := strings.IndexByte(line, '=')
+		if idx < 0 {
+			continue // not a KEY=VALUE line, skip silently
+		}
+
+		key := strings.TrimSpace(line[:idx])
+		val := strings.TrimSpace(line[idx+1:])
+
+		// Strip inline comments (unquoted # after value)
+		val = stripInlineComment(val)
+
+		// Strip surrounding quotes
+		val = unquote(val)
+
+		// Only set if not already in environment (don't override explicit env vars)
+		if os.Getenv(key) == "" {
+			os.Setenv(key, val)
+		}
+	}
+
+	return scanner.Err()
+}
+
+// stripInlineComment removes trailing # comment from an unquoted value.
+// e.g.  "somevalue  # this is a comment" → "somevalue"
+// Quoted values are left intact.
+func stripInlineComment(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	// If the value is quoted, don't strip
+	if (s[0] == '"' || s[0] == '\'') {
+		return s
+	}
+	if idx := strings.Index(s, " #"); idx >= 0 {
+		s = s[:idx]
+	}
+	return strings.TrimSpace(s)
+}
+
+// unquote removes surrounding single or double quotes from a string.
+func unquote(s string) string {
+	if len(s) >= 2 {
+		if (s[0] == '"' && s[len(s)-1] == '"') || (s[0] == '\'' && s[len(s)-1] == '\'') {
+			return s[1 : len(s)-1]
+		}
+	}
+	return s
 }
 
 // resolveEnvFile finds the .env file to use, in priority order:
 //  1. Explicit --env-file flag
 //  2. .env in current working directory
-//  3. .env next to the binary (useful on servers where binary is in /opt/app)
+//  3. .env next to the binary
 func resolveEnvFile(explicit string) string {
 	if explicit != "" {
 		return explicit
 	}
-
-	// cwd/.env
 	if _, err := os.Stat(".env"); err == nil {
 		abs, _ := filepath.Abs(".env")
 		return abs
 	}
-
-	// <binary-dir>/.env
-	exe, err := os.Executable()
-	if err == nil {
+	if exe, err := os.Executable(); err == nil {
 		candidate := filepath.Join(filepath.Dir(exe), ".env")
 		if _, err := os.Stat(candidate); err == nil {
 			return candidate
 		}
 	}
-
-	// fall back to cwd (viper will warn if missing)
 	return ".env"
 }
