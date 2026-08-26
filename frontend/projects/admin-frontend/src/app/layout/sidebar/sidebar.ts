@@ -30,58 +30,65 @@ export class SidebarComponent {
     {
       category: 'Overview',
       items: [
-        { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' }
+        { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', permission: 'dashboard:read' }
       ]
     },
     {
       category: 'Tenant Management',
       items: [
-        { label: 'Tenants', route: '/tenants', icon: 'storefront' },
-        { label: 'Domains', route: '/domains', icon: 'public' }
+        { label: 'Tenants', route: '/tenants', icon: 'storefront', permission: 'tenants:read' },
+        { label: 'Domains', route: '/domains', icon: 'public', permission: 'domains:read' }
       ]
     },
     {
       category: 'Billing & Revenue',
       items: [
-        { label: 'Pricing Plans', route: '/pricing-plans', icon: 'payments' },
-        { label: 'Subscriptions', route: '/subscriptions', icon: 'card_membership' },
-        { label: 'Upcoming Renewals', route: '/renewals', icon: 'event_repeat' },
-        { label: 'Invoices', route: '/payments', icon: 'receipt_long' },
-        { label: 'Failed Payments', route: '/failed-payments', icon: 'money_off' },
-        { label: 'Promo Codes', route: '/promo-codes', icon: 'local_activity' }
+        { label: 'Pricing Plans', route: '/pricing-plans', icon: 'payments', permission: 'pricing_plans:read' },
+        { label: 'Subscriptions', route: '/subscriptions', icon: 'card_membership', permission: 'billing:read' },
+        { label: 'Upcoming Renewals', route: '/renewals', icon: 'event_repeat', permission: 'billing:read' },
+        { label: 'Invoices', route: '/payments', icon: 'receipt_long', permission: 'billing:read' },
+        { label: 'Failed Payments', route: '/failed-payments', icon: 'money_off', permission: 'billing:read' },
+        { label: 'Promo Codes', route: '/promo-codes', icon: 'local_activity', permission: 'promo_codes:read' }
       ]
     },
     {
       category: 'Growth & Content',
       items: [
-        { label: 'Gift Cards', route: '/gift-cards', icon: 'card_giftcard' },
-        { label: 'Blog Posts', route: '/blog', icon: 'article' },
-        { label: 'Referrals', route: '/referrals', icon: 'group_add' },
-        { label: 'Broadcasts', route: '/broadcasts', icon: 'campaign' },
-        { label: 'FAQs', route: '/faqs', icon: 'help_center' },
-        { label: 'Legal Documents', route: '/legal-documents', icon: 'gavel' }
+        { label: 'Gift Cards', route: '/gift-cards', icon: 'card_giftcard', permission: 'billing:read' },
+        { label: 'Blog Posts', route: '/blog', icon: 'article', permission: 'content:read' },
+        { label: 'Referrals', route: '/referrals', icon: 'group_add', permission: 'referrals:read' },
+        { label: 'Broadcasts', route: '/broadcasts', icon: 'campaign', permission: 'broadcasts:read' },
+        { label: 'FAQs', route: '/faqs', icon: 'help_center', permission: 'content:read' },
+        { label: 'Legal Documents', route: '/legal-documents', icon: 'gavel', permission: 'content:read' }
       ]
     },
     {
       category: 'Operations & Integrations',
       items: [
-        { label: 'App Marketplace', route: '/apps', icon: 'extension' },
-        { label: 'Webhook Logs', route: '/webhook-logs', icon: 'webhook' },
-        { label: 'System Backups', route: '/backups', icon: 'save' },
-        { label: 'API Keys', route: '/api-keys', icon: 'key' }
+        { label: 'App Marketplace', route: '/apps', icon: 'extension', permission: 'apps:read' },
+        { label: 'Webhook Logs', route: '/webhook-logs', icon: 'webhook', permission: 'webhooks:read' },
+        { label: 'System Backups', route: '/backups', icon: 'save', permission: 'backups:read' },
+        { label: 'API Keys', route: '/api-keys', icon: 'key', permission: 'api_keys:read' }
       ]
     },
     {
       category: 'Security & Settings',
       items: [
-        { label: 'Audit Logs', route: '/audit-logs', icon: 'policy' },
-        { label: 'Telemetry Logs', route: '/telemetry', icon: 'timeline' },
-        { label: 'Admin Roles', route: '/admin-roles', icon: 'admin_panel_settings' },
-        { label: 'Admin Users', route: '/admin-users', icon: 'manage_accounts' },
-        { label: 'Settings', route: '/settings', icon: 'settings' }
+        { label: 'Audit Logs', route: '/audit-logs', icon: 'policy', permission: 'security:read' },
+        { label: 'Telemetry Logs', route: '/telemetry', icon: 'timeline', permission: 'security:read' },
+        { label: 'Admin Roles', route: '/admin-roles', icon: 'admin_panel_settings', permission: 'admin_users:read' },
+        { label: 'Admin Users', route: '/admin-users', icon: 'manage_accounts', permission: 'admin_users:read' },
+        { label: 'Settings', route: '/settings', icon: 'settings', permission: 'settings:write' }
       ]
     }
   ];
+
+  get filteredCategories() {
+    return this.menuCategories.map(cat => ({
+      ...cat,
+      items: cat.items.filter(item => this.authService.hasPermission(item.permission))
+    })).filter(cat => cat.items.length > 0);
+  }
 
   logout() {
     this.authService.logout();

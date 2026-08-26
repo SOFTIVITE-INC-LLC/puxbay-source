@@ -11,7 +11,7 @@
 
   <!-- Scrollable Nav -->
   <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 relative z-10 custom-scrollbar">
-    <div *ngFor="let cat of menuCategories">
+    <div *ngFor="let cat of filteredCategories">
       <h3 class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">{{ cat.category }}</h3>
       <div class="space-y-1">
         <a *ngFor="let item of cat.items"

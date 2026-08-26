@@ -247,6 +247,7 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 			return ""
 		}(),
 		"permissions":       c.GetStringSlice(middleware.ContextKeyPermissions),
+		"is_superuser":      profile.User.IsSuperuser,
 		"username":          profile.User.Username,
 		"email":             profile.User.Email,
 		"first_name":        profile.User.FirstName,

@@ -8,6 +8,7 @@ export interface User {
   username: string;
   role?: string;
   is_superuser?: boolean;
+  permissions?: string[];
 }
 
 // AuthResponse no longer contains tokens — set as HttpOnly cookies by backend.
@@ -76,5 +77,13 @@ export class AuthService {
   // Kept for compatibility but always returns null.
   getToken(): string | null {
     return null;
+  }
+
+  hasPermission(permission: string): boolean {
+    const user = this.currentUser();
+    if (!user) return false;
+    if (user.is_superuser) return true;
+    if (!user.permissions) return false;
+    return user.permissions.includes(permission);
   }
 }

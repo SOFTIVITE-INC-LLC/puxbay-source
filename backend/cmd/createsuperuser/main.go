@@ -102,30 +102,11 @@ func main() {
 		IsStaff:     true,
 	}
 
-	err = db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&user).Error; err != nil {
-			return fmt.Errorf("failed to create user: %w", err)
-		}
-
-		allPerms := `["dashboard:read", "tenants:read", "tenants:write", "domains:read", "domains:write", "billing:read", "billing:write", "pricing_plans:read", "pricing_plans:write", "promo_codes:read", "promo_codes:write", "content:read", "content:write", "referrals:read", "broadcasts:read", "broadcasts:write", "apps:read", "apps:write", "webhooks:read", "webhooks:write", "backups:read", "backups:write", "api_keys:read", "api_keys:write", "security:read", "security:write", "admin_users:read", "admin_users:write", "settings:write"]`
-
-		adminUser := models.AdminUser{
-			UserID:      user.ID,
-			Permissions: allPerms,
-		}
-
-		if err := tx.Create(&adminUser).Error; err != nil {
-			return fmt.Errorf("failed to create admin_user: %w", err)
-		}
-
-		return nil
-	})
-
-	if err != nil {
+	if err := db.Create(&user).Error; err != nil {
 		log.Fatalf("Failed to create superuser: %v", err)
 	}
 
-	fmt.Println("✅ Superuser created successfully with all permissions.")
+	fmt.Println("✅ Superuser created successfully. (Django-style: is_superuser=true grants all permissions implicitly)")
 }
 
 // getEnv reads an environment variable, returning fallback if not set or empty.
