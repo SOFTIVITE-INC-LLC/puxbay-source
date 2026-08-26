@@ -3,6 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -97,9 +98,19 @@ func AdminAuthMiddleware(db *gorm.DB, authService *services.AuthService) gin.Han
 }
 
 // RequireAdminPermission gates an admin route behind a specific permission.
-// Superusers (wildcard "*") always pass.
+// Superusers and superadmins always pass.
 func RequireAdminPermission(required string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 1. Superuser / Superadmin direct bypass
+		if isSuper, exists := c.Get(ContextKeyIsSuperuser); exists && isSuper.(bool) {
+			c.Next()
+			return
+		}
+		if role, exists := c.Get(ContextKeyRole); exists && role.(string) == "superadmin" {
+			c.Next()
+			return
+		}
+
 		permsVal, exists := c.Get(ContextKeyAdminPermissions)
 		if !exists {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "No admin permissions found"})
@@ -116,6 +127,14 @@ func RequireAdminPermission(required string) gin.HandlerFunc {
 			if p == "*" || p == required {
 				c.Next()
 				return
+			}
+			// Prefix wildcard match (e.g. "tenants:*" matches "tenants:read")
+			if strings.HasSuffix(p, ":*") {
+				prefix := strings.TrimSuffix(p, "*")
+				if strings.HasPrefix(required, prefix) {
+					c.Next()
+					return
+				}
 			}
 		}
 

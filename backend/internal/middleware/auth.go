@@ -110,8 +110,11 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 func RequirePermission(requiredPermissions ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Superadmin bypass
-		role, exists := c.Get(ContextKeyRole)
-		if exists && role.(string) == "superadmin" {
+		if role, exists := c.Get(ContextKeyRole); exists && (role.(string) == "superadmin" || role.(string) == "admin") {
+			c.Next()
+			return
+		}
+		if isSuper, exists := c.Get(ContextKeyIsSuperuser); exists && isSuper.(bool) {
 			c.Next()
 			return
 		}
