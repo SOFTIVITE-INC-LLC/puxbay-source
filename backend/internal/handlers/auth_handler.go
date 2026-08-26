@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"strings"
@@ -111,7 +112,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	roleName := "staff"
 	var perms []string = []string{}
-	if profile.Role != nil {
+
+	if profile.User.IsSuperuser {
+		roleName = "superadmin"
+		// Fetch admin user permissions if they exist
+		var adminUser models.AdminUser
+		if err := h.db.Where("user_id = ?", profile.User.ID).First(&adminUser).Error; err == nil {
+			if adminUser.Permissions != "" {
+				json.Unmarshal([]byte(adminUser.Permissions), &perms)
+			}
+		}
+	} else if profile.Role != nil {
 		roleName = profile.Role.Name
 		perms, _ = h.authService.GetRolePermissions(&profile.Role.ID)
 	}
@@ -121,17 +132,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": gin.H{
-			"id":          profile.ID,
-			"user_id":     profile.UserID,
-			"tenant_id":   profile.TenantID,
-			"branch_id":   profile.BranchID,
-			"role":        roleName,
-			"permissions": perms,
-			"username":   profile.User.Username,
-			"email":      profile.User.Email,
-			"first_name": profile.User.FirstName,
-			"last_name":  profile.User.LastName,
-			"subdomain":  profile.Tenant.Subdomain,
+			"id":           profile.ID,
+			"user_id":      profile.UserID,
+			"tenant_id":    profile.TenantID,
+			"branch_id":    profile.BranchID,
+			"role":         roleName,
+			"permissions":  perms,
+			"is_superuser": profile.User.IsSuperuser,
+			"username":     profile.User.Username,
+			"email":        profile.User.Email,
+			"first_name":   profile.User.FirstName,
+			"last_name":    profile.User.LastName,
+			"subdomain":    profile.Tenant.Subdomain,
 		},
 	})
 }
@@ -224,10 +236,10 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":                profile.ID,
-		"user_id":           profile.UserID,
-		"tenant_id":         profile.TenantID,
-		"branch_id":         profile.BranchID,
+		"id":        profile.ID,
+		"user_id":   profile.UserID,
+		"tenant_id": profile.TenantID,
+		"branch_id": profile.BranchID,
 		"role": func() string {
 			if profile.Role != nil {
 				return profile.Role.Name
@@ -258,10 +270,10 @@ func (h *AuthHandler) CurrentUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id":                profile.ID,
-		"user_id":           profile.UserID,
-		"tenant_id":         profile.TenantID,
-		"branch_id":         profile.BranchID,
+		"id":        profile.ID,
+		"user_id":   profile.UserID,
+		"tenant_id": profile.TenantID,
+		"branch_id": profile.BranchID,
 		"role": func() string {
 			if profile.Role != nil {
 				return profile.Role.Name

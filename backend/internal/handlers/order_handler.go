@@ -606,15 +606,55 @@ func (h *OrderHandler) GetReceipt(c *gin.Context) {
 
 func (h *OrderHandler) GetPublicReceipt(c *gin.Context) {
 	token := c.Param("token")
-	var order models.Order
-	// Use global DB to query across all tenants since token is globally unique
-	if err := h.db.Where("receipt_token = ?", token).
-		Preload("Items.Product").
-		Preload("Branch").
-		Preload("Customer").
-		First(&order).Error; err != nil {
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing token"})
+		return
+	}
+
+	// Orders live in per-tenant PostgreSQL schemas (e.g. "tenant_abc.orders").
+	// We use LATERAL + set_config to search all tenant schemas in one query.
+	type schemaHit struct {
+		SchemaName string `gorm:"column:schema_name"`
+		OrderID    string `gorm:"column:order_id"`
+	}
+	var hit schemaHit
+
+	err := h.db.Raw(`
+		SELECT t.schema_name, r.order_id
+		FROM public.tenants t,
+		LATERAL (
+			SELECT o.id::text AS order_id
+			FROM (SELECT set_config('search_path', t.schema_name, true)) _sc,
+				orders o
+			WHERE o.receipt_token = @token
+			  AND o.deleted_at IS NULL
+			LIMIT 1
+		) r
+		WHERE t.schema_name IS NOT NULL
+		  AND t.schema_name != ''
+		LIMIT 1
+	`, map[string]interface{}{"token": token}).Scan(&hit).Error
+
+	if err != nil || hit.SchemaName == "" || hit.OrderID == "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": "receipt not found"})
 		return
 	}
+
+	// Fetch the full order (with preloads) using the correct tenant schema.
+	var order models.Order
+	fetchErr := h.db.Transaction(func(tx *gorm.DB) error {
+		tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", hit.SchemaName))
+		return tx.Where("receipt_token = ? AND deleted_at IS NULL", token).
+			Preload("Items.Product").
+			Preload("Branch").
+			Preload("Customer").
+			First(&order).Error
+	})
+
+	if fetchErr != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "receipt not found"})
+		return
+	}
+
 	c.JSON(http.StatusOK, order)
 }
