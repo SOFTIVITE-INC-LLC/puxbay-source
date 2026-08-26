@@ -1,42 +1,42 @@
-<div class="h-full flex flex-col p-6 gap-6 max-w-7xl mx-auto text-zinc-900 dark:text-white overflow-auto">
+<div class="h-full flex flex-col p-4 sm:p-6 gap-4 sm:gap-6 max-w-7xl mx-auto text-zinc-900 dark:text-white overflow-auto">
 
   <!-- Ambient glows -->
   <div class="fixed top-0 right-0 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
   <div class="fixed bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
   <!-- ── Header ───────────────────────────────────────────────── -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
     <div>
-      <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500">
         Reports &amp; Analytics
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1.5 text-base">
+      <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1.5 text-xs sm:text-base">
         Deep-dive into your sales trends, category performance, and revenue flow.
       </p>
     </div>
 
     @if (activeTab() === 'builder' && customReport()?.rows?.length) {
       <button (click)="exportCustomCSV()"
-        class="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
-        <span class="material-symbols-outlined !text-[18px]">download</span>
+        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
         Export Custom Report
       </button>
     } @else {
       <button (click)="exportTopProductsCSV()"
-        class="self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-sm">
-        <span class="material-symbols-outlined !text-[18px]">download</span>
+        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
         Export Top Products
       </button>
     }
   </div>
 
   <!-- ── Controls Row ─────────────────────────────────────────── -->
-  <div class="flex flex-wrap gap-3 items-center">
+  <div class="flex flex-wrap gap-2 sm:gap-3 items-center">
     <!-- Period pills -->
-    <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl">
+    <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-x-auto no-scrollbar max-w-full">
       @for (p of periods; track p.id) {
         <button (click)="setPeriod(p.id)"
-          class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all"
+          class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
           [class.bg-gradient-to-r]="activePeriod() === p.id"
           [class.from-teal-600]="activePeriod() === p.id"
           [class.to-cyan-600]="activePeriod() === p.id"
@@ -50,23 +50,23 @@
     </div>
 
     <!-- Date range pickers -->
-    <div class="flex items-center gap-2 px-4 py-2.5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm font-medium">
-      <span class="material-symbols-outlined !text-[16px] text-zinc-400">calendar_today</span>
+    <div class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium">
+      <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-zinc-400">calendar_today</span>
       <input type="date" [ngModel]="dateRange().from"
         (ngModelChange)="dateRange.update(d => ({...d, from: $event})); loadData()"
-        class="bg-transparent border-none focus:outline-none text-sm dark:text-white cursor-pointer">
+        class="bg-transparent border-none focus:outline-none text-xs sm:text-sm dark:text-white cursor-pointer w-28 sm:w-auto">
       <span class="text-zinc-400 font-light">→</span>
       <input type="date" [ngModel]="dateRange().to"
         (ngModelChange)="dateRange.update(d => ({...d, to: $event})); loadData()"
-        class="bg-transparent border-none focus:outline-none text-sm dark:text-white cursor-pointer">
+        class="bg-transparent border-none focus:outline-none text-xs sm:text-sm dark:text-white cursor-pointer w-28 sm:w-auto">
     </div>
   </div>
 
   <!-- ── Tabs ─────────────────────────────────────────────────── -->
-  <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl w-fit overflow-x-auto">
+  <div class="flex gap-1 p-1 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-xl w-full sm:w-fit overflow-x-auto no-scrollbar">
     @for (tab of tabs; track tab.id) {
       <button (click)="activeTab.set(tab.id)"
-        class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0"
+        class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 whitespace-nowrap"
         [class.bg-gradient-to-r]="activeTab() === tab.id"
         [class.from-teal-600]="activeTab() === tab.id"
         [class.to-cyan-600]="activeTab() === tab.id"
@@ -74,17 +74,17 @@
         [class.shadow-md]="activeTab() === tab.id"
         [class.text-zinc-500]="activeTab() !== tab.id"
         [class.dark:text-zinc-400]="activeTab() !== tab.id">
-        <span class="material-symbols-outlined !text-[16px]">{{ tab.icon }}</span>
-        <span class="hidden sm:inline">{{ tab.label }}</span>
+        <span class="material-symbols-outlined !text-[15px] sm:!text-[16px]">{{ tab.icon }}</span>
+        <span>{{ tab.label }}</span>
       </button>
     }
   </div>
 
   <!-- ── Loading ──────────────────────────────────────────────── -->
   @if (isLoading()) {
-    <div class="flex-1 flex flex-col items-center justify-center gap-4 py-20">
-      <div class="w-14 h-14 rounded-full border-2 border-teal-500/20 border-t-teal-500 animate-spin"></div>
-      <p class="text-zinc-500 text-sm">Loading analytics data…</p>
+    <div class="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-4 py-16 sm:py-20">
+      <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-full border-2 border-teal-500/20 border-t-teal-500 animate-spin"></div>
+      <p class="text-zinc-500 text-xs sm:text-sm">Loading analytics data…</p>
     </div>
   }
 
@@ -93,18 +93,18 @@
   <!-- ════════════════════════════════════════════════════════════ -->
   @if (!isLoading() && activeTab() === 'overview') {
     <!-- Top Highlights: Sales Goal & AI Insights -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-3 sm:mb-4">
       
       <!-- Sales Goal Ring -->
       @if (salesGoal()) {
-        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm flex items-center justify-between">
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-4 sm:p-5 shadow-sm flex items-center justify-between">
           <div>
-            <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Monthly Sales Goal</h3>
-            <p class="text-3xl font-black text-teal-600 dark:text-teal-400">{{ salesGoal()!.current | appCurrency }}</p>
-            <p class="text-sm text-zinc-500 mt-1">Goal: {{ salesGoal()!.goal | appCurrency }}</p>
+            <h3 class="text-[10px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider mb-1">Monthly Sales Goal</h3>
+            <p class="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">{{ salesGoal()!.current | appCurrency }}</p>
+            <p class="text-xs sm:text-sm text-zinc-500 mt-0.5 sm:mt-1">Goal: {{ salesGoal()!.goal | appCurrency }}</p>
           </div>
           <!-- Circular Progress -->
-          <div class="relative w-24 h-24 flex items-center justify-center">
+          <div class="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center shrink-0">
             <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
               <path class="text-zinc-200 dark:text-zinc-800" stroke-width="3" stroke="currentColor" fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
@@ -112,22 +112,22 @@
                 [attr.stroke-dasharray]="salesGoal()!.progress + ', 100'"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
             </svg>
-            <div class="absolute text-sm font-black">{{ salesGoal()!.progress | number:'1.0-0' }}%</div>
+            <div class="absolute text-xs sm:text-sm font-black">{{ salesGoal()!.progress | number:'1.0-0' }}%</div>
           </div>
         </div>
       }
 
       <!-- AI Insights -->
-      <div class="lg:col-span-2 bg-gradient-to-r from-sky-500/10 to-teal-500/10 dark:from-sky-500/5 dark:to-teal-500/5 rounded-2xl border border-sky-500/20 p-5 shadow-sm">
-        <div class="flex gap-3 mb-3">
-          <span class="material-symbols-outlined text-teal-500 animate-pulse">auto_awesome</span>
-          <h3 class="font-bold">AI Insights</h3>
+      <div class="lg:col-span-2 bg-gradient-to-r from-sky-500/10 to-teal-500/10 dark:from-sky-500/5 dark:to-teal-500/5 rounded-2xl border border-sky-500/20 p-4 sm:p-5 shadow-sm">
+        <div class="flex gap-2 sm:gap-3 mb-2 sm:mb-3">
+          <span class="material-symbols-outlined text-teal-500 animate-pulse !text-[18px] sm:!text-[22px]">auto_awesome</span>
+          <h3 class="font-bold text-xs sm:text-sm">AI Insights</h3>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-1.5 sm:gap-y-2">
           @for (msg of insights; track msg) {
-            <div class="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <span class="material-symbols-outlined !text-[16px] text-teal-500 shrink-0 mt-0.5">check_circle</span>
-              <p>{{ msg }}</p>
+            <div class="flex items-start gap-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+              <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-teal-500 shrink-0 mt-0.5">check_circle</span>
+              <p class="leading-snug">{{ msg }}</p>
             </div>
           }
         </div>
@@ -135,64 +135,64 @@
     </div>
 
     <!-- KPI Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
       <!-- Revenue -->
-      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm group hover:shadow-lg transition-shadow">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Revenue</p>
-          <div class="w-8 h-8 bg-teal-100 dark:bg-teal-900/40 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[16px] text-teal-600 dark:text-teal-400">payments</span>
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-3.5 sm:p-5 shadow-sm group hover:shadow-lg transition-shadow min-w-0">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-1.5 sm:mb-3">
+          <p class="text-[9px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider truncate">Total Revenue</p>
+          <div class="w-7 h-7 sm:w-8 sm:h-8 bg-teal-100 dark:bg-teal-900/40 rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-teal-600 dark:text-teal-400">payments</span>
           </div>
         </div>
-        <p class="text-3xl font-black tracking-tight">{{ salesTrends()?.current_revenue | appCurrency }}</p>
+        <p class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight truncate">{{ salesTrends()?.current_revenue | appCurrency }}</p>
         @if (salesTrends()?.revenue_growth != null) {
-          <p class="text-sm mt-2 flex items-center gap-1 font-semibold"
+          <p class="text-[10px] sm:text-sm mt-1 sm:mt-2 flex items-center gap-1 font-semibold truncate"
             [class.text-emerald-500]="growthPositive"
             [class.text-rose-500]="!growthPositive">
-            <span class="material-symbols-outlined !text-[14px]">{{ growthPositive ? 'trending_up' : 'trending_down' }}</span>
-            {{ salesTrends().revenue_growth | number:'1.1-1' }}% vs prior period
+            <span class="material-symbols-outlined !text-[13px] sm:!text-[14px]">{{ growthPositive ? 'trending_up' : 'trending_down' }}</span>
+            <span class="truncate">{{ salesTrends().revenue_growth | number:'1.1-1' }}% vs prior</span>
           </p>
         }
       </div>
 
       <!-- Orders -->
-      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Orders</p>
-          <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[16px] text-blue-600 dark:text-blue-400">receipt_long</span>
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-3.5 sm:p-5 shadow-sm hover:shadow-lg transition-shadow min-w-0">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-1.5 sm:mb-3">
+          <p class="text-[9px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider truncate">Orders</p>
+          <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-blue-600 dark:text-blue-400">receipt_long</span>
           </div>
         </div>
-        <p class="text-3xl font-black tracking-tight">{{ salesTrends()?.current_orders | number }}</p>
-        <p class="text-sm mt-2 text-zinc-400">transactions processed</p>
+        <p class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight truncate">{{ salesTrends()?.current_orders | number }}</p>
+        <p class="text-[10px] sm:text-sm mt-1 sm:mt-2 text-zinc-400 truncate">transactions processed</p>
       </div>
 
       <!-- AOV -->
-      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Avg Order Value</p>
-          <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[16px] text-purple-600 dark:text-purple-400">shopping_bag</span>
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-3.5 sm:p-5 shadow-sm hover:shadow-lg transition-shadow min-w-0">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-1.5 sm:mb-3">
+          <p class="text-[9px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider truncate">Avg Order Value</p>
+          <div class="w-7 h-7 sm:w-8 sm:h-8 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-purple-600 dark:text-purple-400">shopping_bag</span>
           </div>
         </div>
-        <p class="text-3xl font-black tracking-tight">{{ avgOrderValue | appCurrency }}</p>
-        <p class="text-sm mt-2 text-zinc-400">per transaction</p>
+        <p class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight truncate">{{ avgOrderValue | appCurrency }}</p>
+        <p class="text-[10px] sm:text-sm mt-1 sm:mt-2 text-zinc-400 truncate">per transaction</p>
       </div>
 
       <!-- Prior Period -->
-      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm hover:shadow-lg transition-shadow">
-        <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4"></div>
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Prior Period</p>
-          <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[16px] text-orange-600 dark:text-orange-400">history</span>
+      <div class="relative overflow-hidden bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-3.5 sm:p-5 shadow-sm hover:shadow-lg transition-shadow min-w-0">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl -translate-y-4 translate-x-4 pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-1.5 sm:mb-3">
+          <p class="text-[9px] sm:text-xs font-bold text-zinc-400 uppercase tracking-wider truncate">Prior Period</p>
+          <div class="w-7 h-7 sm:w-8 sm:h-8 bg-orange-100 dark:bg-orange-900/40 rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-orange-600 dark:text-orange-400">history</span>
           </div>
         </div>
-        <p class="text-3xl font-black tracking-tight text-zinc-400">{{ salesTrends()?.previous_revenue | appCurrency }}</p>
-        <p class="text-sm mt-2 text-zinc-400">comparison baseline</p>
+        <p class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight text-zinc-400 truncate">{{ salesTrends()?.previous_revenue | appCurrency }}</p>
+        <p class="text-[10px] sm:text-sm mt-1 sm:mt-2 text-zinc-400 truncate">comparison baseline</p>
       </div>
     </div>
 

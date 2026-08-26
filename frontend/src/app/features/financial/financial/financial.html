@@ -1,62 +1,62 @@
-<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
 
   <!-- ── Page Header ── -->
-  <div class="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="print:hidden flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
     <div>
-      <h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600">
-        Financials & Accounting
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600">
+        Financials &amp; Accounting
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+      <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1 text-xs sm:text-sm">
         Track revenue, manage expenses, and configure tax settings.
       </p>
     </div>
     
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 w-full md:w-auto flex-wrap sm:flex-nowrap">
       <!-- Date Range Filter -->
-      <div class="relative">
-        <select [ngModel]="dateRange()" (ngModelChange)="onDateRangeChange($event)" class="pl-4 pr-10 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none">
+      <div class="relative flex-1 sm:flex-none min-w-[120px]">
+        <select [ngModel]="dateRange()" (ngModelChange)="onDateRangeChange($event)" class="w-full sm:w-auto pl-3 sm:pl-4 pr-8 sm:pr-10 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm font-bold shadow-sm outline-none focus:ring-2 focus:ring-emerald-500/50 appearance-none">
           <option value="this_month">This Month</option>
           <option value="this_quarter">This Quarter</option>
           <option value="this_year">This Year</option>
           <option value="all_time">All Time</option>
         </select>
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[18px] text-zinc-400 pointer-events-none">expand_more</span>
+        <span class="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[16px] sm:!text-[18px] text-zinc-400 pointer-events-none">expand_more</span>
       </div>
 
       <!-- Export Button based on active tab -->
       @if (activeTab() === 'pnl') {
-        <button (click)="printPnL()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
-          <span class="material-symbols-outlined !text-[18px]">print</span> Print P&L
+        <button (click)="printPnL()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">print</span> Print P&amp;L
         </button>
       } @else if (activeTab() === 'expenses') {
-        <button (click)="exportExpensesCSV()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
-          <span class="material-symbols-outlined !text-[18px]">download</span> Export CSV
+        <button (click)="exportExpensesCSV()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span> Export CSV
         </button>
       } @else if (activeTab() === 'tax') {
-        <button (click)="exportTaxCSV()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all">
-          <span class="material-symbols-outlined !text-[18px]">download</span> Export CSV
+        <button (click)="exportTaxCSV()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span> Export CSV
         </button>
       }
 
-      <button (click)="openExpenseCategoryModal()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-sm font-bold shadow-sm transition-all hidden sm:flex">
+      <button (click)="openExpenseCategoryModal()" class="items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all hidden sm:flex">
         <span class="material-symbols-outlined !text-[18px]">category</span> New Category
       </button>
-      <button (click)="openExpenseModal()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-white text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all">
-        <span class="material-symbols-outlined !text-[18px]">add</span> Add Expense
+      <button (click)="openExpenseModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all whitespace-nowrap">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">add</span> Add Expense
       </button>
     </div>
   </div>
 
   <!-- ── Navigation Tabs ── -->
-  <div class="print:hidden flex gap-2 bg-slate-100 dark:bg-zinc-800/80 rounded-2xl p-1.5 w-full sm:w-fit overflow-x-auto border border-zinc-200 dark:border-zinc-700/50 no-scrollbar">
+  <div class="print:hidden flex gap-1.5 sm:gap-2 bg-slate-100 dark:bg-zinc-800/80 rounded-2xl p-1.5 w-full sm:w-fit overflow-x-auto no-scrollbar border border-zinc-200 dark:border-zinc-700/50">
     <button (click)="activeTab.set('pnl')"
             [class.bg-white]="activeTab() === 'pnl'"
             [class.dark:bg-zinc-900]="activeTab() === 'pnl'"
             [class.shadow-sm]="activeTab() === 'pnl'"
             [class.text-emerald-600]="activeTab() === 'pnl'"
             [class.dark:text-emerald-400]="activeTab() === 'pnl'"
-            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
-      <span class="material-symbols-outlined !text-[18px]">account_balance</span> Balance Sheet
+            class="py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex shrink-0 items-center gap-1.5 sm:gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">account_balance</span> Balance Sheet
     </button>
     <button (click)="activeTab.set('expenses')"
             [class.bg-white]="activeTab() === 'expenses'"
@@ -64,8 +64,8 @@
             [class.shadow-sm]="activeTab() === 'expenses'"
             [class.text-emerald-600]="activeTab() === 'expenses'"
             [class.dark:text-emerald-400]="activeTab() === 'expenses'"
-            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
-      <span class="material-symbols-outlined !text-[18px]">receipt_long</span> Expenses
+            class="py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex shrink-0 items-center gap-1.5 sm:gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">receipt_long</span> Expenses
     </button>
     <button (click)="activeTab.set('tax')"
             [class.bg-white]="activeTab() === 'tax'"
@@ -73,8 +73,8 @@
             [class.shadow-sm]="activeTab() === 'tax'"
             [class.text-emerald-600]="activeTab() === 'tax'"
             [class.dark:text-emerald-400]="activeTab() === 'tax'"
-            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
-      <span class="material-symbols-outlined !text-[18px]">account_balance_wallet</span> Tax Configuration
+            class="py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex shrink-0 items-center gap-1.5 sm:gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">account_balance_wallet</span> Tax Configuration
     </button>
     <button (click)="activeTab.set('ledger')"
             [class.bg-white]="activeTab() === 'ledger'"
@@ -82,8 +82,8 @@
             [class.shadow-sm]="activeTab() === 'ledger'"
             [class.text-emerald-600]="activeTab() === 'ledger'"
             [class.dark:text-emerald-400]="activeTab() === 'ledger'"
-            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
-      <span class="material-symbols-outlined !text-[18px]">account_tree</span> Chart of Accounts
+            class="py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex shrink-0 items-center gap-1.5 sm:gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">account_tree</span> Chart of Accounts
     </button>
     <button (click)="activeTab.set('journal')"
             [class.bg-white]="activeTab() === 'journal'"
@@ -91,82 +91,82 @@
             [class.shadow-sm]="activeTab() === 'journal'"
             [class.text-emerald-600]="activeTab() === 'journal'"
             [class.dark:text-emerald-400]="activeTab() === 'journal'"
-            class="py-2.5 px-6 rounded-xl text-sm font-bold transition-all flex shrink-0 items-center gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
-      <span class="material-symbols-outlined !text-[18px]">book</span> Journal Entries
+            class="py-2 sm:py-2.5 px-3.5 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all flex shrink-0 items-center gap-1.5 sm:gap-2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 whitespace-nowrap">
+      <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">book</span> Journal Entries
     </button>
   </div>
 
   @if (financialService.loading()) {
-    <div class="flex flex-col items-center justify-center py-24 text-emerald-600 gap-4">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-current border-t-transparent"></div>
-      <p class="font-bold animate-pulse">Loading financial data...</p>
+    <div class="flex flex-col items-center justify-center py-20 sm:py-24 text-emerald-600 gap-3 sm:gap-4">
+      <div class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-4 border-current border-t-transparent"></div>
+      <p class="font-bold animate-pulse text-xs sm:text-sm">Loading financial data...</p>
     </div>
   }
 
   <!-- ── Balance Sheet (PnL) Tab ── -->
   @if (!financialService.loading() && activeTab() === 'pnl') {
-    <div class="animate-fade-in space-y-6">
+    <div class="animate-fade-in space-y-4 sm:space-y-6">
 
       <!-- Financial Alerts -->
       @if (financialAlerts().length > 0) {
-        <div class="space-y-3">
+        <div class="space-y-2.5 sm:space-y-3">
           @for (alert of financialAlerts(); track alert.message) {
-            <div class="flex items-center gap-3 p-4 rounded-2xl border"
+            <div class="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl border text-xs sm:text-sm"
                  [ngClass]="{
                    'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-400': alert.type === 'danger',
                    'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400': alert.type === 'warning',
                    'bg-sky-50 border-sky-200 text-sky-700 dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-400': alert.type === 'info'
                  }">
-              <span class="material-symbols-outlined">
+              <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">
                 {{ alert.type === 'danger' ? 'error' : alert.type === 'warning' ? 'warning' : 'info' }}
               </span>
-              <p class="font-bold text-sm">{{ alert.message }}</p>
+              <p class="font-bold">{{ alert.message }}</p>
             </div>
           }
         </div>
       }
 
       <!-- PnL Overview Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         
         <!-- Gross Revenue -->
-        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-            <span class="material-symbols-outlined !text-[20px] text-emerald-500">payments</span>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Gross Revenue</span>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-emerald-500">payments</span>
+            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Gross Revenue</span>
           </div>
-          <p class="text-3xl font-black z-10">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</p>
         </div>
 
         <!-- COGS -->
-        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-            <span class="material-symbols-outlined !text-[20px] text-amber-500">inventory</span>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Cost of Goods (COGS)</span>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-amber-500">inventory</span>
+            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Cost of Goods (COGS)</span>
           </div>
-          <p class="text-3xl font-black z-10">{{ (pnlData()?.cogs || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.cogs || 0) | appCurrency }}</p>
         </div>
 
         <!-- Total Expenses -->
-        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-2 shadow-sm relative overflow-hidden group">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-            <span class="material-symbols-outlined !text-[20px] text-rose-500">receipt_long</span>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest text-zinc-500">Total Expenses</span>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-rose-500">receipt_long</span>
+            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Total Expenses</span>
           </div>
-          <p class="text-3xl font-black z-10">{{ (pnlData()?.total_expenses || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.total_expenses || 0) | appCurrency }}</p>
         </div>
 
         <!-- Operating Cash Flow -->
-        <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl p-6 flex flex-col gap-2 shadow-lg shadow-indigo-500/20 text-white relative overflow-hidden group">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-white/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500"></div>
-          <div class="flex items-center gap-2 text-indigo-100 mb-1 z-10">
-            <span class="material-symbols-outlined !text-[20px]">account_balance_wallet</span>
-            <span class="text-[11px] font-extrabold uppercase tracking-widest">Op. Cash Flow</span>
+        <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-lg shadow-indigo-500/20 text-white relative overflow-hidden group min-w-0">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-white/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-indigo-100 mb-0.5 sm:mb-1 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px]">account_balance_wallet</span>
+            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest truncate">Op. Cash Flow</span>
           </div>
-          <p class="text-4xl font-black z-10">{{ (pnlData()?.operating_cash_flow || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.operating_cash_flow || 0) | appCurrency }}</p>
         </div>
       </div>
 
