@@ -198,25 +198,34 @@ export class AdminUsersComponent implements OnInit {
   }
 
   async deleteUser(user: any, event: any) {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
+    const userId = user.id || user.user_id;
+    if (!userId) {
+      this.alert.error('Invalid user identifier.', 'Error');
+      return;
+    }
+
+    const name = user.first_name ? `${user.first_name} ${user.last_name}` : `@${user.username}`;
+
     const confirmed = await this.alert.confirm({
       title: 'Revoke Admin Access',
-      message: `Are you sure you want to revoke admin access for ${user.user?.first_name} ${user.user?.last_name}? They will immediately lose all admin privileges.`,
+      message: `Are you sure you want to revoke admin access for ${name}? They will immediately lose all admin privileges.`,
       confirmText: 'Revoke Access',
       cancelText: 'Cancel',
       type: 'danger'
     });
     if (confirmed) {
       this.isSaving.set(true);
-      this.securityService.deleteAdminUser(user.user_id).subscribe({
+      this.securityService.deleteAdminUser(userId).subscribe({
         next: () => {
           this.isSaving.set(false);
           this.alert.success('Admin access revoked successfully.');
+          this.selectedUser.set(null);
           this.loadData();
         },
-        error: () => {
+        error: (err) => {
           this.isSaving.set(false);
-          this.alert.error('Failed to revoke admin access. Please try again.', 'Action Failed');
+          this.alert.error(err.error?.error || 'Failed to revoke admin access. Please try again.', 'Action Failed');
         }
       });
     }
