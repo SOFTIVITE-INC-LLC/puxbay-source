@@ -324,6 +324,21 @@ func (s *AuthService) CurrentUser(userID, tenantID uuid.UUID) (*models.UserProfi
 		First(&profile)
 
 	if result.Error != nil {
+		// Check if this is an AdminUser from HQ portal
+		var adminUser models.AdminUser
+		if err := s.db.Preload("Role").Where("user_id = ?", userID).First(&adminUser).Error; err == nil {
+			roleName := "admin"
+			if adminUser.Role != nil {
+				roleName = adminUser.Role.Name
+			}
+			return &models.UserProfile{
+				ID:       user.ID,
+				UserID:   user.ID,
+				TenantID: uuid.Nil,
+				Role:     &models.Role{Name: roleName},
+				User:     user,
+			}, nil
+		}
 		return nil, fmt.Errorf("profile not found: %w", result.Error)
 	}
 
@@ -361,7 +376,23 @@ func (s *AuthService) Authenticate(username, password, totpCode string) (*models
 		}
 	} else {
 		if err := s.db.Where("user_id = ?", user.ID).Preload("User").Preload("Tenant").Preload("Role").First(&profile).Error; err != nil {
-			return nil, nil, fmt.Errorf("no profile found for this user: %w", err)
+			// Check if this is an AdminUser from HQ portal
+			var adminUser models.AdminUser
+			if adminErr := s.db.Preload("Role").Where("user_id = ?", user.ID).First(&adminUser).Error; adminErr == nil {
+				roleName := "admin"
+				if adminUser.Role != nil {
+					roleName = adminUser.Role.Name
+				}
+				profile = models.UserProfile{
+					ID:       user.ID,
+					UserID:   user.ID,
+					TenantID: uuid.Nil,
+					Role:     &models.Role{Name: roleName},
+					User:     user,
+				}
+			} else {
+				return nil, nil, fmt.Errorf("no profile found for this user: %w", err)
+			}
 		}
 	}
 

@@ -128,16 +128,42 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	if profile.User.IsSuperuser {
 		roleName = "superadmin"
-		// Fetch admin user permissions if they exist
+		perms = []string{"*"}
+		// Also fetch explicit admin user permissions if they exist
 		var adminUser models.AdminUser
 		if err := h.db.Where("user_id = ?", profile.User.ID).First(&adminUser).Error; err == nil {
-			if adminUser.Permissions != "" {
-				json.Unmarshal([]byte(adminUser.Permissions), &perms)
+			if adminUser.Permissions != "" && adminUser.Permissions != "{}" {
+				var directPerms []string
+				if err := json.Unmarshal([]byte(adminUser.Permissions), &directPerms); err == nil {
+					perms = append(perms, directPerms...)
+				}
 			}
 		}
-	} else if profile.Role != nil {
-		roleName = profile.Role.Name
-		perms, _ = h.authService.GetRolePermissions(&profile.Role.ID)
+	} else {
+		// Check if this is an AdminUser from admin_users table
+		var adminUser models.AdminUser
+		if err := h.db.Preload("Role").Where("user_id = ?", profile.User.ID).First(&adminUser).Error; err == nil {
+			if adminUser.Role != nil {
+				roleName = adminUser.Role.Name
+				if adminUser.Role.Permissions != "" {
+					var rolePerms []string
+					if err := json.Unmarshal([]byte(adminUser.Role.Permissions), &rolePerms); err == nil {
+						perms = append(perms, rolePerms...)
+					}
+				}
+			} else {
+				roleName = "admin"
+			}
+			if adminUser.Permissions != "" && adminUser.Permissions != "{}" {
+				var directPerms []string
+				if err := json.Unmarshal([]byte(adminUser.Permissions), &directPerms); err == nil {
+					perms = append(perms, directPerms...)
+				}
+			}
+		} else if profile.Role != nil {
+			roleName = profile.Role.Name
+			perms, _ = h.authService.GetRolePermissions(&profile.Role.ID)
+		}
 	}
 
 	// Set HttpOnly session cookies — tokens are NOT returned in the body.
@@ -248,6 +274,27 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 		return
 	}
 
+	perms := c.GetStringSlice(middleware.ContextKeyPermissions)
+	if profile.User.IsSuperuser {
+		perms = []string{"*"}
+	} else if len(perms) == 0 {
+		var adminUser models.AdminUser
+		if err := h.db.Preload("Role").Where("user_id = ?", profile.User.ID).First(&adminUser).Error; err == nil {
+			if adminUser.Role != nil && adminUser.Role.Permissions != "" {
+				var rolePerms []string
+				if err := json.Unmarshal([]byte(adminUser.Role.Permissions), &rolePerms); err == nil {
+					perms = append(perms, rolePerms...)
+				}
+			}
+			if adminUser.Permissions != "" && adminUser.Permissions != "{}" {
+				var directPerms []string
+				if err := json.Unmarshal([]byte(adminUser.Permissions), &directPerms); err == nil {
+					perms = append(perms, directPerms...)
+				}
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":        profile.ID,
 		"user_id":   profile.UserID,
@@ -259,7 +306,7 @@ func (h *AuthHandler) GetSession(c *gin.Context) {
 			}
 			return ""
 		}(),
-		"permissions":       c.GetStringSlice(middleware.ContextKeyPermissions),
+		"permissions":       perms,
 		"is_superuser":      profile.User.IsSuperuser,
 		"username":          profile.User.Username,
 		"email":             profile.User.Email,
