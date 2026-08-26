@@ -55,20 +55,17 @@ export class PaymentMethods implements OnInit {
   // Delete Confirmation Modal State
   deleteConfirmItem = signal<PaymentMethod | null>(null);
 
-  // Form Model
-  form = signal<{
-    name: string;
-    provider: string;
-    is_active: boolean;
-    api_key_hint: string;
-    paystack_subaccount_code: string;
-  }>({
+  // Form Model — plain mutable object so [(ngModel)] two-way binding works
+  formData = {
     name: '',
-    provider: 'cash',
+    provider: 'paystack_subaccount' as string,
     is_active: true,
     api_key_hint: '',
     paystack_subaccount_code: ''
-  });
+  };
+
+  // Convenience accessor so template can call form() for conditional reads
+  form = () => this.formData;
 
   // Built-in presets for quick onboarding
   readonly presets: ProviderPreset[] = [
@@ -241,13 +238,7 @@ export class PaymentMethods implements OnInit {
   openCreateModal() {
     this.editingId.set(null);
     this.verifiedSubaccount.set(null);
-    this.form.set({
-      name: '',
-      provider: 'paystack_subaccount',
-      is_active: true,
-      api_key_hint: '',
-      paystack_subaccount_code: ''
-    });
+    this.formData = { name: '', provider: 'paystack_subaccount', is_active: true, api_key_hint: '', paystack_subaccount_code: '' };
     this.loadPaystackSubaccountsList();
     this.isModalOpen.set(true);
   }
@@ -256,13 +247,13 @@ export class PaymentMethods implements OnInit {
     event.stopPropagation();
     this.editingId.set(method.id);
     this.verifiedSubaccount.set(null);
-    this.form.set({
+    this.formData = {
       name: method.name,
       provider: method.provider || 'custom',
       is_active: method.is_active,
       api_key_hint: method.api_key_hint || '',
       paystack_subaccount_code: method.paystack_subaccount_code || ''
-    });
+    };
 
     if (method.provider === 'paystack_subaccount') {
       this.loadPaystackSubaccountsList();
@@ -299,11 +290,10 @@ export class PaymentMethods implements OnInit {
 
   onSelectSubaccount(sub: PaystackSubaccount) {
     this.verifiedSubaccount.set(sub);
-    this.form.update(f => ({
-      ...f,
-      paystack_subaccount_code: sub.subaccount_code,
-      name: f.name || `Paystack - ${sub.business_name} (${sub.settlement_bank})`
-    }));
+    this.formData.paystack_subaccount_code = sub.subaccount_code;
+    if (!this.formData.name) {
+      this.formData.name = `Paystack - ${sub.business_name} (${sub.settlement_bank})`;
+    }
   }
 
   verifyCode(codeToVerify?: string, showNotification = true) {
@@ -319,11 +309,10 @@ export class PaymentMethods implements OnInit {
         this.isVerifyingSubaccount.set(false);
         if (res && res.subaccount) {
           this.verifiedSubaccount.set(res.subaccount);
-          this.form.update(f => ({
-            ...f,
-            paystack_subaccount_code: res.subaccount.subaccount_code,
-            name: f.name || `Paystack - ${res.subaccount.business_name} (${res.subaccount.settlement_bank})`
-          }));
+          this.formData.paystack_subaccount_code = res.subaccount.subaccount_code;
+          if (!this.formData.name) {
+            this.formData.name = `Paystack - ${res.subaccount.business_name} (${res.subaccount.settlement_bank})`;
+          }
           if (showNotification) this.toast.showSuccess(`Verified: ${res.subaccount.business_name} (${res.subaccount.settlement_bank})`);
         }
       },

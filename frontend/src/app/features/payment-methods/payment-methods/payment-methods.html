@@ -1,577 +1,694 @@
-<div class="h-full flex flex-col p-4 md:p-8 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-slate-900 dark:text-white">
-  
-  <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-    <div>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-          <span class="material-symbols-outlined text-[22px]">payments</span>
+<div class="min-h-full flex flex-col gap-6 p-5 md:p-8 max-w-7xl mx-auto text-slate-900 dark:text-white">
+
+  <!-- ═══════════════════════════════════════════
+       HERO HEADER
+  ════════════════════════════════════════════ -->
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-6 md:p-8 shadow-2xl shadow-indigo-500/30">
+    <!-- Decorative blobs -->
+    <div class="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
+    <div class="pointer-events-none absolute bottom-0 left-1/3 w-40 h-40 rounded-full bg-purple-400/20 blur-2xl"></div>
+
+    <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 flex items-center justify-center text-white shadow-lg shrink-0">
+          <span class="material-symbols-outlined text-[30px]">payments</span>
         </div>
         <div>
-          <h1 class="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Payment Methods</h1>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Configure and manage accepted checkout channels, Paystack subaccounts, and payment gateways.</p>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-indigo-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
+              Store Configuration
+            </span>
+          </div>
+          <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Payment Methods</h1>
+          <p class="text-sm text-indigo-200 mt-0.5 max-w-xl">
+            Configure accepted checkout channels, connect Paystack subaccounts, and control payment gateways.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button (click)="openCreateModal()"
+                class="flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 active:scale-95 text-sm font-bold rounded-xl shadow-lg transition-all duration-200 cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+          Add Method
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="relative mt-6 grid grid-cols-3 gap-3">
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
+          <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Total</p>
+          <h3 class="text-xl font-black text-white">{{ totalMethods() }}</h3>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-400/20 flex items-center justify-center text-emerald-300 shrink-0">
+          <span class="material-symbols-outlined text-[20px]">check_circle</span>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Active</p>
+          <h3 class="text-xl font-black text-emerald-300">{{ activeMethodsCount() }}</h3>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-indigo-200 shrink-0">
+          <span class="material-symbols-outlined text-[20px]">pause_circle</span>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Disabled</p>
+          <h3 class="text-xl font-black text-white">{{ inactiveMethodsCount() }}</h3>
         </div>
       </div>
     </div>
-
-    <div class="flex items-center gap-3">
-      <button (click)="openCreateModal()"
-              class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-indigo-500/25 cursor-pointer">
-        <span class="material-symbols-outlined text-[20px]">add_circle</span>
-        Add Payment Method
-      </button>
-    </div>
   </div>
 
-  <!-- KPI Overview -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    
-    <div class="glass-panel p-5 rounded-2xl border flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
-        <span class="material-symbols-outlined text-[26px]">account_balance_wallet</span>
-      </div>
-      <div>
-        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Channels</p>
-        <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ totalMethods() }}</h3>
-      </div>
-    </div>
-
-    <div class="glass-panel p-5 rounded-2xl border flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-        <span class="material-symbols-outlined text-[26px]">check_circle</span>
-      </div>
-      <div>
-        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active at Checkout</p>
-        <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{{ activeMethodsCount() }}</h3>
-      </div>
-    </div>
-
-    <div class="glass-panel p-5 rounded-2xl border flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-400">
-        <span class="material-symbols-outlined text-[26px]">pause_circle</span>
-      </div>
-      <div>
-        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Disabled Methods</p>
-        <h3 class="text-2xl font-black text-slate-600 dark:text-slate-400 mt-0.5">{{ inactiveMethodsCount() }}</h3>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Quick Setup: Recommended Payment Channels & Paystack Subaccounts -->
+  <!-- ═══════════════════════════════════════════
+       QUICK SETUP: PRESET CHANNELS
+  ════════════════════════════════════════════ -->
   <div class="space-y-3">
     <div class="flex items-center justify-between">
-      <div>
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px] text-amber-500">offline_bolt</span>
-          Quick Setup & Recommended Channels
-        </h3>
-        <p class="text-xs text-slate-400 dark:text-slate-500">Select standard payment providers or connect your Paystack subaccount.</p>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px] text-amber-500">offline_bolt</span>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quick Setup — Recommended Channels</h2>
       </div>
-
       @if (methodService.methods().length === 0) {
-        <button (click)="seedStandardSuite()"
-                [disabled]="isSaving()"
-                class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer">
+        <button (click)="seedStandardSuite()" [disabled]="isSaving()"
+                class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition cursor-pointer disabled:opacity-50">
           <span class="material-symbols-outlined text-[16px]">magic_button</span>
-          Enable Default Suite (Cash, MoMo, Card)
+          Enable Cash + MoMo + Card
         </button>
       }
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
       @for (preset of presets; track preset.name) {
-        <div class="glass-panel p-4 rounded-2xl border transition-all duration-200 hover:border-indigo-500/30 group flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center border {{ preset.bg }}">
-                <span class="material-symbols-outlined text-[22px] {{ preset.color }}">{{ preset.icon }}</span>
+        <div class="group relative flex flex-col justify-between rounded-2xl border bg-white dark:bg-zinc-900/60 border-slate-200 dark:border-zinc-800 p-4 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 cursor-default overflow-hidden">
+
+          <!-- Subtle glow on hover -->
+          <div class="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-indigo-500/5 to-transparent rounded-2xl"></div>
+
+          <div class="relative">
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <!-- Provider Icon -->
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0
+                @if (preset.provider === 'paystack_subaccount') { bg-cyan-500/10 border-cyan-500/25 }
+                @else if (preset.provider === 'cash') { bg-emerald-500/10 border-emerald-500/25 }
+                @else if (preset.provider === 'mobile') { bg-amber-500/10 border-amber-500/25 }
+                @else if (preset.provider === 'card') { bg-indigo-500/10 border-indigo-500/25 }
+                @else if (preset.provider === 'paystack') { bg-cyan-500/10 border-cyan-500/25 }
+                @else if (preset.provider === 'stripe') { bg-violet-500/10 border-violet-500/25 }
+                @else if (preset.provider === 'bank_transfer') { bg-blue-500/10 border-blue-500/25 }
+                @else { bg-slate-500/10 border-slate-500/20 }">
+                <span class="material-symbols-outlined text-[22px]
+                  @if (preset.provider === 'paystack_subaccount') { text-cyan-400 }
+                  @else if (preset.provider === 'cash') { text-emerald-500 }
+                  @else if (preset.provider === 'mobile' && preset.name.includes('MTN')) { text-amber-500 }
+                  @else if (preset.provider === 'mobile') { text-rose-500 }
+                  @else if (preset.provider === 'card') { text-indigo-500 }
+                  @else if (preset.provider === 'paystack') { text-cyan-500 }
+                  @else if (preset.provider === 'stripe') { text-violet-500 }
+                  @else if (preset.provider === 'bank_transfer') { text-blue-500 }
+                  @else { text-slate-400 }">{{ preset.icon }}</span>
               </div>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300">
+
+              <!-- Category Badge -->
+              <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 shrink-0 border border-slate-200 dark:border-white/5">
                 {{ preset.badge }}
               </span>
             </div>
-            <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">{{ preset.name }}</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">{{ preset.description }}</p>
+
+            <h4 class="font-bold text-sm text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
+              {{ preset.name }}
+            </h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">
+              {{ preset.description }}
+            </p>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-end">
-            <button (click)="quickAddPreset(preset)"
-                    [disabled]="isSaving()"
-                    class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition">
-              <span class="material-symbols-outlined text-[16px]">
-                {{ preset.provider === 'paystack_subaccount' ? 'tune' : 'add' }}
-              </span>
-              {{ preset.provider === 'paystack_subaccount' ? 'Configure Subaccount' : 'Add Method' }}
-            </button>
-          </div>
+          <button (click)="quickAddPreset(preset)" [disabled]="isSaving()"
+                  class="relative mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer border
+                    border-indigo-200 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400
+                    hover:bg-indigo-600 hover:text-white hover:border-indigo-600 dark:hover:bg-indigo-600 dark:hover:text-white
+                    disabled:opacity-50 disabled:cursor-not-allowed active:scale-95">
+            <span class="material-symbols-outlined text-[15px]">
+              {{ preset.provider === 'paystack_subaccount' ? 'tune' : 'add' }}
+            </span>
+            {{ preset.provider === 'paystack_subaccount' ? 'Configure' : 'Add' }}
+          </button>
         </div>
       }
     </div>
   </div>
 
-  <!-- Configured Payment Methods Section -->
-  <div class="space-y-4 pt-2">
-    
-    <!-- Filter & Search Controls -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-        <button (click)="selectedFilter.set('all')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          All ({{ totalMethods() }})
-        </button>
-        <button (click)="selectedFilter.set('active')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'active' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          Active Only ({{ activeMethodsCount() }})
-        </button>
-        <button (click)="selectedFilter.set('paystack')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'paystack' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          Paystack & Subaccounts
-        </button>
-        <button (click)="selectedFilter.set('mobile')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'mobile' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          Mobile Money
-        </button>
-        <button (click)="selectedFilter.set('in_person')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'in_person' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          POS / Cash
-        </button>
-        <button (click)="selectedFilter.set('online')"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
-                [ngClass]="selectedFilter() === 'online' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-zinc-700'">
-          Gateways
-        </button>
+  <!-- ═══════════════════════════════════════════
+       CONFIGURED METHODS LIST
+  ════════════════════════════════════════════ -->
+  <div class="space-y-4">
+
+    <!-- Section Title + Controls Row -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px] text-slate-400">tune</span>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Configured Methods</h2>
       </div>
 
-      <div class="relative w-full sm:w-64">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+      <!-- Search -->
+      <div class="relative w-full sm:w-72">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">search</span>
         <input type="text"
-               [ngModel]="searchQuery()"
-               (ngModelChange)="searchQuery.set($event)"
-               placeholder="Search payment methods or ACCT_ code..."
-               class="w-full pl-9 pr-4 py-1.5 text-xs rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+               [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+               placeholder="Search by name, provider or ACCT_..."
+               class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition" />
       </div>
     </div>
 
-    <!-- Loading Spinner -->
+    <!-- Filter Pill Tabs -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+      @for (tab of [
+        {key: 'all',       label: 'All',              count: totalMethods()},
+        {key: 'active',    label: 'Active',            count: activeMethodsCount()},
+        {key: 'paystack',  label: 'Paystack',          count: null},
+        {key: 'mobile',    label: 'Mobile Money',      count: null},
+        {key: 'in_person', label: 'POS / Cash',        count: null},
+        {key: 'online',    label: 'Gateways',          count: null}
+      ]; track tab.key) {
+        <button (click)="selectedFilter.set($any(tab.key))"
+                class="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold transition-all duration-150 cursor-pointer border"
+                [class.bg-indigo-600]="selectedFilter() === tab.key"
+                [class.text-white]="selectedFilter() === tab.key"
+                [class.border-indigo-600]="selectedFilter() === tab.key"
+                [class.shadow-sm]="selectedFilter() === tab.key"
+                [class.bg-white]="selectedFilter() !== tab.key"
+                [class.dark:bg-zinc-900]="selectedFilter() !== tab.key"
+                [class.text-slate-600]="selectedFilter() !== tab.key"
+                [class.dark:text-slate-400]="selectedFilter() !== tab.key"
+                [class.border-slate-200]="selectedFilter() !== tab.key"
+                [class.dark:border-zinc-800]="selectedFilter() !== tab.key"
+                [class.hover:border-indigo-400]="selectedFilter() !== tab.key">
+          {{ tab.label }}
+          @if (tab.count !== null) {
+            <span class="px-1.5 py-0.5 rounded-md text-[10px] font-black"
+                  [class.bg-white]="selectedFilter() === tab.key"
+                  [class.text-indigo-600]="selectedFilter() === tab.key"
+                  [class.bg-slate-100]="selectedFilter() !== tab.key"
+                  [class.dark:bg-zinc-800]="selectedFilter() !== tab.key"
+                  [class.text-slate-500]="selectedFilter() !== tab.key">
+              {{ tab.count }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Loading -->
     @if (methodService.loading()) {
-      <div class="flex flex-col items-center justify-center py-20 text-slate-400">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mb-3"></div>
-        <p class="text-sm font-medium">Loading payment configuration...</p>
+      <div class="flex flex-col items-center justify-center py-24">
+        <div class="relative w-12 h-12">
+          <div class="absolute inset-0 rounded-full border-2 border-indigo-500/20"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-600 animate-spin"></div>
+        </div>
+        <p class="text-sm text-slate-400 dark:text-slate-500 mt-4 font-medium">Loading payment configuration...</p>
       </div>
     }
 
-    <!-- Methods List Container -->
-    @if (!methodService.loading()) {
-      
-      @if (filteredMethods().length === 0) {
-        <div class="glass-panel rounded-3xl p-12 text-center border flex flex-col items-center justify-center max-w-xl mx-auto">
-          <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 mb-4">
-            <span class="material-symbols-outlined text-[32px]">credit_card_off</span>
-          </div>
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white">No payment methods found</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-            @if (searchQuery() || selectedFilter() !== 'all') {
-              No payment methods match your filter criteria. Try clearing the search.
-            } @else {
-              You haven't set up any payment methods yet. Enable default channels or add your Paystack subaccount to begin accepting payments.
-            }
-          </p>
-          
-          <div class="flex items-center gap-3 mt-6">
-            @if (searchQuery() || selectedFilter() !== 'all') {
-              <button (click)="searchQuery.set(''); selectedFilter.set('all')"
-                      class="px-4 py-2 bg-slate-200 dark:bg-zinc-700 text-xs font-bold rounded-xl hover:bg-slate-300 transition">
-                Reset Filters
-              </button>
-            } @else {
-              <button (click)="seedStandardSuite()"
-                      class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition cursor-pointer">
-                Enable Standard Suite (Cash, MoMo, Card)
-              </button>
-            }
-          </div>
+    <!-- Empty State -->
+    @if (!methodService.loading() && filteredMethods().length === 0) {
+      <div class="flex flex-col items-center justify-center py-16 rounded-3xl border-2 border-dashed border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 text-center px-6">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 mb-4">
+          <span class="material-symbols-outlined text-[32px]">credit_card_off</span>
         </div>
-      }
-
-      @if (filteredMethods().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          @for (method of filteredMethods(); track method.id) {
-            <div class="glass-panel p-5 rounded-2xl border transition-all duration-200 flex items-center justify-between gap-4 group hover:border-slate-300 dark:hover:border-white/20">
-              
-              <!-- Left: Icon & Info -->
-              <div class="flex items-center gap-4 min-w-0">
-                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border {{ getProviderInfo(method.provider).bg }}">
-                  <span class="material-symbols-outlined text-[24px] {{ getProviderInfo(method.provider).color }}">
-                    {{ getProviderInfo(method.provider).icon }}
-                  </span>
-                </div>
-
-                <div class="min-w-0">
-                  <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-base text-slate-900 dark:text-white truncate">{{ method.name }}</h3>
-                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0"
-                          [ngClass]="method.is_active ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 dark:text-emerald-400' : 'bg-slate-500/10 border-slate-500/20 text-slate-400'">
-                      {{ method.is_active ? 'Active' : 'Disabled' }}
-                    </span>
-                  </div>
-
-                  <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    <span class="font-semibold uppercase tracking-wider">{{ getProviderInfo(method.provider).label }}</span>
-
-                    @if (method.paystack_subaccount_code) {
-                      <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-md">
-                        <span class="material-symbols-outlined text-[13px]">verified</span>
-                        {{ method.paystack_subaccount_code }}
-                      </span>
-                    }
-
-                    @if (method.api_key_hint) {
-                      <span class="font-mono text-[11px] bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">
-                        {{ method.api_key_hint }}
-                      </span>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: Switch & Actions -->
-              <div class="flex items-center gap-3 shrink-0">
-                
-                <!-- Active Toggle Switch -->
-                <label class="relative inline-flex items-center cursor-pointer" title="Toggle active status">
-                  <input type="checkbox"
-                         [checked]="method.is_active"
-                         (change)="onToggleStatus(method, $event)"
-                         class="sr-only peer" />
-                  <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                </label>
-
-                <div class="w-px h-5 bg-slate-200 dark:bg-zinc-800 mx-1"></div>
-
-                <!-- Edit Button -->
-                <button (click)="openEditModal(method, $event)"
-                        class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition cursor-pointer"
-                        title="Edit Payment Method">
-                  <span class="material-symbols-outlined text-[20px]">edit</span>
-                </button>
-
-                <!-- Delete Button -->
-                <button (click)="promptDelete(method, $event)"
-                        class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                        title="Remove Payment Method">
-                  <span class="material-symbols-outlined text-[20px]">delete</span>
-                </button>
-
-              </div>
-
-            </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-white">
+          @if (searchQuery() || selectedFilter() !== 'all') { No matching methods }
+          @else { No payment methods yet }
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 max-w-sm leading-relaxed">
+          @if (searchQuery() || selectedFilter() !== 'all') {
+            No payment methods match your current filter. Try clearing the search or switching tabs.
+          } @else {
+            Use the quick setup cards above to add your first payment channel, or connect your Paystack subaccount.
+          }
+        </p>
+        <div class="flex items-center gap-3 mt-6">
+          @if (searchQuery() || selectedFilter() !== 'all') {
+            <button (click)="searchQuery.set(''); selectedFilter.set('all')"
+                    class="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-800 transition cursor-pointer">
+              Clear Filters
+            </button>
+          } @else {
+            <button (click)="seedStandardSuite()"
+                    class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/25 transition cursor-pointer flex items-center gap-2">
+              <span class="material-symbols-outlined text-[17px]">magic_button</span>
+              Enable Standard Suite
+            </button>
+            <button (click)="openCreateModal()"
+                    class="px-4 py-2 text-xs font-bold rounded-xl border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition cursor-pointer">
+              Add Custom
+            </button>
           }
         </div>
-      }
+      </div>
+    }
 
+    <!-- Methods Grid -->
+    @if (!methodService.loading() && filteredMethods().length > 0) {
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        @for (method of filteredMethods(); track method.id) {
+          <div class="group relative flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md hover:shadow-indigo-500/8 transition-all duration-200 overflow-hidden">
+
+            <!-- Accent stripe -->
+            <div class="absolute left-0 top-4 bottom-4 w-1 rounded-r-full transition-all duration-300"
+                 [class.bg-emerald-500]="method.is_active"
+                 [class.bg-slate-300]="!method.is_active"
+                 [class.dark:bg-zinc-700]="!method.is_active"></div>
+
+            <!-- Icon -->
+            <div class="ml-2 w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border
+              @if (method.provider === 'paystack_subaccount' || method.provider === 'paystack') { bg-cyan-500/10 border-cyan-500/20 }
+              @else if (method.provider === 'cash') { bg-emerald-500/10 border-emerald-500/20 }
+              @else if (method.provider === 'mobile') { bg-amber-500/10 border-amber-500/20 }
+              @else if (method.provider === 'card') { bg-indigo-500/10 border-indigo-500/20 }
+              @else if (method.provider === 'stripe') { bg-violet-500/10 border-violet-500/20 }
+              @else if (method.provider === 'bank_transfer') { bg-blue-500/10 border-blue-500/20 }
+              @else { bg-slate-500/10 border-slate-200 dark:border-zinc-700 }">
+              <span class="material-symbols-outlined text-[24px]
+                @if (method.provider === 'paystack_subaccount' || method.provider === 'paystack') { text-cyan-400 }
+                @else if (method.provider === 'cash') { text-emerald-500 }
+                @else if (method.provider === 'mobile') { text-amber-500 }
+                @else if (method.provider === 'card') { text-indigo-500 }
+                @else if (method.provider === 'stripe') { text-violet-500 }
+                @else if (method.provider === 'bank_transfer') { text-blue-500 }
+                @else { text-slate-400 }">
+                {{ getProviderInfo(method.provider).icon }}
+              </span>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ method.name }}</h3>
+                <span class="shrink-0 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border"
+                      [class.bg-emerald-50]="method.is_active"
+                      [class.dark:bg-emerald-500/10]="method.is_active"
+                      [class.border-emerald-200]="method.is_active"
+                      [class.dark:border-emerald-500/20]="method.is_active"
+                      [class.text-emerald-600]="method.is_active"
+                      [class.dark:text-emerald-400]="method.is_active"
+                      [class.bg-slate-100]="!method.is_active"
+                      [class.dark:bg-zinc-800]="!method.is_active"
+                      [class.border-slate-200]="!method.is_active"
+                      [class.dark:border-zinc-700]="!method.is_active"
+                      [class.text-slate-400]="!method.is_active">
+                  <span class="material-symbols-outlined text-[11px]">{{ method.is_active ? 'circle' : 'remove_circle' }}</span>
+                  {{ method.is_active ? 'Live' : 'Off' }}
+                </span>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {{ getProviderInfo(method.provider).label }}
+                </span>
+
+                @if (method.paystack_subaccount_code) {
+                  <span class="inline-flex items-center gap-1 font-mono text-[10px] bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 rounded-md">
+                    <span class="material-symbols-outlined text-[12px]">verified</span>
+                    {{ method.paystack_subaccount_code }}
+                  </span>
+                }
+
+                @if (method.api_key_hint) {
+                  <span class="font-mono text-[10px] bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5 px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-400">
+                    {{ method.api_key_hint }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button (click)="openEditModal(method, $event)"
+                      class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition cursor-pointer"
+                      title="Edit">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+              </button>
+              <button (click)="promptDelete(method, $event)"
+                      class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                      title="Delete">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            </div>
+
+            <!-- Toggle Switch (always visible, pinned right) -->
+            <label class="relative inline-flex items-center cursor-pointer shrink-0" title="Toggle active">
+              <input type="checkbox" class="sr-only peer"
+                     [checked]="method.is_active"
+                     (change)="onToggleStatus(method, $event)" />
+              <div class="w-10 h-5 rounded-full transition-all
+                bg-slate-200 dark:bg-zinc-700
+                peer-checked:bg-emerald-500
+                after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-[18px] after:h-[18px]
+                after:bg-white after:rounded-full after:shadow after:transition-all
+                peer-checked:after:translate-x-5"></div>
+            </label>
+
+          </div>
+        }
+      </div>
     }
 
   </div>
-
 </div>
 
-<!-- ── Create / Edit Payment Method Modal ── -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     CREATE / EDIT MODAL
+════════════════════════════════════════════════════════════ -->
 @if (isModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]" (click)="closeModal()"></div>
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" (click)="closeModal()"
+         style="animation: fadeIn 0.2s ease-out both;"></div>
 
-    <div class="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden z-10 animate-[scaleUp_0.25s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] flex flex-col">
-      
-      <!-- Modal Header -->
-      <div class="px-6 py-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-            <span class="material-symbols-outlined text-[22px]">
-              {{ editingId() ? 'edit_note' : 'add_card' }}
-            </span>
+    <!-- Sheet / Modal -->
+    <div class="relative w-full sm:max-w-lg bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800
+                rounded-t-3xl sm:rounded-3xl shadow-2xl shadow-slate-900/30 z-10 flex flex-col max-h-[92vh]
+                sm:max-h-[88vh]"
+         style="animation: slideUp 0.28s cubic-bezier(0.16,1,0.3,1) both;">
+
+      <!-- Header -->
+      <div class="px-6 pt-5 pb-4 border-b border-slate-100 dark:border-zinc-800/80 shrink-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white shadow-md shrink-0">
+              <span class="material-symbols-outlined text-[20px]">{{ editingId() ? 'edit_note' : 'add_card' }}</span>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">
+                {{ editingId() ? 'Edit Payment Method' : 'New Payment Method' }}
+              </h3>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">Configure checkout channels & Paystack subaccounts</p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">
-              {{ editingId() ? 'Edit Payment Method' : 'Add New Payment Method' }}
-            </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Configure checkout channels and Paystack subaccounts.</p>
-          </div>
+          <button (click)="closeModal()"
+                  class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
         </div>
-
-        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg">
-          <span class="material-symbols-outlined text-[20px]">close</span>
-        </button>
       </div>
 
-      <!-- Modal Body -->
-      <form (submit)="saveForm()" class="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
-        
-        <!-- Provider Type Selector -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+      <!-- Body -->
+      <form (submit)="saveForm()" class="p-6 space-y-5 overflow-y-auto flex-1">
+
+        <!-- Provider Type -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
             Provider Type <span class="text-rose-500">*</span>
           </label>
-          <select [(ngModel)]="form().provider"
-                  name="provider"
-                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 cursor-pointer font-medium">
-            <option value="paystack_subaccount">⚡ Paystack Subaccount (Split Payouts & MoMo/Cards)</option>
-            <option value="paystack">Paystack Standard Gateway</option>
-            <option value="cash">Cash (In-person / POS / Delivery)</option>
-            <option value="mobile">Mobile Money (MTN, Telecel, AirtelTigo)</option>
-            <option value="card">Card / POS Terminal (Visa, Mastercard)</option>
-            <option value="bank_transfer">Direct Bank Wire / Transfer</option>
-            <option value="stripe">Stripe Global Gateway</option>
-            <option value="crypto">Crypto / Web3 Wallet</option>
-            <option value="custom">Custom Payment Channel</option>
-          </select>
+          <div class="relative">
+            <select [(ngModel)]="form().provider" name="provider"
+                    class="w-full appearance-none px-4 py-3 pr-10 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer transition">
+              <option value="paystack_subaccount">⚡ Paystack Subaccount — Split Payouts & MoMo/Cards</option>
+              <option value="paystack">Paystack Standard Gateway</option>
+              <option value="cash">Cash — In-person / POS / Delivery</option>
+              <option value="mobile">Mobile Money — MTN, Telecel, AirtelTigo</option>
+              <option value="card">Card / POS Terminal — Visa, Mastercard</option>
+              <option value="bank_transfer">Direct Bank Wire / Transfer</option>
+              <option value="stripe">Stripe Global Gateway</option>
+              <option value="crypto">Crypto / Web3 Wallet</option>
+              <option value="custom">Custom Payment Channel</option>
+            </select>
+            <span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">expand_more</span>
+          </div>
         </div>
 
-        <!-- ── Paystack Subaccount Verification Section ── -->
+        <!-- ── PAYSTACK SUBACCOUNT SECTION ── -->
         @if (form().provider === 'paystack_subaccount') {
-          <div class="p-4 rounded-2xl bg-cyan-500/5 border border-cyan-500/20 space-y-3">
-            
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2 text-cyan-400">
-                <span class="material-symbols-outlined text-[20px]">hub</span>
-                <span class="text-xs font-bold uppercase tracking-wider">Paystack Subaccount Setup</span>
+          <div class="rounded-2xl border border-cyan-500/25 bg-cyan-500/5 dark:bg-cyan-500/5 overflow-hidden">
+
+            <!-- Section Title & Mode Toggle -->
+            <div class="flex items-center justify-between px-4 py-3 border-b border-cyan-500/15">
+              <div class="flex items-center gap-2 text-cyan-500">
+                <span class="material-symbols-outlined text-[18px]">hub</span>
+                <span class="text-xs font-bold uppercase tracking-wider">Paystack Subaccount</span>
               </div>
 
-              <!-- Mode Toggle -->
-              <div class="flex items-center gap-1 bg-black/20 p-0.5 rounded-lg border border-white/5 text-[11px]">
-                <button type="button"
-                        (click)="subaccountInputMode.set('dropdown')"
-                        class="px-2 py-0.5 rounded font-medium transition"
-                        [ngClass]="subaccountInputMode() === 'dropdown' ? 'bg-cyan-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'">
-                  Select from List
+              <!-- Toggle Pill -->
+              <div class="flex items-center rounded-lg bg-black/10 dark:bg-black/30 p-0.5 text-[11px] border border-white/5">
+                <button type="button" (click)="subaccountInputMode.set('dropdown')"
+                        class="px-2.5 py-1 rounded-md font-bold transition cursor-pointer"
+                        [class.bg-cyan-500]="subaccountInputMode() === 'dropdown'"
+                        [class.text-white]="subaccountInputMode() === 'dropdown'"
+                        [class.shadow-sm]="subaccountInputMode() === 'dropdown'"
+                        [class.text-slate-400]="subaccountInputMode() !== 'dropdown'">
+                  Select
                 </button>
-                <button type="button"
-                        (click)="subaccountInputMode.set('manual')"
-                        class="px-2 py-0.5 rounded font-medium transition"
-                        [ngClass]="subaccountInputMode() === 'manual' ? 'bg-cyan-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'">
-                  Enter Code
+                <button type="button" (click)="subaccountInputMode.set('manual')"
+                        class="px-2.5 py-1 rounded-md font-bold transition cursor-pointer"
+                        [class.bg-cyan-500]="subaccountInputMode() === 'manual'"
+                        [class.text-white]="subaccountInputMode() === 'manual'"
+                        [class.shadow-sm]="subaccountInputMode() === 'manual'"
+                        [class.text-slate-400]="subaccountInputMode() !== 'manual'">
+                  Manual
                 </button>
               </div>
             </div>
 
-            <!-- Option A: Dropdown from Paystack API -->
-            @if (subaccountInputMode() === 'dropdown') {
-              <div>
+            <div class="p-4 space-y-3">
+
+              <!-- Dropdown Mode -->
+              @if (subaccountInputMode() === 'dropdown') {
+
                 @if (isLoadingSubaccounts()) {
-                  <div class="flex items-center gap-2 py-3 text-xs text-slate-400 justify-center">
-                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
-                    <span>Fetching Paystack subaccounts...</span>
+                  <div class="flex items-center justify-center gap-2 py-4 text-xs text-slate-400">
+                    <div class="w-4 h-4 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></div>
+                    Fetching subaccounts from Paystack...
                   </div>
                 }
 
                 @if (!isLoadingSubaccounts() && paystackSubaccounts().length > 0) {
-                  <div>
-                    <label class="block text-[11px] font-bold text-slate-400 mb-1">Select Subaccount</label>
-                    <select [ngModel]="form().paystack_subaccount_code"
-                            (ngModelChange)="verifyCode($event, true)"
-                            name="selectedSubaccount"
-                            class="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-cyan-500/30 text-slate-900 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-cyan-500/50 cursor-pointer">
-                      @for (sub of paystackSubaccounts(); track sub.subaccount_code) {
-                        <option [value]="sub.subaccount_code">
-                          {{ sub.business_name }} — {{ sub.settlement_bank }} ({{ sub.subaccount_code }})
-                        </option>
-                      }
-                    </select>
+                  <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Select Subaccount</label>
+                    <div class="relative">
+                      <select [ngModel]="form().paystack_subaccount_code"
+                              (ngModelChange)="verifyCode($event, true)"
+                              name="selectedSubaccount"
+                              class="w-full appearance-none px-3 py-2.5 pr-9 rounded-xl bg-white dark:bg-zinc-900 border border-cyan-400/40 text-slate-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/40 cursor-pointer transition">
+                        @for (sub of paystackSubaccounts(); track sub.subaccount_code) {
+                          <option [value]="sub.subaccount_code">
+                            {{ sub.business_name }} — {{ sub.settlement_bank }} · {{ sub.subaccount_code }}
+                          </option>
+                        }
+                      </select>
+                      <span class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[17px]">expand_more</span>
+                    </div>
                   </div>
                 }
 
                 @if (!isLoadingSubaccounts() && paystackSubaccounts().length === 0) {
-                  <div class="p-3 bg-black/20 rounded-xl text-center space-y-1">
-                    <p class="text-xs text-slate-400">No subaccounts found on Paystack or key is unconfigured.</p>
-                    <button type="button" (click)="subaccountInputMode.set('manual')" class="text-xs font-bold text-cyan-400 hover:underline">
-                      Enter subaccount code manually
+                  <div class="text-center py-4 space-y-2">
+                    <p class="text-xs text-slate-400">No subaccounts found on your Paystack account.</p>
+                    <button type="button" (click)="subaccountInputMode.set('manual')"
+                            class="text-xs font-bold text-cyan-400 hover:text-cyan-300 hover:underline cursor-pointer">
+                      Enter code manually →
                     </button>
                   </div>
                 }
-              </div>
-            }
+              }
 
-            <!-- Option B: Manual Code Input with Verify Button -->
-            @if (subaccountInputMode() === 'manual') {
-              <div>
-                <label class="block text-[11px] font-bold text-slate-400 mb-1">Subaccount Code (ACCT_...)</label>
-                <div class="flex items-center gap-2">
-                  <input type="text"
-                         [(ngModel)]="form().paystack_subaccount_code"
-                         name="paystack_subaccount_code"
-                         placeholder="e.g. ACCT_8q9e0mxxxx"
-                         class="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-cyan-500/50" />
-                  
-                  <button type="button"
-                          (click)="verifyCode()"
-                          [disabled]="isVerifyingSubaccount() || !form().paystack_subaccount_code"
-                          class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 active:scale-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 shrink-0 cursor-pointer">
-                    @if (isVerifyingSubaccount()) {
-                      <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                      Verifying...
-                    } @else {
-                      <span class="material-symbols-outlined text-[16px]">check_circle</span>
-                      Verify Account
-                    }
-                  </button>
+              <!-- Manual Mode -->
+              @if (subaccountInputMode() === 'manual') {
+                <div class="space-y-1.5">
+                  <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Subaccount Code</label>
+                  <div class="flex items-stretch gap-2">
+                    <input type="text"
+                           [(ngModel)]="form().paystack_subaccount_code"
+                           name="paystack_subaccount_code"
+                           placeholder="ACCT_8q9e0mxxxxxxxx"
+                           class="flex-1 px-3 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-xs font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 transition" />
+                    <button type="button"
+                            (click)="verifyCode()"
+                            [disabled]="isVerifyingSubaccount() || !form().paystack_subaccount_code"
+                            class="flex items-center gap-1.5 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition active:scale-95 cursor-pointer shrink-0 whitespace-nowrap">
+                      @if (isVerifyingSubaccount()) {
+                        <div class="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                        Verifying...
+                      } @else {
+                        <span class="material-symbols-outlined text-[16px]">verified</span>
+                        Verify
+                      }
+                    </button>
+                  </div>
                 </div>
-              </div>
-            }
+              }
 
-            <!-- Verified Subaccount Card Preview -->
-            @if (verifiedSubaccount(); as sub) {
-              <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2 animate-[fadeIn_0.2s_ease-out]">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
-                    <span class="material-symbols-outlined text-[17px]">verified</span>
-                    <span>Verified Paystack Subaccount</span>
-                  </div>
-                  <span class="text-[10px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">
-                    {{ sub.subaccount_code }}
-                  </span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-emerald-500/10">
-                  <div>
-                    <span class="text-[10px] uppercase text-slate-400 font-bold block">Business / Account Name</span>
-                    <span class="font-bold text-slate-900 dark:text-white">{{ sub.business_name }}</span>
-                  </div>
-                  <div>
-                    <span class="text-[10px] uppercase text-slate-400 font-bold block">Settlement Bank</span>
-                    <span class="font-bold text-slate-900 dark:text-white">{{ sub.settlement_bank }}</span>
-                  </div>
-                  @if (sub.account_number) {
-                    <div>
-                      <span class="text-[10px] uppercase text-slate-400 font-bold block">Account Number</span>
-                      <span class="font-mono text-slate-900 dark:text-white">{{ sub.account_number }}</span>
+              <!-- Verified Preview Card -->
+              @if (verifiedSubaccount(); as sub) {
+                <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 overflow-hidden"
+                     style="animation: fadeIn 0.2s ease-out both;">
+                  <div class="flex items-center justify-between px-3 py-2 bg-emerald-100/60 dark:bg-emerald-500/10 border-b border-emerald-200 dark:border-emerald-500/15">
+                    <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+                      <span class="material-symbols-outlined text-[15px]">verified</span>
+                      Verified Subaccount
                     </div>
-                  }
-                  <div>
-                    <span class="text-[10px] uppercase text-slate-400 font-bold block">Currency / Split</span>
-                    <span class="font-bold text-slate-900 dark:text-white">{{ sub.currency || 'GHS / NGN' }} ({{ sub.percentage_charge }}% fee)</span>
+                    <code class="text-[10px] font-mono bg-emerald-200/70 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
+                      {{ sub.subaccount_code }}
+                    </code>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-2 p-3 text-xs">
+                    <div>
+                      <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Business Name</p>
+                      <p class="font-bold text-slate-800 dark:text-white truncate">{{ sub.business_name }}</p>
+                    </div>
+                    <div>
+                      <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Settlement Bank</p>
+                      <p class="font-bold text-slate-800 dark:text-white truncate">{{ sub.settlement_bank }}</p>
+                    </div>
+                    @if (sub.account_number) {
+                      <div>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Account Number</p>
+                        <p class="font-mono text-slate-700 dark:text-slate-300">{{ sub.account_number }}</p>
+                      </div>
+                    }
+                    <div>
+                      <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Currency · Split Fee</p>
+                      <p class="font-bold text-slate-700 dark:text-slate-300">{{ sub.currency || 'GHS' }} · {{ sub.percentage_charge ?? 0 }}%</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
+              }
 
+            </div>
           </div>
         }
 
-        <!-- Method Name -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+        <!-- Display Name -->
+        <div class="space-y-1.5">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
             Display Name <span class="text-rose-500">*</span>
           </label>
           <input type="text"
                  [(ngModel)]="form().name"
-                 name="name"
-                 placeholder="e.g. Paystack MoMo & Cards, Front Desk POS"
-                 required
-                 class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+                 name="name" required
+                 placeholder="e.g. Paystack MoMo & Cards, Front Desk Cash"
+                 class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition" />
         </div>
 
-        <!-- API Key / Account Hint (Optional for non-subaccount) -->
+        <!-- API Hint (not for subaccount) -->
         @if (form().provider !== 'paystack_subaccount') {
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
-              Account / Key Hint (Optional)
+          <div class="space-y-1.5">
+            <label class="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              Key / Account Hint <span class="text-slate-400 font-normal normal-case tracking-normal">(optional)</span>
             </label>
             <input type="text"
                    [(ngModel)]="form().api_key_hint"
                    name="api_key_hint"
                    placeholder="e.g. pk_live_...4821 or Account #92019"
-                   class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
-            <p class="text-[11px] text-slate-400 mt-1">A reference or public key hint shown to staff members.</p>
+                   class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition" />
+            <p class="text-[11px] text-slate-400">Shown to staff as a reference — never the full secret key.</p>
           </div>
         }
 
-        <!-- Active Switch -->
-        <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700">
+        <!-- Active Toggle -->
+        <div class="flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
           <div>
-            <h4 class="text-xs font-bold text-slate-900 dark:text-white">Enable at Checkout</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Customers and staff can select this payment method.</p>
+            <p class="text-xs font-bold text-slate-800 dark:text-white">Enable at Checkout</p>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500">Customers and staff can choose this method.</p>
           </div>
-
           <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox"
-                   [(ngModel)]="form().is_active"
-                   name="is_active"
-                   class="sr-only peer" />
-            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            <input type="checkbox" [(ngModel)]="form().is_active" name="is_active" class="sr-only peer" />
+            <div class="w-10 h-5 rounded-full bg-slate-200 dark:bg-zinc-700 peer-checked:bg-emerald-500 transition-colors
+                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                        after:w-[18px] after:h-[18px] after:bg-white after:rounded-full after:shadow
+                        after:transition-all peer-checked:after:translate-x-5"></div>
           </label>
         </div>
 
-        <!-- Modal Actions -->
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800 shrink-0">
-          <button type="button"
-                  (click)="closeModal()"
-                  class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition">
-            Cancel
-          </button>
-          <button type="submit"
-                  [disabled]="isSaving()"
-                  class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition cursor-pointer flex items-center gap-2">
-            @if (isSaving()) {
-              <div class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></div>
-              Saving...
-            } @else {
-              {{ editingId() ? 'Update Method' : 'Save Payment Method' }}
-            }
-          </button>
-        </div>
-
+        <!-- Spacer so bottom actions don't overlap content on mobile -->
+        <div class="h-2"></div>
       </form>
 
-    </div>
-  </div>
-}
-
-<!-- ── Delete Confirmation Modal ── -->
-@if (deleteConfirmItem(); as item) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]" (click)="cancelDelete()"></div>
-
-    <div class="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-6 z-10 animate-[scaleUp_0.25s_cubic-bezier(0.16,1,0.3,1)]">
-      
-      <div class="flex items-start gap-4 mb-4">
-        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-[26px]">delete</span>
-        </div>
-        <div>
-          <h3 class="text-base font-bold text-slate-900 dark:text-white">Delete Payment Method</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Are you sure you want to remove <span class="font-bold text-slate-800 dark:text-slate-200">{{ item.name }}</span>? Past orders linked to this method will remain intact.
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100 dark:border-zinc-800">
-        <button (click)="cancelDelete()"
-                class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition">
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-end gap-2.5 shrink-0">
+        <button type="button" (click)="closeModal()"
+                class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
           Cancel
         </button>
-        <button (click)="confirmDelete()"
-                class="px-4 py-2 bg-rose-600 hover:bg-rose-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition cursor-pointer">
-          Delete Method
+        <button type="button" (click)="saveForm()" [disabled]="isSaving()"
+                class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/25 transition active:scale-95 cursor-pointer">
+          @if (isSaving()) {
+            <div class="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+            Saving...
+          } @else {
+            <span class="material-symbols-outlined text-[17px]">save</span>
+            {{ editingId() ? 'Update Method' : 'Save Method' }}
+          }
         </button>
       </div>
 
     </div>
   </div>
 }
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DELETE CONFIRMATION MODAL
+════════════════════════════════════════════════════════════ -->
+@if (deleteConfirmItem(); as item) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" (click)="cancelDelete()"
+         style="animation: fadeIn 0.2s ease-out both;"></div>
+
+    <div class="relative w-full max-w-sm bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl z-10 overflow-hidden"
+         style="animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1) both;">
+
+      <!-- Rose top bar -->
+      <div class="h-1.5 w-full bg-gradient-to-r from-rose-500 to-pink-600"></div>
+
+      <div class="p-6">
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[24px]">delete_forever</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 dark:text-white">Remove Payment Method</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+              <span class="font-bold text-slate-700 dark:text-slate-200">{{ item.name }}</span> will be removed from your checkout. Existing order records linked to this method won't be affected.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5">
+          <button (click)="cancelDelete()"
+                  class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
+            Keep it
+          </button>
+          <button (click)="confirmDelete()"
+                  class="px-5 py-2 bg-rose-600 hover:bg-rose-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/25 transition cursor-pointer flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 
 <style>
 @keyframes fadeIn {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
-@keyframes scaleUp {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
