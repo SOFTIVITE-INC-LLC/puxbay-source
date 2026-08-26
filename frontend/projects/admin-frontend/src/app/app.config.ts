@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, APP_INITIALIZER } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
@@ -13,7 +13,7 @@ import { AuthService } from './services/auth.service';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
     provideHttpClient(withInterceptors([apiInterceptor, csrfInterceptor, authInterceptor, httpErrorInterceptor])),
     provideCharts(withDefaultRegisterables()),
     {

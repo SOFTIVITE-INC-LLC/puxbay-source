@@ -29,7 +29,11 @@ export class LoginComponent {
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl('/dashboard').then((navigated) => {
+          if (!navigated) {
+            window.location.href = '/dashboard';
+          }
+        });
       },
       error: (err) => {
         this.isLoading.set(false);
