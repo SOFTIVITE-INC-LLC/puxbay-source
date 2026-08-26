@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -250,5 +251,215 @@ func (h *PaymentMethodHandler) VerifyPaystackSubaccount(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"subaccount": paystackResp.Data,
+	})
+}
+
+// ── GUIDED SUBACCOUNT CREATION FLOW ─────────────────────────────────────────
+
+// ListPaystackCountries returns Paystack-supported countries.
+// GET /api/v1/payment-methods/paystack/countries
+func (h *PaymentMethodHandler) ListPaystackCountries(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+	req, err := http.NewRequestWithContext(c.Request.Context(), "GET", "https://api.paystack.co/country", nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build request"})
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+	resp, err := h.httpClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to reach Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Paystack response"})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// ListPaystackBanks returns banks available for the given country.
+// GET /api/v1/payment-methods/paystack/banks?country=ghana&currency=GHS
+func (h *PaymentMethodHandler) ListPaystackBanks(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+	country := strings.TrimSpace(c.Query("country"))
+	currency := strings.TrimSpace(c.Query("currency"))
+	if country == "" {
+		country = "ghana"
+	}
+	url := fmt.Sprintf("https://api.paystack.co/bank?country=%s&use_cursor=false&perPage=100", country)
+	if currency != "" {
+		url += "&currency=" + currency
+	}
+	req, err := http.NewRequestWithContext(c.Request.Context(), "GET", url, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build request"})
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+	resp, err := h.httpClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to reach Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Paystack response"})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// ResolvePaystackAccount resolves an account number to the registered account name.
+// GET /api/v1/payment-methods/paystack/resolve-account?account_number=xxx&bank_code=xxx
+func (h *PaymentMethodHandler) ResolvePaystackAccount(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+	accountNumber := strings.TrimSpace(c.Query("account_number"))
+	bankCode := strings.TrimSpace(c.Query("bank_code"))
+	if accountNumber == "" || bankCode == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "account_number and bank_code are required"})
+		return
+	}
+	url := fmt.Sprintf("https://api.paystack.co/bank/resolve?account_number=%s&bank_code=%s", accountNumber, bankCode)
+	req, err := http.NewRequestWithContext(c.Request.Context(), "GET", url, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build request"})
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+	resp, err := h.httpClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to reach Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	var paystackResp struct {
+		Status  bool   `json:"status"`
+		Message string `json:"message"`
+		Data    struct {
+			AccountNumber string `json:"account_number"`
+			AccountName   string `json:"account_name"`
+			BankID        int    `json:"bank_id"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &paystackResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Paystack response"})
+		return
+	}
+	if !paystackResp.Status {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": paystackResp.Message})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"account_number": paystackResp.Data.AccountNumber,
+		"account_name":   paystackResp.Data.AccountName,
+		"bank_id":        paystackResp.Data.BankID,
+	})
+}
+
+// CreatePaystackSubaccount creates a subaccount on Paystack and saves it locally.
+// POST /api/v1/payment-methods/paystack/create-subaccount
+func (h *PaymentMethodHandler) CreatePaystackSubaccount(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+	var body struct {
+		BusinessName        string  `json:"business_name" binding:"required"`
+		SettlementBank      string  `json:"settlement_bank" binding:"required"` // bank code e.g. "058"
+		AccountNumber       string  `json:"account_number" binding:"required"`
+		PercentageCharge    float64 `json:"percentage_charge"`
+		Description         string  `json:"description"`
+		PrimaryContactEmail string  `json:"primary_contact_email"`
+		LocalName           string  `json:"local_name"`
+		IsActive            bool    `json:"is_active"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	paystackPayload := map[string]interface{}{
+		"business_name":     body.BusinessName,
+		"settlement_bank":   body.SettlementBank,
+		"account_number":    body.AccountNumber,
+		"percentage_charge": body.PercentageCharge,
+	}
+	if body.Description != "" {
+		paystackPayload["description"] = body.Description
+	}
+	if body.PrimaryContactEmail != "" {
+		paystackPayload["primary_contact_email"] = body.PrimaryContactEmail
+	}
+
+	payloadBytes, _ := json.Marshal(paystackPayload)
+	req, err := http.NewRequestWithContext(c.Request.Context(), "POST",
+		"https://api.paystack.co/subaccount", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to build request"})
+		return
+	}
+	req.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := h.httpClient.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to reach Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	respBody, _ := io.ReadAll(resp.Body)
+	var paystackResp struct {
+		Status  bool                   `json:"status"`
+		Message string                 `json:"message"`
+		Data    PaystackSubaccountItem `json:"data"`
+	}
+	if err := json.Unmarshal(respBody, &paystackResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse Paystack response"})
+		return
+	}
+	if !paystackResp.Status {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": paystackResp.Message})
+		return
+	}
+
+	sub := paystackResp.Data
+	localName := body.LocalName
+	if localName == "" {
+		localName = fmt.Sprintf("Paystack – %s (%s)", sub.BusinessName, sub.SettlementBank)
+	}
+	code := sub.SubaccountCode
+	method := models.PaymentMethod{
+		Name:                   localName,
+		Provider:               "paystack_subaccount",
+		IsActive:               body.IsActive,
+		PaystackSubaccountCode: &code,
+	}
+	if err := h.getDB(c).Create(&method).Error; err != nil {
+		c.JSON(http.StatusCreated, gin.H{
+			"subaccount": sub,
+			"warning":    "Created on Paystack but not saved locally: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{
+		"subaccount":     sub,
+		"payment_method": method,
 	})
 }
