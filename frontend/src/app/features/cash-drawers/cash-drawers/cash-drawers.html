@@ -103,17 +103,19 @@
 
 <!-- Open Shift Modal -->
 @if (isOpenShiftModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200" (click)="isOpenShiftModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
         <h2 class="text-lg sm:text-xl font-black">Open Shift</h2>
-        <button (click)="isOpenShiftModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
+        <button (click)="isOpenShiftModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
       </div>
-      <div class="p-4 sm:p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
         <div>
           <label class="block text-xs sm:text-sm font-bold mb-1.5">Opening Cash Balance</label>
           <input type="number" [ngModel]="openingBalance()" (ngModelChange)="openingBalance.set($event)"
-                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-lg sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <div>
@@ -122,7 +124,7 @@
                     class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm" 
                     placeholder="Any notes for this shift..."></textarea>
         </div>
-        <button (click)="openShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors text-sm">
+        <button (click)="openShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 active:scale-95 transition-all text-sm">
           Open Shift
         </button>
       </div>
@@ -132,21 +134,23 @@
 
 <!-- Close Shift Modal -->
 @if (isCloseShiftModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200" (click)="isCloseShiftModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
         <h2 class="text-lg sm:text-xl font-black">Close Shift</h2>
-        <button (click)="isCloseShiftModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
+        <button (click)="isCloseShiftModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
       </div>
-      <div class="p-4 sm:p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
         <div class="p-3 sm:p-4 bg-slate-50 dark:bg-zinc-800 rounded-xl text-center">
           <p class="text-xs sm:text-sm text-zinc-500">Expected in Drawer</p>
-          <p class="text-2xl sm:text-3xl font-black">{{ drawerService.activeDrawer()?.expected_balance | appCurrency }}</p>
+          <p class="text-lg sm:text-2xl font-black">{{ drawerService.activeDrawer()?.expected_balance | appCurrency }}</p>
         </div>
         <div>
           <label class="block text-xs sm:text-sm font-bold mb-1.5">Actual Cash Count</label>
           <input type="number" [ngModel]="actualBalance()" (ngModelChange)="actualBalance.set($event)"
-                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-lg sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <div class="p-3 rounded-xl text-center"
@@ -155,19 +159,20 @@
              [class.bg-rose-50]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)"
              [class.dark:bg-rose-900/20]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)">
           <p class="text-xs sm:text-sm font-semibold">Variance</p>
-          <p class="text-xl sm:text-2xl font-black"
+          <p class="text-base sm:text-xl font-black"
              [class.text-emerald-600]="actualBalance() >= (drawerService.activeDrawer()?.expected_balance || 0)"
              [class.text-rose-600]="actualBalance() < (drawerService.activeDrawer()?.expected_balance || 0)">
             {{ (actualBalance() - (drawerService.activeDrawer()?.expected_balance || 0)) | appCurrency }}
           </p>
         </div>
         <div>
-          <label class="block text-xs sm:text-sm font-bold mb-1.5">Notes</label>
+          <label class="block text-xs sm:text-sm font-bold mb-1.5">Closing Notes</label>
           <textarea [ngModel]="shiftNotes()" (ngModelChange)="shiftNotes.set($event)" rows="2"
-                    class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm"></textarea>
+                    class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-sm" 
+                    placeholder="Discrepancy explanations, notes..."></textarea>
         </div>
-        <button (click)="closeShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 transition-colors text-sm">
-          Close Shift
+        <button (click)="closeShift()" class="w-full py-2.5 sm:py-3 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 active:scale-95 transition-all text-sm">
+          Confirm & Close Shift
         </button>
       </div>
     </div>
@@ -176,33 +181,35 @@
 
 <!-- Float Adjustment Modal -->
 @if (isFloatModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800">
-      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center">
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200" (click)="isFloatModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-[440px] overflow-hidden shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center shrink-0">
         <h2 class="text-lg sm:text-xl font-black">Float Adjustment</h2>
-        <button (click)="isFloatModalOpen.set(false)" class="text-slate-400 hover:text-rose-500">✕</button>
+        <button (click)="isFloatModalOpen.set(false)" class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
       </div>
-      <div class="p-4 sm:p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
         <div class="flex gap-2">
           <button (click)="floatType.set('add')" 
                   [class.bg-emerald-600]="floatType() === 'add'" [class.text-white]="floatType() === 'add'"
                   [class.bg-slate-100]="floatType() !== 'add'" [class.dark:bg-zinc-800]="floatType() !== 'add'"
-                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-sm">Add Cash</button>
+                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-xs sm:text-sm">Add Cash</button>
           <button (click)="floatType.set('remove')"
                   [class.bg-rose-600]="floatType() === 'remove'" [class.text-white]="floatType() === 'remove'"
                   [class.bg-slate-100]="floatType() !== 'remove'" [class.dark:bg-zinc-800]="floatType() !== 'remove'"
-                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-sm">Remove Cash</button>
+                  class="flex-1 py-2 rounded-xl font-bold transition-colors text-xs sm:text-sm">Remove Cash</button>
         </div>
         <div>
           <label class="block text-xs sm:text-sm font-bold mb-1.5">Amount</label>
           <input type="number" [ngModel]="floatAmount()" (ngModelChange)="floatAmount.set($event)"
-                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xl sm:text-2xl font-black text-center" 
+                 class="w-full p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-lg sm:text-2xl font-black text-center" 
                  placeholder="0.00" min="0">
         </div>
         <button (click)="addRemoveFloat(floatType())" 
                 [class.bg-emerald-600]="floatType() === 'add'" [class.hover:bg-emerald-700]="floatType() === 'add'"
                 [class.bg-rose-600]="floatType() === 'remove'" [class.hover:bg-rose-700]="floatType() === 'remove'"
-                class="w-full py-2.5 sm:py-3 rounded-xl text-white font-bold transition-colors text-sm">
+                class="w-full py-2.5 sm:py-3 rounded-xl text-white font-bold active:scale-95 transition-all text-sm">
           {{ floatType() === 'add' ? 'Add Cash to Drawer' : 'Remove Cash from Drawer' }}
         </button>
       </div>

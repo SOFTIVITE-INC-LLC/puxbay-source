@@ -74,7 +74,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider truncate">Total Customers</p>
-        <p class="text-lg sm:text-2xl font-black text-slate-800 dark:text-white truncate">{{ totalCustomers() }}</p>
+        <p class="text-sm sm:text-base md:text-lg font-black text-slate-800 dark:text-white truncate">{{ totalCustomers() }}</p>
       </div>
     </div>
 
@@ -84,7 +84,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider truncate">Total Spend</p>
-        <p class="text-lg sm:text-2xl font-black text-slate-800 dark:text-white truncate">{{ totalSpend() | appCurrency }}</p>
+        <p class="text-sm sm:text-base md:text-lg font-black text-slate-800 dark:text-white truncate">{{ totalSpend() | appCurrency }}</p>
       </div>
     </div>
 
@@ -94,7 +94,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider truncate">Issued Credit</p>
-        <p class="text-lg sm:text-2xl font-black text-slate-800 dark:text-white truncate">{{ totalCredit() | appCurrency }}</p>
+        <p class="text-sm sm:text-base md:text-lg font-black text-slate-800 dark:text-white truncate">{{ totalCredit() | appCurrency }}</p>
       </div>
     </div>
 
@@ -104,7 +104,7 @@
       </div>
       <div class="min-w-0 flex-1">
         <p class="text-[9px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider truncate">Outstanding Debt</p>
-        <p class="text-lg sm:text-2xl font-black text-slate-800 dark:text-white truncate">{{ totalDebt() | appCurrency }}</p>
+        <p class="text-sm sm:text-base md:text-lg font-black text-slate-800 dark:text-white truncate">{{ totalDebt() | appCurrency }}</p>
       </div>
     </div>
   </div>
@@ -276,7 +276,7 @@
       <div class="p-4 sm:p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between sticky top-0 bg-white dark:bg-[#0c0f1d] z-10">
         <h2 class="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
           <span class="material-symbols-outlined text-teal-500">person</span>
-          {{ isEditing() ? 'Edit Customer' : 'New Customer' }}
+          {{ modalTitle() }}
         </h2>
         <button (click)="closeModal()" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-slate-200/50 dark:border-white/5 transition-colors">
           <span class="material-symbols-outlined !text-[20px]">close</span>

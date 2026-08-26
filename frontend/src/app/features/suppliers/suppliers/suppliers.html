@@ -1,59 +1,59 @@
-<div class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in text-zinc-900 dark:text-white">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto animate-fade-in text-zinc-900 dark:text-white">
 
   <!-- ── Header ── -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-teal-400 dark:to-cyan-400">
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-teal-400 dark:to-cyan-400">
         Suppliers
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor relationships and contact details.</p>
+      <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor relationships and contact details.</p>
     </div>
-    <button (click)="openAddModal()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 transition-all">
+    <button (click)="openAddModal()" class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto justify-center">
       <span class="material-symbols-outlined !text-[18px]">add</span>
       Add Supplier
     </button>
   </div>
 
   <!-- ── Stat Cards ── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full blur-xl opacity-60"></div>
-      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-        <span class="material-symbols-outlined !text-[18px] text-teal-500">business</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest">Total</span>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-teal-500 shrink-0">business</span>
+        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Total</span>
       </div>
-      <p class="text-3xl font-black z-10 text-zinc-900 dark:text-white">{{ totalSuppliers }}</p>
+      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-zinc-900 dark:text-white truncate">{{ totalSuppliers }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60"></div>
-      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-        <span class="material-symbols-outlined !text-[18px] text-emerald-500">check_circle</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest">Active</span>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-emerald-500 shrink-0">check_circle</span>
+        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Active</span>
       </div>
-      <p class="text-3xl font-black z-10 text-emerald-600 dark:text-emerald-400">{{ activeSuppliers }}</p>
+      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-emerald-600 dark:text-emerald-400 truncate">{{ activeSuppliers }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60"></div>
-      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-        <span class="material-symbols-outlined !text-[18px] text-rose-500">account_balance_wallet</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest">Outstanding</span>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-rose-500 shrink-0">account_balance_wallet</span>
+        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Outstanding</span>
       </div>
-      <p class="text-3xl font-black z-10 text-rose-600 dark:text-rose-400">{{ outstandingBalance | appCurrency }}</p>
+      <p class="text-xs sm:text-sm md:text-base lg:text-lg font-black z-10 text-rose-600 dark:text-rose-400 truncate">{{ outstandingBalance | appCurrency }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-xl opacity-60"></div>
-      <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
-        <span class="material-symbols-outlined !text-[18px] text-violet-500">lock_open</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest">Portal Access</span>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+      <div class="absolute -right-4 -top-4 w-20 h-20 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-violet-500 shrink-0">lock_open</span>
+        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Portal Access</span>
       </div>
-      <p class="text-3xl font-black z-10 text-violet-600 dark:text-violet-400">{{ portalActiveCount }}</p>
+      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-violet-600 dark:text-violet-400 truncate">{{ portalActiveCount }}</p>
     </div>
   </div>
 
   <!-- ── Toolbar: Search + Filter + Sort + View Toggle ── -->
-  <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-    <!-- Search -->
-    <div class="relative flex-1">
+  <div class="flex flex-col gap-2.5 sm:gap-3">
+    <!-- Search row -->
+    <div class="relative">
       <span class="absolute inset-y-0 left-4 flex items-center text-zinc-400">
         <span class="material-symbols-outlined !text-[20px]">search</span>
       </span>
@@ -62,32 +62,35 @@
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
         placeholder="Search name, email, phone..."
-        class="w-full pl-11 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none shadow-sm text-sm font-medium"
+        class="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none shadow-sm text-sm font-medium"
       />
     </div>
-    <!-- Status filter -->
-    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
-      class="px-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
-      <option value="all">All Status</option>
-      <option value="active">Active</option>
-      <option value="inactive">Inactive</option>
-    </select>
-    <!-- Sort -->
-    <select [ngModel]="sortOrder()" (ngModelChange)="sortOrder.set($event)"
-      class="px-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
-      <option value="name">Name A→Z</option>
-      <option value="name_desc">Name Z→A</option>
-      <option value="balance">Highest Balance</option>
-      <option value="newest">Newest First</option>
-    </select>
-    <!-- View toggle -->
-    <div class="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-      <button (click)="viewMode.set('grid')" [class]="viewMode() === 'grid' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2.5 transition-colors">
-        <span class="material-symbols-outlined !text-[20px]">grid_view</span>
-      </button>
-      <button (click)="viewMode.set('list')" [class]="viewMode() === 'list' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2.5 transition-colors border-l border-zinc-200 dark:border-zinc-800">
-        <span class="material-symbols-outlined !text-[20px]">view_list</span>
-      </button>
+    <!-- Filter/Sort/Toggle row -->
+    <div class="flex gap-2 items-center">
+      <!-- Status filter -->
+      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+        class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <!-- Sort -->
+      <select [ngModel]="sortOrder()" (ngModelChange)="sortOrder.set($event)"
+        class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+        <option value="name">Name A→Z</option>
+        <option value="name_desc">Name Z→A</option>
+        <option value="balance">Highest Balance</option>
+        <option value="newest">Newest First</option>
+      </select>
+      <!-- View toggle -->
+      <div class="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm shrink-0">
+        <button (click)="viewMode.set('grid')" [class]="viewMode() === 'grid' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">grid_view</span>
+        </button>
+        <button (click)="viewMode.set('list')" [class]="viewMode() === 'list' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors border-l border-zinc-200 dark:border-zinc-800">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">view_list</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -272,23 +275,23 @@
 
 <!-- ── Add/Edit/Catalog Supplier Modal ── -->
 @if (isModalOpen()) {
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-4" (click)="closeModal()">
-    <div class="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+  <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-0 sm:p-4" (click)="closeModal()">
+    <div class="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
 
       <!-- Modal Header -->
-      <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-start shrink-0">
+      <div class="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-start shrink-0">
         <div class="w-full">
-          <h3 class="text-xl font-black tracking-tight mb-4">{{ isEditing() ? currentSupplier().name : 'Add Supplier' }}</h3>
+          <h3 class="text-lg sm:text-xl font-black tracking-tight mb-3 sm:mb-4">{{ isEditing() ? currentSupplier().name : 'Add Supplier' }}</h3>
           @if (isEditing()) {
             <!-- Tabs -->
-            <div class="flex gap-4 border-b border-zinc-200 dark:border-zinc-800">
-              <button (click)="activeTab.set('details')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'details' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+            <div class="flex gap-1 sm:gap-4 border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto no-scrollbar">
+              <button (click)="activeTab.set('details')" class="pb-2 text-xs sm:text-sm font-bold transition-colors border-b-2 whitespace-nowrap" [class]="activeTab() === 'details' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
                 Details
               </button>
-              <button (click)="activeTab.set('catalog')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'catalog' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+              <button (click)="activeTab.set('catalog')" class="pb-2 text-xs sm:text-sm font-bold transition-colors border-b-2 whitespace-nowrap" [class]="activeTab() === 'catalog' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
                 Product Catalog
               </button>
-              <button (click)="activeTab.set('ledger')" class="pb-2 text-sm font-bold transition-colors border-b-2" [class]="activeTab() === 'ledger' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+              <button (click)="activeTab.set('ledger')" class="pb-2 text-xs sm:text-sm font-bold transition-colors border-b-2 whitespace-nowrap" [class]="activeTab() === 'ledger' ? 'border-violet-500 text-violet-600 dark:text-violet-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
                 Accounts Payable
               </button>
             </div>
@@ -300,7 +303,7 @@
       </div>
 
       <!-- Scrollable Content -->
-      <div class="p-6 overflow-y-auto min-h-[300px]">
+      <div class="p-4 sm:p-6 overflow-y-auto min-h-[300px]">
         @if (activeTab() === 'details' || !isEditing()) {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="sm:col-span-2 space-y-1.5">
@@ -497,7 +500,7 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3 shrink-0">
+      <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3 shrink-0">
         <button (click)="closeModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-all">
           Close
         </button>
@@ -514,9 +517,9 @@
 
 <!-- ── Invite to Portal Modal ── -->
 @if (isInviteModalOpen()) {
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-4" (click)="closeInviteModal()">
-    <div class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" (click)="$event.stopPropagation()">
-      <div class="p-6 border-b border-zinc-200 dark:border-zinc-800">
+  <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-0 sm:p-4" (click)="closeInviteModal()">
+    <div class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
             <span class="material-symbols-outlined !text-[20px] text-indigo-600">key</span>
@@ -527,7 +530,7 @@
           </div>
         </div>
       </div>
-      <div class="p-6 space-y-4">
+      <div class="p-4 sm:p-6 space-y-4">
         <p class="text-sm text-zinc-600 dark:text-zinc-400">Set login credentials for this supplier so they can access their portal and view purchase orders.</p>
         <div class="space-y-1.5">
           <label class="text-xs font-bold uppercase tracking-widest text-zinc-500">Portal Email</label>
@@ -544,7 +547,7 @@
           </div>
         }
       </div>
-      <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+      <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
         <button (click)="closeInviteModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-all">Cancel</button>
         <button (click)="sendInvite()" [disabled]="!inviteEmail || !invitePassword || sendingInvite()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
           {{ sendingInvite() ? 'Saving...' : 'Grant Access' }}

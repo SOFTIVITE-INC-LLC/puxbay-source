@@ -1,60 +1,60 @@
-<div class="min-h-full p-6 md:p-8 space-y-8 font-sans">
+<div class="min-h-full p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 font-sans">
 
   <!-- ── Header ── -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <div>
-      <h1 class="text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
-        Returns & Refunds
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+        Returns &amp; Refunds
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-xs sm:text-sm">
         Manage customer RMAs, approve refunds, and track return history.
       </p>
     </div>
     <button
       (click)="openNewReturnModal()"
-      class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-xl shadow-lg shadow-rose-500/25 hover:opacity-90 transition-all font-bold whitespace-nowrap"
+      class="flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-xl shadow-lg shadow-rose-500/25 hover:opacity-90 active:scale-95 transition-all font-bold text-xs sm:text-sm w-full sm:w-auto"
     >
-      <span class="material-symbols-outlined !text-[20px]">assignment_return</span>
+      <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">assignment_return</span>
       New Return
     </button>
   </div>
 
   <!-- ── Stat Cards ── -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
-      <p class="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">Total Returns</p>
-      <p class="text-3xl font-black text-zinc-900 dark:text-white">{{ returnService.returns().length }}</p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
+      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1 truncate">Total Returns</p>
+      <p class="text-sm sm:text-base md:text-lg font-black text-zinc-900 dark:text-white truncate">{{ returnService.returns().length }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
-      <p class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-1">Pending</p>
-      <p class="text-3xl font-black text-amber-500">{{ pendingCount() }}</p>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
+      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-amber-500 mb-0.5 sm:mb-1 truncate">Pending</p>
+      <p class="text-sm sm:text-base md:text-lg font-black text-amber-500 truncate">{{ pendingCount() }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
-      <p class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-1">Completed</p>
-      <p class="text-3xl font-black text-emerald-500">{{ completedCount() }}</p>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
+      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 mb-0.5 sm:mb-1 truncate">Completed</p>
+      <p class="text-sm sm:text-base md:text-lg font-black text-emerald-500 truncate">{{ completedCount() }}</p>
     </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
-      <p class="text-xs font-bold uppercase tracking-widest text-rose-500 mb-1">Total Refunded</p>
-      <p class="text-3xl font-black text-rose-500">{{ totalRefunded() | appCurrency }}</p>
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
+      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 mb-0.5 sm:mb-1 truncate">Total Refunded</p>
+      <p class="text-xs sm:text-sm md:text-base font-black text-rose-500 truncate">{{ totalRefunded() | appCurrency }}</p>
     </div>
   </div>
 
   <!-- ── Filters ── -->
-  <div class="flex flex-col sm:flex-row gap-3">
+  <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
     <div class="relative flex-1">
-      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 !text-[20px]">search</span>
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 !text-[18px]">search</span>
       <input
         type="text"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
         placeholder="Search by RMA or order ID..."
-        class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+        class="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
       />
     </div>
     <select
       [ngModel]="statusFilter()"
       (ngModelChange)="statusFilter.set($event)"
-      class="px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+      class="px-3 sm:px-4 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30 sm:w-auto"
     >
       <option value="">All Statuses</option>
       <option value="pending">Pending</option>
@@ -74,61 +74,61 @@
   @if (!returnService.loading()) {
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm whitespace-nowrap">
-          <thead class="text-xs uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[600px]">
+          <thead class="text-[10px] sm:text-xs uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
-              <th class="px-6 py-4 font-bold">RMA ID</th>
-              <th class="px-6 py-4 font-bold">Order</th>
-              <th class="px-6 py-4 font-bold">Reason</th>
-              <th class="px-6 py-4 font-bold">Refund Amount</th>
-              <th class="px-6 py-4 font-bold">Status</th>
-              <th class="px-6 py-4 font-bold">Date</th>
-              <th class="px-6 py-4 font-bold text-right">Actions</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">RMA ID</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Order</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Reason</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Refund</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Status</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold hidden sm:table-cell">Date</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
             @for (ret of filteredReturns(); track ret.id) {
               <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                <td class="px-6 py-4 font-mono font-bold text-rose-500 dark:text-rose-400">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 font-mono font-bold text-rose-500 dark:text-rose-400 text-xs sm:text-sm">
                   #{{ ret.id | slice: 0 : 8 }}
                 </td>
-                <td class="px-6 py-4 font-mono text-xs text-zinc-500">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 font-mono text-xs text-zinc-500">
                   #{{ ret.order_id | slice: 0 : 8 }}
                 </td>
-                <td class="px-6 py-4 max-w-[200px]">
-                  <p class="font-semibold text-zinc-900 dark:text-white truncate">{{ ret.reason }}</p>
+                <td class="px-4 sm:px-6 py-3 sm:py-4 max-w-[150px] sm:max-w-[200px]">
+                  <p class="font-semibold text-zinc-900 dark:text-white truncate text-xs sm:text-sm">{{ ret.reason }}</p>
                   @if (ret.reason_detail) {
-                    <p class="text-xs text-zinc-400 truncate mt-0.5">{{ ret.reason_detail }}</p>
+                    <p class="text-[10px] sm:text-xs text-zinc-400 truncate mt-0.5">{{ ret.reason_detail }}</p>
                   }
                 </td>
-                <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">
                   {{ ret.total_refund | appCurrency }}
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-4 sm:px-6 py-3 sm:py-4">
                   <span
-                    class="px-2.5 py-1 text-xs font-bold rounded-full uppercase"
+                    class="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full uppercase"
                     [class]="getStatusClass(ret.status)"
                   >
                     {{ ret.status }}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-zinc-500 text-xs">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 text-zinc-500 text-xs hidden sm:table-cell">
                   {{ ret.created_at | date: 'mediumDate' }}
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
                   @if (ret.status === 'pending') {
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end gap-1.5 sm:gap-2">
                       <button
                         (click)="approve(ret.id)"
                         [disabled]="processing() === ret.id"
-                        class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                        class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-emerald-500 text-white text-[10px] sm:text-xs font-bold rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-50"
                       >
                         Approve
                       </button>
                       <button
                         (click)="reject(ret.id)"
                         [disabled]="processing() === ret.id"
-                        class="px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold rounded-lg hover:bg-zinc-300 transition-colors disabled:opacity-50"
+                        class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-[10px] sm:text-xs font-bold rounded-lg hover:bg-zinc-300 transition-colors disabled:opacity-50"
                       >
                         Reject
                       </button>
@@ -138,9 +138,9 @@
                     <button
                       (click)="processRefund(ret.id)"
                       [disabled]="processing() === ret.id"
-                      class="px-3 py-1.5 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
+                      class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-rose-500 text-white text-[10px] sm:text-xs font-bold rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
                     >
-                      Process Refund
+                      Refund
                     </button>
                   }
                   @if (ret.status === 'completed' || ret.status === 'rejected') {
@@ -151,8 +151,8 @@
             }
             @if (filteredReturns().length === 0) {
               <tr>
-                <td colspan="7" class="px-6 py-20 text-center">
-                  <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700 block mb-3">assignment_return</span>
+                <td colspan="7" class="px-6 py-16 sm:py-20 text-center">
+                  <span class="material-symbols-outlined !text-[48px] sm:!text-[56px] text-zinc-300 dark:text-zinc-700 block mb-3">assignment_return</span>
                   <p class="font-bold text-zinc-500">No returns found</p>
                 </td>
               </tr>
@@ -165,15 +165,15 @@
 
   <!-- ── New Return Modal ── -->
   @if (isModalOpen()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="closeModal()">
-      <div class="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800" (click)="$event.stopPropagation()">
-        <div class="px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-rose-50 dark:bg-rose-900/10">
-          <h2 class="text-xl font-black text-zinc-900 dark:text-white">New Return Request</h2>
-          <button (click)="closeModal()" class="text-zinc-400 hover:text-rose-500 transition-colors">
-            <span class="material-symbols-outlined">close</span>
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4" (click)="closeModal()">
+      <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+        <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-rose-50 dark:bg-rose-900/10 shrink-0">
+          <h2 class="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">New Return Request</h2>
+          <button (click)="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+            <span class="material-symbols-outlined !text-[20px]">close</span>
           </button>
         </div>
-        <div class="p-6 space-y-4">
+        <div class="p-4 sm:p-6 space-y-4 overflow-y-auto">
           <div>
             <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Order ID</label>
             <input
@@ -209,13 +209,13 @@
               class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-rose-500/30"
             ></textarea>
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label class="block text-xs font-bold text-zinc-500 uppercase mb-1.5">Refund Method</label>
               <select
                 [ngModel]="newReturn().refund_method"
                 (ngModelChange)="newReturn.update(r => ({...r, refund_method: $event}))"
-                class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                class="w-full p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               >
                 <option value="cash">Cash</option>
                 <option value="card">Card Reversal</option>
@@ -229,14 +229,14 @@
                 [ngModel]="newReturn().refund_amount"
                 (ngModelChange)="newReturn.update(r => ({...r, refund_amount: +$event}))"
                 placeholder="0.00"
-                class="w-full p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                class="w-full p-2.5 sm:p-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               />
             </div>
           </div>
           <button
             (click)="submitNewReturn()"
             [disabled]="saving()"
-            class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-red-500 text-white font-bold rounded-xl hover:opacity-90 transition-all disabled:opacity-50"
+            class="w-full py-3 sm:py-3.5 bg-gradient-to-r from-rose-500 to-red-500 text-white font-bold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 text-sm"
           >
             {{ saving() ? 'Submitting...' : 'Submit Return Request' }}
           </button>

@@ -49,7 +49,7 @@
           <span class="text-[9px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg tracking-wider text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20">Today</span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Today's Revenue</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ (dashboardService.branchMetrics()?.today_revenue | appCurrency: branch.currency_code) || (branch.currency_symbol + '0.00') }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">Since midnight</p>
@@ -65,7 +65,7 @@
           <span class="text-[9px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">Live</span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Today's Orders</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ dashboardService.branchMetrics()?.today_orders ?? '—' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">Completed today</p>
@@ -80,7 +80,7 @@
           </div>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Active Staff</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ dashboardService.branchMetrics()?.active_staff ?? '—' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">On shift now</p>
@@ -98,7 +98,7 @@
           }
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Low Stock Items</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black tracking-tight truncate"
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black tracking-tight truncate"
           [ngClass]="(dashboardService.branchMetrics()?.low_stock_items || 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'">
           {{ dashboardService.branchMetrics()?.low_stock_items || '0' }}
         </h2>
@@ -115,7 +115,7 @@
           <span class="text-[9px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">All Time</span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Total Revenue</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ (dashboardService.branchMetrics()?.total_revenue_alltime | appCurrency: branch.currency_code) || (branch.currency_symbol + '0.00') }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">Lifetime sales</p>
@@ -131,7 +131,7 @@
           <span class="text-[9px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg tracking-wider text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20">All Time</span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Total Orders</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ dashboardService.branchMetrics()?.total_orders_alltime ?? '—' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">Completed orders</p>
@@ -332,7 +332,7 @@
           </span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Total Revenue</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ (dashboardService.metrics()?.total_sales | appCurrency) || settingsService.currencySymbol() + '0.00' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">vs. last period</p>
@@ -348,7 +348,7 @@
           <span class="text-[9px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg tracking-wider text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20">Live</span>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Total Orders</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ (dashboardService.metrics()?.total_orders | number) || '0' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">All time, all branches</p>
@@ -363,7 +363,7 @@
           </div>
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Active Customers</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black text-slate-900 dark:text-white tracking-tight truncate">
           {{ (dashboardService.metrics()?.active_customers | number) || '0' }}
         </h2>
         <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium truncate">Registered</p>
@@ -381,7 +381,7 @@
           }
         </div>
         <p class="text-[9px] sm:text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Low Stock (Network)</p>
-        <h2 class="text-base sm:text-xl lg:text-2xl xl:text-3xl font-black tracking-tight truncate"
+        <h2 class="text-sm sm:text-base lg:text-lg xl:text-xl font-black tracking-tight truncate"
           [ngClass]="(dashboardService.metrics()?.low_stock_items || 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'">
           {{ dashboardService.metrics()?.low_stock_items || '0' }}
         </h2>
