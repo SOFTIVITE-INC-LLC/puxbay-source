@@ -89,4 +89,45 @@ export class AuthService {
     if (!user.permissions) return false;
     return user.permissions.includes(permission) || user.permissions.includes('*');
   }
+
+  getDefaultRoute(): string {
+    const user = this.currentUser();
+    if (!user || user.is_superuser || user.role === 'superadmin' || this.hasPermission('dashboard:read')) {
+      return '/dashboard';
+    }
+
+    const routePermissions: { route: string; permission: string }[] = [
+      { route: '/tenants', permission: 'tenants:read' },
+      { route: '/domains', permission: 'domains:read' },
+      { route: '/pricing-plans', permission: 'pricing_plans:read' },
+      { route: '/subscriptions', permission: 'billing:read' },
+      { route: '/renewals', permission: 'billing:read' },
+      { route: '/payments', permission: 'billing:read' },
+      { route: '/failed-payments', permission: 'billing:read' },
+      { route: '/promo-codes', permission: 'promo_codes:read' },
+      { route: '/gift-cards', permission: 'billing:read' },
+      { route: '/blog', permission: 'content:read' },
+      { route: '/referrals', permission: 'referrals:read' },
+      { route: '/broadcasts', permission: 'broadcasts:read' },
+      { route: '/faqs', permission: 'content:read' },
+      { route: '/legal-documents', permission: 'content:read' },
+      { route: '/apps', permission: 'apps:read' },
+      { route: '/webhook-logs', permission: 'webhooks:read' },
+      { route: '/backups', permission: 'backups:read' },
+      { route: '/api-keys', permission: 'api_keys:read' },
+      { route: '/audit-logs', permission: 'security:read' },
+      { route: '/telemetry', permission: 'security:read' },
+      { route: '/admin-roles', permission: 'admin_users:read' },
+      { route: '/admin-users', permission: 'admin_users:read' },
+      { route: '/settings', permission: 'settings:write' },
+    ];
+
+    for (const item of routePermissions) {
+      if (this.hasPermission(item.permission)) {
+        return item.route;
+      }
+    }
+
+    return '/settings';
+  }
 }

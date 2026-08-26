@@ -29,9 +29,10 @@ export class LoginComponent {
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.router.navigateByUrl('/dashboard').then((navigated) => {
+        const targetRoute = this.authService.getDefaultRoute();
+        this.router.navigateByUrl(targetRoute).then((navigated) => {
           if (!navigated) {
-            window.location.href = '/dashboard';
+            window.location.href = targetRoute;
           }
         });
       },

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout/layout';
-import { authGuard } from './auth.guard';
+import { authGuard, defaultRouteGuard } from './auth.guard';
 
 export const routes: Routes = [
   {
@@ -14,8 +14,9 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [defaultRouteGuard],
+        children: []
       },
       {
         path: 'dashboard',
