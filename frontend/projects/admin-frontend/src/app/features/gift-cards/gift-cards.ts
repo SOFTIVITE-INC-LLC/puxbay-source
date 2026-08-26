@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GiftCardService, GiftCard } from '../../services/gift-card.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-admin-gift-cards',
@@ -11,6 +12,7 @@ import { GiftCardService, GiftCard } from '../../services/gift-card.service';
 })
 export class AdminGiftCardsComponent implements OnInit {
   private service = inject(GiftCardService);
+  private alert = inject(AlertService);
 
   cards = signal<GiftCard[]>([]);
   isLoading = signal(true);
@@ -55,19 +57,25 @@ export class AdminGiftCardsComponent implements OnInit {
         this.closeCreateModal();
         this.loadData();
       },
-      error: (err) => {
-        console.error('Failed to create', err);
+      error: () => {
         this.isSaving.set(false);
-        alert('Failed to issue gift card.');
+        this.alert.error('Failed to issue gift card. Please check the details and try again.', 'Error');
       }
     });
   }
 
-  disableCard(id: string) {
-    if (confirm('Are you sure you want to disable this gift card?')) {
+  async disableCard(id: string) {
+    const confirmed = await this.alert.confirm({
+      title: 'Disable Gift Card',
+      message: 'Are you sure you want to disable this gift card? It will no longer be redeemable.',
+      confirmText: 'Disable',
+      cancelText: 'Cancel',
+      type: 'warning'
+    });
+    if (confirmed) {
       this.service.disableGiftCard(id).subscribe({
-        next: () => this.loadData(),
-        error: () => alert('Failed to disable card.')
+        next: () => { this.alert.success('Gift card disabled.'); this.loadData(); },
+        error: () => this.alert.error('Failed to disable gift card.')
       });
     }
   }

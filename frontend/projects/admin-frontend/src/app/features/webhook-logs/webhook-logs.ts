@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GrowthService, WebhookEvent } from '../../services/growth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-webhook-logs',
@@ -61,6 +62,7 @@ import { GrowthService, WebhookEvent } from '../../services/growth.service';
 })
 export class WebhookLogsComponent implements OnInit {
   private service = inject(GrowthService);
+  private alert = inject(AlertService);
   events = signal<WebhookEvent[]>([]);
   isLoading = signal(true);
   retryingIds = signal<Set<string>>(new Set());
@@ -96,7 +98,7 @@ export class WebhookLogsComponent implements OnInit {
         const next = this.retryingIds();
         next.delete(id);
         this.retryingIds.set(new Set(next));
-        alert('Failed to queue retry');
+        this.alert.error('Failed to queue retry. Please try again.', 'Retry Failed');
       }
     });
   }

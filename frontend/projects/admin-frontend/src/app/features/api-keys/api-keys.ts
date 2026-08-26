@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SecurityService } from '../../services/security.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-api-keys',
@@ -11,6 +12,7 @@ import { SecurityService } from '../../services/security.service';
 })
 export class ApiKeysComponent implements OnInit {
   private service = inject(SecurityService);
+  private alert = inject(AlertService);
   keys = signal<any[]>([]);
   isLoading = signal(true);
   isCreating = signal(false);
@@ -55,16 +57,24 @@ export class ApiKeysComponent implements OnInit {
     });
   }
 
-  revokeKey(id: string) {
-    if (confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+  async revokeKey(id: string) {
+    const confirmed = await this.alert.confirm({
+      title: 'Revoke API Key',
+      message: 'Are you sure you want to revoke this API key? Any integrations using this key will immediately stop working. This action cannot be undone.',
+      confirmText: 'Revoke Key',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.service.revokeAPIKey(id).subscribe({
-        next: () => this.loadKeys()
+        next: () => { this.alert.success('API key revoked successfully.'); this.loadKeys(); },
+        error: () => this.alert.error('Failed to revoke API key.')
       });
     }
   }
 
   copyToClipboard(val: string) {
     navigator.clipboard.writeText(val);
-    alert('Copied to clipboard!');
+    this.alert.success('Copied to clipboard!', 'Copied');
   }
 }

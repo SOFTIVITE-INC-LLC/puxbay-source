@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SecurityService, AdminRole, AVAILABLE_PERMISSIONS } from '../../services/security.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -11,6 +12,7 @@ import { SecurityService, AdminRole, AVAILABLE_PERMISSIONS } from '../../service
 })
 export class AdminUsersComponent implements OnInit {
   private securityService = inject(SecurityService);
+  private alert = inject(AlertService);
 
   users = signal<any[]>([]);
   roles = signal<AdminRole[]>([]);
@@ -195,19 +197,26 @@ export class AdminUsersComponent implements OnInit {
     } catch { return 0; }
   }
 
-  deleteUser(user: any, event: any) {
+  async deleteUser(user: any, event: any) {
     event.stopPropagation();
-    if (confirm(`Are you sure you want to revoke admin access for ${user.user?.first_name} ${user.user?.last_name}?`)) {
+    const confirmed = await this.alert.confirm({
+      title: 'Revoke Admin Access',
+      message: `Are you sure you want to revoke admin access for ${user.user?.first_name} ${user.user?.last_name}? They will immediately lose all admin privileges.`,
+      confirmText: 'Revoke Access',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.isSaving.set(true);
       this.securityService.deleteAdminUser(user.user_id).subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.loadData(); // reload list
+          this.alert.success('Admin access revoked successfully.');
+          this.loadData();
         },
-        error: (err) => {
-          console.error('Failed to delete admin user', err);
+        error: () => {
           this.isSaving.set(false);
-          alert('Failed to revoke admin access.');
+          this.alert.error('Failed to revoke admin access. Please try again.', 'Action Failed');
         }
       });
     }

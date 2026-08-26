@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomainService, Domain, DomainDiagnostics } from '../../services/domain.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-domains',
@@ -11,6 +12,7 @@ import { DomainService, Domain, DomainDiagnostics } from '../../services/domain.
 })
 export class DomainsComponent implements OnInit {
   private service = inject(DomainService);
+  private alert = inject(AlertService);
 
   domains = signal<Domain[]>([]);
   total = signal(0);
@@ -90,17 +92,24 @@ export class DomainsComponent implements OnInit {
     }
   }
 
-  bulkVerify() {
+  async bulkVerify() {
     const ids = Array.from(this.selectedIds());
     if (ids.length === 0) return;
-    
-    if (confirm(`Are you sure you want to run DNS verification for ${ids.length} selected domains?`)) {
+
+    const confirmed = await this.alert.confirm({
+      title: 'Bulk DNS Verification',
+      message: `Run DNS verification for ${ids.length} selected domain${ids.length > 1 ? 's' : ''}? This may take a few seconds.`,
+      confirmText: 'Run Verification',
+      cancelText: 'Cancel',
+      type: 'info'
+    });
+    if (confirmed) {
       this.service.bulkVerifyDomains(ids).subscribe({
         next: () => {
-          alert('Bulk verification complete.');
+          this.alert.success(`Bulk verification complete for ${ids.length} domain${ids.length > 1 ? 's' : ''}.`, 'Verification Done');
           this.loadDomains();
         },
-        error: (err) => console.error('Failed to bulk verify domains', err)
+        error: () => this.alert.error('Failed to run bulk verification.')
       });
     }
   }
@@ -127,11 +136,18 @@ export class DomainsComponent implements OnInit {
     });
   }
 
-  deleteDomain(id: number) {
-    if (confirm('Are you sure you want to remove this custom domain?')) {
+  async deleteDomain(id: number) {
+    const confirmed = await this.alert.confirm({
+      title: 'Remove Custom Domain',
+      message: 'Are you sure you want to remove this custom domain? The tenant will need to re-add it.',
+      confirmText: 'Remove Domain',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.service.deleteDomain(id).subscribe({
-        next: () => this.loadDomains(),
-        error: (err) => console.error('Failed to delete domain', err)
+        next: () => { this.alert.success('Domain removed successfully.'); this.loadDomains(); },
+        error: () => this.alert.error('Failed to remove domain.')
       });
     }
   }

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminPricingService, PricingPlan, PlanFeature } from '../../services/admin-pricing.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-pricing-plans',
@@ -11,6 +12,7 @@ import { AdminPricingService, PricingPlan, PlanFeature } from '../../services/ad
 })
 export class PricingPlansComponent implements OnInit {
   private service = inject(AdminPricingService);
+  private alert = inject(AlertService);
 
   plans = signal<PricingPlan[]>([]);
   isLoading = signal(true);
@@ -153,11 +155,18 @@ export class PricingPlansComponent implements OnInit {
     this.service.updatePlan(plans[idx2].id!, plans[idx2]).subscribe();
   }
 
-  deletePlan(id: string) {
-    if (confirm('Are you sure you want to delete this pricing plan?')) {
+  async deletePlan(id: string) {
+    const confirmed = await this.alert.confirm({
+      title: 'Delete Pricing Plan',
+      message: 'Are you sure you want to delete this pricing plan? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.service.deletePlan(id).subscribe({
-        next: () => this.loadPlans(),
-        error: (err) => console.error('Failed to delete plan', err)
+        next: () => { this.alert.success('Pricing plan deleted.'); this.loadPlans(); },
+        error: () => this.alert.error('Failed to delete pricing plan.')
       });
     }
   }

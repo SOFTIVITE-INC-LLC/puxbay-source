@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BlogService, BlogPost } from '../../services/blog.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-blog-list',
@@ -11,6 +12,7 @@ import { BlogService, BlogPost } from '../../services/blog.service';
 })
 export class BlogListComponent implements OnInit {
   private blogService = inject(BlogService);
+  private alert = inject(AlertService);
 
   posts = signal<BlogPost[]>([]);
   isLoading = signal(true);
@@ -34,15 +36,21 @@ export class BlogListComponent implements OnInit {
     });
   }
 
-  deletePost(id: string) {
-    if (confirm('Are you sure you want to delete this blog post?')) {
+  async deletePost(id: string) {
+    const confirmed = await this.alert.confirm({
+      title: 'Delete Blog Post',
+      message: 'Are you sure you want to permanently delete this blog post? This cannot be undone.',
+      confirmText: 'Delete Post',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.blogService.deleteBlogPost(id).subscribe({
         next: () => {
+          this.alert.success('Blog post deleted.');
           this.loadPosts();
         },
-        error: () => {
-          alert('Failed to delete post.');
-        }
+        error: () => this.alert.error('Failed to delete blog post.')
       });
     }
   }

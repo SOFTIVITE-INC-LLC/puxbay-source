@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionService, Subscription } from '../../services/subscription.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-subscriptions',
@@ -10,6 +11,7 @@ import { SubscriptionService, Subscription } from '../../services/subscription.s
 })
 export class SubscriptionsComponent implements OnInit {
   private service = inject(SubscriptionService);
+  private alert = inject(AlertService);
 
   subscriptions = signal<Subscription[]>([]);
   stats = signal<any>(null);
@@ -65,14 +67,22 @@ export class SubscriptionsComponent implements OnInit {
     });
   }
 
-  overrideStatus(id: string, newStatus: string) {
+  async overrideStatus(id: string, newStatus: string) {
     this.openDropdownId.set(null);
-    if (confirm(`Are you sure you want to manually change this subscription to '${newStatus}'?`)) {
+    const confirmed = await this.alert.confirm({
+      title: 'Override Subscription Status',
+      message: `Manually change this subscription to '${newStatus}'? This will override the current billing status immediately.`,
+      confirmText: 'Apply Override',
+      cancelText: 'Cancel',
+      type: 'warning'
+    });
+    if (confirmed) {
       this.service.overrideSubscription(id, newStatus).subscribe({
         next: () => {
+          this.alert.success(`Subscription status changed to '${newStatus}'.`);
           this.loadSubscriptions();
         },
-        error: (err) => console.error('Failed to override subscription', err)
+        error: () => this.alert.error('Failed to override subscription status.')
       });
     }
   }
