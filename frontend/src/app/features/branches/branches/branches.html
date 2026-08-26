@@ -1,23 +1,23 @@
 <div
-  class="h-full flex flex-col p-6 space-y-6 max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
-  <!-- Subtle Ambient Glow -->
-  <div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none z-[-1]">
-  </div>
-  <div class="absolute bottom-10 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-[-1]">
+  class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 w-full max-w-7xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
+  <!-- Subtle Ambient Glow (contained to prevent horizontal viewport overflow) -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden z-[-1]">
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-10 -left-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
   </div>
 
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
       <h1
-        class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+        class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
         Store Branches
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-2 text-lg">
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 sm:mt-2 text-sm sm:text-base md:text-lg">
         Command and control your multi-location network seamlessly.
       </p>
     </div>
     <button (click)="openAddModal()"
-      class="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-blue-500/40 transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 font-semibold flex items-center gap-2">
+      class="w-full sm:w-auto px-5 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-blue-500/40 transition-all transform hover:-translate-y-0.5 active:scale-95 font-semibold flex items-center justify-center gap-2 text-sm sm:text-base shrink-0">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
       </svg>
@@ -27,48 +27,48 @@
 
   <!-- Network Dashboard Ribbon -->
   @if (networkMetrics()) {
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 pt-1 sm:pt-2">
     <div
-      class="glass-panel rounded-2xl p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      class="glass-panel rounded-2xl p-4 sm:p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-3.5 sm:gap-4">
+      <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
           </path>
         </svg>
       </div>
-      <div>
-        <p class="text-sm font-medium text-zinc-500">Today's Total Revenue</p>
-        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ networkMetrics()?.total_revenue || 0 |
+      <div class="min-w-0 flex-1">
+        <p class="text-xs sm:text-sm font-medium text-zinc-500 truncate">Today's Total Revenue</p>
+        <p class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white truncate">{{ networkMetrics()?.total_revenue || 0 |
           appCurrency }}</p>
       </div>
     </div>
 
     <div
-      class="glass-panel rounded-2xl p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      class="glass-panel rounded-2xl p-4 sm:p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-3.5 sm:gap-4">
+      <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
           </path>
         </svg>
       </div>
-      <div>
-        <p class="text-sm font-medium text-zinc-500">Active Staff Clocked-in</p>
-        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ networkMetrics()?.active_staff || 0 }}</p>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs sm:text-sm font-medium text-zinc-500 truncate">Active Staff Clocked-in</p>
+        <p class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white truncate">{{ networkMetrics()?.active_staff || 0 }}</p>
       </div>
     </div>
 
     <div
-      class="glass-panel rounded-2xl p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      class="glass-panel rounded-2xl p-4 sm:p-5 shadow-sm border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl flex items-center gap-3.5 sm:gap-4 sm:col-span-2 lg:col-span-1">
+      <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
       </div>
-      <div>
-        <p class="text-sm font-medium text-zinc-500">Offline / Sync Warnings</p>
-        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ networkMetrics()?.offline_count || 0 }}</p>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs sm:text-sm font-medium text-zinc-500 truncate">Offline / Sync Warnings</p>
+        <p class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white truncate">{{ networkMetrics()?.offline_count || 0 }}</p>
       </div>
     </div>
   </div>
@@ -81,71 +81,76 @@
   }
 
   @if (!branchService.loading()) {
-  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pt-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 pt-2 sm:pt-4">
     <!-- Branch Card -->
     @for (branch of branchService.branches(); track branch.id) {
     <div
-      class="glass-panel rounded-2xl p-6 shadow-xl border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-300"
+      class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
       [ngStyle]="{ 'border-top-width': '4px', 'border-top-color': branch.primary_color || '#4f46e5' }">
       <!-- Glow effect based on primary color -->
       <div
-        class="absolute top-0 right-0 w-32 h-32 opacity-20 dark:opacity-10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500"
+        class="absolute top-0 right-0 w-32 h-32 opacity-20 dark:opacity-10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none"
         [ngStyle]="{ 'background-color': branch.primary_color || '#4f46e5' }"></div>
-      <div class="flex justify-between items-start mb-5 relative z-10">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-2xl shadow-inner text-white"
-          [ngStyle]="{ 'background-color': branch.primary_color || '#4f46e5' }">
-          {{ branch.name.charAt(0).toUpperCase() }}
+      
+      <div>
+        <div class="flex justify-between items-start mb-4 sm:mb-5 relative z-10 gap-2">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-bold text-xl sm:text-2xl shadow-inner text-white shrink-0"
+            [ngStyle]="{ 'background-color': branch.primary_color || '#4f46e5' }">
+            {{ branch.name.charAt(0).toUpperCase() }}
+          </div>
+          <div class="flex flex-col items-end gap-1.5 sm:gap-2">
+            <span
+              class="px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-bold rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1"
+              [ngClass]="branch.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'">
+              @if (branch.status === 'active') { <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              }
+              {{ branch.status }}
+            </span>
+            <span
+              class="text-[11px] sm:text-xs font-semibold px-2 py-0.5 sm:py-1 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-md border border-blue-100 dark:border-blue-800 capitalize">
+              {{ branch.branch_type || 'Retail' }}
+            </span>
+          </div>
         </div>
-        <div class="flex flex-col items-end gap-2">
-          <span
-            class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1"
-            [ngClass]="branch.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'">
-            @if (branch.status === 'active') { <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-            }
-            {{ branch.status }}
-          </span>
-          <span
-            class="text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-md border border-blue-100 dark:border-blue-800 capitalize">
-            {{ branch.branch_type || 'Retail' }}
-          </span>
-        </div>
-      </div>
-      <h3 class="font-bold text-2xl text-zinc-900 dark:text-white relative z-10">
-        {{ branch.name }}
-      </h3>
+        
+        <h3 class="font-bold text-xl sm:text-2xl text-zinc-900 dark:text-white relative z-10 break-words">
+          {{ branch.name }}
+        </h3>
 
-      <div class="flex gap-4 mt-3 mb-2 text-sm relative z-10">
-        <div class="bg-zinc-100 dark:bg-zinc-800 px-3 py-2 rounded-lg flex-1">
-          <p class="text-zinc-500 text-xs">Today's Sales</p>
-          <p class="font-bold dark:text-white">{{ branch.currency_symbol || settingsService.currencySymbol() }}{{ branchMetrics()[branch.id || '']?.today_revenue || 0 | number:'1.2-2' }}</p>
+        <div class="flex gap-2 sm:gap-4 mt-3 mb-2 text-sm relative z-10">
+          <div class="bg-zinc-100 dark:bg-zinc-800 p-2.5 sm:px-3 sm:py-2 rounded-lg flex-1 min-w-0">
+            <p class="text-zinc-500 text-xs truncate">Today's Sales</p>
+            <p class="font-bold text-sm sm:text-base dark:text-white truncate">{{ branch.currency_symbol || settingsService.currencySymbol() }}{{ branchMetrics()[branch.id || '']?.today_revenue || 0 | number:'1.2-2' }}</p>
+          </div>
+          <div class="bg-zinc-100 dark:bg-zinc-800 p-2.5 sm:px-3 sm:py-2 rounded-lg flex-1 min-w-0">
+            <p class="text-zinc-500 text-xs truncate">Active Staff</p>
+            <p class="font-bold text-sm sm:text-base dark:text-white truncate">{{ branchMetrics()[branch.id || '']?.active_staff || 0 }}</p>
+          </div>
         </div>
-        <div class="bg-zinc-100 dark:bg-zinc-800 px-3 py-2 rounded-lg flex-1">
-          <p class="text-zinc-500 text-xs">Active Staff</p>
-          <p class="font-bold dark:text-white">{{ branchMetrics()[branch.id || '']?.active_staff || 0 }}</p>
+
+        <div class="space-y-2 sm:space-y-3 mt-3 sm:mt-4 relative z-10">
+          <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 flex items-start gap-2.5 sm:gap-3">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-zinc-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+              </path>
+            </svg>
+            <span class="break-words">{{ branch.address || 'No address provided' }}</span>
+          </p>
+          <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2.5 sm:gap-3">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 shrink-0 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
+              </path>
+            </svg>
+            <span class="truncate">{{ branch.phone || 'No phone provided' }}</span>
+          </p>
         </div>
       </div>
 
-      <div class="space-y-3 mt-4 relative z-10">
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 flex items-start gap-3">
-          <svg class="w-5 h-5 shrink-0 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
-            </path>
-          </svg>
-          {{ branch.address || 'No address provided' }}
-        </p>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-3">
-          <svg class="w-5 h-5 shrink-0 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-            </path>
-          </svg>
-          {{ branch.phone || 'No phone provided' }}
-        </p>
-      </div>
       <div
-        class="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-800/50 flex justify-between items-center relative z-10">
+        class="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-zinc-200 dark:border-zinc-800/50 flex items-center justify-between gap-2 relative z-10">
         <!-- Quick Actions group -->
         <div class="flex items-center gap-1">
           <button (click)="editSettings(branch)"
@@ -169,7 +174,7 @@
           </button>
         </div>
         <button (click)="manageBranch(branch)"
-          class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg text-sm hover:bg-blue-700 transition-colors shadow-sm">
+          class="px-3.5 sm:px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg text-xs sm:text-sm hover:bg-blue-700 transition-colors shadow-sm shrink-0">
           Enter Dashboard
         </button>
       </div>
@@ -178,20 +183,20 @@
     <!-- Empty State -->
     @if (branchService.branches().length === 0) {
     <div
-      class="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white/30 dark:bg-zinc-900/30 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-700 backdrop-blur-sm">
+      class="col-span-full py-12 sm:py-20 px-4 flex flex-col items-center justify-center text-center bg-white/30 dark:bg-zinc-900/30 rounded-2xl sm:rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-700 backdrop-blur-sm">
       <div
-        class="w-24 h-24 mb-6 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
-        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="w-16 h-16 sm:w-24 sm:h-24 mb-4 sm:mb-6 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+        <svg class="w-8 h-8 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
           </path>
         </svg>
       </div>
-      <h3 class="text-2xl font-bold text-zinc-900 dark:text-white mb-2">No Branches Configured</h3>
-      <p class="text-zinc-500 dark:text-zinc-400 max-w-md mb-8">Get started by creating your first store branch.
+      <h3 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">No Branches Configured</h3>
+      <p class="text-zinc-500 dark:text-zinc-400 max-w-md mb-6 sm:mb-8 text-sm sm:text-base">Get started by creating your first store branch.
         Branches help you isolate inventory, sales, and staff permissions.</p>
       <button (click)="openAddModal()"
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2">
+        class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 text-sm sm:text-base">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -205,68 +210,64 @@
 
 <!-- Add/Edit Branch Modal -->
 @if (isModalOpen()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-fade-in">
   <div class="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity" (click)="closeModal()"></div>
   <div
-    class="relative bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-3xl w-full border border-zinc-200 dark:border-zinc-800 animate-slide-up flex flex-col max-h-[90vh]">
+    class="relative bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl max-w-3xl w-full border border-zinc-200 dark:border-zinc-800 animate-slide-up flex flex-col max-h-[92vh] sm:max-h-[90vh]">
 
     <!-- Modal Header -->
-    <div class="flex justify-between items-center p-6 border-b border-zinc-200 dark:border-zinc-800">
+    <div class="flex justify-between items-center p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800">
       <div>
-        <h3 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ isEditing() ? 'Branch Settings' : 'Add New
-          Branch' }}</h3>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Configure physical location details and POS
-          preferences.</p>
+        <h3 class="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">{{ isEditing() ? 'Branch Settings' : 'Add New Branch' }}</h3>
+        <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1">Configure physical location details and POS preferences.</p>
       </div>
       <button (click)="closeModal()"
-        class="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors shrink-0">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-zinc-200 dark:border-zinc-800 px-6 overflow-x-auto shrink-0">
+    <div class="flex border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 overflow-x-auto shrink-0 no-scrollbar">
       <button (click)="activeTab.set('general')" [class.border-blue-500]="activeTab() === 'general'"
         [class.text-blue-600]="activeTab() === 'general'" [class.text-zinc-500]="activeTab() !== 'general'"
-        class="px-4 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap">General</button>
+        class="px-3 sm:px-4 py-2.5 sm:py-3 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap">General</button>
       <button (click)="activeTab.set('pos')" [class.border-blue-500]="activeTab() === 'pos'"
         [class.text-blue-600]="activeTab() === 'pos'" [class.text-zinc-500]="activeTab() !== 'pos'"
-        class="px-4 py-3 font-medium text-sm border-b-2 border-transparent transition-colors whitespace-nowrap">POS
-        Settings</button>
+        class="px-3 sm:px-4 py-2.5 sm:py-3 font-medium text-xs sm:text-sm border-b-2 border-transparent transition-colors whitespace-nowrap">POS Settings</button>
       <button (click)="activeTab.set('sync')" [class.border-blue-500]="activeTab() === 'sync'"
         [class.text-blue-600]="activeTab() === 'sync'" [class.text-zinc-500]="activeTab() !== 'sync'"
-        class="px-4 py-3 font-medium text-sm border-b-2 border-transparent transition-colors whitespace-nowrap">Hardware
-        & Sync</button>
+        class="px-3 sm:px-4 py-2.5 sm:py-3 font-medium text-xs sm:text-sm border-b-2 border-transparent transition-colors whitespace-nowrap">Hardware & Sync</button>
     </div>
 
     <!-- Scrollable Body -->
-    <div class="p-6 overflow-y-auto flex-1">
+    <div class="p-4 sm:p-6 overflow-y-auto flex-1">
 
       <!-- General Tab -->
       @if (activeTab() === 'general') {
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         <div class="col-span-1 sm:col-span-2">
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Branch Name <span
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Branch Name <span
               class="text-red-500">*</span></label>
           <input type="text" [(ngModel)]="currentBranch().name" placeholder="e.g. Downtown Store"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
         <div class="col-span-1 sm:col-span-2">
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Address</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Address</label>
           <input type="text" [(ngModel)]="currentBranch().address" placeholder="123 Commerce St"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Phone Number</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Phone Number</label>
           <input type="text" [(ngModel)]="currentBranch().phone" placeholder="+1 (555) 000-0000"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Branch Type</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Branch Type</label>
           <select [(ngModel)]="currentBranch().branch_type"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none">
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none text-sm sm:text-base">
             <option value="retail">Retail Store</option>
             <option value="warehouse">Warehouse</option>
             <option value="kiosk">Kiosk</option>
@@ -274,17 +275,17 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Theme Color</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Theme Color</label>
           <div class="flex items-center gap-3">
             <input type="color" [(ngModel)]="currentBranch().primary_color"
-              class="h-12 w-12 rounded-xl cursor-pointer border-0 p-0 bg-transparent" />
-            <span class="text-sm font-mono text-zinc-500">{{ currentBranch().primary_color }}</span>
+              class="h-10 w-10 sm:h-12 sm:w-12 rounded-xl cursor-pointer border-0 p-0 bg-transparent" />
+            <span class="text-xs sm:text-sm font-mono text-zinc-500">{{ currentBranch().primary_color }}</span>
           </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Status</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Status</label>
           <select [(ngModel)]="currentBranch().status"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none">
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none text-sm sm:text-base">
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
@@ -294,54 +295,54 @@
 
       <!-- POS Settings Tab -->
       @if (activeTab() === 'pos') {
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Currency Code</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Currency Code</label>
           <input type="text" [(ngModel)]="currentBranch().currency_code" placeholder="USD, GHS, EUR"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Currency Symbol</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Currency Symbol</label>
           <input type="text" [(ngModel)]="currentBranch().currency_symbol" placeholder="$, GH₵, €"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
         <div class="col-span-1 sm:col-span-2">
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Receipt Header</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Receipt Header</label>
           <textarea [(ngModel)]="currentBranch().receipt_header" rows="2"
             placeholder="Thank you for shopping at our branch!"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white"></textarea>
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base"></textarea>
         </div>
         <div class="col-span-1 sm:col-span-2">
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Receipt Footer</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Receipt Footer</label>
           <textarea [(ngModel)]="currentBranch().receipt_footer" rows="2"
             placeholder="Returns accepted within 14 days with receipt."
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white"></textarea>
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base"></textarea>
         </div>
       </div>
       }
 
       <!-- Sync Settings Tab -->
       @if (activeTab() === 'sync') {
-      <div class="grid grid-cols-1 gap-5">
-        <div class="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-2xl border border-blue-100 dark:border-blue-800/50">
-          <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="grid grid-cols-1 gap-4 sm:gap-5">
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 sm:p-5 rounded-2xl border border-blue-100 dark:border-blue-800/50">
+          <h4 class="font-bold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-2 text-sm sm:text-base">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
               </path>
             </svg>
             Sync Status: <span class="capitalize">{{ currentBranch().sync_status || 'Unknown' }}</span>
           </h4>
-          <p class="text-blue-600/80 dark:text-blue-400/80 text-sm mt-2">Last Sync: {{ (currentBranch().last_sync_at |
+          <p class="text-blue-600/80 dark:text-blue-400/80 text-xs sm:text-sm mt-2">Last Sync: {{ (currentBranch().last_sync_at |
             date:'medium') || 'Never' }}</p>
-          <p class="text-blue-600/80 dark:text-blue-400/80 text-sm">Pending Jobs: {{ currentBranch().pending_sync_count
+          <p class="text-blue-600/80 dark:text-blue-400/80 text-xs sm:text-sm">Pending Jobs: {{ currentBranch().pending_sync_count
             || 0 }}</p>
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Low Stock Threshold</label>
+          <label class="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Low Stock Threshold</label>
           <p class="text-xs text-zinc-500 mb-2">Triggers low stock warnings for products at this location.</p>
           <input type="number" [(ngModel)]="currentBranch().low_stock_threshold"
-            class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white" />
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all dark:text-white text-sm sm:text-base" />
         </div>
       </div>
       }
@@ -349,10 +350,10 @@
 
     <!-- Modal Footer -->
     <div
-      class="p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 rounded-b-3xl">
+      class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-b-3xl">
       @if (isEditing()) {
       <button (click)="archiveBranch($any(currentBranch()))"
-        class="px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors flex items-center gap-2">
+        class="order-2 sm:order-1 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
@@ -361,15 +362,15 @@
         Archive Branch
       </button>
       } @else {
-      <div></div> <!-- Spacer -->
+      <div class="hidden sm:block"></div> <!-- Spacer -->
       }
-      <div class="flex gap-3">
+      <div class="order-1 sm:order-2 flex gap-3 w-full sm:w-auto">
         <button (click)="closeModal()"
-          class="px-5 py-2.5 font-medium rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+          class="flex-1 sm:flex-initial px-5 py-2.5 font-medium rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-sm">
           Cancel
         </button>
         <button (click)="saveBranch()" [disabled]="!currentBranch().name || saving()"
-          class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 flex items-center gap-2">
+          class="flex-1 sm:flex-initial px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
           @if (saving()) {
           <div class="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
           }
