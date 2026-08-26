@@ -307,6 +307,7 @@ func (s *AuthService) CurrentUser(userID, tenantID uuid.UUID) (*models.UserProfi
 
 	if user.IsSuperuser {
 		return &models.UserProfile{
+			ID:       user.ID,
 			UserID:   user.ID,
 			TenantID: uuid.Nil,
 			Role:     &models.Role{Name: "superadmin"},
@@ -352,6 +353,7 @@ func (s *AuthService) Authenticate(username, password, totpCode string) (*models
 	if user.IsSuperuser {
 		// Mock profile for superadmin who doesn't have a specific tenant
 		profile = models.UserProfile{
+			ID:       user.ID,
 			UserID:   user.ID,
 			TenantID: uuid.Nil,
 			Role:     &models.Role{Name: "superadmin"},

@@ -1,19 +1,21 @@
 import { HttpInterceptorFn, HttpErrorResponse, HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { throwError, catchError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
-import { Router } from '@angular/router';
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<any>(null);
+const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const http = inject(HttpClient);
-  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/auth/login') && !req.url.includes('/auth/refresh')) {
-        
+      const isAuthEndpoint = req.url.includes('/auth/login') ||
+                             req.url.includes('/auth/session') ||
+                             req.url.includes('/auth/refresh') ||
+                             req.url.includes('/auth/logout');
+
+      if (error.status === 401 && !isAuthEndpoint) {
         if (!isRefreshing) {
           isRefreshing = true;
           refreshTokenSubject.next(null);
@@ -26,15 +28,20 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((err) => {
               isRefreshing = false;
-              // Let the http-error interceptor handle the redirect
+              refreshTokenSubject.next(false);
               return throwError(() => error);
             })
           );
         } else {
           return refreshTokenSubject.pipe(
-            filter(token => token !== null),
+            filter(result => result !== null),
             take(1),
-            switchMap(() => next(req))
+            switchMap((success) => {
+              if (success) {
+                return next(req);
+              }
+              return throwError(() => error);
+            })
           );
         }
       }

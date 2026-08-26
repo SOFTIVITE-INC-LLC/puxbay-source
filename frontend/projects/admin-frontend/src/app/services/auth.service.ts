@@ -36,12 +36,13 @@ export class AuthService {
     return this.http.get<User>(this.apiUrl + '/session', { withCredentials: true }).pipe(
       tap({
         next: (user) => {
-          if (user && user.id) {
+          if (user && (user.id || user.username || user.is_superuser)) {
             this.currentUser.set(user);
             this.isAuthenticated.set(true);
           }
         },
         error: () => {
+          this.currentUser.set(null);
           this.isAuthenticated.set(false);
         }
       }),
