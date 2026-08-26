@@ -85,8 +85,8 @@ export class AuthService {
   hasPermission(permission: string): boolean {
     const user = this.currentUser();
     if (!user) return false;
-    if (user.is_superuser) return true;
+    if (user.is_superuser || user.role === 'superadmin') return true;
     if (!user.permissions) return false;
-    return user.permissions.includes(permission);
+    return user.permissions.includes(permission) || user.permissions.includes('*');
   }
 }
