@@ -32,11 +32,13 @@ type Service struct {
 type Appointment struct {
 	BranchScoped
 	CustomerID    *uuid.UUID `gorm:"type:uuid;index" json:"customer_id,omitempty"`
+	Customer      *Customer  `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	CustomerName  *string    `gorm:"size:200" json:"customer_name,omitempty"`
 	CustomerPhone *string    `gorm:"size:30" json:"customer_phone,omitempty"`
 	CustomerEmail *string    `gorm:"size:254" json:"customer_email,omitempty"`
 
 	ServiceID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"service_id"`
+	Service       *Service   `gorm:"foreignKey:ServiceID" json:"service,omitempty"`
 	StaffMemberID *uuid.UUID `gorm:"type:uuid;index" json:"staff_member_id,omitempty"`
 
 	StartTime time.Time `gorm:"index" json:"start_time"`

@@ -1,69 +1,69 @@
-<div class="min-h-full flex flex-col gap-6 p-5 md:p-8 max-w-7xl mx-auto text-slate-900 dark:text-white">
+<div class="min-h-full flex flex-col gap-4 sm:gap-6 p-3.5 sm:p-5 md:p-8 max-w-7xl mx-auto text-slate-900 dark:text-white">
 
   <!-- ═══════════════════════════════════════════
        HERO HEADER
   ════════════════════════════════════════════ -->
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-6 md:p-8 shadow-2xl shadow-indigo-500/30">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-4 sm:p-6 md:p-8 shadow-2xl shadow-indigo-500/30">
     <!-- Decorative blobs -->
     <div class="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-white/5 blur-3xl"></div>
     <div class="pointer-events-none absolute bottom-0 left-1/3 w-40 h-40 rounded-full bg-purple-400/20 blur-2xl"></div>
 
-    <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 flex items-center justify-center text-white shadow-lg shrink-0">
-          <span class="material-symbols-outlined text-[30px]">payments</span>
+    <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5">
+      <div class="flex items-start sm:items-center gap-3 sm:gap-4">
+        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-white/15 backdrop-blur border border-white/20 flex items-center justify-center text-white shadow-lg shrink-0">
+          <span class="material-symbols-outlined !text-[24px] sm:!text-[30px]">payments</span>
         </div>
-        <div>
+        <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-[11px] font-bold uppercase tracking-widest text-indigo-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
+            <span class="text-[9px] sm:text-[11px] font-bold uppercase tracking-widest text-indigo-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
               Store Configuration
             </span>
           </div>
-          <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Payment Methods</h1>
-          <p class="text-sm text-indigo-200 mt-0.5 max-w-xl">
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Payment Methods</h1>
+          <p class="text-xs sm:text-sm text-indigo-200 mt-0.5 max-w-xl">
             Configure checkout channels, connect Paystack subaccounts with instant bank verification, and manage gateways.
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 shrink-0">
+      <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
         <button (click)="openCreateModal()"
-                class="flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 active:scale-95 text-sm font-bold rounded-xl shadow-lg transition-all duration-200 cursor-pointer">
-          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+                class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 active:scale-95 text-xs sm:text-sm font-bold rounded-xl shadow-lg transition-all duration-200 cursor-pointer">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">add_circle</span>
           Add Method
         </button>
       </div>
     </div>
 
     <!-- KPI Strip -->
-    <div class="relative mt-6 grid grid-cols-3 gap-3">
-      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
-          <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+    <div class="relative mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[20px]">account_balance_wallet</span>
         </div>
-        <div>
-          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Total</p>
-          <h3 class="text-xl font-black text-white">{{ totalMethods() }}</h3>
-        </div>
-      </div>
-
-      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-emerald-400/20 flex items-center justify-center text-emerald-300 shrink-0">
-          <span class="material-symbols-outlined text-[20px]">check_circle</span>
-        </div>
-        <div>
-          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Active</p>
-          <h3 class="text-xl font-black text-emerald-300">{{ activeMethodsCount() }}</h3>
+        <div class="min-w-0 flex-1">
+          <p class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-indigo-200 truncate">Total</p>
+          <h3 class="text-sm sm:text-xl font-black text-white truncate">{{ totalMethods() }}</h3>
         </div>
       </div>
 
-      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-indigo-200 shrink-0">
-          <span class="material-symbols-outlined text-[20px]">pause_circle</span>
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-emerald-400/20 flex items-center justify-center text-emerald-300 shrink-0">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[20px]">check_circle</span>
         </div>
-        <div>
-          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Disabled</p>
-          <h3 class="text-xl font-black text-white">{{ inactiveMethodsCount() }}</h3>
+        <div class="min-w-0 flex-1">
+          <p class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-indigo-200 truncate">Active</p>
+          <h3 class="text-sm sm:text-xl font-black text-emerald-300 truncate">{{ activeMethodsCount() }}</h3>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/10 p-2.5 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
+        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-white/10 flex items-center justify-center text-indigo-200 shrink-0">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[20px]">pause_circle</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-indigo-200 truncate">Disabled</p>
+          <h3 class="text-sm sm:text-xl font-black text-white truncate">{{ inactiveMethodsCount() }}</h3>
         </div>
       </div>
     </div>
@@ -75,8 +75,8 @@
   <div class="space-y-3">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px] text-amber-500">offline_bolt</span>
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quick Setup — Recommended Channels</h2>
+        <span class="material-symbols-outlined !text-[18px] text-amber-500">offline_bolt</span>
+        <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quick Setup — Recommended Channels</h2>
       </div>
       @if (methodService.methods().length === 0) {
         <button (click)="seedStandardSuite()" [disabled]="isSaving()"
@@ -87,7 +87,7 @@
       }
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       @for (preset of presets; track preset.name) {
         <div class="group relative flex flex-col justify-between rounded-2xl border bg-white dark:bg-zinc-900/60 border-slate-200 dark:border-zinc-800 p-4 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 cursor-default overflow-hidden">
 
@@ -111,7 +111,7 @@
               </div>
 
               <!-- Category Badge -->
-              <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 shrink-0 border border-slate-200 dark:border-white/5">
+              <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 shrink-0 border border-slate-200 dark:border-white/5 truncate max-w-[140px]">
                 {{ preset.badge }}
               </span>
             </div>
@@ -125,7 +125,7 @@
           </div>
 
           <button (click)="quickAddPreset(preset)" [disabled]="isSaving()"
-                  class="relative mt-3 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer border
+                  class="relative mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer border
                     border-indigo-200 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400
                     hover:bg-indigo-600 hover:text-white hover:border-indigo-600 dark:hover:bg-indigo-600 dark:hover:text-white
                     disabled:opacity-50 disabled:cursor-not-allowed active:scale-95">
