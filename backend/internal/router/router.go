@@ -52,7 +52,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	r.Use(middleware.RequestLogger())
 	r.Use(middleware.CORSMiddleware(&cfg.CORS))
 	r.Use(middleware.SecurityHeaders())
-	r.Use(middleware.CSRFMiddleware())
+	r.Use(middleware.CSRFMiddleware(cfg.App.RootDomain))
 	r.Use(middleware.RateLimitMiddleware(redisClient, 100, time.Minute, 5*time.Minute)) // 100 requests per minute
 
 	// Initialize services
