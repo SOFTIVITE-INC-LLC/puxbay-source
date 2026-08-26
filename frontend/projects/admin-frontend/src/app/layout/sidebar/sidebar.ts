@@ -84,7 +84,26 @@ export class SidebarComponent {
   ];
 
   get filteredCategories() {
-    return this.menuCategories;
+    const user = this.authService.currentUser();
+
+    // 1. Superusers, superadmins, or while user is loading: show all menus
+    if (!user || user.is_superuser || user.role === 'superadmin') {
+      return this.menuCategories;
+    }
+
+    // 2. Wildcard admin role: show all menus
+    if (user.permissions && user.permissions.includes('*')) {
+      return this.menuCategories;
+    }
+
+    // 3. Restricted staff: filter by assigned permissions
+    return this.menuCategories.map(cat => ({
+      ...cat,
+      items: cat.items.filter(item => {
+        if (!item.permission) return true;
+        return this.authService.hasPermission(item.permission);
+      })
+    })).filter(cat => cat.items.length > 0);
   }
 
   logout() {
