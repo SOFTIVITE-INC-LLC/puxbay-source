@@ -300,6 +300,20 @@ func (s *AuthService) GenerateSupplierToken(supplierID, tenantID uuid.UUID) (str
 
 // CurrentUser retrieves a user's profile details.
 func (s *AuthService) CurrentUser(userID, tenantID uuid.UUID) (*models.UserProfile, error) {
+	var user models.User
+	if err := s.db.First(&user, "id = ?", userID).Error; err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+
+	if user.IsSuperuser {
+		return &models.UserProfile{
+			UserID:   user.ID,
+			TenantID: uuid.Nil,
+			Role:     &models.Role{Name: "superadmin"},
+			User:     user,
+		}, nil
+	}
+
 	var profile models.UserProfile
 	result := s.db.
 		Where("user_id = ? AND tenant_id = ?", userID, tenantID).
