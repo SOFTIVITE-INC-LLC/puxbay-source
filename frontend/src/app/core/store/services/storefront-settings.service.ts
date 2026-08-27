@@ -16,6 +16,8 @@ export interface StorefrontSettings {
   enable_paystack?: boolean;
   paystack_public_key?: string;
   paystack_subaccount_code?: string;
+  currency?: string;
+  currency_symbol?: string;
   slug?: string;
   is_active?: boolean;
   flash_sale_end_time?: string;

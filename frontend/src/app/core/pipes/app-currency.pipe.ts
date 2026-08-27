@@ -3,6 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { SettingsService } from '../services/settings.service';
 import { CurrencyService } from '../store/services/currency.service';
+import { StorefrontSettingsService } from '../store/services/storefront-settings.service';
 import { BranchService } from '../services/branch.service';
 
 @Pipe({
@@ -14,6 +15,7 @@ export class AppCurrencyPipe implements PipeTransform {
   private currencyPipe = new CurrencyPipe('en-US');
   private settingsService = inject(SettingsService);
   private storefrontCurrency = inject(CurrencyService, { optional: true });
+  private storefrontSettings = inject(StorefrontSettingsService, { optional: true });
   private branchService = inject(BranchService);
   private router = inject(Router);
 
@@ -38,11 +40,13 @@ export class AppCurrencyPipe implements PipeTransform {
       valToFormat = this.storefrontCurrency.convert(valToFormat);
     } else {
       // Fallback priority:
-      // 1. Current Branch Currency
-      // 2. Global Company Currency
-      // 3. LocalStorage
-      // 4. USD
-      currentCode = this.branchService.activeBranch()?.currency_code || 
+      // 1. Storefront / Kiosk Tenant Settings Currency
+      // 2. Current Branch Currency
+      // 3. Global Company Currency
+      // 4. LocalStorage
+      // 5. USD
+      currentCode = this.storefrontSettings?.settings()?.currency ||
+                    this.branchService.activeBranch()?.currency_code || 
                     this.settingsService.settings()?.currency || 
                     (typeof window !== 'undefined' ? localStorage.getItem('currency_code') : null) || 
                     'USD';

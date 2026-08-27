@@ -64,6 +64,32 @@ func (s *StorefrontService) GetSettings() (*models.StorefrontSettings, error) {
 		}
 	}
 
+	// Auto-resolve Currency and Currency Symbol from tenant's branch
+	if settings.Currency == "" || settings.CurrencySymbol == "" {
+		var branch models.Branch
+		if err := s.db.Where("is_active = ?", true).Order("created_at asc").First(&branch).Error; err == nil {
+			if settings.Currency == "" && branch.CurrencyCode != "" {
+				settings.Currency = branch.CurrencyCode
+			}
+			if settings.CurrencySymbol == "" && branch.CurrencySymbol != "" {
+				settings.CurrencySymbol = branch.CurrencySymbol
+			}
+		} else if err := s.db.Order("created_at asc").First(&branch).Error; err == nil {
+			if settings.Currency == "" && branch.CurrencyCode != "" {
+				settings.Currency = branch.CurrencyCode
+			}
+			if settings.CurrencySymbol == "" && branch.CurrencySymbol != "" {
+				settings.CurrencySymbol = branch.CurrencySymbol
+			}
+		}
+		if settings.Currency == "" {
+			settings.Currency = "GHS"
+		}
+		if settings.CurrencySymbol == "" {
+			settings.CurrencySymbol = "GH₵"
+		}
+	}
+
 	if s.redis != nil {
 		if data, err := json.Marshal(settings); err == nil {
 			s.redis.Set(context.Background(), cacheKey, data, 5*time.Minute)

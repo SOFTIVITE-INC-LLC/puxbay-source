@@ -113,7 +113,19 @@ export class Kiosk implements OnInit, OnDestroy {
     });
 
     this.storefrontService.loadSettings().subscribe();
+
+    // Load Paystack inline.js if not already loaded
+    if (typeof document !== 'undefined' && !document.getElementById('paystack-inline-js')) {
+      const script = document.createElement('script');
+      script.id = 'paystack-inline-js';
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      document.head.appendChild(script);
+    }
   }
+
+  tenantCurrency = computed(() => {
+    return this.storefrontService.settings()?.currency || 'GHS';
+  });
 
   getCategoryName(id: string | null): string {
     if (!id) return 'Our Menu';
@@ -262,12 +274,60 @@ export class Kiosk implements OnInit, OnDestroy {
   }
 
   processPayment(method: 'card' | 'cash' | 'mobile_money') {
-    this.payNow(method);
+    const settings = this.storefrontService.settings();
+    const hasPaystack = !!(settings?.paystack_public_key && (settings?.enable_paystack !== false));
+
+    if ((method === 'mobile_money' || method === 'card') && hasPaystack) {
+      this.payWithPaystack(method, settings);
+    } else {
+      this.payNow(method);
+    }
   }
 
-  payNow(method: string = 'card') {
+  payWithPaystack(method: 'card' | 'mobile_money', settings: any) {
     if (this.cart().length === 0 || this.isProcessing()) return;
+    this.isProcessing.set(true);
 
+    const total = this.cartTotal();
+    const amountInLowestUnit = Math.round(total * 100);
+    const currency = this.tenantCurrency();
+    const customer = this.kioskCustomer();
+    const customerEmail = customer?.email || (this.customerPhone ? `${this.customerPhone.replace(/[^0-9]/g, '')}@kiosk.customer` : 'kiosk-customer@puxbay.com');
+
+    const channels = method === 'mobile_money'
+      ? ['mobile_money', 'qr', 'ussd']
+      : ['card', 'mobile_money', 'bank', 'ussd', 'qr'];
+
+    const setupConfig: any = {
+      key: settings.paystack_public_key,
+      email: customerEmail,
+      amount: amountInLowestUnit,
+      currency: currency,
+      channels: channels,
+      callback: (response: any) => {
+        this.payNow(method, response.reference);
+      },
+      onClose: () => {
+        this.isProcessing.set(false);
+        this.toastService.showInfo('Payment was cancelled.');
+      }
+    };
+
+    if (settings.paystack_subaccount_code) {
+      setupConfig.subaccount = settings.paystack_subaccount_code;
+    }
+
+    if (typeof window !== 'undefined' && (window as any).PaystackPop) {
+      const handler = (window as any).PaystackPop.setup(setupConfig);
+      handler.openIframe();
+    } else {
+      // If Paystack script is not loaded, fallback to direct order creation
+      this.payNow(method);
+    }
+  }
+
+  payNow(method: string = 'card', paymentRef?: string) {
+    if (this.cart().length === 0) return;
     this.isProcessing.set(true);
 
     const items = this.cart().map(item => ({
@@ -289,6 +349,7 @@ export class Kiosk implements OnInit, OnDestroy {
       total,
       amount_paid: total,
       payment_method: method,
+      payment_ref: paymentRef,
       items
     };
 

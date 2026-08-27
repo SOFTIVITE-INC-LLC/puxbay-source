@@ -30,6 +30,8 @@ type StorefrontSettings struct {
 	PaystackPublicKey      string     `gorm:"size:255" json:"paystack_public_key,omitempty"`
 	PaystackSubaccountCode string     `gorm:"size:100" json:"paystack_subaccount_code,omitempty"`
 	EnableMobileMoney      bool       `gorm:"default:false" json:"enable_mobile_money"`
+	Currency               string     `gorm:"size:10;default:'GHS'" json:"currency,omitempty"`
+	CurrencySymbol         string     `gorm:"size:10;default:'GH₵'" json:"currency_symbol,omitempty"`
 	FlashSaleEndTime       *time.Time `json:"flash_sale_end_time,omitempty"`
 }
 

@@ -67,24 +67,13 @@ export class QrCodes implements OnInit {
     const branch = this.selectedBranch();
     const base = this.baseUrl();
     const sub = this.subdomain();
-    const slug = this.storefrontSlug();
     const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
     const isLocalOrIP = hostname === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
 
-    // If a slug is configured use /shop/:slug, else fall back to /store/:branchId
-    let path: string;
-    if (slug) {
-      path = branch ? `/shop/${slug}?branch_id=${branch.id}` : `/shop/${slug}`;
-    } else {
-      path = branch ? `/store/${branch.id}` : '/store';
-    }
-
-    // For local/IP: append ?tenant= (merge with existing query if slug already added one)
-    if (isLocalOrIP && sub) {
-      const tenantParam = `tenant=${encodeURIComponent(sub)}`;
-      path = path.includes('?') ? `${path}&${tenantParam}` : `${path}?${tenantParam}`;
-    }
-    return `${base}${path}`;
+    // Points directly to the full e-commerce storefront (/store)
+    const path = branch ? `/store/${branch.id}` : '/store';
+    const query = isLocalOrIP && sub ? `?tenant=${encodeURIComponent(sub)}` : '';
+    return `${base}${path}${query}`;
   });
 
   kioskQrUrl = computed(() => {
