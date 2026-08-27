@@ -19,18 +19,22 @@ func NewCreditService(db *gorm.DB, sms *SMSService) *CreditService {
 	return &CreditService{db: db, sms: sms}
 }
 
+func (s *CreditService) GetSMSService() *SMSService {
+	return s.sms
+}
+
 // GetOrCreateCreditAccount returns the customer's credit account, creating one if none exists.
 func (s *CreditService) GetOrCreateCreditAccount(tenantID, customerID uuid.UUID) (*models.CreditAccount, error) {
 	var acc models.CreditAccount
-	err := s.db.Where("tenant_id = ? AND customer_id = ?", tenantID, customerID).First(&acc).Error
+	err := s.db.Where("customer_id = ?", customerID).First(&acc).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			acc = models.CreditAccount{
-				CustomerID:   customerID,
-				CreditLimit:  0,
-				Balance:      0,
-				Status:       "active",
-				DaysToRepay:  30,
+				CustomerID:  customerID,
+				CreditLimit: 0,
+				Balance:     0,
+				Status:      "active",
+				DaysToRepay: 30,
 			}
 			if createErr := s.db.Create(&acc).Error; createErr != nil {
 				return nil, createErr
@@ -61,8 +65,8 @@ func (s *CreditService) SetCreditLimit(tenantID, customerID uuid.UUID, limit flo
 		return nil, err
 	}
 
-	// Sync with Customer table
-	s.db.Model(&models.Customer{}).Where("id = ? AND tenant_id = ?", customerID, tenantID).
+	// Sync with Customer table in tenant schema
+	s.db.Model(&models.Customer{}).Where("id = ?", customerID).
 		Updates(map[string]interface{}{
 			"credit_limit": limit,
 		})
@@ -80,7 +84,7 @@ func (s *CreditService) DrawdownCredit(tenantID, customerID uuid.UUID, orderID *
 	var txRecord *models.CreditTransaction
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		var acc models.CreditAccount
-		if err := tx.Where("tenant_id = ? AND customer_id = ?", tenantID, customerID).First(&acc).Error; err != nil {
+		if err := tx.Where("customer_id = ?", customerID).First(&acc).Error; err != nil {
 			return errors.New("credit account not found for customer")
 		}
 
@@ -129,7 +133,7 @@ func (s *CreditService) DrawdownCredit(tenantID, customerID uuid.UUID, orderID *
 		}
 
 		// Update Customer debt_balance
-		if err := tx.Model(&models.Customer{}).Where("id = ? AND tenant_id = ?", customerID, tenantID).
+		if err := tx.Model(&models.Customer{}).Where("id = ?", customerID).
 			Update("debt_balance", newBalance).Error; err != nil {
 			return err
 		}
@@ -172,7 +176,7 @@ func (s *CreditService) DrawdownCredit(tenantID, customerID uuid.UUID, orderID *
 	if s.sms != nil {
 		go func() {
 			var cust models.Customer
-			if err := s.db.Where("id = ? AND tenant_id = ?", customerID, tenantID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
+			if err := s.db.Where("id = ?", customerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
 				msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f on Store Credit/BNPL has been recorded. Current balance: GHS %.2f. Thank you!", cust.Name, amount, txRecord.BalanceAfter)
 				_ = s.sms.SendSMS([]string{*cust.Phone}, msg)
 			}
@@ -191,7 +195,7 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 	var txRecord *models.CreditTransaction
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		var acc models.CreditAccount
-		if err := tx.Where("tenant_id = ? AND customer_id = ?", tenantID, customerID).First(&acc).Error; err != nil {
+		if err := tx.Where("customer_id = ?", customerID).First(&acc).Error; err != nil {
 			return errors.New("credit account not found")
 		}
 
@@ -232,14 +236,14 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 		}
 
 		// Update Customer debt_balance
-		if err := tx.Model(&models.Customer{}).Where("id = ? AND tenant_id = ?", customerID, tenantID).
+		if err := tx.Model(&models.Customer{}).Where("id = ?", customerID).
 			Update("debt_balance", newBalance).Error; err != nil {
 			return err
 		}
 
 		// Mark pending instalments as paid sequentially
 		var pendingInstalments []models.BNPLInstalment
-		tx.Where("tenant_id = ? AND customer_id = ? AND status != 'paid'", tenantID, customerID).
+		tx.Where("customer_id = ? AND status != 'paid'", customerID).
 			Order("due_date asc").Find(&pendingInstalments)
 
 		remainingPayment := amount
@@ -273,7 +277,7 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 	if s.sms != nil {
 		go func() {
 			var cust models.Customer
-			if err := s.db.Where("id = ? AND tenant_id = ?", customerID, tenantID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
+			if err := s.db.Where("id = ?", customerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
 				msg := fmt.Sprintf("Dear %s, your repayment of GHS %.2f via %s received. Remaining credit balance: GHS %.2f. Ref: %s.", cust.Name, amount, paymentMethod, txRecord.BalanceAfter, txRecord.Reference)
 				_ = s.sms.SendSMS([]string{*cust.Phone}, msg)
 			}
@@ -291,11 +295,11 @@ func (s *CreditService) GetCreditAccountDetails(tenantID, customerID uuid.UUID) 
 	}
 
 	var transactions []models.CreditTransaction
-	s.db.Where("tenant_id = ? AND customer_id = ?", tenantID, customerID).
+	s.db.Where("customer_id = ?", customerID).
 		Order("created_at desc").Limit(50).Find(&transactions)
 
 	var instalments []models.BNPLInstalment
-	s.db.Where("tenant_id = ? AND customer_id = ?", tenantID, customerID).
+	s.db.Where("customer_id = ?", customerID).
 		Order("due_date asc").Find(&instalments)
 
 	available := acc.CreditLimit - acc.Balance
@@ -304,17 +308,17 @@ func (s *CreditService) GetCreditAccountDetails(tenantID, customerID uuid.UUID) 
 	}
 
 	return map[string]interface{}{
-		"account":           acc,
-		"available_credit":  available,
-		"transactions":      transactions,
-		"instalments":       instalments,
+		"account":          acc,
+		"available_credit": available,
+		"transactions":     transactions,
+		"instalments":      instalments,
 	}, nil
 }
 
 // GetOverdueAccounts returns all customer credit accounts with past-due instalments or balances.
 func (s *CreditService) GetOverdueAccounts(tenantID uuid.UUID) ([]map[string]interface{}, error) {
 	var accounts []models.CreditAccount
-	if err := s.db.Preload("Customer").Where("tenant_id = ? AND balance > 0", tenantID).Find(&accounts).Error; err != nil {
+	if err := s.db.Preload("Customer").Where("balance > 0").Find(&accounts).Error; err != nil {
 		return nil, err
 	}
 
@@ -323,7 +327,7 @@ func (s *CreditService) GetOverdueAccounts(tenantID uuid.UUID) ([]map[string]int
 
 	for _, acc := range accounts {
 		var overdueInstalments []models.BNPLInstalment
-		s.db.Where("tenant_id = ? AND customer_id = ? AND status != 'paid' AND due_date < ?", tenantID, acc.CustomerID, now).
+		s.db.Where("customer_id = ? AND status != 'paid' AND due_date < ?", acc.CustomerID, now).
 			Find(&overdueInstalments)
 
 		var overdueAmount float64
@@ -333,12 +337,12 @@ func (s *CreditService) GetOverdueAccounts(tenantID uuid.UUID) ([]map[string]int
 
 		if overdueAmount > 0 || (acc.LastDrawdownAt != nil && now.Sub(*acc.LastDrawdownAt).Hours() > float64(acc.DaysToRepay*24)) {
 			results = append(results, map[string]interface{}{
-				"account":           acc,
-				"customer":          acc.Customer,
-				"total_balance":     acc.Balance,
-				"overdue_amount":    overdueAmount,
-				"overdue_count":     len(overdueInstalments),
-				"days_overdue":      int(now.Sub(*acc.LastDrawdownAt).Hours() / 24),
+				"account":        acc,
+				"customer":       acc.Customer,
+				"total_balance":  acc.Balance,
+				"overdue_amount": overdueAmount,
+				"overdue_count":  len(overdueInstalments),
+				"days_overdue":   int(now.Sub(*acc.LastDrawdownAt).Hours() / 24),
 			})
 		}
 	}

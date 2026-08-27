@@ -21,7 +21,7 @@ func NewCreditHandler(db *gorm.DB, service *services.CreditService) *CreditHandl
 }
 
 func (h *CreditHandler) getService(c *gin.Context) *services.CreditService {
-	return services.NewCreditService(getDB(c, h.db), nil)
+	return services.NewCreditService(getDB(c, h.db), h.service.GetSMSService())
 }
 
 func getTenantIDFromContext(c *gin.Context) (uuid.UUID, error) {
