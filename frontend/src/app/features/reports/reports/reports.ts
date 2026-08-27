@@ -123,9 +123,10 @@ export class Reports implements OnInit {
       next: r => this.overdueAccounts.set(r?.overdue_accounts || []),
       error: () => this.overdueAccounts.set([])
     });
-    this.crmService.getCustomers().subscribe({
-      next: (customers: any[]) => {
-        const withDebt = (customers || []).filter((c: any) => (c.debt_balance || 0) > 0);
+    this.crmService.getCustomers({ limit: 500 }).subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        const withDebt = list.filter((c: any) => (c.debt_balance || 0) > 0);
         this.allCustomersWithDebt.set(withDebt);
         this.creditReportLoading.set(false);
       },

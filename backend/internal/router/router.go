@@ -365,6 +365,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/crm/feedback", crmHandler.ListFeedback)
 			api.POST("/crm/feedback", crmHandler.CreateFeedback)
 			api.DELETE("/crm/feedback/:id", crmHandler.DeleteFeedback)
+			api.GET("/crm/customers", customerHandler.List)
+			api.POST("/crm/customers", customerHandler.Create)
+			api.GET("/crm/customers/:id", customerHandler.Get)
+			api.PUT("/crm/customers/:id", customerHandler.Update)
 
 			// Support Tickets / Helpdesk
 			api.GET("/crm/tickets", crmHandler.ListTickets)

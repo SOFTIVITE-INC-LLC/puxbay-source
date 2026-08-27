@@ -40,9 +40,16 @@ export interface CustomerFeedback {
 })
 export class CrmService {
   customers = signal<any[]>([]);
-  getCustomers() { return this.api.get<any[]>('/crm/customers').pipe(tap(res => this.customers.set(res || []))); }
-  createCustomer(c: any) { return this.api.post('/crm/customers', c); }
-  updateCustomer(id: string, c: any) { return this.api.put('/crm/customers/'+id, c); }
+  getCustomers(params?: any): Observable<any> {
+    return this.api.get<any>('/customers', { params }).pipe(
+      tap(res => {
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        this.customers.set(list);
+      })
+    );
+  }
+  createCustomer(c: any) { return this.api.post('/customers', c); }
+  updateCustomer(id: string, c: any) { return this.api.put('/customers/'+id, c); }
 
   private api = inject(ApiService);
   
