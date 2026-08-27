@@ -1,89 +1,142 @@
 @if (loadingCustomer()) {
-  <div class="h-screen flex items-center justify-center">
+  <div class="h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#04060d]">
     <div class="w-12 h-12 rounded-full border-4 border-teal-500/20 border-t-teal-500 animate-spin"></div>
   </div>
 } @else if (!customer()) {
-  <div class="h-screen flex items-center justify-center text-zinc-400">Customer not found.</div>
+  <div class="h-screen flex items-center justify-center text-zinc-400 bg-zinc-50 dark:bg-[#04060d]">Customer not found.</div>
 } @else {
 <div class="h-full flex flex-col font-outfit bg-zinc-50 dark:bg-[#04060d] min-h-screen">
 
   <!-- Sticky Header -->
-  <div class="sticky top-0 z-30 bg-white/80 dark:bg-[#04060d]/80 backdrop-blur-xl border-b border-zinc-200/60 dark:border-white/10">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
-      <a routerLink="/customers" class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-500 transition-colors">
-        <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
-      </a>
+  <div class="sticky top-0 z-30 bg-white/90 dark:bg-[#04060d]/90 backdrop-blur-xl border-b border-zinc-200/60 dark:border-white/10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      
+      <div class="flex items-center gap-3 min-w-0">
+        <a routerLink="/customers" class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-500 transition-colors shrink-0">
+          <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
+        </a>
 
-      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-black text-lg shadow-lg">
-        {{ getInitial(customer()!.name) }}
-      </div>
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shrink-0">
+          {{ getInitial(customer()!.name) }}
+        </div>
 
-      <div class="flex-1 min-w-0">
-        <h1 class="text-lg font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ customer()!.name }}</h1>
-        <div class="flex items-center gap-2 mt-0.5">
-          <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full {{ loyaltyTier().bg }} {{ loyaltyTier().color }}">
-            <span class="material-symbols-outlined !text-[12px]">{{ loyaltyTier().icon }}</span>
-            {{ loyaltyTier().label }}
-          </span>
-          @if ((customer()?.debt_balance ?? 0) > 0) {
-            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400">
-              <span class="material-symbols-outlined !text-[12px]">warning</span>
-              Has Debt
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-xl font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ customer()!.name }}</h1>
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full {{ loyaltyTier().bg }} {{ loyaltyTier().color }}">
+              <span class="material-symbols-outlined !text-[12px]">{{ loyaltyTier().icon }}</span>
+              {{ loyaltyTier().label }} Member
             </span>
-          }
+            @if (outstandingDebt() > 0) {
+              <span class="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 border border-rose-200/50 dark:border-rose-500/20">
+                <span class="material-symbols-outlined !text-[13px]">warning</span>
+                {{ outstandingDebt() | appCurrency }} Debt
+              </span>
+            }
+          </div>
+          <p class="text-xs text-zinc-400 mt-0.5 truncate">{{ customer()?.phone || customer()?.email || 'Customer Account' }}</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        @if (customer()!.email) {
-          <a [href]="'mailto:' + customer()!.email" class="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors" title="Send Email">
-            <span class="material-symbols-outlined !text-[18px]">mail</span>
-          </a>
-        }
-        @if (customer()?.phone) {
-          <a [href]="'tel:' + customer()!.phone" class="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="Call">
-            <span class="material-symbols-outlined !text-[18px]">call</span>
-          </a>
-        }
-        @if ((customer()?.debt_balance ?? 0) > 0) {
-          <button (click)="openPaymentModal()" class="flex items-center gap-1.5 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-all">
-            <span class="material-symbols-outlined !text-[16px]">payments</span>
-            Record Payment
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Record Payment Button (Always Accessible) -->
+        <button
+          (click)="openPaymentModal()"
+          class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
+        >
+          <span class="material-symbols-outlined !text-[18px]">payments</span>
+          Record Debt Payment
+        </button>
+
+        <!-- Set Credit Limit -->
+        <button
+          (click)="openCreditLimitModal()"
+          class="flex items-center gap-1.5 px-3 py-2 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-xs sm:text-sm font-bold rounded-xl border border-indigo-200/50 dark:border-indigo-500/20 transition-all cursor-pointer"
+        >
+          <span class="material-symbols-outlined !text-[18px]">credit_card</span>
+          Credit Limit
+        </button>
+
+        <!-- Send Reminder (if debt > 0) -->
+        @if (outstandingDebt() > 0) {
+          <button
+            (click)="sendReminder()"
+            [disabled]="sendingReminder()"
+            class="flex items-center gap-1.5 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-bold rounded-xl border border-amber-200/50 dark:border-amber-500/20 transition-all cursor-pointer"
+            title="Send SMS / WhatsApp Repayment Reminder"
+          >
+            <span class="material-symbols-outlined !text-[18px]">send_to_mobile</span>
+            @if (sendingReminder()) { Sending... } @else { Remind }
           </button>
         }
-        <button (click)="openEditModal()" class="flex items-center gap-1.5 px-4 py-2 bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/20 text-zinc-700 dark:text-zinc-300 text-sm font-bold rounded-xl transition-all">
+
+        <!-- Edit Profile -->
+        <button
+          (click)="openEditModal()"
+          class="flex items-center gap-1.5 px-3 py-2 bg-zinc-100 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/20 text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer"
+        >
           <span class="material-symbols-outlined !text-[16px]">edit</span>
           Edit
         </button>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="max-w-6xl mx-auto px-6 flex gap-1 pb-0">
-      <button (click)="activeTab.set('overview')" class="px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px"
-        [class]="activeTab() === 'overview' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
+    <!-- Navigation Tabs -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex gap-2 pb-0 overflow-x-auto">
+      <button
+        (click)="activeTab.set('overview')"
+        class="px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px flex items-center gap-2 cursor-pointer shrink-0"
+        [class]="activeTab() === 'overview' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+      >
+        <span class="material-symbols-outlined !text-[18px]">dashboard</span>
         Overview
       </button>
-      <button (click)="activeTab.set('orders')" class="px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px"
-        [class]="activeTab() === 'orders' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'">
-        Order History <span class="ml-1 text-xs bg-zinc-100 dark:bg-white/10 text-zinc-500 dark:text-zinc-400 px-1.5 py-0.5 rounded-full">{{ orders().length }}</span>
+
+      <button
+        (click)="activeTab.set('credit')"
+        class="px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px flex items-center gap-2 cursor-pointer shrink-0"
+        [class]="activeTab() === 'credit' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+      >
+        <span class="material-symbols-outlined !text-[18px]">receipt_long</span>
+        Credit & Debt Ledger
+        @if (outstandingDebt() > 0) {
+          <span class="text-xs bg-rose-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
+            {{ outstandingDebt() | appCurrency }}
+          </span>
+        } @else if (creditData()?.transactions?.length) {
+          <span class="text-xs bg-zinc-100 dark:bg-white/10 text-zinc-500 px-1.5 py-0.5 rounded-full">
+            {{ creditData()?.transactions?.length }}
+          </span>
+        }
+      </button>
+
+      <button
+        (click)="activeTab.set('orders')"
+        class="px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px flex items-center gap-2 cursor-pointer shrink-0"
+        [class]="activeTab() === 'orders' ? 'border-teal-500 text-teal-600 dark:text-teal-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'"
+      >
+        <span class="material-symbols-outlined !text-[18px]">shopping_bag</span>
+        Order History
+        <span class="text-xs bg-zinc-100 dark:bg-white/10 text-zinc-500 px-1.5 py-0.5 rounded-full">{{ orders().length }}</span>
       </button>
     </div>
   </div>
 
-  <!-- Body -->
-  <div class="flex-1 max-w-6xl mx-auto w-full px-6 py-8">
+  <!-- Main Body Content -->
+  <div class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8">
 
-    <!-- Overview Tab -->
+    <!-- ======================================================== -->
+    <!-- OVERVIEW TAB -->
+    <!-- ======================================================== -->
     @if (activeTab() === 'overview') {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Left: Profile Card -->
+        <!-- Left Column: Customer Profile Card -->
         <div class="lg:col-span-1 space-y-5">
-          <!-- Identity Card -->
           <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-6 shadow-sm">
             <div class="flex flex-col items-center text-center mb-6">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-3xl font-black text-white shadow-xl ring-4 ring-white dark:ring-[#05070f] mb-4">
+              <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-3xl font-black text-white shadow-xl mb-4">
                 {{ getInitial(customer()!.name) }}
               </div>
               <h2 class="text-xl font-black text-zinc-900 dark:text-white">{{ customer()!.name }}</h2>
@@ -96,8 +149,8 @@
             <div class="space-y-3">
               @if (customer()!.email) {
                 <a [href]="'mailto:' + customer()!.email" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors group">
-                  <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500">
-                    <span class="material-symbols-outlined !text-[16px]">mail</span>
+                  <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-500 shrink-0">
+                    <span class="material-symbols-outlined !text-[18px]">mail</span>
                   </div>
                   <div class="min-w-0">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-0.5">Email</p>
@@ -107,8 +160,8 @@
               }
               @if (customer()?.phone) {
                 <a [href]="'tel:' + customer()!.phone" class="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors group">
-                  <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500">
-                    <span class="material-symbols-outlined !text-[16px]">call</span>
+                  <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 shrink-0">
+                    <span class="material-symbols-outlined !text-[18px]">call</span>
                   </div>
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-0.5">Phone</p>
@@ -118,8 +171,8 @@
               }
               @if (customer()?.address) {
                 <div class="flex items-center gap-3 p-3 rounded-xl">
-                  <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 flex-shrink-0">
-                    <span class="material-symbols-outlined !text-[16px]">location_on</span>
+                  <div class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 shrink-0">
+                    <span class="material-symbols-outlined !text-[18px]">location_on</span>
                   </div>
                   <div>
                     <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-0.5">Address</p>
@@ -128,53 +181,128 @@
                 </div>
               }
             </div>
+
+            <!-- Customer Action Shortcuts -->
+            <div class="mt-6 pt-5 border-t border-zinc-200/60 dark:border-white/10 flex flex-col gap-2">
+              <button (click)="openPaymentModal()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer">
+                <span class="material-symbols-outlined !text-[16px]">payments</span>
+                Record Debt Payment
+              </button>
+              <button (click)="openCreditLimitModal()" class="w-full py-2.5 px-4 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer">
+                <span class="material-symbols-outlined !text-[16px]">tune</span>
+                Configure Credit Limit
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Right: Metrics -->
+        <!-- Right Column: Financial Overview & Debt Health -->
         <div class="lg:col-span-2 space-y-5">
-          <!-- Stats Grid -->
+          
+          <!-- Key Metrics Grid -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
-              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Total Orders</p>
-              <p class="text-3xl font-black text-zinc-900 dark:text-white">{{ customer()!.order_count || 0 }}</p>
+            
+            <!-- Outstanding Debt (Hero Metric) -->
+            <div class="bg-white dark:bg-[#05070f] rounded-2xl border p-4 shadow-sm text-center"
+              [class]="outstandingDebt() > 0 ? 'border-rose-300 dark:border-rose-500/30 bg-rose-50/30 dark:bg-rose-950/10' : 'border-zinc-200/60 dark:border-white/10'">
+              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Outstanding Debt</p>
+              <p class="text-2xl font-black" [class]="outstandingDebt() > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-800 dark:text-white'">
+                {{ outstandingDebt() | appCurrency }}
+              </p>
+              <p class="text-[11px] text-zinc-400 mt-1">Unsettled Credit</p>
             </div>
+
+            <!-- Approved Credit Limit -->
+            <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
+              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Credit Limit</p>
+              <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">{{ creditLimit() | appCurrency }}</p>
+              <p class="text-[11px] text-zinc-400 mt-1">Max Credit Ceiling</p>
+            </div>
+
+            <!-- Available Credit -->
+            <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
+              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Available Credit</p>
+              <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ availableCredit() | appCurrency }}</p>
+              <p class="text-[11px] text-zinc-400 mt-1">Ready to Spend</p>
+            </div>
+
+            <!-- Lifetime Value (LTV) -->
             <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
               <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Lifetime Value</p>
-              <p class="text-xl font-black text-emerald-600 dark:text-emerald-400">{{ customer()!.total_spend | appCurrency }}</p>
-            </div>
-            <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
-              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Loyalty Pts</p>
-              <p class="text-3xl font-black text-amber-500">{{ customer()!.loyalty_pts | number:'1.0-0' }}</p>
-            </div>
-            <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-4 shadow-sm text-center">
-              <p class="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-1">Store Credit</p>
-              <p class="text-xl font-black text-indigo-600 dark:text-indigo-400">{{ customer()!.store_credit | appCurrency }}</p>
+              <p class="text-2xl font-black text-teal-600 dark:text-teal-400">{{ customer()!.total_spend | appCurrency }}</p>
+              <p class="text-[11px] text-zinc-400 mt-1">{{ customer()!.order_count || 0 }} Orders</p>
             </div>
           </div>
 
-          <!-- Debt Banner -->
-          @if ((customer()?.debt_balance ?? 0) > 0) {
-            <div class="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-500/30 rounded-2xl p-5 flex items-center justify-between">
+          <!-- Debt Attention Banner -->
+          @if (outstandingDebt() > 0) {
+            <div class="bg-gradient-to-r from-rose-500/10 via-rose-500/5 to-transparent border border-rose-300 dark:border-rose-500/30 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center text-rose-600">
-                  <span class="material-symbols-outlined !text-[20px]">receipt_long</span>
+                <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined !text-2xl">account_balance_wallet</span>
                 </div>
                 <div>
-                  <p class="font-black text-rose-700 dark:text-rose-400">Outstanding Debt</p>
-                  <p class="text-sm text-rose-500 dark:text-rose-500">{{ customer()!.name }} has an unpaid balance</p>
+                  <h4 class="font-black text-rose-700 dark:text-rose-400 text-base">Unpaid Balance: {{ outstandingDebt() | appCurrency }}</h4>
+                  <p class="text-xs text-rose-600/80 dark:text-rose-400/80 mt-0.5">
+                    Customer has drawn down on store credit. You can record a partial or full repayment.
+                  </p>
                 </div>
               </div>
-              <div class="text-right">
-                <p class="text-2xl font-black text-rose-600 dark:text-rose-400">{{ customer()!.debt_balance | appCurrency }}</p>
-                <button (click)="openPaymentModal()" class="mt-1 text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline">Record Payment →</button>
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  (click)="openPaymentModal()"
+                  class="flex-1 sm:flex-none px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/20 transition-all cursor-pointer text-center"
+                >
+                  Pay Down Debt
+                </button>
+                <button
+                  (click)="sendReminder()"
+                  class="px-3 py-2.5 bg-white dark:bg-white/10 hover:bg-zinc-100 dark:hover:bg-white/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-xl border border-rose-200 dark:border-rose-500/30 transition-all cursor-pointer"
+                  title="Send Repayment Reminder"
+                >
+                  <span class="material-symbols-outlined !text-base">send_to_mobile</span>
+                </button>
               </div>
             </div>
           }
 
-          <!-- Tier Progress -->
-          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-5 shadow-sm">
-            <p class="text-sm font-black text-zinc-800 dark:text-white mb-4">Loyalty Tier Progress</p>
+          <!-- Quick Actions & Credit Health -->
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-black text-zinc-900 dark:text-white text-base">Store Credit & BNPL Status</h3>
+                <p class="text-xs text-zinc-400">Credit facilities and payment terms for {{ customer()!.name }}</p>
+              </div>
+              <button (click)="activeTab.set('credit')" class="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer">
+                View Full Ledger →
+              </button>
+            </div>
+
+            <!-- Progress Bar of Credit Utilization -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-bold">
+                <span class="text-zinc-500">Credit Utilization</span>
+                <span [class]="outstandingDebt() > creditLimit() ? 'text-rose-500' : 'text-zinc-700 dark:text-zinc-300'">
+                  {{ creditLimit() > 0 ? ((outstandingDebt() / creditLimit()) * 100 | number:'1.0-1') : '0' }}%
+                </span>
+              </div>
+              <div class="h-3 w-full bg-zinc-100 dark:bg-white/10 rounded-full overflow-hidden">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  [class]="outstandingDebt() > creditLimit() ? 'bg-rose-500' : 'bg-gradient-to-r from-teal-500 to-indigo-500'"
+                  [style.width.%]="creditLimit() > 0 ? Math.min(100, (outstandingDebt() / creditLimit()) * 100) : 0"
+                ></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-zinc-400 pt-1">
+                <span>Repayment Term: <strong class="text-zinc-600 dark:text-zinc-300">{{ creditData()?.account?.days_to_repay || 30 }} days</strong></span>
+                <span>Last Repayment: <strong class="text-zinc-600 dark:text-zinc-300">{{ (creditData()?.account?.last_repayment_at | date:'mediumDate') || 'None recorded' }}</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loyalty Tier Progress -->
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-6 shadow-sm">
+            <p class="text-sm font-black text-zinc-800 dark:text-white mb-4">Loyalty Tier Progress ({{ customer()!.loyalty_pts | number:'1.0-0' }} Points)</p>
             <div class="space-y-3">
               @for (tier of [{label:'Bronze', min:0, max:999, color:'bg-orange-400'},{label:'Silver', min:1000, max:4999, color:'bg-slate-400'},{label:'Gold', min:5000, max:9999, color:'bg-amber-500'},{label:'Platinum', min:10000, max:10000, color:'bg-slate-500'}]; track tier.label) {
                 <div class="flex items-center gap-3">
@@ -190,17 +318,178 @@
             </div>
           </div>
 
-          @if (customer()!.last_visit) {
-            <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 px-1">
-              <span class="material-symbols-outlined !text-[16px]">schedule</span>
-              Last visit: <span class="font-bold text-zinc-700 dark:text-zinc-300">{{ customer()!.last_visit | date:'mediumDate' }}</span>
-            </div>
-          }
         </div>
       </div>
     }
 
-    <!-- Orders Tab -->
+    <!-- ======================================================== -->
+    <!-- CREDIT & DEBT LEDGER TAB -->
+    <!-- ======================================================== -->
+    @if (activeTab() === 'credit') {
+      <div class="space-y-6">
+
+        <!-- Credit Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-rose-200/60 dark:border-rose-500/20 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-black uppercase tracking-wider text-rose-500">Current Debt Balance</p>
+              <button (click)="openPaymentModal()" class="text-xs font-bold px-2.5 py-1 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors">
+                Record Payment
+              </button>
+            </div>
+            <p class="text-3xl font-black text-rose-600 dark:text-rose-400 mt-2">{{ outstandingDebt() | appCurrency }}</p>
+            <p class="text-xs text-zinc-400 mt-1">Due from customer</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-black uppercase tracking-wider text-zinc-400">Credit Limit</p>
+              <button (click)="openCreditLimitModal()" class="text-xs font-bold text-indigo-500 hover:underline">
+                Adjust
+              </button>
+            </div>
+            <p class="text-3xl font-black text-zinc-900 dark:text-white mt-2">{{ creditLimit() | appCurrency }}</p>
+            <p class="text-xs text-zinc-400 mt-1">Repayment term: {{ creditData()?.account?.days_to_repay || 30 }} days</p>
+          </div>
+
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-5 shadow-sm">
+            <p class="text-xs font-black uppercase tracking-wider text-zinc-400">Available Credit</p>
+            <p class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">{{ availableCredit() | appCurrency }}</p>
+            <p class="text-xs text-zinc-400 mt-1">Remaining spendable credit</p>
+          </div>
+        </div>
+
+        <!-- BNPL Scheduled Instalments (if any) -->
+        @if (creditData()?.instalments?.length) {
+          <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 p-6 shadow-sm">
+            <h3 class="font-black text-zinc-900 dark:text-white text-base mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-500 !text-[20px]">calendar_month</span>
+              BNPL Scheduled Instalments
+            </h3>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-zinc-100 dark:border-white/10 text-zinc-400 font-bold uppercase tracking-wider">
+                    <th class="pb-3">Instalment</th>
+                    <th class="pb-3">Due Date</th>
+                    <th class="pb-3 text-right">Amount</th>
+                    <th class="pb-3 text-right">Paid</th>
+                    <th class="pb-3 text-center">Status</th>
+                    <th class="pb-3 text-right">Paid Date</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                  @for (inst of creditData()!.instalments; track inst.id) {
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                      <td class="py-3 font-bold text-zinc-800 dark:text-zinc-200">
+                        Instalment {{ inst.instalment_number }} / {{ inst.total_instalments }}
+                      </td>
+                      <td class="py-3 text-zinc-600 dark:text-zinc-300">
+                        {{ inst.due_date | date:'mediumDate' }}
+                      </td>
+                      <td class="py-3 text-right font-black text-zinc-900 dark:text-white">
+                        {{ inst.amount | appCurrency }}
+                      </td>
+                      <td class="py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                        {{ inst.amount_paid | appCurrency }}
+                      </td>
+                      <td class="py-3 text-center">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"
+                          [class]="inst.status === 'paid' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : (inst.status === 'overdue' ? 'bg-rose-50 dark:bg-rose-900/30 text-rose-600' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600')">
+                          {{ inst.status }}
+                        </span>
+                      </td>
+                      <td class="py-3 text-right text-zinc-400">
+                        {{ (inst.paid_at | date:'mediumDate') || '-' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- Complete Credit & Debt Ledger History -->
+        <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 overflow-hidden shadow-sm">
+          <div class="p-6 border-b border-zinc-100 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="font-black text-zinc-900 dark:text-white text-base">Credit Ledger & Repayment History</h3>
+              <p class="text-xs text-zinc-400">Audit trail of all credit purchases, repayments, and balance changes</p>
+            </div>
+            <button (click)="openPaymentModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
+              <span class="material-symbols-outlined !text-[16px]">add_card</span>
+              Record Repayment
+            </button>
+          </div>
+
+          @if (loadingCredit()) {
+            <div class="flex justify-center py-16">
+              <div class="w-8 h-8 rounded-full border-3 border-teal-500/20 border-t-teal-500 animate-spin"></div>
+            </div>
+          } @else if (!creditData()?.transactions?.length) {
+            <div class="p-12 text-center text-zinc-400">
+              <span class="material-symbols-outlined !text-4xl mb-2 block opacity-40">receipt_long</span>
+              <p class="font-bold text-sm">No credit transactions recorded yet</p>
+              <p class="text-xs mt-1">When this customer purchases on credit or makes a repayment, the history will appear here.</p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="bg-zinc-50 dark:bg-white/5 border-b border-zinc-100 dark:border-white/10 text-zinc-400 font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3.5">Date & Time</th>
+                    <th class="px-6 py-3.5">Transaction Type</th>
+                    <th class="px-6 py-3.5">Payment Method</th>
+                    <th class="px-6 py-3.5">Reference / Notes</th>
+                    <th class="px-6 py-3.5 text-right">Amount</th>
+                    <th class="px-6 py-3.5 text-right">Balance After</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                  @for (tx of creditData()!.transactions; track tx.id) {
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                      <td class="px-6 py-4 text-zinc-500 whitespace-nowrap">
+                        {{ tx.created_at | date:'medium' }}
+                      </td>
+                      <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                          [class]="tx.transaction_type === 'repayment' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600' : 'bg-rose-50 dark:bg-rose-900/30 text-rose-600'">
+                          <span class="material-symbols-outlined !text-[12px]">{{ tx.transaction_type === 'repayment' ? 'arrow_downward' : 'arrow_upward' }}</span>
+                          {{ tx.transaction_type }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 uppercase font-bold text-zinc-700 dark:text-zinc-300">
+                        {{ tx.payment_method || 'N/A' }}
+                      </td>
+                      <td class="px-6 py-4 text-zinc-600 dark:text-zinc-300 max-w-xs truncate">
+                        <div class="font-mono text-[11px] text-zinc-500">{{ tx.reference || '-' }}</div>
+                        @if (tx.notes) {
+                          <div class="text-[11px] text-zinc-400 italic truncate">{{ tx.notes }}</div>
+                        }
+                      </td>
+                      <td class="px-6 py-4 text-right font-black whitespace-nowrap"
+                        [class]="tx.amount < 0 || tx.transaction_type === 'repayment' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                        {{ (tx.amount < 0 ? -tx.amount : tx.amount) | appCurrency }}
+                      </td>
+                      <td class="px-6 py-4 text-right font-black text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
+                        {{ tx.balance_after | appCurrency }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ======================================================== -->
+    <!-- ORDERS TAB -->
+    <!-- ======================================================== -->
     @if (activeTab() === 'orders') {
       @if (loadingOrders()) {
         <div class="flex justify-center py-24">
@@ -216,134 +505,350 @@
         </div>
       } @else {
         <div class="bg-white dark:bg-[#05070f] rounded-2xl border border-zinc-200/60 dark:border-white/10 overflow-hidden shadow-sm">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-zinc-50/80 dark:bg-white/5 border-b border-zinc-200/60 dark:border-white/10">
-                <th class="px-6 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400">Order #</th>
-                <th class="px-6 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400">Date</th>
-                <th class="px-6 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400">Items</th>
-                <th class="px-6 py-3.5 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400">Status</th>
-                <th class="px-6 py-3.5 text-right text-[10px] font-black uppercase tracking-wider text-zinc-400">Total</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
-              @for (order of orders(); track order.id) {
-                <tr class="hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors cursor-pointer" [routerLink]="['/orders', order.id]">
-                  <td class="px-6 py-4 font-mono text-sm font-bold text-zinc-900 dark:text-white">{{ order.order_number }}</td>
-                  <td class="px-6 py-4 text-sm text-zinc-500">{{ order.created_at | date:'mediumDate' }}</td>
-                  <td class="px-6 py-4 text-sm text-zinc-500">{{ order.item_count ?? order.items?.length ?? 0 }} item{{ (order.item_count ?? order.items?.length ?? 0) !== 1 ? 's' : '' }}</td>
-                  <td class="px-6 py-4">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold {{ getOrderStatusClass(order.status || '') }}">
-                      {{ order.status | titlecase }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 text-right font-black text-zinc-900 dark:text-white">{{ order.total | appCurrency }}</td>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-zinc-50 dark:bg-white/5 border-b border-zinc-100 dark:border-white/10 text-zinc-400 font-bold uppercase tracking-wider">
+                  <th class="px-6 py-3.5">Order ID</th>
+                  <th class="px-6 py-3.5">Date</th>
+                  <th class="px-6 py-3.5">Items</th>
+                  <th class="px-6 py-3.5">Status</th>
+                  <th class="px-6 py-3.5">Payment</th>
+                  <th class="px-6 py-3.5 text-right">Total</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="divide-y divide-zinc-100 dark:divide-white/5">
+                @for (order of orders(); track order.id) {
+                  <tr class="hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 font-mono font-bold text-teal-600 dark:text-teal-400">
+                      #{{ order.id.slice(0,8) }}
+                    </td>
+                    <td class="px-6 py-4 text-zinc-500">
+                      {{ order.created_at | date:'medium' }}
+                    </td>
+                    <td class="px-6 py-4 text-zinc-700 dark:text-zinc-300">
+                      {{ order.items?.length || 1 }} item(s)
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider {{ getOrderStatusClass(order.status) }}">
+                        {{ order.status }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 uppercase font-bold text-zinc-500">
+                      {{ order.payment_method || 'N/A' }}
+                    </td>
+                    <td class="px-6 py-4 text-right font-black text-zinc-900 dark:text-white">
+                      {{ (order.total || 0) | appCurrency }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       }
     }
+
   </div>
 </div>
 
-<!-- Record Payment Modal -->
+<!-- ======================================================== -->
+<!-- MODAL: RECORD DEBT PAYMENT FORM -->
+<!-- ======================================================== -->
 @if (showPaymentModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm" (click)="showPaymentModal.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden" (click)="$event.stopPropagation()">
-      <div class="p-6 border-b border-zinc-100 dark:border-white/10 flex items-center justify-between">
-        <h2 class="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-          <span class="material-symbols-outlined text-rose-500">payments</span>
-          Record Payment
-        </h2>
-        <button (click)="showPaymentModal.set(false)" class="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined !text-[18px]">close</span>
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#090d1a] border border-zinc-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-2xl">payments</span>
+          </div>
+          <div>
+            <h3 class="font-black text-zinc-900 dark:text-white text-lg">Record Debt Payment</h3>
+            <p class="text-xs text-zinc-400">Customer: {{ customer()!.name }}</p>
+          </div>
+        </div>
+        <button (click)="showPaymentModal.set(false)" class="w-8 h-8 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-400 flex items-center justify-center transition-colors cursor-pointer">
+          <span class="material-symbols-outlined !text-lg">close</span>
         </button>
       </div>
-      <div class="p-6 space-y-4">
-        <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-4 text-center">
-          <p class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-1">Outstanding Debt</p>
-          <p class="text-3xl font-black text-rose-600 dark:text-rose-400">{{ customer()!.debt_balance | appCurrency }}</p>
+
+      <!-- Current Debt Info Callout -->
+      <div class="mb-5 p-4 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-zinc-200/60 dark:border-white/10 flex items-center justify-between">
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Current Outstanding Debt</p>
+          <p class="text-xl font-black text-rose-600 dark:text-rose-400">{{ outstandingDebt() | appCurrency }}</p>
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Payment Amount</label>
-          <input type="number" [ngModel]="paymentAmount()" (ngModelChange)="paymentAmount.set($event)"
-            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white font-bold text-lg" />
+        @if (outstandingDebt() > 0) {
+          <button (click)="paymentAmount.set(outstandingDebt())" class="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer">
+            Pay Full Amount
+          </button>
+        }
+      </div>
+
+      <div class="space-y-4">
+        <!-- Amount -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Repayment Amount *
+          </label>
+          <div class="relative">
+            <input
+              type="number"
+              [value]="paymentAmount()"
+              (input)="paymentAmount.set(+$any($event.target).value)"
+              step="0.01"
+              min="0.01"
+              placeholder="0.00"
+              class="w-full px-4 py-3 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white font-black text-lg focus:outline-none focus:border-emerald-500"
+            />
+          </div>
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Payment Method</label>
-          <select [ngModel]="paymentMethod()" (ngModelChange)="paymentMethod.set($event)"
-            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white">
-            <option value="cash">Cash</option>
-            <option value="card">Card</option>
-            <option value="bank_transfer">Bank Transfer</option>
-            <option value="mobile_money">Mobile Money</option>
-            <option value="other">Other</option>
+
+        <!-- Payment Method -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Payment Method *
+          </label>
+          <select
+            [value]="paymentMethod()"
+            (change)="paymentMethod.set($any($event.target).value)"
+            class="w-full px-4 py-3 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white font-bold text-sm focus:outline-none focus:border-emerald-500"
+          >
+            <option value="cash">💵 Cash Payment</option>
+            <option value="momo">📱 MTN / Telecel Mobile Money</option>
+            <option value="card">💳 Debit / Credit Card</option>
+            <option value="bank_transfer">🏦 Bank Transfer</option>
           </select>
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Notes (optional)</label>
-          <input type="text" [ngModel]="paymentNotes()" (ngModelChange)="paymentNotes.set($event)"
-            placeholder="e.g. Ref: TRX-001"
-            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white" />
+
+        <!-- Reference / Transaction ID -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Transaction Reference / MoMo ID (Optional)
+          </label>
+          <input
+            type="text"
+            [value]="paymentReference()"
+            (input)="paymentReference.set($any($event.target).value)"
+            placeholder="e.g. MM-0246136978 / REF-1092"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500"
+          />
         </div>
-        <button (click)="submitPayment()" [disabled]="payingDown()"
-          class="w-full py-3.5 bg-rose-500 hover:bg-rose-600 disabled:opacity-60 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 transition-all flex items-center justify-center gap-2">
+
+        <!-- Notes -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Notes / Audit Remark (Optional)
+          </label>
+          <input
+            type="text"
+            [value]="paymentNotes()"
+            (input)="paymentNotes.set($any($event.target).value)"
+            placeholder="e.g. Repayment for invoice #204"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-8 flex gap-3">
+        <button
+          (click)="showPaymentModal.set(false)"
+          class="flex-1 py-3 px-4 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl text-sm transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="submitPayment()"
+          [disabled]="payingDown() || paymentAmount() <= 0"
+          class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
           @if (payingDown()) {
-            <div class="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+            <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Recording...
+          } @else {
+            Confirm Payment
           }
-          Confirm Payment
         </button>
       </div>
+
     </div>
   </div>
 }
 
-<!-- Edit Modal -->
-@if (showEditModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm" (click)="showEditModal.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden" (click)="$event.stopPropagation()">
-      <div class="p-6 border-b border-zinc-100 dark:border-white/10 flex items-center justify-between">
-        <h2 class="text-xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
-          <span class="material-symbols-outlined text-teal-500">manage_accounts</span>
-          Edit Customer
-        </h2>
-        <button (click)="showEditModal.set(false)" class="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors">
-          <span class="material-symbols-outlined !text-[18px]">close</span>
+<!-- ======================================================== -->
+<!-- MODAL: SET CREDIT LIMIT FORM -->
+<!-- ======================================================== -->
+@if (showCreditLimitModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#090d1a] border border-zinc-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-2xl">credit_score</span>
+          </div>
+          <div>
+            <h3 class="font-black text-zinc-900 dark:text-white text-lg">Configure Credit Limit</h3>
+            <p class="text-xs text-zinc-400">Customer: {{ customer()!.name }}</p>
+          </div>
+        </div>
+        <button (click)="showCreditLimitModal.set(false)" class="w-8 h-8 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-400 flex items-center justify-center transition-colors cursor-pointer">
+          <span class="material-symbols-outlined !text-lg">close</span>
         </button>
       </div>
-      <div class="p-6 space-y-4">
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Full Name *</label>
-          <input type="text" [ngModel]="editName()" (ngModelChange)="editName.set($event)" placeholder="John Doe"
-            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white" />
+
+      <div class="space-y-4">
+        <!-- Credit Limit -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Maximum Credit Limit (GHS) *
+          </label>
+          <input
+            type="number"
+            [value]="creditLimitValue()"
+            (input)="creditLimitValue.set(+$any($event.target).value)"
+            step="50"
+            min="0"
+            placeholder="0.00"
+            class="w-full px-4 py-3 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white font-black text-lg focus:outline-none focus:border-indigo-500"
+          />
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Email</label>
-            <input type="email" [ngModel]="editEmail()" (ngModelChange)="editEmail.set($event)" placeholder="email@example.com"
-              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white" />
-          </div>
-          <div class="space-y-1.5">
-            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Phone</label>
-            <input type="text" [ngModel]="editPhone()" (ngModelChange)="editPhone.set($event)" placeholder="+1 555 0000"
-              class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white" />
-          </div>
+
+        <!-- Days to Repay -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Repayment Term (Days)
+          </label>
+          <select
+            [value]="creditDaysToRepay()"
+            (change)="creditDaysToRepay.set(+$any($event.target).value)"
+            class="w-full px-4 py-3 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white font-bold text-sm focus:outline-none focus:border-indigo-500"
+          >
+            <option [value]="7">7 Days (Weekly)</option>
+            <option [value]="14">14 Days (Bi-weekly)</option>
+            <option [value]="30">30 Days (Monthly - Default)</option>
+            <option [value]="60">60 Days (Net 60)</option>
+            <option [value]="90">90 Days (Quarterly)</option>
+          </select>
         </div>
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500">Address</label>
-          <input type="text" [ngModel]="editAddress()" (ngModelChange)="editAddress.set($event)" placeholder="123 Main St"
-            class="w-full p-3 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/20 focus:ring-2 focus:ring-teal-500/50 outline-none text-zinc-900 dark:text-white" />
+
+        <!-- Internal Notes -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">
+            Credit Approval Notes
+          </label>
+          <input
+            type="text"
+            [value]="creditLimitNotes()"
+            (input)="creditLimitNotes.set($any($event.target).value)"
+            placeholder="e.g. Approved by Store Manager for B2B supplies"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-indigo-500"
+          />
         </div>
-        <button (click)="saveEdit()" [disabled]="saving() || !editName()"
-          class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 disabled:opacity-60 text-white font-bold rounded-xl shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center gap-2">
-          @if (saving()) {
-            <div class="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-8 flex gap-3">
+        <button
+          (click)="showCreditLimitModal.set(false)"
+          class="flex-1 py-3 px-4 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl text-sm transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="saveCreditLimit()"
+          [disabled]="savingCreditLimit()"
+          class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-black rounded-xl text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (savingCreditLimit()) {
+            <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Saving...
+          } @else {
+            Save Credit Limit
           }
-          Save Changes
         </button>
       </div>
+
+    </div>
+  </div>
+}
+
+<!-- ======================================================== -->
+<!-- MODAL: EDIT CUSTOMER PROFILE -->
+<!-- ======================================================== -->
+@if (showEditModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#090d1a] border border-zinc-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-black text-zinc-900 dark:text-white text-lg">Edit Customer Profile</h3>
+        <button (click)="showEditModal.set(false)" class="w-8 h-8 rounded-full hover:bg-zinc-100 dark:hover:bg-white/10 text-zinc-400 flex items-center justify-center transition-colors cursor-pointer">
+          <span class="material-symbols-outlined !text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Full Name *</label>
+          <input
+            type="text"
+            [value]="editName()"
+            (input)="editName.set($any($event.target).value)"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-teal-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Email</label>
+          <input
+            type="email"
+            [value]="editEmail()"
+            (input)="editEmail.set($any($event.target).value)"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-teal-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Phone Number</label>
+          <input
+            type="text"
+            [value]="editPhone()"
+            (input)="editPhone.set($any($event.target).value)"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-teal-500"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Address</label>
+          <input
+            type="text"
+            [value]="editAddress()"
+            (input)="editAddress.set($any($event.target).value)"
+            class="w-full px-4 py-2.5 bg-zinc-50 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-zinc-900 dark:text-white text-sm focus:outline-none focus:border-teal-500"
+          />
+        </div>
+      </div>
+
+      <div class="mt-8 flex gap-3">
+        <button
+          (click)="showEditModal.set(false)"
+          class="flex-1 py-3 px-4 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 font-bold rounded-xl text-sm transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="saveEdit()"
+          [disabled]="saving() || !editName()"
+          class="flex-1 py-3 px-4 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white font-black rounded-xl text-sm shadow-lg shadow-teal-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (saving()) {
+            <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Saving...
+          } @else {
+            Save Changes
+          }
+        </button>
+      </div>
+
     </div>
   </div>
 }

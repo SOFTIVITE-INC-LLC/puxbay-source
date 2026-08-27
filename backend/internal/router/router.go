@@ -65,6 +65,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 
 	authService := services.NewAuthService(&cfg.JWT, db, tokenStore, cfg.App.RootDomain)
 
+	// Wire email service into auth service so Register() can send verification emails
+	authEmailService := services.NewEmailService(db, cfg.SMTP)
+	authService.SetEmailService(authEmailService)
+
 	smsService := services.NewSMSService(cfg.SMS)
 
 	// Initialize handlers
@@ -179,6 +183,12 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			auth.POST("/refresh", authHandler.RefreshToken)
 			auth.POST("/register", authHandler.Register)
 			auth.POST("/change-temporary-password", authHandler.ChangeTemporaryPassword)
+
+			// Email verification (no rate-limit — users actively waiting)
+			auth.POST("/verify-email", authHandler.VerifyEmail)
+			auth.GET("/verify-email", authHandler.VerifyEmail) // magic-link click
+			auth.POST("/verify-email-otp", authHandler.VerifyEmailOTP)
+			auth.POST("/resend-verification", authHandler.ResendVerificationEmail)
 
 			// Strict rate limit for password resets (3 requests per hour, 1 hour lockout)
 			pwdGroup := auth.Group("")

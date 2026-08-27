@@ -1,10 +1,15 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"math/big"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -72,16 +77,24 @@ func clearAuthCookies(c *gin.Context, rootDomain string) {
 
 // AuthHandler handles authentication endpoints.
 type AuthHandler struct {
-	db          *gorm.DB
-	authService *services.AuthService
-	smtpCfg     config.SMTPConfig
-	rootDomain  string
-	jwtCfg      config.JWTConfig
+	db           *gorm.DB
+	authService  *services.AuthService
+	smtpCfg      config.SMTPConfig
+	rootDomain   string
+	jwtCfg       config.JWTConfig
+	emailService *services.EmailService
 }
 
 // NewAuthHandler creates a new auth handler.
 func NewAuthHandler(db *gorm.DB, authService *services.AuthService, smtpCfg config.SMTPConfig, rootDomain string, jwtCfg config.JWTConfig) *AuthHandler {
-	return &AuthHandler{db: db, authService: authService, smtpCfg: smtpCfg, rootDomain: rootDomain, jwtCfg: jwtCfg}
+	return &AuthHandler{
+		db:           db,
+		authService:  authService,
+		smtpCfg:      smtpCfg,
+		rootDomain:   rootDomain,
+		jwtCfg:       jwtCfg,
+		emailService: services.NewEmailService(db, smtpCfg),
+	}
 }
 
 type LoginRequest struct {
@@ -382,8 +395,123 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Tenant created successfully. Please verify your email.",
+		"message": "Account created. Please check your email for a verification code.",
 	})
+}
+
+// VerifyEmail confirms the user's email using a link token (from the button in the email).
+// POST /api/v1/auth/verify-email
+func (h *AuthHandler) VerifyEmail(c *gin.Context) {
+	var req struct {
+		Token string `json:"token" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// Also accept token as query param for magic-link clicks from email clients
+		token := c.Query("token")
+		if token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Verification token is required"})
+			return
+		}
+		req.Token = token
+	}
+
+	var user models.User
+	if err := h.db.Where("email_verification_token = ? AND email_verification_expiry > ?", req.Token, time.Now()).
+		First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification link. Please request a new one."})
+		return
+	}
+
+	if err := h.db.Model(&user).Updates(map[string]interface{}{
+		"is_email_verified":        true,
+		"email_verification_token": nil,
+		"email_verification_expiry": nil,
+		"email_verification_code":  nil,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully. You can now log in."})
+}
+
+// VerifyEmailOTP confirms the user's email using the 6-digit OTP code.
+// POST /api/v1/auth/verify-email-otp
+func (h *AuthHandler) VerifyEmailOTP(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+		Code  string `json:"code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email and 6-digit code are required"})
+		return
+	}
+
+	var user models.User
+	if err := h.db.Where("email = ? AND email_verification_code = ? AND email_verification_expiry > ?",
+		req.Email, req.Code, time.Now()).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification code"})
+		return
+	}
+
+	if err := h.db.Model(&user).Updates(map[string]interface{}{
+		"is_email_verified":         true,
+		"email_verification_token":  nil,
+		"email_verification_expiry": nil,
+		"email_verification_code":   nil,
+	}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully. You can now log in."})
+}
+
+// ResendVerificationEmail resends the verification email/OTP to the user.
+// POST /api/v1/auth/resend-verification
+func (h *AuthHandler) ResendVerificationEmail(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email is required"})
+		return
+	}
+
+	var user models.User
+	if err := h.db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+		// Don't reveal if email exists
+		c.JSON(http.StatusOK, gin.H{"message": "If that account exists, a new verification code has been sent."})
+		return
+	}
+
+	if user.IsEmailVerified {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "This email is already verified"})
+		return
+	}
+
+	// Generate fresh token + OTP
+	randBytes := make([]byte, 32)
+	if _, err := rand.Read(randBytes); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+	newToken := hex.EncodeToString(randBytes)
+	otpN, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	newOTP := fmt.Sprintf("%06d", otpN.Int64())
+	expiry := time.Now().Add(24 * time.Hour)
+
+	h.db.Model(&user).Updates(map[string]interface{}{
+		"email_verification_token":  newToken,
+		"email_verification_code":   newOTP,
+		"email_verification_expiry": expiry,
+	})
+
+	if h.emailService != nil {
+		go h.emailService.SendEmailVerification(user.Email, user.FirstName, newToken, newOTP, "")
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "A new verification code has been sent to your email."})
 }
 
 // ForgotPassword handles sending password reset emails.

@@ -1,0 +1,117 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-900 px-4 py-12 relative overflow-hidden font-sans">
+  <!-- Background Glow & Grid -->
+  <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+  <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl relative z-10">
+    
+    <!-- Header Logo / Icon -->
+    <div class="flex flex-col items-center text-center mb-8">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20 mb-4 animate-pulse">
+        <span class="material-symbols-outlined !text-3xl">mark_email_read</span>
+      </div>
+      <h1 class="text-2xl font-black text-white tracking-tight">Verify Your Email</h1>
+      <p class="text-sm text-slate-400 mt-2 max-w-xs">
+        We sent a 6-digit verification code to
+        <span class="text-teal-400 font-semibold block truncate mt-0.5">{{ email() || 'your email' }}</span>
+      </p>
+    </div>
+
+    <!-- Error Alert -->
+    @if (errorMessage()) {
+      <div class="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-3">
+        <span class="material-symbols-outlined !text-xl shrink-0 mt-0.5">error</span>
+        <div class="flex-1">{{ errorMessage() }}</div>
+      </div>
+    }
+
+    <!-- Success State -->
+    @if (isSuccess()) {
+      <div class="text-center py-6 space-y-4">
+        <div class="w-14 h-14 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+          <span class="material-symbols-outlined !text-3xl">check_circle</span>
+        </div>
+        <h2 class="text-xl font-bold text-white">Email Verified!</h2>
+        <p class="text-sm text-slate-400">Your account is now activated. Redirecting you to sign in...</p>
+        <a routerLink="/auth/login" class="inline-flex items-center gap-2 px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl transition-all text-sm">
+          Go to Sign In
+          <span class="material-symbols-outlined !text-sm">arrow_forward</span>
+        </a>
+      </div>
+    } @else {
+      <!-- Email input if email was not passed via query param -->
+      @if (!email()) {
+        <div class="mb-5">
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Your Email Address</label>
+          <input
+            type="email"
+            [value]="email()"
+            (input)="email.set($any($event.target).value)"
+            placeholder="name@company.com"
+            class="w-full px-4 py-3 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 text-sm transition-all"
+          />
+        </div>
+      }
+
+      <!-- 6-Digit OTP Inputs -->
+      <div class="mb-6">
+        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 text-center">
+          Enter 6-Digit Code
+        </label>
+        <div class="flex justify-center gap-2 sm:gap-3">
+          @for (digit of otpDigits(); track $index) {
+            <input
+              [id]="'otp-' + $index"
+              type="text"
+              inputmode="numeric"
+              maxlength="1"
+              [value]="digit"
+              (input)="onDigitInput($event, $index)"
+              (keydown)="onKeyDown($event, $index)"
+              class="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black text-white bg-slate-800/90 border border-slate-700 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 rounded-xl outline-none transition-all shadow-inner"
+            />
+          }
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        (click)="submitOTP()"
+        [disabled]="isLoading()"
+        class="w-full py-3.5 px-4 bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 disabled:opacity-50 text-slate-950 font-black rounded-xl shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
+      >
+        @if (isLoading()) {
+          <span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+          <span>Verifying...</span>
+        } @else {
+          <span>Verify Account</span>
+          <span class="material-symbols-outlined !text-lg">arrow_forward</span>
+        }
+      </button>
+
+      <!-- Resend Code -->
+      <div class="mt-6 text-center text-sm text-slate-400">
+        Didn't receive the code?
+        @if (resendCountdown() > 0) {
+          <span class="text-teal-400 font-bold ml-1">Resend in {{ resendCountdown() }}s</span>
+        } @else {
+          <button
+            (click)="resendCode()"
+            [disabled]="isLoading()"
+            class="text-teal-400 hover:text-teal-300 font-bold ml-1 underline cursor-pointer bg-transparent border-0"
+          >
+            Resend Code
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Footer link to login -->
+    <div class="mt-8 pt-6 border-t border-slate-800/80 text-center">
+      <a routerLink="/auth/login" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-1">
+        <span class="material-symbols-outlined !text-sm">arrow_back</span>
+        Back to Sign In
+      </a>
+    </div>
+  </div>
+</div>

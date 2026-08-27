@@ -83,12 +83,28 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
   },
   {
+    path: 'auth/login',
+    loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+  },
+  {
     path: 'force-change-password',
     loadComponent: () => import('./features/auth/force-change-password/force-change-password').then(m => m.ForceChangePassword)
   },
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
+  },
+  {
+    path: 'auth/register',
+    loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
+  },
+  {
+    path: 'verify-email',
+    loadComponent: () => import('./features/auth/verify-email/verify-email').then(m => m.VerifyEmailComponent)
+  },
+  {
+    path: 'auth/verify-email',
+    loadComponent: () => import('./features/auth/verify-email/verify-email').then(m => m.VerifyEmailComponent)
   },
   {
     path: 'pos',

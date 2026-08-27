@@ -3,10 +3,13 @@ package services
 import (
 	"context"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha1"
 	"encoding/base32"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"math/big"
 	"sync"
 	"time"
 
@@ -28,6 +31,7 @@ type AuthService struct {
 	tokenStore    TokenStore
 	rootDomain    string
 	permsCache    sync.Map
+	emailService  *EmailService
 }
 
 // TokenPair contains access and refresh tokens.
@@ -49,8 +53,6 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-
-
 func NewAuthService(cfg *config.JWTConfig, db *gorm.DB, tokenStore TokenStore, rootDomain string) *AuthService {
 	if tokenStore == nil {
 		tokenStore = &NoopTokenStore{}
@@ -63,6 +65,10 @@ func NewAuthService(cfg *config.JWTConfig, db *gorm.DB, tokenStore TokenStore, r
 		tokenStore:    tokenStore,
 		rootDomain:    rootDomain,
 	}
+}
+
+func (s *AuthService) SetEmailService(emailSvc *EmailService) {
+	s.emailService = emailSvc
 }
 
 // GetRolePermissions fetches and caches permissions for a role ID
@@ -481,6 +487,7 @@ type RegisterInput struct {
 }
 
 // Register creates a new tenant, user, profile, and default branch.
+// After the DB transaction succeeds it sends an email-verification message.
 func (s *AuthService) Register(input RegisterInput) error {
 	// Validate subdomain early — it will become the PostgreSQL schema name.
 	// This prevents SQL injection via crafted subdomain values.
@@ -503,19 +510,32 @@ func (s *AuthService) Register(input RegisterInput) error {
 		return err
 	}
 
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	// Pre-generate email verification token and OTP outside the transaction
+	// so they are available to dispatch the welcome email after commit.
+	tokenBytes := make([]byte, 32)
+	_, _ = rand.Read(tokenBytes)
+	verifyToken := hex.EncodeToString(tokenBytes)
+	otpBig, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	otpCode := fmt.Sprintf("%06d", otpBig.Int64())
+	verifyExpiry := time.Now().Add(24 * time.Hour)
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
 		tenant := models.Tenant{Name: input.CompanyName, Subdomain: input.Subdomain}
 		if err := tx.Create(&tenant).Error; err != nil {
 			return err
 		}
 
 		user := models.User{
-			Username:  input.Username,
-			Email:     input.Email,
-			Password:  hashedPassword,
-			FirstName: input.FirstName,
-			LastName:  input.LastName,
-			IsActive:  true,
+			Username:                input.Username,
+			Email:                   input.Email,
+			Password:                hashedPassword,
+			FirstName:               input.FirstName,
+			LastName:                input.LastName,
+			IsActive:                true,
+			IsEmailVerified:         false,
+			EmailVerificationToken:  &verifyToken,
+			EmailVerificationExpiry: &verifyExpiry,
+			EmailVerificationCode:   &otpCode,
 		}
 		if err := tx.Create(&user).Error; err != nil {
 			return err
@@ -587,7 +607,7 @@ func (s *AuthService) Register(input RegisterInput) error {
 			{Name: "Payroll Expense", Type: "Expense", Code: "6100", Description: "Employee salaries and wages"},
 			{Name: "Utilities Expense", Type: "Expense", Code: "6200", Description: "Electricity, water, internet"},
 		}
-		
+
 		for _, acc := range defaultAccounts {
 			if err := tx.Create(&acc).Error; err != nil {
 				return err
@@ -596,4 +616,21 @@ func (s *AuthService) Register(input RegisterInput) error {
 
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// Send welcome / email-verification email after the transaction has committed.
+	// We run this in a goroutine so a slow SMTP server never blocks the HTTP response.
+	if s.emailService != nil {
+		go s.emailService.SendEmailVerification(
+			input.Email,
+			input.FirstName,
+			verifyToken,
+			otpCode,
+			input.Subdomain,
+		)
+	}
+
+	return nil
 }

@@ -25,16 +25,33 @@ export class CustomerDetail implements OnInit {
 
   customer = signal<Customer | null>(null);
   orders = signal<Order[]>([]);
+  creditData = signal<{
+    account: any;
+    available_credit: number;
+    transactions: any[];
+    instalments: any[];
+  } | null>(null);
+
   loadingCustomer = signal(true);
   loadingOrders = signal(true);
-  activeTab = signal<'overview' | 'orders'>('overview');
+  loadingCredit = signal(true);
+  activeTab = signal<'overview' | 'orders' | 'credit'>('overview');
 
   // Payment modal
   showPaymentModal = signal(false);
   paymentAmount = signal(0);
   paymentMethod = signal('cash');
+  paymentReference = signal('');
   paymentNotes = signal('');
   payingDown = signal(false);
+
+  // Credit limit modal
+  showCreditLimitModal = signal(false);
+  creditLimitValue = signal(0);
+  creditDaysToRepay = signal(30);
+  creditLimitNotes = signal('');
+  savingCreditLimit = signal(false);
+  sendingReminder = signal(false);
 
   // Edit modal
   showEditModal = signal(false);
@@ -52,10 +69,32 @@ export class CustomerDetail implements OnInit {
     return { label: 'Bronze', color: 'text-orange-400', bg: 'bg-orange-50 dark:bg-orange-500/20', icon: 'star' };
   });
 
+  // Outstanding debt computed from customer or credit account
+  outstandingDebt = computed(() => {
+    const accBal = this.creditData()?.account?.balance;
+    if (accBal !== undefined && accBal !== null) return Number(accBal);
+    return Number(this.customer()?.debt_balance || 0);
+  });
+
+  // Credit limit computed
+  creditLimit = computed(() => {
+    const lim = this.creditData()?.account?.credit_limit;
+    if (lim !== undefined && lim !== null) return Number(lim);
+    return Number((this.customer() as any)?.credit_limit || 0);
+  });
+
+  // Available credit computed
+  availableCredit = computed(() => {
+    const avail = this.creditData()?.available_credit;
+    if (avail !== undefined && avail !== null) return Number(avail);
+    return Math.max(0, this.creditLimit() - this.outstandingDebt());
+  });
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.loadCustomer(id);
     this.loadOrders(id);
+    this.loadCreditAccount(id);
   }
 
   loadCustomer(id: string) {
@@ -74,9 +113,24 @@ export class CustomerDetail implements OnInit {
     });
   }
 
+  loadCreditAccount(id: string) {
+    this.loadingCredit.set(true);
+    this.crmService.getCreditAccount(id).subscribe({
+      next: (data) => {
+        this.creditData.set(data);
+        this.loadingCredit.set(false);
+      },
+      error: () => {
+        this.loadingCredit.set(false);
+      }
+    });
+  }
+
   openPaymentModal() {
-    this.paymentAmount.set(this.customer()?.debt_balance || 0);
+    const currentDebt = this.outstandingDebt();
+    this.paymentAmount.set(currentDebt > 0 ? currentDebt : 0);
     this.paymentMethod.set('cash');
+    this.paymentReference.set('');
     this.paymentNotes.set('');
     this.showPaymentModal.set(true);
   }
@@ -84,18 +138,79 @@ export class CustomerDetail implements OnInit {
   submitPayment() {
     const c = this.customer();
     if (!c) return;
-    if (this.paymentAmount() <= 0) { this.toastService.showError('Amount must be greater than 0'); return; }
+    if (this.paymentAmount() <= 0) {
+      this.toastService.showError('Repayment amount must be greater than 0');
+      return;
+    }
     this.payingDown.set(true);
-    this.crmService.recordCustomerPayment(c.id, this.paymentAmount(), this.paymentMethod(), this.paymentNotes()).subscribe({
-      next: () => {
-        this.toastService.showSuccess('Payment recorded successfully!');
+    this.crmService.recordCustomerPayment(
+      c.id,
+      this.paymentAmount(),
+      this.paymentMethod(),
+      this.paymentNotes(),
+      this.paymentReference()
+    ).subscribe({
+      next: (res) => {
+        this.toastService.showSuccess(res?.message || 'Debt repayment recorded successfully! SMS receipt sent.');
         this.showPaymentModal.set(false);
         this.loadCustomer(c.id);
+        this.loadCreditAccount(c.id);
         this.payingDown.set(false);
       },
       error: (err) => {
         this.toastService.showError(err?.error?.error || 'Failed to record payment.');
         this.payingDown.set(false);
+      }
+    });
+  }
+
+  openCreditLimitModal() {
+    this.creditLimitValue.set(this.creditLimit());
+    this.creditDaysToRepay.set(this.creditData()?.account?.days_to_repay || 30);
+    this.creditLimitNotes.set(this.creditData()?.account?.notes || '');
+    this.showCreditLimitModal.set(true);
+  }
+
+  saveCreditLimit() {
+    const c = this.customer();
+    if (!c) return;
+    if (this.creditLimitValue() < 0) {
+      this.toastService.showError('Credit limit cannot be negative');
+      return;
+    }
+    this.savingCreditLimit.set(true);
+    this.crmService.setCreditLimit(
+      c.id,
+      this.creditLimitValue(),
+      this.creditDaysToRepay(),
+      this.creditLimitNotes()
+    ).subscribe({
+      next: () => {
+        this.toastService.showSuccess('Customer credit limit updated successfully!');
+        this.showCreditLimitModal.set(false);
+        this.loadCreditAccount(c.id);
+        this.loadCustomer(c.id);
+        this.savingCreditLimit.set(false);
+      },
+      error: (err) => {
+        this.toastService.showError(err?.error?.error || 'Failed to update credit limit.');
+        this.savingCreditLimit.set(false);
+      }
+    });
+  }
+
+  sendReminder() {
+    const c = this.customer();
+    if (!c) return;
+    this.sendingReminder.set(true);
+    this.crmService.sendCreditReminder(c.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Repayment reminder sent to ${c.phone || c.name} via SMS/WhatsApp!`);
+        this.sendingReminder.set(false);
+      },
+      error: (err) => {
+        this.toastService.showError(err?.error?.error || 'Failed to send reminder.');
+        this.sendingReminder.set(false);
       }
     });
   }
@@ -121,23 +236,26 @@ export class CustomerDetail implements OnInit {
       address: this.editAddress()
     }).subscribe({
       next: () => {
-        this.toastService.showSuccess('Customer updated!');
+        this.toastService.showSuccess('Customer profile updated!');
         this.showEditModal.set(false);
         this.loadCustomer(c.id);
         this.saving.set(false);
       },
-      error: () => { this.toastService.showError('Failed to update customer.'); this.saving.set(false); }
+      error: () => {
+        this.toastService.showError('Failed to update customer.');
+        this.saving.set(false);
+      }
     });
   }
 
-  getOrderStatusClass(status: string): string {
+  getOrderStatusClass(status?: string): string {
     const map: Record<string, string> = {
       completed: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
       pending: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
       cancelled: 'bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
       refunded: 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400',
     };
-    return map[status] || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500';
+    return (status && map[status]) || 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500';
   }
 
   getInitial(name: string): string {

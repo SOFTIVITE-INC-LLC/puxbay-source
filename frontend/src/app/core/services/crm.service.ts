@@ -108,14 +108,70 @@ export class CrmService {
     );
   }
 
-  // --- Customer Credit ---
+  // --- Customer Store Credit & BNPL Debt ---
+
+  getCreditAccount(customerId: string): Observable<{
+    account: {
+      id: string;
+      customer_id: string;
+      credit_limit: number;
+      balance: number;
+      status: string;
+      days_to_repay: number;
+      last_drawdown_at?: string;
+      last_repayment_at?: string;
+      notes?: string;
+    };
+    available_credit: number;
+    transactions: {
+      id: string;
+      amount: number;
+      balance_after: number;
+      transaction_type: string;
+      payment_method?: string;
+      reference?: string;
+      notes?: string;
+      paid_at?: string;
+      created_at: string;
+    }[];
+    instalments: {
+      id: string;
+      order_id?: string;
+      instalment_number: number;
+      total_instalments: number;
+      amount: number;
+      amount_paid: number;
+      due_date: string;
+      status: string;
+      paid_at?: string;
+    }[];
+  }> {
+    return this.api.get(`/customers/${customerId}/credit-account`);
+  }
+
+  recordCustomerPayment(customerId: string, amount: number, payment_method: string = 'cash', notes: string = '', reference?: string): Observable<any> {
+    return this.api.post(`/customers/${customerId}/credit/repay`, {
+      amount,
+      payment_method,
+      reference,
+      notes
+    });
+  }
+
+  setCreditLimit(customerId: string, credit_limit: number, days_to_repay: number = 30, notes: string = ''): Observable<any> {
+    return this.api.post(`/customers/${customerId}/credit-limit`, {
+      credit_limit,
+      days_to_repay,
+      notes
+    });
+  }
+
+  sendCreditReminder(customerId: string): Observable<any> {
+    return this.api.post(`/customers/${customerId}/credit/send-reminder`, {});
+  }
 
   getCustomerCreditTransactions(customerId: string): Observable<{transactions: CustomerCreditTransaction[], outstanding_debt: number}> {
     return this.api.get<{transactions: CustomerCreditTransaction[], outstanding_debt: number}>(`/crm/customers/${customerId}/credit`);
-  }
-
-  recordCustomerPayment(customerId: string, amount: number, reference: string, notes: string): Observable<{message: string, new_balance: number, transaction: CustomerCreditTransaction}> {
-    return this.api.post<{message: string, new_balance: number, transaction: CustomerCreditTransaction}>(`/crm/customers/${customerId}/payment`, { amount, reference, notes });
   }
 
   getFeedbackList(): Observable<{feedback: CustomerFeedback[]}> {

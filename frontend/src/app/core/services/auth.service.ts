@@ -131,6 +131,18 @@ export class AuthService {
 
   tenantStore = inject(TenantStore);
 
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/verify-email', { token });
+  }
+
+  verifyEmailOTP(email: string, code: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/verify-email-otp', { email, code });
+  }
+
+  resendVerification(email: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('/auth/resend-verification', { email });
+  }
+
   registerAndLogin(payload: any): Observable<AuthResponse> {
     return this.register(payload).pipe(
       switchMap(() => {

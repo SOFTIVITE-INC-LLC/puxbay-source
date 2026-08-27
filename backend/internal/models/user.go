@@ -16,14 +16,18 @@ type User struct {
 	Password         string         `gorm:"size:255;not null" json:"-"` // bcrypt hash, never exposed
 	FirstName        string         `gorm:"size:150" json:"first_name"`
 	LastName         string         `gorm:"size:150" json:"last_name"`
-	Phone            string         `gorm:"size:20" json:"phone"`
-	IsActive         bool           `gorm:"default:true" json:"is_active"`
-	IsSuperuser      bool           `gorm:"default:false" json:"is_superuser"`
-	IsStaff          bool           `gorm:"default:false" json:"is_staff"`
-	LastLogin        *time.Time     `json:"last_login,omitempty"`
-	DateJoined       time.Time      `gorm:"autoCreateTime" json:"date_joined"`
-	TokenVersion     int            `gorm:"default:1" json:"-"`
-	ResetToken       *string        `gorm:"size:100;index" json:"-"`
+	Phone                 string         `gorm:"size:20" json:"phone"`
+	IsActive              bool           `gorm:"default:true" json:"is_active"`
+	IsSuperuser           bool           `gorm:"default:false" json:"is_superuser"`
+	IsStaff               bool           `gorm:"default:false" json:"is_staff"`
+	IsEmailVerified       bool           `gorm:"default:false" json:"is_email_verified"`
+	EmailVerificationToken *string       `gorm:"size:100;index" json:"-"`
+	EmailVerificationExpiry *time.Time   `json:"-"`
+	EmailVerificationCode *string        `gorm:"size:10;index" json:"-"`
+	LastLogin             *time.Time     `json:"last_login,omitempty"`
+	DateJoined            time.Time      `gorm:"autoCreateTime" json:"date_joined"`
+	TokenVersion          int            `gorm:"default:1" json:"-"`
+	ResetToken            *string        `gorm:"size:100;index" json:"-"`
 	ResetTokenExpiry      *time.Time     `json:"-"`
 	RequirePasswordChange bool           `gorm:"default:false" json:"require_password_change"`
 	DeletedAt             gorm.DeletedAt `gorm:"index" json:"-"`

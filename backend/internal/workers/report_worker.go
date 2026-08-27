@@ -48,7 +48,12 @@ func processReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emai
 
 		recipients := parseRecipients(sched.Recipients)
 		if len(recipients) == 0 {
-			continue
+			// Fall back to the account owner's registration email
+			ownerEmail := emailSvc.GetPrimaryAdminEmail(sched.TenantID.String())
+			if ownerEmail == "" {
+				continue
+			}
+			recipients = []string{ownerEmail}
 		}
 
 		switch sched.ReportType {
