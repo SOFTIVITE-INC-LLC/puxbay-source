@@ -117,6 +117,10 @@ export const routes: Routes = [
       {
         path: 'gift-cards',
         loadComponent: () => import('./features/gift-cards/gift-cards').then(m => m.AdminGiftCardsComponent)
+      },
+      {
+        path: 'sms',
+        loadComponent: () => import('./features/sms/sms').then(m => m.SmsComponent)
       }
     ]
   },

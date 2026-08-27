@@ -344,12 +344,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/privacy/privacy/privacy').then(m => m.Privacy)
       },
       {
-        path: 'superadmin',
-        canActivate: [permissionGuard],
-        data: { roles: ['superadmin'] },
-        loadComponent: () => import('./features/superadmin/superadmin/superadmin').then(m => m.Superadmin)
-      },
-      {
         path: 'cash-drawers',
         loadComponent: () => import('./features/cash-drawers/cash-drawers/cash-drawers').then(m => m.CashDrawers)
       },

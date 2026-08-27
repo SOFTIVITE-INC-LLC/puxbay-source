@@ -65,6 +65,7 @@ export class SidebarComponent {
     {
       category: 'Operations & Integrations',
       items: [
+        { label: 'SMS Gateway', route: '/sms', icon: 'sms', permission: 'sms:read' },
         { label: 'App Marketplace', route: '/apps', icon: 'extension', permission: 'apps:read' },
         { label: 'Webhook Logs', route: '/webhook-logs', icon: 'webhook', permission: 'webhooks:read' },
         { label: 'System Backups', route: '/backups', icon: 'save', permission: 'backups:read' },

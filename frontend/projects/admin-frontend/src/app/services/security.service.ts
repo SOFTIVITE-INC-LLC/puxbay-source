@@ -45,6 +45,8 @@ export const AVAILABLE_PERMISSIONS = [
   { id: 'security:write', name: 'Manage Security & Roles' },
   { id: 'admin_users:read', name: 'View Admin Users' },
   { id: 'admin_users:write', name: 'Manage Admin Users (Add/Delete)' },
+  { id: 'sms:read', name: 'View SMS Gateway & Sender IDs' },
+  { id: 'sms:write', name: 'Manage SMS Gateway & Approve/Reject Sender IDs' },
   { id: 'settings:write', name: 'Manage Settings' }
 ];
 

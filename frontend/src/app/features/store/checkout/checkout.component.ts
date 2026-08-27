@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CartService } from '../../../core/store/services/cart.service';
 import { CheckoutService } from '../../../core/store/services/checkout.service';
@@ -20,6 +20,7 @@ export class CheckoutComponent implements OnInit {
   settingsService = inject(StorefrontSettingsService);
   http = inject(HttpClient);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   fb = inject(FormBuilder);
 
   isLoading = signal(true);
@@ -188,7 +189,16 @@ export class CheckoutComponent implements OnInit {
       }
     }
 
+    const fullName = `${this.checkoutForm.value.firstName || ''} ${this.checkoutForm.value.lastName || ''}`.trim();
+    const branchId = this.route.snapshot.queryParamMap.get('branch_id') ||
+                     this.route.snapshot.queryParamMap.get('branchId') ||
+                     (typeof window !== 'undefined' ? localStorage.getItem('store_branch_id') : null);
+
     const payload: any = {
+      branch_id: branchId || undefined,
+      customer_name: fullName || undefined,
+      customer_email: this.checkoutForm.value.email || undefined,
+      customer_phone: this.checkoutForm.value.phone || undefined,
       total: this.finalTotal(),
       delivery_method: this.deliveryMethod(),
       delivery_address: this.deliveryMethod() === 'delivery' ? `${this.checkoutForm.value.address}, ${this.checkoutForm.value.city}` : '',
@@ -201,8 +211,8 @@ export class CheckoutComponent implements OnInit {
       }))
     };
 
-    // Amount in Kobo/lowest denomination
-    const amountInKobo = Math.round(this.finalTotal() * 100);
+    // Amount in lowest denomination (e.g. pesewas / cents)
+    const amountInLowestUnit = Math.round(this.finalTotal() * 100);
 
     if (this.paymentMethod() === 'pickup') {
       payload['payment_method'] = 'pickup';
@@ -222,9 +232,9 @@ export class CheckoutComponent implements OnInit {
     payload['payment_method'] = 'online';
     const setupConfig: any = {
       key: settings!.paystack_public_key,
-      email: this.checkoutForm.value.email,
-      amount: amountInKobo,
-      currency: 'GHS',
+      email: this.checkoutForm.value.email || 'customer@puxbay.com',
+      amount: amountInLowestUnit,
+      currency: settings?.currency || 'GHS',
       channels: ['mobile_money', 'card', 'bank', 'ussd', 'qr'],
       callback: (response: any) => {
         // Payment successful, verify with backend

@@ -3,8 +3,10 @@ import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarketingService, Campaign, CustomerSegment } from '../../../core/services/marketing.service';
+import { SMSService, SMSSenderID } from '../../../core/services/sms.service';
 import { ToastService } from '../../../core/services/toast';
 import { SettingsService } from '../../../core/services/settings.service';
+import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 
 @Component({
   selector: 'app-marketing',
@@ -14,10 +16,19 @@ import { SettingsService } from '../../../core/services/settings.service';
 })
 export class Marketing implements OnInit {
   marketingService = inject(MarketingService);
+  smsService = inject(SMSService);
   private toastService = inject(ToastService);
   settingsService = inject(SettingsService);
+  storefrontSettingsService = inject(StorefrontSettingsService);
 
-  activeTab = signal<'campaigns' | 'segments' | 'promotions' | 'discounts'>('campaigns');
+  activeTab = signal<'campaigns' | 'segments' | 'promotions' | 'discounts' | 'sms'>('campaigns');
+
+  setTab(tabId: string) {
+    this.activeTab.set(tabId as any);
+    if (tabId === 'sms') {
+      this.loadSMSData();
+    }
+  }
 
   // Campaign Modal
   isModalOpen = signal(false);
@@ -256,6 +267,137 @@ export class Marketing implements OnInit {
         this.marketingService.getDiscounts().subscribe();
       },
       error: () => this.toastService.showError('Failed to redeem points')
+    });
+  }
+
+  // ── SMS & Sender ID ──────────────────────────────────────────────────
+
+  isSenderIDModalOpen = signal(false);
+  newSenderID = signal('');
+  newSenderPurpose = signal('');
+  isSubmittingSenderID = signal(false);
+
+  isTopupModalOpen = signal(false);
+  topupAmount = signal<number>(20);
+  topupEmail = signal('');
+  isProcessingTopup = signal(false);
+
+  loadSMSData() {
+    this.smsService.getWallet().subscribe();
+    this.smsService.getSenderIDs().subscribe();
+    this.smsService.getTransactions().subscribe();
+  }
+
+  openSenderIDModal() {
+    this.newSenderID.set('');
+    this.newSenderPurpose.set('');
+    this.isSenderIDModalOpen.set(true);
+  }
+
+  closeSenderIDModal() {
+    this.isSenderIDModalOpen.set(false);
+  }
+
+  submitSenderID() {
+    const id = this.newSenderID().trim().toUpperCase();
+    const purpose = this.newSenderPurpose().trim();
+    if (!id || id.length < 3 || id.length > 11) {
+      this.toastService.showError('Sender ID must be between 3 and 11 alphanumeric characters');
+      return;
+    }
+    this.isSubmittingSenderID.set(true);
+    this.smsService.submitSenderID(id, purpose).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Sender ID "${id}" submitted for approval!`);
+        this.isSubmittingSenderID.set(false);
+        this.closeSenderIDModal();
+        this.smsService.getSenderIDs().subscribe();
+      },
+      error: (err) => {
+        this.toastService.showError(err.error?.error || 'Failed to submit Sender ID');
+        this.isSubmittingSenderID.set(false);
+      }
+    });
+  }
+
+  openTopupModal() {
+    this.topupAmount.set(20);
+    this.isTopupModalOpen.set(true);
+  }
+
+  closeTopupModal() {
+    this.isTopupModalOpen.set(false);
+  }
+
+  setTopupAmount(amt: number) {
+    this.topupAmount.set(amt);
+  }
+
+  calculateCredits(amt: number): number {
+    const rate = this.smsService.rate() || 0.20;
+    return Math.floor(amt / rate);
+  }
+
+  processSMSTopup() {
+    const amt = this.topupAmount();
+    if (!amt || amt < 1) {
+      this.toastService.showError('Please enter a valid top-up amount');
+      return;
+    }
+
+    const email = this.topupEmail().trim() || 'billing@puxbay.com';
+    this.isProcessingTopup.set(true);
+
+    this.smsService.initiateTopup(amt, email).subscribe({
+      next: (res) => {
+        const settings = this.storefrontSettingsService.settings();
+        const publicKey = settings?.paystack_public_key;
+
+        // If Paystack inline is available on window
+        if ((window as any).PaystackPop && publicKey) {
+          const handler = (window as any).PaystackPop.setup({
+            key: publicKey,
+            email: email,
+            amount: Math.round(amt * 100), // kobo/pesewas
+            currency: this.smsService.currency() || 'GHS',
+            ref: res.reference,
+            callback: (response: any) => {
+              this.smsService.verifyTopup(response.reference).subscribe({
+                next: () => {
+                  this.toastService.showSuccess(`${res.credits} SMS credits added to your wallet!`);
+                  this.isProcessingTopup.set(false);
+                  this.closeTopupModal();
+                },
+                error: (err) => {
+                  this.toastService.showError(err.error?.error || 'Failed to verify payment');
+                  this.isProcessingTopup.set(false);
+                }
+              });
+            },
+            onClose: () => {
+              this.isProcessingTopup.set(false);
+            }
+          });
+          handler.openIframe();
+        } else {
+          // Direct verification for local/test mode
+          this.smsService.verifyTopup(res.reference).subscribe({
+            next: () => {
+              this.toastService.showSuccess(`${res.credits} SMS credits added to your wallet!`);
+              this.isProcessingTopup.set(false);
+              this.closeTopupModal();
+            },
+            error: (err) => {
+              this.toastService.showError(err.error?.error || 'Failed to verify topup');
+              this.isProcessingTopup.set(false);
+            }
+          });
+        }
+      },
+      error: (err) => {
+        this.toastService.showError(err.error?.error || 'Failed to initiate top-up');
+        this.isProcessingTopup.set(false);
+      }
     });
   }
 }
