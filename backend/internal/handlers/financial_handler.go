@@ -109,16 +109,7 @@ func (h *FinancialHandler) GetProfitAndLoss(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"gross_revenue":       data.GrossRevenue,
-		"cogs":                data.COGS,
-		"gross_profit":        data.GrossProfit,
-		"total_expenses":      data.TotalExpenses,
-		"net_profit":          data.NetProfit,
-		"tax_collected":       data.TaxCollected,
-		"operating_cash_flow": data.OperatingCashFlow,
-		"monthly_data":        data.MonthlyData,
-	})
+	c.JSON(http.StatusOK, data)
 }
 
 func (h *FinancialHandler) GetTaxConfig(c *gin.Context) {

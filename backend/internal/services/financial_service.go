@@ -239,11 +239,19 @@ func (s *FinancialService) GetProfitAndLoss(tenantID uuid.UUID, branchID string,
 	// Total Accounts Receivable (current snapshot)
 	var totalReceivables float64
 	db.Model(&models.Customer{}).Select("COALESCE(SUM(debt_balance), 0)").Scan(&totalReceivables)
+	if totalReceivables == 0 {
+		db.Model(&models.CreditAccount{}).Where("balance > 0").Select("COALESCE(SUM(balance), 0)").Scan(&totalReceivables)
+	}
 
 	// Overdue Debt
 	var overdueReceivables float64
 	db.Model(&models.BNPLInstalment{}).Where("status != 'paid' AND due_date < CURRENT_TIMESTAMP").
 		Select("COALESCE(SUM(amount - amount_paid), 0)").Scan(&overdueReceivables)
+	if overdueReceivables == 0 {
+		db.Model(&models.CreditAccount{}).
+			Where("balance > 0 AND last_drawdown_at IS NOT NULL AND (last_drawdown_at + (days_to_repay || ' days')::interval) < CURRENT_TIMESTAMP").
+			Select("COALESCE(SUM(balance), 0)").Scan(&overdueReceivables)
+	}
 
 	var cogs float64
 	cogsQ := db.Session(&gorm.Session{NewDB: true}).Table("order_items").
