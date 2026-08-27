@@ -4,6 +4,7 @@ import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { CategoryService } from '../../core/services/category.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { StorefrontSettingsService } from '../../core/store/services/storefront-settings.service';
 import { Customer } from '../../core/models/models';
 import { Product } from '../../core/models/product.models';
 import { ToastrService } from 'ngx-toastr';
@@ -22,6 +23,7 @@ export class PosFacade {
   readonly offlineDb = inject(OfflineDbService);
   readonly printer = inject(PrinterService);
   private giftCardService = inject(GiftCardService);
+  private storefrontSettings = inject(StorefrontSettingsService);
 
   // --- CORE STATE ---
   searchQuery = signal('');
@@ -46,6 +48,11 @@ export class PosFacade {
   isFullscreen = signal(false);
   isCheckoutLoading = signal(false);
   paymentAmountInput = signal<number | null>(null);
+
+  // QR Pay
+  isQRModalOpen = signal(false);
+  qrPaymentData = signal<{ reference: string; amount: number; qrUrl: string } | null>(null);
+  private qrPollTimer: any = null;
 
   // --- ADVANCED STATE ---
   parkedSales = signal<{ cart: any[], customer: any, time: Date }[]>([]);
@@ -113,6 +120,15 @@ export class PosFacade {
     this.customerService.getCustomers({ limit: -1 }).subscribe();
     this.categoryService.getCategories({ limit: -1 }).subscribe();
     this.settingsService.getSettings().subscribe();
+    // Load storefront settings (Paystack public key + subaccount code)
+    this.storefrontSettings.loadSettings().subscribe();
+    // Load Paystack inline.js for Mobile Money / card payments
+    if (typeof document !== 'undefined' && !document.getElementById('paystack-inline-js')) {
+      const s = document.createElement('script');
+      s.id = 'paystack-inline-js';
+      s.src = 'https://js.paystack.co/v1/inline.js';
+      document.head.appendChild(s);
+    }
     // On reconnect, attempt to sync any queued offline orders
     window.addEventListener('online', () => this._syncOfflineOrders(), { once: false });
   }
@@ -381,6 +397,186 @@ export class PosFacade {
   removePaymentMethod(index: number) {
     this.payments.update(p => p.filter((_, i) => i !== index));
   }
+
+  /**
+   * Opens the Paystack popup for the remaining balance.
+   * Supports MTN MoMo, Telecel Cash, AirtelTigo, Visa & Mastercard.
+   * Payments are routed directly to the tenant's Paystack subaccount if configured.
+   */
+  paystackMobileCheckout() {
+    const remaining = this.remainingBalance();
+    if (remaining <= 0) {
+      this.toastr.info('No remaining balance to charge.');
+      return;
+    }
+
+    const settings = this.storefrontSettings.settings();
+    const pubKey = settings?.paystack_public_key;
+    if (!pubKey) {
+      // Fallback: just log as a regular mobile money payment (offline / no key configured)
+      this.addPaymentMethod('mobile');
+      this.toastr.warning('Paystack not configured — logged as Mobile Money.');
+      return;
+    }
+
+    // We need an email to initialise Paystack; use customer email or a placeholder
+    const email = this.selectedCustomer()?.email || 'pos-sale@puxbay.com';
+    const amountInPesewas = Math.round(remaining * 100);
+
+    const setupConfig: any = {
+      key: pubKey,
+      email,
+      amount: amountInPesewas,
+      currency: 'GHS',
+      channels: ['mobile_money', 'card', 'bank', 'ussd', 'qr'],
+      callback: (response: any) => {
+        // Payment successful — record it as 'mobile' with the Paystack reference
+        this.payments.update(p => [
+          ...p,
+          { method: 'mobile', amount: remaining, code: response.reference }
+        ]);
+        this.toastr.success(`Mobile Money payment confirmed (${response.reference})`);
+        // Auto-complete sale if fully paid
+        if (this.remainingBalance() <= 0) {
+          this.processCheckout();
+        }
+      },
+      onClose: () => {
+        this.toastr.info('Mobile Money payment cancelled.');
+      }
+    };
+
+    if (settings?.paystack_subaccount_code) {
+      setupConfig.subaccount = settings.paystack_subaccount_code;
+      setupConfig.bearer = 'subaccount';
+    }
+
+    if ((window as any).PaystackPop) {
+      const handler = (window as any).PaystackPop.setup(setupConfig);
+      handler.openIframe();
+    } else {
+      this.toastr.error('Paystack script is still loading. Please try again.');
+    }
+  }
+
+  /** Opens Paystack popup restricted to QR channel only. Customer scans the QR on their phone. */
+  paystackQRCheckout() {
+    const remaining = this.remainingBalance();
+    if (remaining <= 0) {
+      this.toastr.info('No remaining balance to charge.');
+      return;
+    }
+
+    const settings = this.storefrontSettings.settings();
+    const pubKey = settings?.paystack_public_key;
+    if (!pubKey) {
+      this.toastr.warning('Paystack not configured — QR Pay unavailable.');
+      return;
+    }
+
+    const email = this.selectedCustomer()?.email || 'pos-qr@puxbay.com';
+    const amountInPesewas = Math.round(remaining * 100);
+
+    const setupConfig: any = {
+      key: pubKey,
+      email,
+      amount: amountInPesewas,
+      currency: 'GHS',
+      channels: ['qr'],
+      callback: (response: any) => {
+        this.payments.update(p => [
+          ...p,
+          { method: 'qr', amount: remaining, code: response.reference }
+        ]);
+        this.toastr.success(`QR payment confirmed (${response.reference})`);
+        if (this.remainingBalance() <= 0) {
+          this.processCheckout();
+        }
+      },
+      onClose: () => {
+        this.toastr.info('QR payment cancelled.');
+      }
+    };
+
+    if (settings?.paystack_subaccount_code) {
+      setupConfig.subaccount = settings.paystack_subaccount_code;
+      setupConfig.bearer = 'subaccount';
+    }
+
+    if ((window as any).PaystackPop) {
+      const handler = (window as any).PaystackPop.setup(setupConfig);
+      handler.openIframe();
+    } else {
+      this.toastr.error('Paystack script is still loading. Please try again.');
+    }
+  }
+
+  openQRModal() {
+    const remaining = this.remainingBalance();
+    if (remaining <= 0) {
+      this.toastr.info('No remaining balance to charge.');
+      return;
+    }
+    const settings = this.storefrontSettings.settings();
+    const pubKey = settings?.paystack_public_key;
+    if (!pubKey) {
+      this.toastr.warning('Paystack not configured — QR Pay unavailable.');
+      return;
+    }
+    // Generate a unique reference for this transaction
+    const reference = `POS-QR-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    // Build a Paystack payment page URL as QR content
+    // The customer scans this and pays via their phone
+    const email = this.selectedCustomer()?.email || 'pos-qr@puxbay.com';
+    const amountInPesewas = Math.round(remaining * 100);
+    // Encode as Paystack inline URL so the popup opens on the customer device
+    const qrUrl = `https://paystack.com/pay/?key=${encodeURIComponent(pubKey)}&email=${encodeURIComponent(email)}&amount=${amountInPesewas}&currency=GHS&ref=${reference}${
+      settings?.paystack_subaccount_code ? `&subaccount=${settings.paystack_subaccount_code}&bearer=subaccount` : ''
+    }`;
+    this.qrPaymentData.set({ reference, amount: remaining, qrUrl });
+    this.isQRModalOpen.set(true);
+    // Poll for payment every 4 seconds (max 75 polls = 5 mins)
+    let polls = 0;
+    this.qrPollTimer = setInterval(() => {
+      polls++;
+      if (polls > 75) {
+        clearInterval(this.qrPollTimer);
+        this.toastr.warning('QR payment session expired.');
+        this.isQRModalOpen.set(false);
+        return;
+      }
+      // Check Paystack transaction status via backend verify endpoint
+      fetch(`/api/v1/pos/verify-payment?reference=${reference}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data?.status === 'success' || data?.data?.status === 'success') {
+            clearInterval(this.qrPollTimer);
+            this.isQRModalOpen.set(false);
+            this.payments.update(p => [
+              ...p,
+              { method: 'qr', amount: remaining, code: reference }
+            ]);
+            this.toastr.success(`QR payment confirmed!`);
+            if (this.remainingBalance() <= 0) {
+              this.processCheckout();
+            }
+          }
+        })
+        .catch(() => {}); // silently ignore network errors
+    }, 4000);
+  }
+
+  closeQRModal() {
+    if (this.qrPollTimer) {
+      clearInterval(this.qrPollTimer);
+      this.qrPollTimer = null;
+    }
+    this.isQRModalOpen.set(false);
+    this.qrPaymentData.set(null);
+  }
+
 
   processCheckout() {
     if (this.amountPaid() < this.cartTotal()) {

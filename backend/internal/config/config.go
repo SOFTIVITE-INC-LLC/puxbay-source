@@ -71,6 +71,7 @@ type StripeConfig struct {
 
 type PaystackConfig struct {
 	SecretKey   string `mapstructure:"PAYSTACK_SECRET_KEY"`
+	PublicKey   string `mapstructure:"PAYSTACK_PUBLIC_KEY"`
 	CallbackURL string `mapstructure:"PAYSTACK_CALLBACK_URL"`
 }
 
@@ -187,6 +188,7 @@ func Load() (*Config, error) {
 	// Paystack
 	cfg.Paystack = PaystackConfig{
 		SecretKey:   viper.GetString("PAYSTACK_SECRET_KEY"),
+		PublicKey:   viper.GetString("PAYSTACK_PUBLIC_KEY"),
 		CallbackURL: viper.GetString("PAYSTACK_CALLBACK_URL"),
 	}
 

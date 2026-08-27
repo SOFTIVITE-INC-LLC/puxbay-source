@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -462,4 +463,50 @@ func (h *PaymentMethodHandler) CreatePaystackSubaccount(c *gin.Context) {
 		"subaccount":     sub,
 		"payment_method": method,
 	})
+}
+
+// VerifyTransaction verifies any Paystack transaction reference
+// GET /api/v1/payment-methods/paystack/verify/:reference or GET /api/v1/pos/verify-payment?reference=...
+func (h *PaymentMethodHandler) VerifyTransaction(c *gin.Context) {
+	ref := c.Param("reference")
+	if ref == "" {
+		ref = c.Query("reference")
+	}
+	if ref == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "reference is required"})
+		return
+	}
+
+	secretKey := h.paystackCfg.SecretKey
+	if secretKey == "" {
+		secretKey = os.Getenv("PAYSTACK_SECRET_KEY")
+	}
+
+	url := fmt.Sprintf("https://api.paystack.co/transaction/verify/%s", ref)
+	reqHttp, err := http.NewRequestWithContext(c.Request.Context(), "GET", url, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		return
+	}
+	reqHttp.Header.Set("Authorization", "Bearer "+secretKey)
+
+	resp, err := h.httpClient.Do(reqHttp)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to contact Paystack"})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var paystackResp struct {
+		Status  bool        `json:"status"`
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &paystackResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid response from Paystack"})
+		return
+	}
+
+	c.JSON(resp.StatusCode, paystackResp)
 }

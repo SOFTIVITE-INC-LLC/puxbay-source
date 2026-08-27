@@ -220,12 +220,12 @@ export class CheckoutComponent implements OnInit {
     }
 
     payload['payment_method'] = 'online';
-    const handler = (window as any).PaystackPop.setup({
+    const setupConfig: any = {
       key: settings!.paystack_public_key,
       email: this.checkoutForm.value.email,
       amount: amountInKobo,
       currency: 'GHS',
-      subaccount: settings!.paystack_subaccount_code || '',
+      channels: ['mobile_money', 'card', 'bank', 'ussd', 'qr'],
       callback: (response: any) => {
         // Payment successful, verify with backend
         payload['reference'] = response.reference;
@@ -244,8 +244,14 @@ export class CheckoutComponent implements OnInit {
         this.checkoutError.set('Payment was cancelled.');
         this.isProcessing.set(false);
       }
-    });
+    };
 
+    if (settings!.paystack_subaccount_code) {
+      setupConfig.subaccount = settings!.paystack_subaccount_code;
+      setupConfig.bearer = 'subaccount';
+    }
+
+    const handler = (window as any).PaystackPop.setup(setupConfig);
     handler.openIframe();
   }
 

@@ -9,11 +9,12 @@ import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { GiftCardService } from '../../../core/services/gift-card.service';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from '../../../core/services/settings.service';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 @Component({
   selector: 'app-pos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, QRCodeComponent],
   templateUrl: './pos.html',
   styles: `
     .glass-panel {

@@ -435,6 +435,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/payment-methods/paystack/banks", paymentMethodHandler.ListPaystackBanks)
 			api.GET("/payment-methods/paystack/resolve-account", paymentMethodHandler.ResolvePaystackAccount)
 			api.POST("/payment-methods/paystack/create-subaccount", paymentMethodHandler.CreatePaystackSubaccount)
+			api.GET("/payment-methods/paystack/verify/:reference", paymentMethodHandler.VerifyTransaction)
+			api.GET("/pos/verify-payment", paymentMethodHandler.VerifyTransaction)
 
 			// Staff (read: all authenticated, write: admin only)
 			api.GET("/staff", staffHandler.List)

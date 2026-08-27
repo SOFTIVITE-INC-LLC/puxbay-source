@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -36,12 +37,31 @@ func (s *StorefrontService) GetSettings() (*models.StorefrontSettings, error) {
 
 	var settings models.StorefrontSettings
 	if err := s.db.First(&settings).Error; err != nil {
-		return &models.StorefrontSettings{
+		settings = models.StorefrontSettings{
 			IsActive:     false,
 			StoreName:    "",
 			PrimaryColor: "#3b82f6",
 			AllowPickup:  true,
-		}, nil
+		}
+	}
+
+	// Auto-resolve Paystack Subaccount Code from active PaymentMethods if not set directly
+	if settings.PaystackSubaccountCode == "" {
+		var pm models.PaymentMethod
+		if err := s.db.Where("(provider = ? OR paystack_subaccount_code IS NOT NULL) AND is_active = ?", "paystack_subaccount", true).Order("created_at desc").First(&pm).Error; err == nil {
+			if pm.PaystackSubaccountCode != nil && *pm.PaystackSubaccountCode != "" {
+				settings.PaystackSubaccountCode = *pm.PaystackSubaccountCode
+				settings.EnablePaystack = true
+				settings.EnableMobileMoney = true
+			}
+		}
+	}
+
+	// Fallback to platform Paystack Public Key if empty
+	if settings.PaystackPublicKey == "" {
+		if pubKey := os.Getenv("PAYSTACK_PUBLIC_KEY"); pubKey != "" {
+			settings.PaystackPublicKey = pubKey
+		}
 	}
 
 	if s.redis != nil {
@@ -74,10 +94,21 @@ func (s *StorefrontService) UpdateSettings(req *models.StorefrontSettings) (*mod
 	settings.StoreViewType = req.StoreViewType
 	settings.Slug = req.Slug
 	settings.FlashSaleEndTime = req.FlashSaleEndTime
+	settings.EnableStripe = req.EnableStripe
+	settings.EnablePaystack = req.EnablePaystack
+	settings.PaystackPublicKey = req.PaystackPublicKey
+	settings.PaystackSubaccountCode = req.PaystackSubaccountCode
+	settings.EnableMobileMoney = req.EnableMobileMoney
 
 	if err := s.db.Save(&settings).Error; err != nil {
 		return nil, err
 	}
+
+	if s.redis != nil {
+		cacheKey := fmt.Sprintf("storefront:settings:%s", s.tenantID.String())
+		s.redis.Del(context.Background(), cacheKey)
+	}
+
 	return &settings, nil
 }
 

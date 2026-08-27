@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { StorefrontService } from '../../../core/services/storefront.service';
@@ -14,6 +15,7 @@ import { StorefrontService } from '../../../core/services/storefront.service';
 })
 export class PublicStorefront implements OnInit {
   private route = inject(ActivatedRoute);
+  private http = inject(HttpClient);
   catalogService = inject(CatalogService);
   storefrontService = inject(StorefrontService);
 
@@ -22,6 +24,9 @@ export class PublicStorefront implements OnInit {
   isCartOpen = signal(false);
   isCheckoutOpen = signal(false);
   checkoutStep = signal(1);
+  paymentMethod = signal<'online' | 'cash'>('online');
+  isProcessing = signal(false);
+  checkoutError = signal('');
 
   darkMode = signal(false);
   quickViewProduct = signal<any>(null);
@@ -115,6 +120,13 @@ export class PublicStorefront implements OnInit {
     this.slug.set(this.route.snapshot.paramMap.get('slug') || '');
     this.catalogService.getProducts().subscribe();
     this.storefrontService.getSettings().subscribe();
+
+    // Load Paystack Inline JS Script
+    if (typeof document !== 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      document.head.appendChild(script);
+    }
     
     // Load from local storage
     try {
@@ -177,11 +189,99 @@ export class PublicStorefront implements OnInit {
     this.isCartOpen.set(false);
     this.isCheckoutOpen.set(true);
     this.checkoutStep.set(1);
+    this.checkoutError.set('');
   }
 
   submitOrder() {
-    this.orderTrackingNumber.set('TRK-' + Math.random().toString(36).substring(2, 10).toUpperCase());
-    this.orderPlaced.set(true);
-    this.cart.set([]);
+    if (this.isProcessing()) return;
+    this.checkoutError.set('');
+
+    const settings = this.storefrontService.settings();
+    const guest = this.guestDetails();
+
+    if (!guest.name || !guest.email || !guest.phone) {
+      this.checkoutError.set('Please provide your name, email, and phone number.');
+      return;
+    }
+
+    const payload: any = {
+      total: this.cartTotal(),
+      delivery_method: guest.address ? 'delivery' : 'pickup',
+      delivery_address: guest.address || '',
+      payment_method: this.paymentMethod(),
+      items: this.cart().map(i => ({
+        product_id: i.product.id,
+        quantity: i.qty
+      }))
+    };
+
+    if (this.paymentMethod() === 'cash') {
+      this.isProcessing.set(true);
+      this.http.post<any>('/api/v1/storefront/checkout/verify', payload).subscribe({
+        next: (res) => {
+          this.orderTrackingNumber.set(res?.order?.order_number || ('TRK-' + Math.random().toString(36).substring(2, 10).toUpperCase()));
+          this.orderPlaced.set(true);
+          this.cart.set([]);
+          this.isProcessing.set(false);
+        },
+        error: (err) => {
+          this.checkoutError.set(err.error?.error || 'Order placement failed. Please try again.');
+          this.isProcessing.set(false);
+        }
+      });
+      return;
+    }
+
+    // Paystack / Mobile Money Checkout with Subaccount
+    const pubKey = settings?.paystack_public_key;
+    if (!pubKey) {
+      this.checkoutError.set('Payment gateway is not configured for this store.');
+      return;
+    }
+
+    this.isProcessing.set(true);
+    const amountInKobo = Math.round(this.cartTotal() * 100);
+
+    const setupConfig: any = {
+      key: pubKey,
+      email: guest.email,
+      amount: amountInKobo,
+      currency: 'GHS',
+      channels: ['mobile_money', 'card', 'bank', 'ussd', 'qr'],
+      callback: (response: any) => {
+        payload['payment_method'] = 'paystack';
+        payload['reference'] = response.reference;
+        this.http.post<any>('/api/v1/storefront/checkout/verify', payload).subscribe({
+          next: (res) => {
+            this.orderTrackingNumber.set(res?.order?.order_number || ('TRK-' + Math.random().toString(36).substring(2, 10).toUpperCase()));
+            this.orderPlaced.set(true);
+            this.cart.set([]);
+            this.isProcessing.set(false);
+          },
+          error: (err) => {
+            this.checkoutError.set(err.error?.error || 'Payment verification failed. Please contact support.');
+            this.isProcessing.set(false);
+          }
+        });
+      },
+      onClose: () => {
+        this.checkoutError.set('Payment was cancelled.');
+        this.isProcessing.set(false);
+      }
+    };
+
+    // Route directly to tenant's Paystack subaccount
+    if (settings?.paystack_subaccount_code) {
+      setupConfig.subaccount = settings.paystack_subaccount_code;
+      setupConfig.bearer = 'subaccount';
+    }
+
+    if ((window as any).PaystackPop) {
+      const handler = (window as any).PaystackPop.setup(setupConfig);
+      handler.openIframe();
+    } else {
+      this.checkoutError.set('Paystack script is still loading. Please try again in a few seconds.');
+      this.isProcessing.set(false);
+    }
   }
 }
