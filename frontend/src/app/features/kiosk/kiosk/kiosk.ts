@@ -38,7 +38,7 @@ export class Kiosk implements OnInit, OnDestroy {
   kioskCustomer = signal<any>(null);
   isRegisteringCustomer = signal(false);
 
-  cart = signal<{product: any, qty: number}[]>([]);
+  cart = signal<{ product: any, qty: number }[]>([]);
   orderPlaced = signal(false);
   orderNumber = signal<string | null>(null);
   countdown = signal(5);
@@ -53,6 +53,7 @@ export class Kiosk implements OnInit, OnDestroy {
   productsList = signal<any[]>([]);
   categoriesList = signal<any[]>([]);
   activeCategoryId = signal<string | null>(null);
+  searchQuery = signal('');
 
   categories = computed(() => this.categoriesList());
 
@@ -61,20 +62,28 @@ export class Kiosk implements OnInit, OnDestroy {
     if (this.activeCategoryId()) {
       prods = prods.filter(p => p.category_id === this.activeCategoryId() || p.category?.id === this.activeCategoryId());
     }
+    const q = this.searchQuery().toLowerCase().trim();
+    if (q) {
+      prods = prods.filter(p =>
+        p.name?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q) ||
+        p.sku?.toLowerCase().includes(q)
+      );
+    }
     return prods;
   });
 
-  cartTotal = computed(() => 
+  cartTotal = computed(() =>
     this.cart().reduce((sum, item) => sum + (item.qty * (item.product.selling_price || 0)), 0)
   );
 
   ngOnInit() {
     this.branchId = this.route.snapshot.paramMap.get('branchId') ||
-                    this.route.snapshot.queryParamMap.get('branch_id') ||
-                    this.route.snapshot.queryParamMap.get('branchId') || '';
-    
+      this.route.snapshot.queryParamMap.get('branch_id') ||
+      this.route.snapshot.queryParamMap.get('branchId') || '';
+
     this.loadKioskData();
-    
+
     // Setup idle detection
     if (isPlatformBrowser(this.platformId)) {
       document.addEventListener('touchstart', this.resetIdleTimer.bind(this));
@@ -85,7 +94,7 @@ export class Kiosk implements OnInit, OnDestroy {
 
   loadKioskData() {
     this.loading.set(true);
-    const params: any = { page_size: 100 };
+    const params: any = { page_size: 10000 };
     if (this.branchId && this.branchId !== 'default') {
       params.branch_id = this.branchId;
     }
@@ -174,16 +183,19 @@ export class Kiosk implements OnInit, OnDestroy {
     this.isPaymentModalOpen.set(false);
     this.selectedProduct.set(null);
     this.activeCategoryId.set(null);
+    this.searchQuery.set('');
     this.isCustomerStep.set(false);
     this.kioskCustomer.set(null);
     this.customerName = '';
     this.customerPhone = '';
+    this.isProcessing.set(false);
     this.isIdle.set(true);
     clearInterval(this.countdownTimer);
   }
 
   setCategory(id: string | null) {
     this.activeCategoryId.set(id);
+    this.searchQuery.set('');
     this.resetIdleTimer();
   }
 
@@ -249,13 +261,13 @@ export class Kiosk implements OnInit, OnDestroy {
     this.resetIdleTimer();
   }
 
-  processPayment(method: string) {
+  processPayment(method: 'card' | 'cash' | 'mobile_money') {
     this.payNow(method);
   }
 
   payNow(method: string = 'card') {
     if (this.cart().length === 0 || this.isProcessing()) return;
-    
+
     this.isProcessing.set(true);
 
     const items = this.cart().map(item => ({
@@ -286,7 +298,7 @@ export class Kiosk implements OnInit, OnDestroy {
         this.isPaymentModalOpen.set(false);
         this.orderPlaced.set(true);
         this.orderNumber.set(order.receipt_number || order.id?.substring(0, 8) || '101');
-        
+
         // Automatically print receipt via hidden iframe
         if (order.receipt_token) {
           this.api.get(`/public/receipts/${order.receipt_token}`, {
@@ -300,13 +312,13 @@ export class Kiosk implements OnInit, OnDestroy {
               iframe.style.height = '0px';
               iframe.style.border = 'none';
               document.body.appendChild(iframe);
-              
+
               const doc = iframe.contentWindow?.document;
               if (doc) {
                 doc.open();
                 doc.write(html);
                 doc.close();
-                
+
                 setTimeout(() => {
                   iframe.contentWindow?.focus();
                   iframe.contentWindow?.print();
@@ -319,7 +331,7 @@ export class Kiosk implements OnInit, OnDestroy {
 
         this.cart.set([]);
         this.isCartOpen.set(false);
-        
+
         this.countdown.set(5);
         this.countdownTimer = setInterval(() => {
           this.countdown.update(c => c - 1);

@@ -131,8 +131,8 @@
 
         <!-- Product Image -->
         <div class="w-32 h-32 md:w-40 md:h-40 rounded-2xl md:rounded-3xl bg-white/10 shadow-inner mx-auto mb-6 md:mb-8 flex items-center justify-center overflow-hidden">
-          @if (selectedProduct()?.images?.length) {
-            <img [src]="selectedProduct()!.images[0]" class="w-full h-full object-cover">
+          @if (selectedProduct()?.image_url || selectedProduct()?.images?.length) {
+            <img [src]="selectedProduct()!.image_url || selectedProduct()!.images[0]" class="w-full h-full object-cover">
           } @else {
             <span class="material-symbols-outlined !text-[48px] md:!text-[64px] text-white/40">inventory_2</span>
           }
@@ -172,24 +172,34 @@
         <h2 class="text-2xl md:text-3xl font-black mb-1 md:mb-2">Choose Payment</h2>
         <p class="text-white/50 mb-6 md:mb-8 text-sm md:text-base">Total: <span class="text-white font-black text-xl md:text-2xl">{{ cartTotal() | appCurrency }}</span></p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
           <!-- Card Payment -->
           <button (click)="processPayment('card')" [disabled]="isProcessing()"
                   class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-indigo-600/80 to-indigo-900/80 border border-indigo-500/40 rounded-2xl md:rounded-3xl hover:from-indigo-500/80 hover:to-indigo-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-indigo-500/20">
             <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">contactless</span>
             <div class="text-center">
-              <p class="text-lg md:text-xl font-black">Tap or Insert Card</p>
+              <p class="text-lg md:text-xl font-black">Tap / Card</p>
               <p class="text-xs md:text-sm text-indigo-300 mt-1">Credit / Debit / NFC</p>
             </div>
           </button>
 
-          <!-- QR / Mobile Payment -->
+          <!-- Cash Payment -->
+          <button (click)="processPayment('cash')" [disabled]="isProcessing()"
+                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-emerald-600/80 to-emerald-900/80 border border-emerald-500/40 rounded-2xl md:rounded-3xl hover:from-emerald-500/80 hover:to-emerald-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-emerald-500/20">
+            <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">payments</span>
+            <div class="text-center">
+              <p class="text-lg md:text-xl font-black">Cash</p>
+              <p class="text-xs md:text-sm text-emerald-300 mt-1">Pay at counter</p>
+            </div>
+          </button>
+
+          <!-- Mobile Money / QR Payment -->
           <button (click)="processPayment('mobile_money')" [disabled]="isProcessing()"
                   class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-violet-600/80 to-violet-900/80 border border-violet-500/40 rounded-2xl md:rounded-3xl hover:from-violet-500/80 hover:to-violet-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-violet-500/20">
             <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">qr_code_scanner</span>
             <div class="text-center">
-              <p class="text-lg md:text-xl font-black">Scan QR Code</p>
-              <p class="text-xs md:text-sm text-violet-300 mt-1">Mobile Money / Wallet</p>
+              <p class="text-lg md:text-xl font-black">Mobile Money</p>
+              <p class="text-xs md:text-sm text-violet-300 mt-1">MoMo / Wallet / QR</p>
             </div>
           </button>
         </div>
@@ -234,6 +244,20 @@
         {{ cat.name }}
       </button>
     }
+    <!-- Search Bar (pinned to the right, shrinks on mobile) -->
+    <div class="flex-1 min-w-[140px] md:min-w-[200px] max-w-xs ml-auto shrink-0">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/40 !text-[18px]">search</span>
+        <input [(ngModel)]="searchQuery" type="search" placeholder="Search menu..."
+               class="w-full bg-white/10 border border-white/15 focus:border-indigo-500 rounded-full pl-9 pr-4 py-2 text-xs md:text-sm text-white placeholder:text-white/30 outline-none transition-colors"
+               autocomplete="off" (input)="resetIdleTimer()" />
+        @if (searchQuery()) {
+          <button (click)="searchQuery.set('')" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
+            <span class="material-symbols-outlined !text-[16px]">close</span>
+          </button>
+        }
+      </div>
+    </div>
   </div>
 
   <!-- ── Main Content ── -->
@@ -275,7 +299,12 @@
           @if (products().length === 0 && !loading()) {
             <div class="col-span-full py-12 md:py-20 flex flex-col items-center text-white/30">
               <span class="material-symbols-outlined !text-[48px] md:!text-[64px] mb-3 md:mb-4">search_off</span>
-              <p class="text-base md:text-xl font-bold">No items in this category</p>
+              @if (searchQuery()) {
+                <p class="text-base md:text-xl font-bold">No results for "{{ searchQuery() }}"</p>
+                <p class="text-sm text-white/20 mt-1">Try a different search term</p>
+              } @else {
+                <p class="text-base md:text-xl font-bold">No items in this category</p>
+              }
             </div>
           }
         </div>
