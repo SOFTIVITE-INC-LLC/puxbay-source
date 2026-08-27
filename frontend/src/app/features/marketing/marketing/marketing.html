@@ -1,4 +1,4 @@
-<div class="min-h-full flex flex-col p-5 sm:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white pb-10">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white">
 
   <!-- Header -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
@@ -662,310 +662,180 @@
 
 <!-- SMS & Sender ID Tab Content -->
 @if (activeTab() === 'sms') {
-  <div class="space-y-6 sm:space-y-8 animate-fadeIn">
+  <div class="space-y-4 sm:space-y-6 animate-fadeIn">
 
-    <!-- Top Summary Stat Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+    <!-- Overview Stats (4 Compact Cards matching Campaigns tab) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
       
-      <!-- Wallet Balance Card (Vibrant Gradient Glass) -->
-      <div class="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white shadow-xl shadow-purple-600/20 border border-white/20 flex flex-col justify-between min-h-[220px]">
-        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
-        <div class="relative z-10">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-[11px] font-black uppercase tracking-wider text-purple-100 bg-white/15 px-3 py-1 rounded-full border border-white/15 backdrop-blur-sm">
-              SMS Wallet
-            </span>
-            <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner border border-white/20">
-              <span class="material-symbols-outlined text-white text-[20px]">account_balance_wallet</span>
-            </div>
-          </div>
-          
-          <div class="flex items-baseline gap-2 mb-1">
-            <span class="text-4xl sm:text-5xl font-black tracking-tight font-mono">
-              {{ smsService.wallet()?.credits_balance || 0 }}
-            </span>
-            <span class="text-sm font-bold text-purple-200 uppercase tracking-wider">Credits</span>
-          </div>
-          <p class="text-xs text-purple-100/90">Available for order updates, receipts & marketing</p>
+      <!-- Card 1: Total Dispatched -->
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-purple-100 dark:bg-purple-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">send</span>
+          <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wider truncate">Total Dispatched</span>
         </div>
-
-        <div class="relative z-10 mt-6 pt-4 border-t border-white/20 flex items-center justify-between">
-          <div class="text-xs text-purple-100 font-medium">
-            Rate: <span class="font-bold text-white font-mono">{{ smsService.currency() }} {{ (smsService.rate() || 0.20) | number:'1.2-2' }}</span>/SMS
-          </div>
-          <button (click)="openTopupModal()" class="px-4 py-2 bg-white text-purple-900 hover:bg-purple-50 active:scale-95 font-black text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
-            <span class="material-symbols-outlined text-[16px]">add</span> Top-up Now
-          </button>
-        </div>
+        <p class="text-base sm:text-3xl font-black z-10 truncate">{{ smsService.wallet()?.credits_used || 0 }}</p>
       </div>
 
-      <!-- Active Sender ID Card -->
-      <div class="relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between min-h-[220px]">
-        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
-        <div class="relative z-10">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-700/60">
-              Active Sender ID
-            </span>
-            <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/20">
-              <span class="material-symbols-outlined text-[20px]">verified</span>
-            </div>
-          </div>
-
-          @if (smsService.activeSenderID(); as activeID) {
-            <div class="text-3xl sm:text-4xl font-mono font-black text-zinc-900 dark:text-white uppercase tracking-wider mb-2">
-              {{ activeID.sender_id }}
-            </div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live & Verified for Customer SMS
-            </div>
-          } @else {
-            <div class="text-2xl font-black text-zinc-900 dark:text-white mb-1">Default (PUXBAY)</div>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Register your official brand name to customize customer SMS.</p>
-          }
+      <!-- Card 2: Active Sender ID -->
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">badge</span>
+          <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wider truncate">Active Brand</span>
         </div>
-
-        <div class="relative z-10 mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs">
-          <span class="text-zinc-500 dark:text-zinc-400 font-medium">{{ smsService.senderIDs().length }} Sender ID(s) on file</span>
-          <button (click)="openSenderIDModal()" class="text-purple-600 dark:text-purple-400 hover:underline font-bold flex items-center gap-1 transition-colors cursor-pointer">
-            <span class="material-symbols-outlined text-[15px]">badge</span> + Register New
-          </button>
-        </div>
+        <p class="text-base sm:text-3xl font-black z-10 text-emerald-600 dark:text-emerald-400 truncate uppercase">
+          {{ smsService.activeSenderID()?.sender_id || 'PUXBAY' }}
+        </p>
       </div>
 
-      <!-- Lifetime Usage & Performance Card -->
-      <div class="relative overflow-hidden rounded-3xl p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between min-h-[220px]">
-        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-blue-500/5 blur-3xl pointer-events-none"></div>
-        <div class="relative z-10">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-[11px] font-black uppercase tracking-wider text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-700/60">
-              Delivery Stats
-            </span>
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-500/20">
-              <span class="material-symbols-outlined text-[20px]">send</span>
-            </div>
-          </div>
-
-          <div class="flex items-baseline gap-2 mb-2">
-            <span class="text-4xl sm:text-5xl font-black font-mono text-zinc-900 dark:text-white tracking-tight">
-              {{ smsService.wallet()?.credits_used || 0 }}
-            </span>
-            <span class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase">Messages Dispatched</span>
-          </div>
-          <div class="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
-            <span class="material-symbols-outlined text-[15px]">bolt</span> Instant Arkesel Gateway Routing
-          </div>
+      <!-- Card 3: Rate per SMS -->
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">payments</span>
+          <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wider truncate">Price / SMS</span>
         </div>
+        <p class="text-base sm:text-3xl font-black z-10 truncate">
+          {{ smsService.currency() }} {{ (smsService.rate() || 0.20) | number:'1.2-2' }}
+        </p>
+      </div>
 
-        <div class="relative z-10 mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-          <span>Total Purchased:</span>
-          <span class="font-bold text-zinc-900 dark:text-white font-mono">{{ smsService.wallet()?.credits_total || 0 }} credits</span>
+      <!-- Card 4: Wallet Balance (Vibrant Gradient Card matching Revenue Generated) -->
+      <div class="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col gap-1 sm:gap-2 shadow-lg shadow-purple-500/20 text-white relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-purple-100 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">account_balance_wallet</span>
+          <span class="text-[9px] sm:text-xs font-bold uppercase tracking-wider truncate">SMS Wallet</span>
         </div>
+        <p class="text-base sm:text-3xl font-black z-10 truncate">
+          {{ smsService.wallet()?.credits_balance || 0 }} <span class="text-xs font-normal text-purple-200">Credits</span>
+        </p>
       </div>
 
     </div>
 
-    <!-- Telecom Sender ID Workflow Banner -->
-    <div class="rounded-3xl p-6 bg-gradient-to-r from-purple-50 via-fuchsia-50/40 to-white dark:from-purple-950/25 dark:via-zinc-900/60 dark:to-zinc-900/60 border border-purple-200 dark:border-purple-800/30 shadow-sm">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2 text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
-            <span class="material-symbols-outlined text-[17px]">info</span> Telecom Sender ID Workflow
-          </div>
-          <h3 class="text-base font-bold text-zinc-900 dark:text-white">How SMS Branding & Dispatch Works</h3>
-          <p class="text-xs text-zinc-500 dark:text-zinc-400 max-w-2xl">
-            Customer messages (order confirmations, receipts, loyalty) require an approved alphanumeric Sender ID and debit from your SMS wallet. System invites and staff OTPs route through the platform gateway automatically.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-3 gap-3 text-center shrink-0">
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-purple-100 dark:border-zinc-700/60 shadow-xs space-y-1">
-            <div class="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-black text-[11px] flex items-center justify-center mx-auto">1</div>
-            <p class="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">Register ID</p>
-            <p class="text-[10px] text-zinc-400">3–11 Chars</p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-purple-100 dark:border-zinc-700/60 shadow-xs space-y-1">
-            <div class="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-black text-[11px] flex items-center justify-center mx-auto">2</div>
-            <p class="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">Approval</p>
-            <p class="text-[10px] text-zinc-400">Admin Review</p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/60 border border-purple-100 dark:border-zinc-700/60 shadow-xs space-y-1">
-            <div class="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black text-[11px] flex items-center justify-center mx-auto">3</div>
-            <p class="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">Dispatch</p>
-            <p class="text-[10px] text-zinc-400">Live Delivery</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Registered Sender IDs Section -->
-    <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-      <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">badge</span>
-            Registered Sender IDs
-          </h2>
-          <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage your approved brand names for SMS campaigns, receipts, and order updates.</p>
-        </div>
+    <!-- Quick Actions (matching Quick Automation Triggers) -->
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-sm">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">bolt</span> Quick SMS Actions & Top-Up
+      </h3>
+      <div class="flex flex-wrap gap-3">
+        <button (click)="openTopupModal()"
+                class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md hover:opacity-90 active:scale-95 transition-all bg-gradient-to-r from-violet-600 to-purple-600 cursor-pointer">
+          <span class="material-symbols-outlined !text-[18px]">add_card</span>
+          Top-up SMS Wallet
+        </button>
         <button (click)="openSenderIDModal()"
-                class="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:opacity-90 active:scale-95 text-white rounded-xl font-bold text-xs transition-all shadow-md shadow-purple-500/20 flex items-center justify-center gap-1.5 cursor-pointer">
-          <span class="material-symbols-outlined text-[17px]">add</span> Register Sender ID
+                class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-md hover:opacity-90 active:scale-95 transition-all bg-gradient-to-r from-fuchsia-500 to-pink-500 cursor-pointer">
+          <span class="material-symbols-outlined !text-[18px]">badge</span>
+          Register Sender ID
         </button>
       </div>
+    </div>
 
-      <div class="divide-y divide-zinc-100 dark:divide-zinc-800/80">
+    <!-- Search Bar -->
+    <div class="relative max-w-sm">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
+        <span class="material-symbols-outlined !text-[20px]">search</span>
+      </span>
+      <input type="text"
+        placeholder="Search sender IDs..."
+        class="w-full pl-10 pr-4 py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-transparent transition-all shadow-sm text-sm" />
+    </div>
+
+    <!-- Empty State (matching Campaigns tab exactly) -->
+    @if (smsService.senderIDs().length === 0) {
+      <div class="flex flex-col items-center justify-center py-24 text-zinc-400 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed border-zinc-300 dark:border-zinc-800">
+        <span class="material-symbols-outlined !text-[64px] mb-4 opacity-50 text-purple-400">badge</span>
+        <p class="font-bold text-xl mb-1 text-zinc-600 dark:text-zinc-300">No Sender IDs registered</p>
+        <p class="text-sm text-zinc-500 max-w-md text-center mb-5">Register your custom 3–11 character business name so your customers know who is messaging them.</p>
+        <button (click)="openSenderIDModal()"
+                class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-purple-500/25 hover:opacity-90 active:scale-95 transition-all cursor-pointer">
+          <span class="material-symbols-outlined !text-[18px]">add</span> Register Your First Sender ID
+        </button>
+      </div>
+    }
+
+    <!-- Registered Sender IDs Grid -->
+    @if (smsService.senderIDs().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (s of smsService.senderIDs(); track s.id) {
-          <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center font-mono font-black text-base text-zinc-900 dark:text-white uppercase tracking-wider">
-                {{ s.sender_id.substring(0, 4) }}
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-base font-mono font-black text-zinc-900 dark:text-white uppercase tracking-wider">{{ s.sender_id }}</span>
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden relative group hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div class="p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-900/10">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="material-symbols-outlined !text-[20px] text-purple-500">badge</span>
+                  <span class="text-xs font-bold uppercase tracking-wider text-zinc-500">Sender ID</span>
                   @if (s.status === 'approved') {
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-                      Primary
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center gap-1">
+                      <span class="material-symbols-outlined !text-[12px]">check_circle</span> Approved
+                    </span>
+                  } @else if (s.status === 'pending') {
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-1">
+                      <span class="material-symbols-outlined !text-[12px]">schedule</span> Pending Review
+                    </span>
+                  } @else {
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 flex items-center gap-1">
+                      <span class="material-symbols-outlined !text-[12px]">cancel</span> Rejected
                     </span>
                   }
                 </div>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ s.purpose || 'Customer notifications and marketing' }}</p>
-                <p class="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5">Submitted on {{ s.created_at | date:'mediumDate' }}</p>
+                <h4 class="font-mono font-black text-xl text-zinc-900 dark:text-white uppercase tracking-wider">{{ s.sender_id }}</h4>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{{ s.purpose || 'Customer notification and receipts' }}</p>
               </div>
             </div>
-
-            <div class="flex items-center gap-3">
-              @if (s.status === 'approved') {
-                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Approved & Active
-                </span>
-              } @else if (s.status === 'pending') {
-                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-                  <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Pending Review
-                </span>
-              } @else {
-                <div class="text-right">
-                  <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Rejected
-                  </span>
-                  @if (s.rejection_reason) {
-                    <p class="text-[11px] text-rose-600 dark:text-rose-400 italic mt-1 max-w-xs">{{ s.rejection_reason }}</p>
-                  }
-                </div>
-              }
+            <div class="px-6 py-3 bg-zinc-50/60 dark:bg-zinc-800/40 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
+              <span>Submitted {{ s.created_at | date:'mediumDate' }}</span>
+              <span class="font-mono text-[11px]">{{ s.sender_id.length }}/11 chars</span>
             </div>
-          </div>
-        }
-        @if (smsService.senderIDs().length === 0) {
-          <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-3xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center mx-auto mb-3 text-zinc-400 dark:text-zinc-500">
-              <span class="material-symbols-outlined text-3xl">badge</span>
-            </div>
-            <h4 class="text-sm font-bold text-zinc-800 dark:text-zinc-200">No Sender IDs Registered</h4>
-            <p class="text-xs text-zinc-500 max-w-sm mx-auto mt-1 mb-4">Register your custom 3–11 character business name so your customers know who is messaging them.</p>
-            <button (click)="openSenderIDModal()" class="px-4 py-2.5 bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-800 dark:hover:bg-zinc-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer">
-              + Register Your First Sender ID
-            </button>
           </div>
         }
       </div>
-    </div>
+    }
 
-    <!-- Top-up & Usage History Section -->
-    <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
-      <div class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
-        <div>
-          <h2 class="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">receipt_long</span>
-            Top-up & Usage History
-          </h2>
-          <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Audit log of wallet credits, Paystack payments, and message consumptions.</p>
+    <!-- Transaction History Card -->
+    @if (smsService.transactions().length > 0) {
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+          <span class="material-symbols-outlined !text-[18px]">receipt_long</span> Transaction History
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-zinc-700 dark:text-zinc-300">
+            <thead class="text-[11px] uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-400 font-bold tracking-wider border-b border-zinc-100 dark:border-zinc-800">
+              <tr>
+                <th class="px-4 py-3">Transaction</th>
+                <th class="px-4 py-3">Credits</th>
+                <th class="px-4 py-3">Amount</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Date</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+              @for (t of smsService.transactions(); track t.id) {
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                  <td class="px-4 py-3 font-semibold text-xs capitalize">{{ t.type }}</td>
+                  <td class="px-4 py-3 font-mono font-bold text-xs" [class.text-emerald-600]="t.type === 'topup'" [class.text-blue-600]="t.type !== 'topup'">
+                    {{ t.type === 'topup' ? '+' + t.credits_added : '-' + t.credits_used }}
+                  </td>
+                  <td class="px-4 py-3 font-mono text-xs">{{ t.amount | appCurrency }}</td>
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                          [class.bg-emerald-100]="t.status === 'completed'"
+                          [class.text-emerald-700]="t.status === 'completed'"
+                          [class.bg-amber-100]="t.status === 'pending'"
+                          [class.text-amber-700]="t.status === 'pending'">
+                      {{ t.status }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-xs text-zinc-400 text-right">{{ t.created_at | date:'shortDate' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-zinc-700 dark:text-zinc-300">
-          <thead class="text-[11px] uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-400 font-bold tracking-wider border-b border-zinc-100 dark:border-zinc-800">
-            <tr>
-              <th class="px-6 py-3.5">Transaction</th>
-              <th class="px-6 py-3.5">Credits</th>
-              <th class="px-6 py-3.5">Amount</th>
-              <th class="px-6 py-3.5">Payment Ref</th>
-              <th class="px-6 py-3.5">Status</th>
-              <th class="px-6 py-3.5 text-right">Date</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
-            @for (t of smsService.transactions(); track t.id) {
-              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-xl flex items-center justify-center text-[16px]"
-                          [class.bg-emerald-50]="t.type === 'topup'"
-                          [class.dark:bg-emerald-500/10]="t.type === 'topup'"
-                          [class.text-emerald-600]="t.type === 'topup'"
-                          [class.dark:text-emerald-400]="t.type === 'topup'"
-                          [class.bg-blue-50]="t.type !== 'topup'"
-                          [class.dark:bg-blue-500/10]="t.type !== 'topup'"
-                          [class.text-blue-600]="t.type !== 'topup'"
-                          [class.dark:text-blue-400]="t.type !== 'topup'">
-                      <span class="material-symbols-outlined text-[16px]">
-                        {{ t.type === 'topup' ? 'add_circle' : 'remove_circle' }}
-                      </span>
-                    </span>
-                    <div>
-                      <p class="font-bold text-zinc-900 dark:text-white capitalize text-xs">{{ t.type }}</p>
-                      <p class="text-[10px] text-zinc-400 max-w-[180px] truncate">{{ t.description || 'SMS transaction' }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 font-mono font-bold text-sm">
-                  @if (t.type === 'topup') {
-                    <span class="text-emerald-600 dark:text-emerald-400">+{{ t.credits_added }}</span>
-                  } @else {
-                    <span class="text-blue-600 dark:text-blue-400">-{{ t.credits_used }}</span>
-                  }
-                </td>
-                <td class="px-6 py-4 font-mono font-bold text-zinc-900 dark:text-white text-xs">
-                  {{ t.amount | appCurrency }}
-                </td>
-                <td class="px-6 py-4 font-mono text-xs text-zinc-500">
-                  <span class="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[11px]">{{ t.reference || '—' }}</span>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                        [class.bg-emerald-50]="t.status === 'completed'"
-                        [class.dark:bg-emerald-500/10]="t.status === 'completed'"
-                        [class.text-emerald-700]="t.status === 'completed'"
-                        [class.dark:text-emerald-400]="t.status === 'completed'"
-                        [class.border]="t.status === 'completed'"
-                        [class.border-emerald-200]="t.status === 'completed'"
-                        [class.dark:border-emerald-500/20]="t.status === 'completed'"
-                        [class.bg-amber-50]="t.status === 'pending'"
-                        [class.dark:bg-amber-500/10]="t.status === 'pending'"
-                        [class.text-amber-700]="t.status === 'pending'"
-                        [class.dark:text-amber-400]="t.status === 'pending'">
-                    {{ t.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-xs font-mono text-zinc-400 text-right whitespace-nowrap">
-                  {{ t.created_at | date:'mediumDate' }}
-                </td>
-              </tr>
-            }
-            @if (smsService.transactions().length === 0) {
-              <tr>
-                <td colspan="6" class="px-6 py-12 text-center text-zinc-400 text-xs">
-                  No transaction history recorded yet.
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
+    }
 
   </div>
 }
