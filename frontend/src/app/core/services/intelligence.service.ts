@@ -34,9 +34,17 @@ export interface CustomerSegments {
 
 export interface PricingSuggestion {
   product_id: string;
+  product_name: string;
+  sku: string;
+  category_name: string;
   current_price: number;
+  cost_price: number;
   suggested_price: number;
+  change_percent: number;
+  strategy: string;
   reason: string;
+  velocity: number;
+  current_stock: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -102,13 +110,27 @@ export class IntelligenceService {
     );
   }
 
-  getDynamicPricing() {
+  getDynamicPricing(branchId?: string) {
     this.pricingLoading.set(true);
-    return this.api.get<{ suggestions: PricingSuggestion[] }>('/intelligence/dynamic-pricing').pipe(
+    const params = branchId ? `?branch_id=${branchId}` : '';
+    return this.api.get<{ suggestions: PricingSuggestion[] }>(`/intelligence/dynamic-pricing${params}`).pipe(
       tap(res => {
         this.pricingSuggestions.set(res?.suggestions || []);
         this.pricingLoading.set(false);
       })
     );
+  }
+
+  applyPricingAction(productId: string, newPrice: number) {
+    return this.api.post<{ status: string; message: string }>('/intelligence/dynamic-pricing/apply', {
+      product_id: productId,
+      new_price: newPrice
+    });
+  }
+
+  bulkApplyPricing(items: { product_id: string; new_price: number }[]) {
+    return this.api.post<{ status: string; updated_count: number; message: string }>('/intelligence/dynamic-pricing/apply-bulk', {
+      items
+    });
   }
 }

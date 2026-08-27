@@ -82,11 +82,13 @@ func (h *IntelligenceHandler) CustomerSegmentation(c *gin.Context) {
 }
 
 func (h *IntelligenceHandler) DynamicPricing(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"suggestions": []gin.H{
-			{"product_id": "123", "current_price": 10.0, "suggested_price": 12.0, "reason": "high demand"},
-		},
-	})
+	branchID := middleware.ResolveBranchID(c, c.Query("branch_id"))
+	suggestions, err := h.service(c).GetDynamicPricing(branchID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to calculate dynamic pricing recommendations"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"suggestions": suggestions})
 }
 
 type PricingActionReq struct {
@@ -94,14 +96,56 @@ type PricingActionReq struct {
 	NewPrice  float64 `json:"new_price" binding:"required"`
 }
 
+type BulkPricingActionReq struct {
+	Items []PricingActionReq `json:"items" binding:"required,min=1"`
+}
+
 func (h *IntelligenceHandler) ApplyPricingAction(c *gin.Context) {
 	var req PricingActionReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// For actual implementation we'd update models.Product.Price
-	c.JSON(200, gin.H{"status": "price_updated", "product_id": req.ProductID, "new_price": req.NewPrice})
+
+	if err := h.service(c).ApplyPricingAction(req.ProductID, req.NewPrice); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product price: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":     "price_updated",
+		"product_id": req.ProductID,
+		"new_price":  req.NewPrice,
+		"message":    "Product price updated successfully",
+	})
+}
+
+func (h *IntelligenceHandler) BulkApplyPricingAction(c *gin.Context) {
+	var req BulkPricingActionReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var items []services.PricingActionItem
+	for _, it := range req.Items {
+		items = append(items, services.PricingActionItem{
+			ProductID: it.ProductID,
+			NewPrice:  it.NewPrice,
+		})
+	}
+
+	updatedCount, err := h.service(c).BulkApplyPricing(items)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product prices: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":        "bulk_prices_updated",
+		"updated_count": updatedCount,
+		"message":       "Dynamic prices updated successfully",
+	})
 }
 
 func (h *IntelligenceHandler) GenerateAutoPOs(c *gin.Context) {

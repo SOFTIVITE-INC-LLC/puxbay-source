@@ -2,7 +2,8 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IntelligenceService } from '../../../core/services/intelligence.service';
+import { IntelligenceService, PricingSuggestion } from '../../../core/services/intelligence.service';
+import { ToastService } from '../../../core/services/toast';
 
 @Component({
   selector: 'app-intelligence',
@@ -52,14 +53,44 @@ import { IntelligenceService } from '../../../core/services/intelligence.service
 })
 export class Intelligence implements OnInit {
   svc = inject(IntelligenceService);
+  private toast = inject(ToastService);
   Math = Math;
 
   activeTab = signal<'forecast' | 'leaderboard' | 'customers' | 'pricing'>('forecast');
   leaderboardDays = signal(30);
 
+  // Dynamic Pricing state
+  pricingStrategyFilter = signal<string>('all');
+  pricingSearchQuery = signal<string>('');
+  applyingProductId = signal<string | null>(null);
+  bulkApplying = signal<boolean>(false);
+
   criticalCount = computed(() => this.svc.forecasts().filter(f => f.status === 'critical').length);
   warningCount = computed(() => this.svc.forecasts().filter(f => f.status === 'warning').length);
   healthyCount = computed(() => this.svc.forecasts().filter(f => f.status === 'healthy').length);
+
+  // Dynamic Pricing computed stats
+  surgeCount = computed(() => this.svc.pricingSuggestions().filter(s => s.strategy === 'surge').length);
+  clearanceCount = computed(() => this.svc.pricingSuggestions().filter(s => s.strategy === 'clearance').length);
+  marginRecoveryCount = computed(() => this.svc.pricingSuggestions().filter(s => s.strategy === 'margin_recovery').length);
+  overstockCount = computed(() => this.svc.pricingSuggestions().filter(s => s.strategy === 'overstock').length);
+
+  filteredPricingSuggestions = computed(() => {
+    let list = this.svc.pricingSuggestions();
+    const strat = this.pricingStrategyFilter();
+    if (strat !== 'all') {
+      list = list.filter(s => s.strategy === strat);
+    }
+    const q = this.pricingSearchQuery().toLowerCase().trim();
+    if (q) {
+      list = list.filter(s =>
+        (s.product_name && s.product_name.toLowerCase().includes(q)) ||
+        (s.sku && s.sku.toLowerCase().includes(q)) ||
+        (s.category_name && s.category_name.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  });
 
   segmentEntries = computed(() => {
     const s = this.svc.segments();
@@ -111,6 +142,58 @@ export class Intelligence implements OnInit {
     this.svc.getStaffLeaderboard(this.leaderboardDays()).subscribe();
     this.svc.getCustomerSegmentation().subscribe();
     this.svc.getDynamicPricing().subscribe();
+  }
+
+  applySinglePricing(suggestion: PricingSuggestion) {
+    this.applyingProductId.set(suggestion.product_id);
+    this.svc.applyPricingAction(suggestion.product_id, suggestion.suggested_price).subscribe({
+      next: () => {
+        this.toast.showSuccess(`Updated ${suggestion.product_name} price to ${suggestion.suggested_price}!`);
+        this.applyingProductId.set(null);
+        // Refresh pricing recommendations
+        this.svc.getDynamicPricing().subscribe();
+      },
+      error: (err) => {
+        this.toast.showError(err?.error?.error || 'Failed to update price');
+        this.applyingProductId.set(null);
+      }
+    });
+  }
+
+  applyBulkPricing() {
+    const items = this.filteredPricingSuggestions().map(s => ({
+      product_id: s.product_id,
+      new_price: s.suggested_price
+    }));
+    if (!items.length) return;
+
+    this.bulkApplying.set(true);
+    this.svc.bulkApplyPricing(items).subscribe({
+      next: (res) => {
+        this.toast.showSuccess(`Successfully updated ${res.updated_count || items.length} product prices!`);
+        this.bulkApplying.set(false);
+        this.svc.getDynamicPricing().subscribe();
+      },
+      error: (err) => {
+        this.toast.showError(err?.error?.error || 'Failed to bulk apply prices');
+        this.bulkApplying.set(false);
+      }
+    });
+  }
+
+  strategyBadge(strategy: string): { label: string; class: string; icon: string } {
+    switch (strategy) {
+      case 'surge':
+        return { label: 'High Demand Surge', class: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20', icon: 'trending_up' };
+      case 'clearance':
+        return { label: 'Clearance Discount', class: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20', icon: 'local_offer' };
+      case 'margin_recovery':
+        return { label: 'Margin Recovery', class: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20', icon: 'price_check' };
+      case 'overstock':
+        return { label: 'Overstock Markdown', class: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20', icon: 'inventory_2' };
+      default:
+        return { label: 'Competitive Tuning', class: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20', icon: 'tune' };
+    }
   }
 
   statusLabel(status: string): string {

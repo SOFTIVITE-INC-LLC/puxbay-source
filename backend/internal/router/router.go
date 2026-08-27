@@ -603,6 +603,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/intelligence/customer-segmentation", intelligenceHandler.CustomerSegmentation)
 			api.GET("/intelligence/dynamic-pricing", intelligenceHandler.DynamicPricing)
 			api.POST("/intelligence/dynamic-pricing/apply", intelligenceHandler.ApplyPricingAction)
+			api.POST("/intelligence/dynamic-pricing/apply-bulk", intelligenceHandler.BulkApplyPricingAction)
 			api.POST("/intelligence/auto-po", intelligenceHandler.GenerateAutoPOs)
 
 			// Copilot

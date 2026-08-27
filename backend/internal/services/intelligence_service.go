@@ -1,9 +1,11 @@
 package services
 
 import (
+	"math"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/models"
 	"gorm.io/gorm"
 )
@@ -227,15 +229,166 @@ func (s *IntelligenceService) GenerateMarketingCampaign(segment string) string {
 	}
 }
 
-// CalculateDynamicPricing suggests an optimal price based on velocity and base price.
-func (s *IntelligenceService) CalculateDynamicPricing(product models.Product, velocity float64) float64 {
-	// If product is flying off the shelves (velocity > 10 units/day), suggest a 5% markup
-	if velocity > 10 {
-		return product.SellingPrice * 1.05
+type PricingSuggestion struct {
+	ProductID      string  `json:"product_id"`
+	ProductName    string  `json:"product_name"`
+	SKU            string  `json:"sku"`
+	CategoryName   string  `json:"category_name"`
+	CurrentPrice   float64 `json:"current_price"`
+	CostPrice      float64 `json:"cost_price"`
+	SuggestedPrice float64 `json:"suggested_price"`
+	ChangePercent  float64 `json:"change_percent"`
+	Strategy       string  `json:"strategy"` // "surge", "clearance", "margin_recovery", "overstock", "competitive"
+	Reason         string  `json:"reason"`
+	Velocity       float64 `json:"velocity"`
+	CurrentStock   float64 `json:"current_stock"`
+}
+
+type PricingActionItem struct {
+	ProductID string  `json:"product_id"`
+	NewPrice  float64 `json:"new_price"`
+}
+
+// GetDynamicPricing generates intelligent price recommendations for inventory products based on velocity, stock, and margins.
+func (s *IntelligenceService) GetDynamicPricing(branchID string) ([]PricingSuggestion, error) {
+	var products []models.Product
+	prodQuery := s.db.Preload("Category").Where("is_active = ?", true)
+	if branchID != "" {
+		prodQuery = prodQuery.Where("branch_id = ?", branchID)
 	}
-	// If product is dead stock (velocity < 1 unit/day) and we have stock, suggest 15% discount
-	if velocity < 1 && product.CurrentStock > 10 {
-		return product.SellingPrice * 0.85
+	if err := prodQuery.Find(&products).Error; err != nil {
+		return nil, err
 	}
-	return product.SellingPrice
+
+	thirtyDaysAgo := time.Now().AddDate(0, 0, -30)
+
+	type SalesAggregate struct {
+		ProductID string
+		TotalSold float64
+	}
+	var salesAgg []SalesAggregate
+
+	s.db.Session(&gorm.Session{NewDB: true}).Table("order_items").
+		Select("order_items.product_id, SUM(order_items.quantity) as total_sold").
+		Joins("JOIN orders ON orders.id = order_items.order_id").
+		Where("orders.status = ? AND orders.created_at >= ? AND orders.deleted_at IS NULL AND order_items.deleted_at IS NULL", "completed", thirtyDaysAgo).
+		Group("order_items.product_id").
+		Scan(&salesAgg)
+
+	salesMap := make(map[string]float64)
+	for _, agg := range salesAgg {
+		salesMap[agg.ProductID] = agg.TotalSold
+	}
+
+	var suggestions []PricingSuggestion
+
+	for _, p := range products {
+		if p.SellingPrice <= 0 {
+			continue
+		}
+
+		totalSold := salesMap[p.ID.String()]
+		velocity := totalSold / 30.0
+
+		categoryName := "General"
+		if p.Category != nil && p.Category.Name != "" {
+			categoryName = p.Category.Name
+		}
+
+		currentPrice := p.SellingPrice
+		costPrice := p.CostPrice
+		stock := p.CurrentStock
+
+		var suggestedPrice float64
+		var strategy string
+		var reason string
+
+		// Rule 1: High Demand Surge - Velocity is high (>= 2 units/day) and stock is under 14 days runway
+		if velocity >= 2.0 && stock > 0 && (stock/velocity) < 14 {
+			suggestedPrice = math.Round(currentPrice*1.12*100) / 100 // +12%
+			strategy = "surge"
+			reason = "High sales velocity with low inventory runway (<14 days)"
+		} else if velocity <= 0.05 && stock >= 5 {
+			// Rule 2: Slow Moving / Stagnant Stock Clearance - Little to no sales in 30 days
+			minFloor := costPrice * 1.05
+			discounted := math.Round(currentPrice*0.85*100) / 100 // -15%
+			if minFloor > 0 && discounted < minFloor {
+				discounted = math.Round(minFloor*100) / 100
+			}
+			if discounted < currentPrice {
+				suggestedPrice = discounted
+				strategy = "clearance"
+				reason = "Stagnant inventory (<0.05 units/day) with excess stock"
+			}
+		} else if costPrice > 0 && ((currentPrice-costPrice)/costPrice) < 0.12 {
+			// Rule 3: Margin Recovery - Margin is thin under 12%
+			suggestedPrice = math.Round(costPrice*1.22*100) / 100 // Target 22% margin
+			strategy = "margin_recovery"
+			reason = "Sub-optimal profit margin (<12% markup on cost)"
+		} else if stock > 25 && velocity > 0 && (stock/velocity) > 90 {
+			// Rule 4: Overstock Optimization - Over 90 days of inventory sitting
+			discounted := math.Round(currentPrice*0.90*100) / 100 // -10%
+			if costPrice > 0 && discounted < costPrice*1.05 {
+				discounted = math.Round(costPrice*1.05*100) / 100
+			}
+			if discounted < currentPrice {
+				suggestedPrice = discounted
+				strategy = "overstock"
+				reason = "Overstocked inventory runway exceeding 90 days"
+			}
+		} else if velocity >= 0.5 && costPrice > 0 && ((currentPrice-costPrice)/costPrice) >= 0.15 {
+			// Rule 5: Healthy Demand Fine-Tuning (+5% optimization)
+			suggestedPrice = math.Round(currentPrice*1.05*100) / 100
+			strategy = "competitive"
+			reason = "Steady sales velocity with margin expansion potential"
+		}
+
+		if suggestedPrice > 0 && math.Abs(suggestedPrice-currentPrice) >= 0.01 {
+			pct := ((suggestedPrice - currentPrice) / currentPrice) * 100
+			suggestions = append(suggestions, PricingSuggestion{
+				ProductID:      p.ID.String(),
+				ProductName:    p.Name,
+				SKU:            p.SKU,
+				CategoryName:   categoryName,
+				CurrentPrice:   currentPrice,
+				CostPrice:      costPrice,
+				SuggestedPrice: suggestedPrice,
+				ChangePercent:  math.Round(pct*10) / 10,
+				Strategy:       strategy,
+				Reason:         reason,
+				Velocity:       math.Round(velocity*100) / 100,
+				CurrentStock:   stock,
+			})
+		}
+	}
+
+	return suggestions, nil
+}
+
+// ApplyPricingAction updates the product's selling price in the database.
+func (s *IntelligenceService) ApplyPricingAction(productID string, newPrice float64) error {
+	pID, err := uuid.Parse(productID)
+	if err != nil {
+		return err
+	}
+	return s.db.Model(&models.Product{}).Where("id = ?", pID).Update("selling_price", newPrice).Error
+}
+
+// BulkApplyPricing updates multiple product selling prices in a single transaction.
+func (s *IntelligenceService) BulkApplyPricing(items []PricingActionItem) (int, error) {
+	count := 0
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		for _, item := range items {
+			pID, err := uuid.Parse(item.ProductID)
+			if err != nil {
+				continue
+			}
+			if err := tx.Model(&models.Product{}).Where("id = ?", pID).Update("selling_price", item.NewPrice).Error; err != nil {
+				return err
+			}
+			count++
+		}
+		return nil
+	})
+	return count, err
 }
