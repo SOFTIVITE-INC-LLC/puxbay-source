@@ -536,6 +536,9 @@
     </div>
   </div>
 
+  <!-- EMBEDDED PRINT RECEIPT (Rendered on window.print()) -->
+  <app-receipt *ngIf="facade.checkoutSuccessOrder()" [order]="facade.checkoutSuccessOrder()"></app-receipt>
+
   <!-- PARKED SALES MODAL -->
   <div *ngIf="facade.isParkedSalesModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 animate-in fade-in duration-200">
     <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-300 ease-out">

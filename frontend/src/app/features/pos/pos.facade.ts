@@ -726,29 +726,33 @@ export class PosFacade {
     const receiptOrder = order || this.checkoutSuccessOrder();
     if (!receiptOrder) return;
 
-    const token = localStorage.getItem('auth_token');
-    const tenant = window.location.hostname.split('.')[0] === 'localhost' ? 'thinkce' : window.location.hostname.split('.')[0];
-    const fallbackUrl = `/api/v1/orders/${receiptOrder.id}/receipt?token=${token}&tenant=${tenant}`;
+    if (this.printer.isConnected()) {
+      const pReceipt = {
+        storeName: 'Puxbay POS',
+        orderNumber: receiptOrder.order_number || (receiptOrder.id ? receiptOrder.id.substring(0, 8) : 'RECEIPT'),
+        date: new Date(receiptOrder.created_at || Date.now()),
+        items: (receiptOrder.items || []).map((i: any) => ({
+          name: i.product_name || i.product?.name || 'Item',
+          qty: i.quantity,
+          price: i.unit_price,
+          total: i.total
+        })),
+        subtotal: receiptOrder.subtotal,
+        tax: receiptOrder.tax || 0,
+        discount: receiptOrder.discount || 0,
+        total: receiptOrder.total,
+        amountPaid: receiptOrder.amount_paid,
+        paymentMethod: receiptOrder.payment_method || (receiptOrder.payments && receiptOrder.payments.length ? receiptOrder.payments[0].method : 'cash'),
+        change: Math.max(0, receiptOrder.amount_paid - receiptOrder.total),
+      };
+      await this.printer.printReceipt(pReceipt as any);
+      this.toastr.success('Receipt sent to printer');
+      return;
+    }
 
-    const pReceipt = {
-      storeName: 'Softivite POS',
-      orderNumber: receiptOrder.order_number || receiptOrder.id.substring(0, 8),
-      date: new Date(receiptOrder.created_at || Date.now()),
-      items: (receiptOrder.items || []).map((i: any) => ({
-        name: i.product_name || i.product?.name || 'Item',
-        qty: i.quantity,
-        price: i.unit_price,
-        total: i.total
-      })),
-      subtotal: receiptOrder.subtotal,
-      tax: receiptOrder.tax || 0,
-      discount: receiptOrder.discount || 0,
-      total: receiptOrder.total,
-      amountPaid: receiptOrder.amount_paid,
-      paymentMethod: receiptOrder.payment_method || (receiptOrder.payments && receiptOrder.payments.length ? receiptOrder.payments[0].method : 'cash'),
-      change: Math.max(0, receiptOrder.amount_paid - receiptOrder.total),
-    };
-
-    await this.printer.printReceipt(pReceipt as any, fallbackUrl);
+    // Standard in-page print dialog
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
   }
 }

@@ -10,11 +10,12 @@ import { GiftCardService } from '../../../core/services/gift-card.service';
 import { ToastrService } from 'ngx-toastr';
 import { SettingsService } from '../../../core/services/settings.service';
 import { QRCodeComponent } from 'angularx-qrcode';
+import { ReceiptComponent } from '../../../shared/components/receipt/receipt.component';
 
 @Component({
   selector: 'app-pos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, QRCodeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, QRCodeComponent, ReceiptComponent],
   templateUrl: './pos.html',
   styles: `
     .glass-panel {
