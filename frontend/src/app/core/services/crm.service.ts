@@ -174,6 +174,10 @@ export class CrmService {
     return this.api.get<{transactions: CustomerCreditTransaction[], outstanding_debt: number}>(`/crm/customers/${customerId}/credit`);
   }
 
+  getOverdueAccounts(): Observable<{overdue_accounts: any[], total_overdue: number}> {
+    return this.api.get<{overdue_accounts: any[], total_overdue: number}>('/credit/overdue');
+  }
+
   getFeedbackList(): Observable<{feedback: CustomerFeedback[]}> {
     return this.api.get<{feedback: CustomerFeedback[]}>('/crm/feedback');
   }

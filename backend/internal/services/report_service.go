@@ -23,23 +23,31 @@ func NewReportService(db *gorm.DB, cfg config.SMTPConfig) *ReportService {
 
 // DailyZReportData holds all aggregated metrics for a single business day's Z-Report.
 type DailyZReportData struct {
-	TenantName       string
-	BranchName       string
-	Date             string
-	TotalSales       float64
-	GrossProfit      float64
-	GrossMarginPct   float64
-	TotalOrders      int64
-	TotalDiscounts   float64
-	TotalTax         float64
-	CashTotal        float64
-	MoMoTotal        float64
-	CardTotal        float64
-	CreditTotal      float64
-	GiftCardTotal    float64
-	TopSellingItems  []ReportItemSummary
-	CashDrawerFloats float64
-	CashDrops        float64
+	TenantName               string
+	BranchName               string
+	Date                     string
+	TotalSales               float64
+	GrossProfit              float64
+	GrossMarginPct           float64
+	TotalOrders              int64
+	TotalDiscounts           float64
+	TotalTax                 float64
+	CashTotal                float64
+	MoMoTotal                float64
+	CardTotal                float64
+	CreditTotal              float64 // Total sales placed on Credit/BNPL
+	GiftCardTotal            float64
+	TopSellingItems          []ReportItemSummary
+	CashDrawerFloats         float64
+	CashDrops                float64
+	DebtRepaymentsTotal      float64 // Customer debt repayments collected today
+	DebtRepaymentsCash       float64
+	DebtRepaymentsMoMo       float64
+	DebtRepaymentsCard       float64
+	DebtRepaymentsCount      int64
+	TotalAccountsReceivable  float64 // Outstanding customer debt balance
+	OverdueDebtTotal         float64 // Overdue customer debt
+	NetCashCollected         float64 // Total liquid money received (Cash+MoMo+Card+Repayments)
 }
 
 type ReportItemSummary struct {
@@ -48,20 +56,24 @@ type ReportItemSummary struct {
 	Revenue     float64
 }
 
-// PLReportData holds aggregated revenue, COGS, expenses, and net profit metrics.
+// PLReportData holds aggregated revenue, COGS, expenses, credit accounts, and net profit metrics.
 type PLReportData struct {
-	TenantName    string
-	PeriodLabel   string
-	StartDate     string
-	EndDate       string
-	TotalRevenue  float64
-	TotalCOGS     float64
-	GrossProfit   float64
-	GrossMargin   float64
-	TotalExpenses float64
-	NetProfit     float64
-	NetMargin     float64
-	DailyBreakdown []DailyPLRow
+	TenantName              string
+	PeriodLabel             string
+	StartDate               string
+	EndDate                 string
+	TotalRevenue            float64
+	CashRevenue             float64
+	CreditRevenue           float64 // Sales on Store Credit/BNPL
+	DebtRepaymentsCollected float64 // Repayments collected during period
+	TotalAccountsReceivable float64 // Total outstanding debt across all customers
+	TotalCOGS               float64
+	GrossProfit             float64
+	GrossMargin             float64
+	TotalExpenses           float64
+	NetProfit               float64
+	NetMargin               float64
+	DailyBreakdown          []DailyPLRow
 }
 
 type DailyPLRow struct {
@@ -111,7 +123,7 @@ func (s *ReportService) GenerateDailyZReport(tenantID uuid.UUID, targetDate time
 			data.MoMoTotal += o.Total
 		case "card":
 			data.CardTotal += o.Total
-		case "credit":
+		case "credit", "bnpl", "store_credit":
 			data.CreditTotal += o.Total
 		case "gift_card":
 			data.GiftCardTotal += o.Total
@@ -150,6 +162,41 @@ func (s *ReportService) GenerateDailyZReport(tenantID uuid.UUID, targetDate time
 		}
 	}
 
+	// Fetch Customer Debt Repayments collected on this day
+	var repayments []models.CreditTransaction
+	s.db.Where("created_at >= ? AND created_at < ? AND transaction_type = 'repayment'", startOfDay, endOfDay).
+		Find(&repayments)
+
+	data.DebtRepaymentsCount = int64(len(repayments))
+	for _, r := range repayments {
+		amt := r.Amount
+		if amt < 0 {
+			amt = -amt
+		}
+		data.DebtRepaymentsTotal += amt
+		switch r.PaymentMethod {
+		case "cash":
+			data.DebtRepaymentsCash += amt
+		case "momo", "mobile":
+			data.DebtRepaymentsMoMo += amt
+		case "card":
+			data.DebtRepaymentsCard += amt
+		default:
+			data.DebtRepaymentsCash += amt
+		}
+	}
+
+	// Fetch Total Current Accounts Receivable across all customers
+	s.db.Model(&models.Customer{}).Select("COALESCE(SUM(debt_balance), 0)").Scan(&data.TotalAccountsReceivable)
+
+	// Fetch Total Overdue Customer Debt
+	s.db.Model(&models.BNPLInstalment{}).
+		Where("status != 'paid' AND due_date < ?", targetDate).
+		Select("COALESCE(SUM(amount - amount_paid), 0)").Scan(&data.OverdueDebtTotal)
+
+	// Total liquid money collected (sales excluding store credit + customer debt repayments)
+	data.NetCashCollected = data.CashTotal + data.MoMoTotal + data.CardTotal + data.DebtRepaymentsTotal
+
 	return data, nil
 }
 
@@ -170,7 +217,7 @@ func (s *ReportService) GeneratePLReport(tenantID uuid.UUID, periodLabel string,
 
 	// Fetch operating expenses in period
 	var expenses []models.Expense
-	s.db.Where("tenant_id = ? AND expense_date >= ? AND expense_date < ?", tenantID, start, end).Find(&expenses)
+	s.db.Where("tenant_id = ? AND date >= ? AND date < ?", tenantID, start, end).Find(&expenses)
 
 	var totalExpenses float64
 	for _, e := range expenses {
@@ -189,8 +236,13 @@ func (s *ReportService) GeneratePLReport(tenantID uuid.UUID, periodLabel string,
 
 	for _, o := range orders {
 		data.TotalRevenue += o.Total
-		dayKey := o.CreatedAt.Format("02 Jan")
+		if o.PaymentMethod == "credit" || o.PaymentMethod == "bnpl" || o.PaymentMethod == "store_credit" {
+			data.CreditRevenue += o.Total
+		} else {
+			data.CashRevenue += o.Total
+		}
 
+		dayKey := o.CreatedAt.Format("02 Jan")
 		if _, exists := dailyMap[dayKey]; !exists {
 			dailyMap[dayKey] = &DailyPLRow{Date: dayKey}
 		}
@@ -213,15 +265,18 @@ func (s *ReportService) GeneratePLReport(tenantID uuid.UUID, periodLabel string,
 		data.NetMargin = (data.NetProfit / data.TotalRevenue) * 100
 	}
 
-	for _, row := range dailyMap {
-		row.GrossProfit = row.Revenue - row.COGS
-		data.DailyBreakdown = append(data.DailyBreakdown, *row)
-	}
+	// Customer Debt Repayments collected in period
+	s.db.Model(&models.CreditTransaction{}).
+		Where("created_at >= ? AND created_at < ? AND transaction_type = 'repayment'", start, end).
+		Select("COALESCE(SUM(abs(amount)), 0)").Scan(&data.DebtRepaymentsCollected)
+
+	// Total Outstanding Receivables (Current snapshot)
+	s.db.Model(&models.Customer{}).Select("COALESCE(SUM(debt_balance), 0)").Scan(&data.TotalAccountsReceivable)
 
 	return data, nil
 }
 
-// RenderDailyZReportHTML renders a styled, email-ready HTML Z-Report.
+// RenderDailyZReportHTML renders a styled, email-ready HTML Z-Report with credit & debt breakdown.
 func (s *ReportService) RenderDailyZReportHTML(data *DailyZReportData) (string, error) {
 	tmplStr := `
 <!DOCTYPE html>
@@ -235,18 +290,16 @@ func (s *ReportService) RenderDailyZReportHTML(data *DailyZReportData) (string, 
   .header h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
   .header p { margin: 6px 0 0; font-size: 13px; color: #F3A41D; font-weight: 600; }
   .content { padding: 24px; }
-  .grid { display: table; width: 100%; margin-bottom: 20px; }
-  .col { display: table-cell; width: 50%; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
-  .col:first-child { margin-right: 8px; }
-  .metric-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.5px; }
-  .metric-val { font-size: 22px; font-weight: 900; color: #041E42; margin-top: 4px; }
-  .metric-sub { font-size: 12px; font-weight: 600; color: #10b981; }
-  .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #041E42; border-bottom: 2px solid #F3A41D; padding-bottom: 6px; margin: 24px 0 12px; }
+  .metric-box { margin-bottom: 16px; border-radius: 12px; padding: 16px; text-align: center; }
+  .section-title { font-size: 13px; font-weight: 800; text-transform: uppercase; color: #041E42; border-bottom: 2px solid #F3A41D; padding-bottom: 6px; margin: 24px 0 12px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { text-align: left; padding: 8px; background: #f1f5f9; color: #475569; font-weight: 700; font-size: 11px; text-transform: uppercase; }
   td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; }
   .text-right { text-align: right; }
-  .badge { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+  .font-bold { font-weight: bold; }
+  .positive { color: #10b981; font-weight: bold; }
+  .negative { color: #ef4444; font-weight: bold; }
+  .highlight { background: #f8fafc; font-weight: bold; }
   .footer { background: #f8fafc; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
 </style>
 </head>
@@ -257,32 +310,51 @@ func (s *ReportService) RenderDailyZReportHTML(data *DailyZReportData) (string, 
     <p>DAILY END-OF-DAY Z-REPORT &bull; {{.Date}}</p>
   </div>
   <div class="content">
-    <div style="margin-bottom: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; text-align: center;">
-      <span class="metric-label" style="color: #166534;">Total Net Revenue</span>
+    <div class="metric-box" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+      <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #166534; letter-spacing: 0.5px;">Total Sales Revenue</span>
       <div style="font-size: 32px; font-weight: 900; color: #15803d; margin: 4px 0;">GHS {{printf "%.2f" .TotalSales}}</div>
-      <div style="font-size: 12px; color: #166534; font-weight: 600;">{{.TotalOrders}} Completed Orders &bull; Gross Margin: {{printf "%.1f" .GrossMarginPct}}%</div>
+      <div style="font-size: 12px; color: #166534; font-weight: 600;">{{.TotalOrders}} Orders &bull; Gross Margin: {{printf "%.1f" .GrossMarginPct}}%</div>
     </div>
 
-    <div class="section-title">Payment Methods Breakdown</div>
+    <div class="section-title">Payment Collections & Sales Tender</div>
     <table>
       <tr><th>Payment Method</th><th class="text-right">Amount (GHS)</th></tr>
-      <tr><td>💵 Cash</td><td class="text-right font-bold">{{printf "%.2f" .CashTotal}}</td></tr>
+      <tr><td>💵 Cash Sales</td><td class="text-right font-bold">{{printf "%.2f" .CashTotal}}</td></tr>
       <tr><td>📱 Mobile Money (MTN / Telecel)</td><td class="text-right font-bold">{{printf "%.2f" .MoMoTotal}}</td></tr>
       <tr><td>💳 Card / Paystack</td><td class="text-right font-bold">{{printf "%.2f" .CardTotal}}</td></tr>
-      <tr><td>🤝 Store Credit / BNPL</td><td class="text-right font-bold">{{printf "%.2f" .CreditTotal}}</td></tr>
+      <tr><td>🤝 Store Credit / BNPL (Purchased on credit)</td><td class="text-right font-bold" style="color:#d97706;">{{printf "%.2f" .CreditTotal}}</td></tr>
       <tr><td>🎁 Gift Cards</td><td class="text-right font-bold">{{printf "%.2f" .GiftCardTotal}}</td></tr>
-      <tr style="background:#f8fafc; font-weight: bold;"><td>Total Collected</td><td class="text-right">{{printf "%.2f" .TotalSales}}</td></tr>
+      <tr class="highlight"><td>Total Daily Sales</td><td class="text-right">{{printf "%.2f" .TotalSales}}</td></tr>
     </table>
 
-    <div class="section-title">Audit & Profit Summary</div>
+    <div class="section-title">Customer Debt & Credit Accounts</div>
     <table>
-      <tr><td>Estimated Gross Profit</td><td class="text-right" style="color:#10b981; font-weight:bold;">GHS {{printf "%.2f" .GrossProfit}}</td></tr>
-      <tr><td>Discounts Granted</td><td class="text-right" style="color:#ef4444;">-GHS {{printf "%.2f" .TotalDiscounts}}</td></tr>
-      <tr><td>Taxes Accrued</td><td class="text-right">GHS {{printf "%.2f" .TotalTax}}</td></tr>
+      <tr><th>Account / Transaction</th><th class="text-right">Amount (GHS)</th></tr>
+      <tr><td>📥 Debt Repayments Collected Today ({{.DebtRepaymentsCount}} payments)</td><td class="text-right positive">+GHS {{printf "%.2f" .DebtRepaymentsTotal}}</td></tr>
+      <tr style="font-size: 11px; color: #64748b;">
+        <td style="padding-left: 20px;">&bull; Cash: GHS {{printf "%.2f" .DebtRepaymentsCash}} | MoMo: GHS {{printf "%.2f" .DebtRepaymentsMoMo}} | Card: GHS {{printf "%.2f" .DebtRepaymentsCard}}</td>
+        <td class="text-right">-</td>
+      </tr>
+      <tr><td>📤 New Credit / BNPL Extended Today</td><td class="text-right negative">GHS {{printf "%.2f" .CreditTotal}}</td></tr>
+      <tr><td>📊 Total Outstanding Accounts Receivable (All Debt)</td><td class="text-right font-bold" style="color:#b91c1c;">GHS {{printf "%.2f" .TotalAccountsReceivable}}</td></tr>
+      {{if gt .OverdueDebtTotal 0.0}}
+      <tr><td>⚠️ Overdue Customer Debt</td><td class="text-right" style="color:#dc2626; font-weight:900;">GHS {{printf "%.2f" .OverdueDebtTotal}}</td></tr>
+      {{end}}
+      <tr class="highlight" style="background:#e0f2fe;">
+        <td><strong>💵 Net Liquid Money Received Today</strong><br><small style="color:#64748b;">(Cash + MoMo + Card + Debt Repayments)</small></td>
+        <td class="text-right font-bold" style="color:#0369a1; font-size:15px;">GHS {{printf "%.2f" .NetCashCollected}}</td>
+      </tr>
+    </table>
+
+    <div class="section-title">Audit & Margin Summary</div>
+    <table>
+      <tr><td>Estimated Gross Profit</td><td class="text-right positive">GHS {{printf "%.2f" .GrossProfit}}</td></tr>
+      <tr><td>Discounts Granted</td><td class="text-right negative">-GHS {{printf "%.2f" .TotalDiscounts}}</td></tr>
+      <tr><td>Taxes Accrued</td><td class="text-right font-bold">GHS {{printf "%.2f" .TotalTax}}</td></tr>
     </table>
   </div>
   <div class="footer">
-    Sent automatically by Puxbay Commerce System &bull; <a href="https://puxbay.com" style="color: #F3A41D; text-decoration: none; font-weight: bold;">puxbay.com</a>
+    Sent automatically by Puxbay Commerce &bull; <a href="https://puxbay.com" style="color: #F3A41D; text-decoration: none; font-weight: bold;">puxbay.com</a>
   </div>
 </div>
 </body>
@@ -301,7 +373,7 @@ func (s *ReportService) RenderDailyZReportHTML(data *DailyZReportData) (string, 
 	return buf.String(), nil
 }
 
-// RenderPLReportHTML renders a styled, email-ready HTML P&L summary.
+// RenderPLReportHTML renders a styled, email-ready HTML P&L summary with credit accounts.
 func (s *ReportService) RenderPLReportHTML(data *PLReportData) (string, error) {
 	tmplStr := `
 <!DOCTYPE html>
@@ -315,7 +387,6 @@ func (s *ReportService) RenderPLReportHTML(data *PLReportData) (string, error) {
   .header h1 { margin: 0; font-size: 22px; font-weight: 800; text-transform: uppercase; }
   .header p { margin: 6px 0 0; font-size: 13px; color: #F3A41D; font-weight: 700; text-transform: uppercase; }
   .content { padding: 24px; }
-  .summary-box { background: #f1f5f9; border-radius: 12px; padding: 18px; margin-bottom: 20px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
   th { text-align: left; padding: 8px; background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; }
   td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; }
@@ -343,10 +414,26 @@ func (s *ReportService) RenderPLReportHTML(data *PLReportData) (string, error) {
       <thead><tr><th>Metric</th><th class="text-right">Amount (GHS)</th></tr></thead>
       <tbody>
         <tr><td>Total Gross Revenue</td><td class="text-right font-bold">{{printf "%.2f" .TotalRevenue}}</td></tr>
+        <tr style="font-size: 12px; color: #64748b;">
+          <td style="padding-left: 20px;">&bull; Cash / Card / MoMo Collections</td>
+          <td class="text-right">GHS {{printf "%.2f" .CashRevenue}}</td>
+        </tr>
+        <tr style="font-size: 12px; color: #64748b;">
+          <td style="padding-left: 20px;">&bull; Store Credit / BNPL Revenue</td>
+          <td class="text-right">GHS {{printf "%.2f" .CreditRevenue}}</td>
+        </tr>
         <tr><td>Cost of Goods Sold (COGS)</td><td class="text-right negative">-{{printf "%.2f" .TotalCOGS}}</td></tr>
         <tr style="background:#f8fafc; font-weight:bold;"><td>Gross Profit (Margin: {{printf "%.1f" .GrossMargin}}%)</td><td class="text-right positive">{{printf "%.2f" .GrossProfit}}</td></tr>
         <tr><td>Operating Expenses</td><td class="text-right negative">-{{printf "%.2f" .TotalExpenses}}</td></tr>
         <tr style="background:#e0f2fe; font-weight:bold; font-size:14px;"><td>Net Operating Profit</td><td class="text-right {{if ge .NetProfit 0.0}}positive{{else}}negative{{end}}">{{printf "%.2f" .NetProfit}}</td></tr>
+        <tr style="background:#fdf2f8; font-weight:bold;">
+          <td>Total Outstanding Customer Debt (Accounts Receivable)</td>
+          <td class="text-right" style="color:#be185d;">GHS {{printf "%.2f" .TotalAccountsReceivable}}</td>
+        </tr>
+        <tr>
+          <td>Debt Repayments Collected in Period</td>
+          <td class="text-right positive">+GHS {{printf "%.2f" .DebtRepaymentsCollected}}</td>
+        </tr>
       </tbody>
     </table>
   </div>

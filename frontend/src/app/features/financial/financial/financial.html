@@ -127,46 +127,75 @@
       }
 
       <!-- PnL Overview Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-2.5 sm:gap-4">
         
         <!-- Gross Revenue -->
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group min-w-0">
           <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-emerald-500">payments</span>
-            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Gross Revenue</span>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-emerald-500">payments</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 truncate">Gross Revenue</span>
           </div>
-          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-xl lg:text-2xl font-black z-10 truncate">{{ (pnlData()?.gross_revenue || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-zinc-400 z-10">Cash: {{ (pnlData()?.cash_sales || 0) | appCurrency }}</span>
         </div>
 
-        <!-- COGS -->
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-100 dark:bg-amber-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-amber-500">inventory</span>
-            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Cost of Goods (COGS)</span>
+        <!-- Store Credit / BNPL Issued -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-amber-200/60 dark:border-amber-500/20 p-3.5 sm:p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-amber-500">credit_card</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">Credit / BNPL Sales</span>
           </div>
-          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.cogs || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-xl lg:text-2xl font-black text-amber-600 dark:text-amber-400 z-10 truncate">{{ (pnlData()?.credit_sales || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-zinc-400 z-10">Issued on credit</span>
+        </div>
+
+        <!-- Total Accounts Receivable (Customer Debt) -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-rose-200/60 dark:border-rose-500/20 p-3.5 sm:p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group min-w-0"
+          [class.bg-rose-50]="(pnlData()?.total_accounts_receivable || 0) > 0"
+          [class.dark:bg-rose-950]="(pnlData()?.total_accounts_receivable || 0) > 0">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-rose-500">account_balance_wallet</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-rose-600 dark:text-rose-400 truncate">Customer Debt (A/R)</span>
+          </div>
+          <p class="text-base sm:text-xl lg:text-2xl font-black text-rose-600 dark:text-rose-400 z-10 truncate">{{ (pnlData()?.total_accounts_receivable || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-rose-500 z-10 font-bold">
+            @if ((pnlData()?.overdue_receivables || 0) > 0) {
+              ⚠️ {{ (pnlData()?.overdue_receivables || 0) | appCurrency }} Overdue
+            } @else {
+              Unpaid balances
+            }
+          </span>
+        </div>
+
+        <!-- Debt Collections / Repayments -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-teal-200/60 dark:border-teal-500/20 p-3.5 sm:p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-teal-500">price_check</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400 truncate">Debt Collected</span>
+          </div>
+          <p class="text-base sm:text-xl lg:text-2xl font-black text-teal-600 dark:text-teal-400 z-10 truncate">{{ (pnlData()?.debt_collections || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-zinc-400 z-10">Customer repayments</span>
         </div>
 
         <!-- Total Expenses -->
-        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-sm relative overflow-hidden group min-w-0">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px] text-rose-500">receipt_long</span>
-            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest text-zinc-500 truncate">Total Expenses</span>
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-rose-500">receipt_long</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-zinc-500 truncate">Total Expenses</span>
           </div>
-          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.total_expenses || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-xl lg:text-2xl font-black z-10 truncate">{{ (pnlData()?.total_expenses || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-zinc-400 z-10">Operating costs</span>
         </div>
 
         <!-- Operating Cash Flow -->
-        <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-1 sm:gap-2 shadow-lg shadow-indigo-500/20 text-white relative overflow-hidden group min-w-0">
-          <div class="absolute -right-6 -top-6 w-24 h-24 bg-white/20 rounded-full blur-2xl opacity-60 group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
-          <div class="flex items-center gap-1.5 sm:gap-2 text-indigo-100 mb-0.5 sm:mb-1 z-10">
-            <span class="material-symbols-outlined !text-[16px] sm:!text-[20px]">account_balance_wallet</span>
-            <span class="text-[9px] sm:text-[11px] font-extrabold uppercase tracking-wider sm:tracking-widest truncate">Op. Cash Flow</span>
+        <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col gap-1 shadow-lg shadow-indigo-500/20 text-white relative overflow-hidden group min-w-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-indigo-100 mb-0.5 z-10">
+            <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">account_balance_wallet</span>
+            <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider truncate">Op. Cash Flow</span>
           </div>
-          <p class="text-base sm:text-2xl lg:text-3xl font-black z-10 truncate">{{ (pnlData()?.operating_cash_flow || 0) | appCurrency }}</p>
+          <p class="text-base sm:text-xl lg:text-2xl font-black z-10 truncate">{{ (pnlData()?.operating_cash_flow || 0) | appCurrency }}</p>
+          <span class="text-[10px] text-indigo-100/80 z-10">Liquid Inflow - Cost</span>
         </div>
       </div>
 
@@ -191,8 +220,9 @@
         </div>
       </div>
 
-      <!-- Financial Breakdown -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Financial Breakdown: Income Statement + Credit & Debt Management -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
         <!-- Income Statement Structure -->
         <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h3 class="text-lg font-black tracking-tight mb-6 flex items-center gap-2">
@@ -226,18 +256,54 @@
           </div>
         </div>
 
+        <!-- Accounts Receivable & Credit Health -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
+          <h3 class="text-lg font-black tracking-tight mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-zinc-400">credit_score</span> Accounts Receivable & Debt
+          </h3>
+          
+          <div class="flex items-center gap-4 p-5 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-900/30 mb-6">
+            <div class="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+              <span class="material-symbols-outlined !text-[24px]">receipt_long</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-500">Total Customer Debt (A/R)</p>
+              <p class="text-2xl font-black text-rose-700 dark:text-rose-400">{{ (pnlData()?.total_accounts_receivable || 0) | appCurrency }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Cash & Digital Sales</span>
+              <span class="font-bold text-zinc-900 dark:text-white">{{ (pnlData()?.cash_sales || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Credit / BNPL Extended</span>
+              <span class="font-bold text-amber-600">{{ (pnlData()?.credit_sales || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Debt Repayments Collected</span>
+              <span class="font-bold text-emerald-600">+{{ (pnlData()?.debt_collections || 0) | appCurrency }}</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <span class="font-medium text-zinc-500">Overdue Customer Debt</span>
+              <span class="font-black text-rose-600">{{ (pnlData()?.overdue_receivables || 0) | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Tax Liability -->
         <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6">
           <h3 class="text-lg font-black tracking-tight mb-6 flex items-center gap-2">
             <span class="material-symbols-outlined text-zinc-400">account_balance</span> Tax Liabilities
           </h3>
           <div class="flex items-center gap-4 p-5 bg-sky-50 dark:bg-sky-900/10 rounded-2xl border border-sky-100 dark:border-sky-900/30 mb-6">
-            <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center text-sky-600 dark:text-sky-400">
+            <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
               <span class="material-symbols-outlined !text-[24px]">price_change</span>
             </div>
             <div>
               <p class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-500">Total Tax Collected</p>
-              <p class="text-3xl font-black text-sky-700 dark:text-sky-400">{{ (taxReportData()?.total_tax_collected || 0) | appCurrency }}</p>
+              <p class="text-2xl font-black text-sky-700 dark:text-sky-400">{{ (taxReportData()?.total_tax_collected || 0) | appCurrency }}</p>
             </div>
           </div>
 
@@ -256,6 +322,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   }

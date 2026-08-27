@@ -158,14 +158,19 @@ type MonthlyFinancialData struct {
 }
 
 type ProfitAndLossData struct {
-	GrossRevenue      float64                `json:"gross_revenue"`
-	COGS              float64                `json:"cogs"`
-	GrossProfit       float64                `json:"gross_profit"`
-	TotalExpenses     float64                `json:"total_expenses"`
-	NetProfit         float64                `json:"net_profit"`
-	TaxCollected      float64                `json:"tax_collected"`
-	OperatingCashFlow float64                `json:"operating_cash_flow"`
-	MonthlyData       []MonthlyFinancialData `json:"monthly_data"`
+	GrossRevenue            float64                `json:"gross_revenue"`
+	COGS                    float64                `json:"cogs"`
+	GrossProfit             float64                `json:"gross_profit"`
+	TotalExpenses           float64                `json:"total_expenses"`
+	NetProfit               float64                `json:"net_profit"`
+	TaxCollected            float64                `json:"tax_collected"`
+	OperatingCashFlow       float64                `json:"operating_cash_flow"`
+	CreditSales             float64                `json:"credit_sales"`
+	CashSales               float64                `json:"cash_sales"`
+	DebtCollections         float64                `json:"debt_collections"`
+	TotalAccountsReceivable float64                `json:"total_accounts_receivable"`
+	OverdueReceivables      float64                `json:"overdue_receivables"`
+	MonthlyData             []MonthlyFinancialData `json:"monthly_data"`
 }
 
 func (s *FinancialService) GetProfitAndLoss(tenantID uuid.UUID, branchID string, startDate, endDate string) (*ProfitAndLossData, error) {
@@ -196,6 +201,49 @@ func (s *FinancialService) GetProfitAndLoss(tenantID uuid.UUID, branchID string,
 	}
 	revQ.Select("COALESCE(SUM(total), 0) as total_revenue, COALESCE(SUM(tax), 0) as total_tax, COUNT(id) as order_count").
 		Scan(&revenueData)
+
+	// Credit Sales vs Cash Sales
+	var creditSales float64
+	creditQ := db.Model(&models.Order{}).Where("status = ? AND payment_method IN ('credit', 'bnpl', 'store_credit')", "completed")
+	if branchID != "" {
+		creditQ = creditQ.Where("branch_id = ?", branchID)
+	}
+	if startDate != "" {
+		if t, err := parseExpenseDate(startDate); err == nil {
+			creditQ = creditQ.Where("created_at >= ?", t)
+		}
+	}
+	if endDate != "" {
+		if t, err := parseExpenseDate(endDate); err == nil {
+			creditQ = creditQ.Where("created_at <= ?", t.Add(24*time.Hour))
+		}
+	}
+	creditQ.Select("COALESCE(SUM(total), 0)").Scan(&creditSales)
+	cashSales := revenueData.TotalRevenue - creditSales
+
+	// Customer Debt Collections (repayments in period)
+	var debtCollections float64
+	repayQ := db.Model(&models.CreditTransaction{}).Where("transaction_type = 'repayment'")
+	if startDate != "" {
+		if t, err := parseExpenseDate(startDate); err == nil {
+			repayQ = repayQ.Where("created_at >= ?", t)
+		}
+	}
+	if endDate != "" {
+		if t, err := parseExpenseDate(endDate); err == nil {
+			repayQ = repayQ.Where("created_at <= ?", t.Add(24*time.Hour))
+		}
+	}
+	repayQ.Select("COALESCE(SUM(abs(amount)), 0)").Scan(&debtCollections)
+
+	// Total Accounts Receivable (current snapshot)
+	var totalReceivables float64
+	db.Model(&models.Customer{}).Select("COALESCE(SUM(debt_balance), 0)").Scan(&totalReceivables)
+
+	// Overdue Debt
+	var overdueReceivables float64
+	db.Model(&models.BNPLInstalment{}).Where("status != 'paid' AND due_date < CURRENT_TIMESTAMP").
+		Select("COALESCE(SUM(amount - amount_paid), 0)").Scan(&overdueReceivables)
 
 	var cogs float64
 	cogsQ := db.Session(&gorm.Session{NewDB: true}).Table("order_items").
@@ -237,7 +285,7 @@ func (s *FinancialService) GetProfitAndLoss(tenantID uuid.UUID, branchID string,
 	grossRevenue := revenueData.TotalRevenue - revenueData.TotalTax
 	grossProfit := grossRevenue - cogs
 	netProfit := grossProfit - expenseResult.Total
-	operatingCashFlow := (revenueData.TotalRevenue - revenueData.TotalTax) - expenseResult.Total
+	operatingCashFlow := (cashSales + debtCollections - revenueData.TotalTax) - expenseResult.Total
 
 	// Monthly Data
 	var monthlyRevenues []struct {
@@ -279,14 +327,19 @@ func (s *FinancialService) GetProfitAndLoss(tenantID uuid.UUID, branchID string,
 	}
 
 	return &ProfitAndLossData{
-		GrossRevenue:      grossRevenue,
-		COGS:              cogs,
-		GrossProfit:       grossProfit,
-		TotalExpenses:     expenseResult.Total,
-		NetProfit:         netProfit,
-		TaxCollected:      revenueData.TotalTax,
-		OperatingCashFlow: operatingCashFlow,
-		MonthlyData:       monthlyData,
+		GrossRevenue:            grossRevenue,
+		COGS:                    cogs,
+		GrossProfit:             grossProfit,
+		TotalExpenses:           expenseResult.Total,
+		NetProfit:               netProfit,
+		TaxCollected:            revenueData.TotalTax,
+		OperatingCashFlow:       operatingCashFlow,
+		CreditSales:             creditSales,
+		CashSales:               cashSales,
+		DebtCollections:         debtCollections,
+		TotalAccountsReceivable: totalReceivables,
+		OverdueReceivables:      overdueReceivables,
+		MonthlyData:             monthlyData,
 	}, nil
 }
 
