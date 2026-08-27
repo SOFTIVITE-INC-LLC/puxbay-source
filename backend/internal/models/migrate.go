@@ -86,6 +86,10 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&StockAlert{},
 		&SupportTicket{},
 		&TicketMessage{},
+		&CreditAccount{},
+		&CreditTransaction{},
+		&BNPLInstalment{},
+		&ReportSchedule{},
 	)
 }
 

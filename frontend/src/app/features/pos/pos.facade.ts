@@ -399,6 +399,24 @@ export class PosFacade {
   }
 
   /**
+   * Applies Store Credit / Buy Now Pay Later (BNPL) to the sale for the attached customer.
+   */
+  payWithStoreCredit() {
+    const cust = this.selectedCustomer();
+    if (!cust) {
+      this.toastr.warning('Please attach a customer to charge Store Credit / BNPL.');
+      return;
+    }
+    const remaining = this.remainingBalance();
+    if (remaining <= 0) {
+      this.toastr.info('No remaining balance to charge.');
+      return;
+    }
+    this.addPaymentMethod('credit', remaining, `BNPL-${cust.name}`);
+    this.toastr.success(`Store Credit / BNPL applied for ${cust.name}`);
+  }
+
+  /**
    * Opens the Paystack popup for the remaining balance.
    * Supports MTN MoMo, Telecel Cash, AirtelTigo, Visa & Mastercard.
    * Payments are routed directly to the tenant's Paystack subaccount if configured.

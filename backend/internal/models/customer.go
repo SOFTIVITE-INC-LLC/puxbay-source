@@ -31,8 +31,10 @@ type Customer struct {
 	TotalSpend  float64 `gorm:"type:decimal(12,2);default:0" json:"total_spend"`
 	OrderCount  uint    `gorm:"default:0" json:"order_count"`
 	LoyaltyPts  float64 `gorm:"type:decimal(10,2);default:0" json:"loyalty_points"`
-	StoreCredit float64 `gorm:"type:decimal(12,2);default:0" json:"store_credit"`
-	DebtBalance float64 `gorm:"type:decimal(12,2);default:0" json:"debt_balance"`
+	StoreCredit  float64 `gorm:"type:decimal(12,2);default:0" json:"store_credit"`
+	DebtBalance  float64 `gorm:"type:decimal(12,2);default:0" json:"debt_balance"`
+	CreditLimit  float64 `gorm:"type:decimal(12,2);default:0" json:"credit_limit"`
+	CreditStatus string  `gorm:"size:20;default:'active'" json:"credit_status"`
 
 	AcceptsMarketing bool       `gorm:"default:true" json:"accepts_marketing"`
 	LastVisit        *time.Time `json:"last_visit,omitempty"`

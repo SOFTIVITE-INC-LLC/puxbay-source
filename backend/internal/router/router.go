@@ -116,6 +116,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	accountingHandler := handlers.NewAccountingHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
 	deviceHandler := handlers.NewDeviceHandler(db, cfg)
+	creditService := services.NewCreditService(db, smsService)
+	creditHandler := handlers.NewCreditHandler(db, creditService)
+	reportService := services.NewReportService(db, cfg.SMTP)
+	reportScheduleHandler := handlers.NewReportScheduleHandler(db, reportService, emailService)
 	// ──────────────────────────────────────────────
 	// Health Check Endpoints (no auth required)
 	// ──────────────────────────────────────────────
@@ -328,6 +332,13 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.PUT("/customers/:id", customerHandler.Update)
 			api.DELETE("/customers/:id", customerHandler.Delete)
 			api.POST("/customers/:id/payment", customerHandler.RecordPayment)
+			// Customer Store Credit & BNPL
+			api.GET("/customers/:id/credit-account", creditHandler.GetCreditAccount)
+			api.POST("/customers/:id/credit-limit", creditHandler.SetCreditLimit)
+			api.POST("/customers/:id/credit/drawdown", creditHandler.DrawdownCredit)
+			api.POST("/customers/:id/credit/repay", creditHandler.RecordRepayment)
+			api.POST("/customers/:id/credit/send-reminder", creditHandler.SendRepaymentReminder)
+			api.GET("/credit/overdue", creditHandler.GetOverdueAccounts)
 
 			// Customer Tiers & Loyalty
 			api.GET("/customer-tiers", crmHandler.ListTiers)
@@ -614,6 +625,12 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.DELETE("/settings/domains/:id", adminHandler.DeleteDomain)
 			api.POST("/settings/domains/:id/verify", adminHandler.VerifyDomain)
 			api.POST("/settings/domains/:id/primary", adminHandler.SetPrimaryDomain)
+
+			// Automated Reports & Z-Reports
+			api.GET("/reports/schedules", reportScheduleHandler.GetSchedules)
+			api.POST("/reports/schedules", reportScheduleHandler.SaveSchedule)
+			api.POST("/reports/send-test", reportScheduleHandler.SendTestReport)
+			api.GET("/reports/daily-z", reportScheduleHandler.GetDailyZReportData)
 		}
 
 		// Public Storefront Endpoints (Requires Tenant, NO POS Auth)

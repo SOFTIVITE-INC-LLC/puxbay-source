@@ -249,6 +249,17 @@ func (s *AuthService) hmacBasedOTP(key []byte, counter uint64) string {
 
 func (s *AuthService) generateToken(userID, tenantID uuid.UUID, branchID *uuid.UUID, role string, roleID *uuid.UUID, tokenType string, version int, expiry time.Duration) (string, error) {
 	now := time.Now()
+	if expiry <= 0 {
+		if tokenType == "refresh" {
+			expiry = s.refreshExpiry
+		} else {
+			expiry = s.accessExpiry
+		}
+	}
+	if expiry <= 0 {
+		expiry = 168 * time.Hour // 7 days fallback
+	}
+
 	claims := Claims{
 		UserID:      userID,
 		TenantID:    tenantID,
@@ -258,7 +269,7 @@ func (s *AuthService) generateToken(userID, tenantID uuid.UUID, branchID *uuid.U
 		TokenType:   tokenType,
 		Version:     version,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(now.Add(300 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(now.Add(expiry)),
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
 			Issuer:    "puxbay",

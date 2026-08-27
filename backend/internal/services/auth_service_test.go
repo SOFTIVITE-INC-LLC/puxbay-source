@@ -41,7 +41,7 @@ func TestAuthService_GenerateToken(t *testing.T) {
 	tenantID := uuid.New()
 
 	expiryDur := 45 * time.Minute
-	tokenStr, err := service.generateToken(userID, tenantID, nil, "admin", "access", 1, expiryDur)
+	tokenStr, err := service.generateToken(userID, tenantID, nil, "admin", nil, "access", 1, expiryDur)
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}

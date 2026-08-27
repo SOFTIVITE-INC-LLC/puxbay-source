@@ -130,6 +130,7 @@ func main() {
 	// 6.5. Start lightweight background workers
 	workers.StartCartRecoveryWorker(db, cfg.SMTP)
 	workers.StartBillingWorker(db, cfg.SMTP)
+	workers.StartReportWorker(db, cfg.SMTP)
 	workers.StartTelemetryCleanupWorker(db)
 
 	// 7. Start HTTP server with graceful shutdown

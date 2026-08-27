@@ -34,6 +34,10 @@ func NewEmailService(db *gorm.DB, smtpCfg config.SMTPConfig) *EmailService {
 	return &EmailService{db: db, smtp: smtpCfg}
 }
 
+func (s *EmailService) GetSMTPConfig() config.SMTPConfig {
+	return s.smtp
+}
+
 func (s *EmailService) RequestPasswordReset(email string) error {
 	var user models.User
 	if err := s.db.Where("email = ?", email).First(&user).Error; err != nil {
@@ -228,4 +232,32 @@ func (s *EmailService) SendStaffWelcomeEmail(to, tenantName, tenantURL, username
 	}
 
 	s.sendHTMLEmail(to, subject, data)
+}
+
+// SendRawHTML sends a custom formatted HTML email to one or more recipient email addresses.
+func (s *EmailService) SendRawHTML(recipients []string, subject, rawHTML string) error {
+	if len(recipients) == 0 {
+		return nil
+	}
+
+	if s.smtp.Host == "" {
+		fmt.Printf("📧 [MOCK REPORT EMAIL to %v] %s\n", recipients, subject)
+		return nil
+	}
+
+	auth := smtp.PlainAuth("", s.smtp.User, s.smtp.Password, s.smtp.Host)
+	headers := "MIME-version: 1.0;\r\n" +
+		"Content-Type: text/html; charset=\"UTF-8\";\r\n" +
+		fmt.Sprintf("Subject: %s\r\n\r\n", subject)
+
+	msg := []byte(headers + rawHTML)
+	addr := fmt.Sprintf("%s:%s", s.smtp.Host, s.smtp.Port)
+
+	for _, to := range recipients {
+		if err := smtp.SendMail(addr, auth, s.smtp.From, []string{to}, msg); err != nil {
+			fmt.Printf("Failed to send report email to %s: %v\n", to, err)
+		}
+	}
+
+	return nil
 }
