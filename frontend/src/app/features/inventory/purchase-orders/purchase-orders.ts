@@ -1,5 +1,5 @@
 import { ToastService } from '../../../core/services/toast';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,11 +9,12 @@ import { CatalogService } from '../../../core/services/catalog.service';
 import { PurchaseOrder } from '../../../core/models/inventory.models';
 import { Supplier } from '../../../core/models/financial.models';
 import { SettingsService } from '../../../core/services/settings.service';
+import { SearchableSelectComponent } from '../../../shared/components/searchable-select/searchable-select';
 
 @Component({
   selector: 'app-purchase-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, AppCurrencyPipe, SearchableSelectComponent],
   templateUrl: './purchase-orders.html',
 })
 export class PurchaseOrders implements OnInit {
@@ -27,6 +28,21 @@ export class PurchaseOrders implements OnInit {
   suppliers = signal<Supplier[]>([]);
   products = signal<any[]>([]);
   loading = signal(false);
+
+  productOptions = computed(() =>
+    this.products().map(p => ({
+      label: p.name,
+      value: p.id,
+      sublabel: `Stock: ${p.current_stock ?? 0}${p.sku ? ` • SKU: ${p.sku}` : ''}`
+    }))
+  );
+
+  supplierOptions = computed(() =>
+    this.suppliers().map(s => ({
+      label: s.name,
+      value: s.id
+    }))
+  );
 
   // Modal states
   isCreateModalOpen = signal(false);
@@ -56,8 +72,8 @@ export class PurchaseOrders implements OnInit {
       error: () => this.loading.set(false)
     });
 
-    this.supplierService.getSuppliers().subscribe(res => this.suppliers.set(res || []));
-    this.catalogService.getProducts().subscribe(res => this.products.set(res.data || []));
+    this.supplierService.getSuppliers({ limit: -1 }).subscribe(res => this.suppliers.set(res || []));
+    this.catalogService.getProducts({ limit: -1 }).subscribe(res => this.products.set(res.data || []));
   }
 
   getSupplierName(id: string): string {

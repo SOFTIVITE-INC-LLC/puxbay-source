@@ -7,11 +7,12 @@ import { StockBatch } from '../../../core/models/inventory.models';
 import { Product } from '../../../core/models/product.models';
 import { Topbar } from '../../../core/layout/topbar/topbar';
 import { AlertService } from '../../../core/services/alert.service';
+import { SearchableSelectComponent } from '../../../shared/components/searchable-select/searchable-select';
 
 @Component({
   selector: 'app-batch-tracker',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, SearchableSelectComponent],
   templateUrl: './batch-tracker.html'
 })
 export class BatchTracker implements OnInit {
@@ -22,6 +23,14 @@ export class BatchTracker implements OnInit {
   expiringBatches = signal<StockBatch[]>([]);
   allProducts = signal<Product[]>([]);
   loading = signal<boolean>(true);
+
+  productOptions = computed(() =>
+    this.allProducts().map(p => ({
+      label: p.name,
+      value: p.id,
+      sublabel: `SKU: ${p.sku}${p.current_stock !== undefined ? ` • Stock: ${p.current_stock}` : ''}`
+    }))
+  );
 
   // Modals
   isBatchModalOpen = signal<boolean>(false);
@@ -64,8 +73,8 @@ export class BatchTracker implements OnInit {
         this.expiringBatches.set(res.data || []);
       },
       complete: () => {
-        // Also load products for the select dropdown
-        this.catalogService.getProducts({ limit: 1000 }).subscribe(prodRes => {
+        // Also load all products for the select dropdown without pagination
+        this.catalogService.getProducts({ limit: -1 }).subscribe(prodRes => {
            this.allProducts.set(prodRes.data || []);
            this.loading.set(false);
         });

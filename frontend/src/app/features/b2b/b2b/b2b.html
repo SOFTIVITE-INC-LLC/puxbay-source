@@ -178,13 +178,12 @@
         <!-- Customer Select -->
         <div>
           <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Customer / Account</label>
-          <select [ngModel]="newQuote().customer_id" (ngModelChange)="newQuote.update(q => ({...q, customer_id: $event}))"
-            class="w-full p-4 rounded-2xl bg-white dark:bg-black/40 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-bold transition-all appearance-none">
-            <option value="">Select a customer…</option>
-            @for (c of customerService.customers(); track c.id) {
-              <option [value]="c.id">{{ c.name }} ({{ c.email }})</option>
-            }
-          </select>
+          <app-searchable-select
+            [ngModel]="newQuote().customer_id"
+            (ngModelChange)="newQuote.update(q => ({...q, customer_id: $event}))"
+            [options]="customerOptions()"
+            placeholder="Select a customer…">
+          </app-searchable-select>
         </div>
 
         <!-- Notes -->
@@ -209,13 +208,12 @@
             </div>
             @for (item of newQuote().items; track $index) {
               <div class="grid grid-cols-[1fr_80px_110px_36px] gap-2 items-center">
-                <select [ngModel]="item.product_id" (ngModelChange)="onProductSelect($index, $event)"
-                  class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black/40 text-sm font-medium focus:outline-none focus:border-indigo-500 transition-all">
-                  <option value="">Select…</option>
-                  @for (p of catalogService.products(); track p.id) {
-                    <option [value]="p.id">{{ p.name }}</option>
-                  }
-                </select>
+                <app-searchable-select
+                  [ngModel]="item.product_id"
+                  (ngModelChange)="onProductSelect($index, $event)"
+                  [options]="productOptions()"
+                  placeholder="Select product…">
+                </app-searchable-select>
                 <input type="number" [ngModel]="item.qty"
                   (ngModelChange)="newQuote.update(q => ({...q, items: q.items.map((i, idx) => idx === $index ? {...i, qty: +$event} : i)}))"
                   min="1" class="p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black/40 text-sm text-center font-bold focus:outline-none focus:border-indigo-500 transition-all">

@@ -6,11 +6,12 @@ import { B2bService } from '../../../core/services/b2b.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { CustomerService } from '../../../core/services/customer.service';
 import { ToastrService } from 'ngx-toastr';
+import { SearchableSelectComponent } from '../../../shared/components/searchable-select/searchable-select';
 
 @Component({
   selector: 'app-b2b',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, DatePipe, AppCurrencyPipe, SearchableSelectComponent],
   templateUrl: './b2b.html',
 })
 export class B2b implements OnInit {
@@ -31,6 +32,22 @@ export class B2b implements OnInit {
     items: [{ product_id: '', qty: 1, unit_price: 0 }]
   });
 
+  productOptions = computed(() =>
+    this.catalogService.products().map(p => ({
+      label: p.name,
+      value: p.id,
+      sublabel: `Stock: ${p.current_stock ?? 0} • Wholesale: ${p.wholesale_price ?? p.selling_price}`
+    }))
+  );
+
+  customerOptions = computed(() =>
+    this.customerService.customers().map(c => ({
+      label: c.name,
+      value: c.id,
+      sublabel: c.email || c.phone || ''
+    }))
+  );
+
   quoteTotal = computed(() =>
     this.newQuote().items.reduce((s, i) => s + (i.qty * i.unit_price), 0)
   );
@@ -50,8 +67,8 @@ export class B2b implements OnInit {
   ngOnInit() {
     this.b2bService.listQuotes().subscribe();
     this.b2bService.listClients().subscribe();
-    this.customerService.getCustomers().subscribe();
-    this.catalogService.getProducts().subscribe();
+    this.customerService.getCustomers({ limit: -1 }).subscribe();
+    this.catalogService.getProducts({ limit: -1 }).subscribe();
   }
 
   addItem() {

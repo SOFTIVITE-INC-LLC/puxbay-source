@@ -52,7 +52,7 @@
         } @else {
           @for (option of filteredOptions(); track option.value; let i = $index) {
             <div 
-              class="px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors flex items-center justify-between"
+              class="px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors flex items-center justify-between gap-2"
               [class.bg-indigo-50]="highlightedIndex() === i"
               [class.dark:bg-indigo-500/10]="highlightedIndex() === i"
               [class.text-indigo-600]="highlightedIndex() === i"
@@ -63,9 +63,14 @@
               [class.dark:text-slate-200]="highlightedIndex() !== i"
               (mouseenter)="highlightedIndex.set(i)"
               (click)="selectOption(option)">
-              <span>{{ option.label }}</span>
+              <div class="flex flex-col min-w-0 flex-1">
+                <span class="truncate font-medium">{{ option.label }}</span>
+                @if (option.sublabel) {
+                  <span class="text-xs text-slate-400 dark:text-slate-500 font-normal truncate">{{ option.sublabel }}</span>
+                }
+              </div>
               @if (selectedOption()?.value === option.value) {
-                <span class="material-symbols-outlined !text-[18px] text-indigo-500">check</span>
+                <span class="material-symbols-outlined !text-[18px] text-indigo-500 shrink-0">check</span>
               }
             </div>
           }

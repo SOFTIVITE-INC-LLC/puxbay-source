@@ -47,7 +47,13 @@ export class SupplyChain implements OnInit {
   suppliers = this.supplierService.suppliers;
   branches = this.branchService.branches;
 
-  productOptions = computed(() => this.products().map(p => ({ label: p.name, value: p.id })));
+  productOptions = computed(() =>
+    this.products().map(p => ({
+      label: p.name,
+      value: p.id,
+      sublabel: `Stock: ${p.current_stock ?? 0}${p.sku ? ` • SKU: ${p.sku}` : ''}`
+    }))
+  );
   supplierOptions = computed(() => this.suppliers().map(s => ({ label: s.name, value: s.id })));
   branchOptions = computed(() => this.branches().map(b => ({ label: b.name, value: b.id })));
 

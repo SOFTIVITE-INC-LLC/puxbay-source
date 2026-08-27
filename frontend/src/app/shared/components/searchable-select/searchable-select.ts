@@ -5,6 +5,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export interface SelectOption {
   label: string;
   value: any;
+  sublabel?: string;
   [key: string]: any;
 }
 
@@ -51,9 +52,12 @@ export class SearchableSelectComponent implements ControlValueAccessor {
   onTouch: any = () => {};
 
   filteredOptions = computed(() => {
-    const query = this.searchQuery().toLowerCase();
+    const query = this.searchQuery().toLowerCase().trim();
     if (!query) return this._options();
-    return this._options().filter(o => o.label.toLowerCase().includes(query));
+    return this._options().filter(o => 
+      (o.label && o.label.toLowerCase().includes(query)) ||
+      (o.sublabel && o.sublabel.toLowerCase().includes(query))
+    );
   });
 
   @HostListener('document:click')

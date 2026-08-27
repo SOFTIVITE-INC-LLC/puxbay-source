@@ -357,12 +357,11 @@
               <h4 class="text-sm font-bold mb-3">Link New Product</h4>
               <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="col-span-2">
-                  <select [(ngModel)]="newCatalogProduct().product_id" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500">
-                    <option value="" disabled selected>Select Inventory Product</option>
-                    @for (p of allProducts(); track p.id) {
-                      <option [value]="p.id">{{ p.name }}</option>
-                    }
-                  </select>
+                  <app-searchable-select
+                    [(ngModel)]="newCatalogProduct().product_id"
+                    [options]="productOptions()"
+                    placeholder="Select Inventory Product">
+                  </app-searchable-select>
                 </div>
                 <div>
                   <input type="text" [(ngModel)]="newCatalogProduct().supplier_sku" placeholder="Supplier SKU" class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500" />

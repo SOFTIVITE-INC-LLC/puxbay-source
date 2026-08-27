@@ -7,11 +7,12 @@ import { SupplierService } from '../../../core/services/supplier.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { Supplier } from '../../../core/models/financial.models';
 import { AlertService } from '../../../core/services/alert.service';
+import { SearchableSelectComponent } from '../../../shared/components/searchable-select/searchable-select';
 
 @Component({
   selector: 'app-suppliers',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppCurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, AppCurrencyPipe, DatePipe, SearchableSelectComponent],
   templateUrl: './suppliers.html',
 })
 export class Suppliers implements OnInit {
@@ -35,6 +36,15 @@ export class Suppliers implements OnInit {
   catalogProducts = signal<any[]>([]);
   allProducts = signal<any[]>([]);
   activeTab = signal<'details' | 'catalog' | 'ledger'>('details');
+
+  productOptions = computed(() =>
+    this.allProducts().map(p => ({
+      label: p.name,
+      value: p.id,
+      sublabel: `SKU: ${p.sku}${p.current_stock !== undefined ? ` • Stock: ${p.current_stock}` : ''}`
+    }))
+  );
+
   newCatalogProduct = signal<{ product_id: string; supplier_sku: string; unit_cost: number; min_order_qty: number }>({
     product_id: '', supplier_sku: '', unit_cost: 0, min_order_qty: 1
   });
@@ -55,7 +65,7 @@ export class Suppliers implements OnInit {
   sendingInvite = signal(false);
 
   ngOnInit() {
-    this.supplierService.getSuppliers().subscribe();
+    this.supplierService.getSuppliers({ limit: -1 }).subscribe();
   }
 
   // ── KPIs ──
@@ -156,7 +166,7 @@ export class Suppliers implements OnInit {
     this.activeTab.set('catalog');
     this.supplierService.getSupplierProducts(supplier.id).subscribe(res => this.catalogProducts.set(res || []));
     if (this.allProducts().length === 0) {
-      this.catalogService.getProducts().subscribe(res => this.allProducts.set((res as any).data || []));
+      this.catalogService.getProducts({ limit: -1 }).subscribe(res => this.allProducts.set((res as any).data || []));
     }
     this.isModalOpen.set(true);
   }
