@@ -32,14 +32,26 @@ export const globalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           if (typeof window === 'undefined') {
             return EMPTY;
           }
+          // Do not show session expired toast for public storefront/kiosk/auth pages
+          const isPublicReq = req.url.includes('/storefront') ||
+                              req.url.includes('/kiosk') ||
+                              req.url.includes('/public') ||
+                              req.url.includes('/auth/login') ||
+                              req.url.includes('/auth/register');
+          if (isPublicReq) {
+            return throwError(() => error);
+          }
           errorMessage = 'Session expired. Please log in again.';
-          // Could trigger logout logic here
         } else if (error.status === 402) {
           errorMessage = error.error?.error || 'Payment Required. Please update your billing details.';
           router.navigate(['/billing']);
         } else if (error.status === 403) {
           errorMessage = 'You do not have permission to perform this action.';
         } else if (error.status === 404) {
+          const isPublicReq = req.url.includes('/storefront') || req.url.includes('/kiosk') || req.url.includes('/public');
+          if (isPublicReq) {
+            return throwError(() => error);
+          }
           errorMessage = 'Requested resource was not found.';
         } else if (error.status === 422) {
           errorMessage = 'Validation failed. Please check your inputs.';
@@ -52,7 +64,10 @@ export const globalErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Display global toast
       if (typeof window !== 'undefined') {
-        toastr.error(errorMessage, '');
+        const isPublicReq = req.url.includes('/storefront') || req.url.includes('/kiosk') || req.url.includes('/public');
+        if (!isPublicReq) {
+          toastr.error(errorMessage, '');
+        }
       }
 
       // Continue throwing to allow component-level handling if needed

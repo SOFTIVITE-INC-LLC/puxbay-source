@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BranchService } from '../../../core/services/branch.service';
 import { TenantStore } from '../../../core/services/tenant.store';
+import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { Branch } from '../../../core/models/branch.models';
 
 @Component({
@@ -13,6 +14,7 @@ import { Branch } from '../../../core/models/branch.models';
 export class QrCodes implements OnInit {
   private branchService = inject(BranchService);
   private tenantStore = inject(TenantStore);
+  private storefrontSettings = inject(StorefrontSettingsService);
 
   branches = this.branchService.branches;
   selectedBranch = signal<Branch | null>(null);
@@ -23,48 +25,76 @@ export class QrCodes implements OnInit {
     (typeof window !== 'undefined' ? localStorage.getItem('dev_tenant') || '' : '')
   );
 
+  // The storefront slug the tenant configured (e.g. "main", "shop")
+  storefrontSlug = computed(() => this.storefrontSettings.settings()?.slug || '');
+
   baseUrl = computed(() => {
     if (typeof window === 'undefined') return '';
     const sub = this.subdomain();
     const host = window.location.host;
+    const hostname = window.location.hostname;
     const proto = window.location.protocol;
-    if (!sub || host.startsWith('localhost') || host.startsWith('127.')) {
+    const isIP = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+
+    if (!sub || hostname === 'localhost' || isIP) {
+      // Dev/local: use current host + ?tenant= param
       return `${proto}//${host}`;
     }
-    // On real domain: replace or prepend subdomain
-    const parts = host.split('.');
+    // Production: build subdomain.domain.tld URL
+    const parts = hostname.split('.');
     if (parts.length >= 2 && parts[0] !== 'www') {
       parts[0] = sub;
     } else {
       parts.unshift(sub);
     }
-    return `${proto}//${parts.join('.')}`;
-  });
-
-  kioskQrUrl = computed(() => {
-    const branch = this.selectedBranch();
-    const base = this.baseUrl();
-    const path = branch ? `/kiosk/${branch.id}` : '/kiosk';
-    return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(base + path)}&margin=10&qzone=2&format=svg`;
-  });
-
-  storefrontQrUrl = computed(() => {
-    const branch = this.selectedBranch();
-    const base = this.baseUrl();
-    const path = branch ? `/store/${branch.id}` : '/store';
-    return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(base + path)}&margin=10&qzone=2&format=svg`;
+    const port = window.location.port ? `:${window.location.port}` : '';
+    return `${proto}//${parts.join('.')}${port}`;
   });
 
   kioskLinkUrl = computed(() => {
     const branch = this.selectedBranch();
     const base = this.baseUrl();
-    return branch ? `${base}/kiosk/${branch.id}` : `${base}/kiosk`;
+    const sub = this.subdomain();
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const isLocalOrIP = hostname === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    const path = branch ? `/kiosk/${branch.id}` : '/kiosk';
+    // On local/IP always append ?tenant= so the interceptor can resolve the schema
+    const query = isLocalOrIP && sub ? `?tenant=${encodeURIComponent(sub)}` : '';
+    return `${base}${path}${query}`;
   });
 
   storefrontLinkUrl = computed(() => {
     const branch = this.selectedBranch();
     const base = this.baseUrl();
-    return branch ? `${base}/store/${branch.id}` : `${base}/store`;
+    const sub = this.subdomain();
+    const slug = this.storefrontSlug();
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const isLocalOrIP = hostname === 'localhost' || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+
+    // If a slug is configured use /shop/:slug, else fall back to /store/:branchId
+    let path: string;
+    if (slug) {
+      path = branch ? `/shop/${slug}?branch_id=${branch.id}` : `/shop/${slug}`;
+    } else {
+      path = branch ? `/store/${branch.id}` : '/store';
+    }
+
+    // For local/IP: append ?tenant= (merge with existing query if slug already added one)
+    if (isLocalOrIP && sub) {
+      const tenantParam = `tenant=${encodeURIComponent(sub)}`;
+      path = path.includes('?') ? `${path}&${tenantParam}` : `${path}?${tenantParam}`;
+    }
+    return `${base}${path}`;
+  });
+
+  kioskQrUrl = computed(() => {
+    const link = this.kioskLinkUrl();
+    return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(link)}&margin=10&qzone=2&format=svg`;
+  });
+
+  storefrontQrUrl = computed(() => {
+    const link = this.storefrontLinkUrl();
+    return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(link)}&margin=10&qzone=2&format=svg`;
   });
 
   ngOnInit() {
@@ -78,6 +108,8 @@ export class QrCodes implements OnInit {
       },
       error: () => this.loading.set(false)
     });
+    // Load storefront settings to get the configured slug for QR URL
+    this.storefrontSettings.loadSettings().subscribe();
   }
 
   selectBranch(branch: Branch) {

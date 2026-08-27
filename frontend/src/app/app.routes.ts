@@ -259,10 +259,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/storefront/storefront/storefront').then(m => m.Storefront)
       },
       {
-        path: 'shop/:slug',
-        loadComponent: () => import('./features/storefront/public-storefront/public-storefront').then(m => m.PublicStorefront)
-      },
-      {
         path: 'intelligence',
         loadComponent: () => import('./features/intelligence/intelligence/intelligence').then(m => m.Intelligence)
       },
@@ -406,6 +402,14 @@ export const routes: Routes = [
   {
     path: 'cds',
     loadComponent: () => import('./features/pos/cds/cds').then(m => m.Cds)
+  },
+  {
+    path: 'shop/:slug',
+    loadComponent: () => import('./features/storefront/public-storefront/public-storefront').then(m => m.PublicStorefront)
+  },
+  {
+    path: 'shop/:slug/:branchId',
+    loadComponent: () => import('./features/storefront/public-storefront/public-storefront').then(m => m.PublicStorefront)
   },
   {
     path: 'store',

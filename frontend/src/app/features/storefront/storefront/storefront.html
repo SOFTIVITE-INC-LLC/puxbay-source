@@ -56,11 +56,12 @@
               <div class="flex items-center min-w-0">
                 <span
                   class="px-3 sm:px-4 py-2.5 sm:py-3 bg-zinc-100 dark:bg-zinc-800 border border-r-0 border-zinc-200 dark:border-zinc-700 rounded-l-xl text-zinc-500 text-xs sm:text-sm whitespace-nowrap shrink-0"
-                  >puxbay.com/</span
+                  >{{ subdomain() }}.puxbay.com/shop/</span
                 >
                 <input
                   type="text"
                   [(ngModel)]="config.slug"
+                  placeholder="e.g. main"
                   class="w-full min-w-0 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-r-xl focus:ring-2 focus:ring-indigo-500 outline-none text-xs sm:text-sm font-medium transition-all"
                 />
               </div>
@@ -219,7 +220,7 @@
             <div
               class="ml-4 flex-1 h-5 bg-white dark:bg-zinc-800 rounded text-[10px] flex items-center px-2 text-zinc-500 truncate"
             >
-              puxbay.com/{{ config.slug || 'store' }}
+              {{ subdomain() }}.puxbay.com/{{ config.slug ? 'shop/' + config.slug : 'store' }}
             </div>
           </div>
           <!-- Mock Store -->

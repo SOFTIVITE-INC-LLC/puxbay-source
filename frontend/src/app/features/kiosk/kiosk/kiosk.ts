@@ -5,8 +5,8 @@ import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { CatalogService } from '../../../core/services/catalog.service';
-import { StorefrontService } from '../../../core/services/storefront.service';
+import { ProductService } from '../../../core/store/services/product.service';
+import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { ApiService } from '../../../core/services/api.service';
 
 @Component({
@@ -18,8 +18,8 @@ import { ApiService } from '../../../core/services/api.service';
 export class Kiosk implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
-  catalogService = inject(CatalogService);
-  storefrontService = inject(StorefrontService);
+  productService = inject(ProductService);
+  storefrontService = inject(StorefrontSettingsService);
   toastService = inject(ToastService);
   private api = inject(ApiService);
 
@@ -27,6 +27,7 @@ export class Kiosk implements OnInit, OnDestroy {
   isIdle = signal(true);
   isCartOpen = signal(false);
   isProcessing = signal(false);
+  loading = signal(false);
   idleTimer: any;
   IDLE_TIMEOUT = 60000; // 60 seconds
 
@@ -48,14 +49,17 @@ export class Kiosk implements OnInit, OnDestroy {
   modalQty = 1;
   isPaymentModalOpen = signal(false);
 
-  // Categories
-  categories = computed(() => this.catalogService.categories());
+  // Products & Categories
+  productsList = signal<any[]>([]);
+  categoriesList = signal<any[]>([]);
   activeCategoryId = signal<string | null>(null);
 
+  categories = computed(() => this.categoriesList());
+
   products = computed(() => {
-    let prods = this.catalogService.products().filter(p => p.is_active);
+    let prods = this.productsList();
     if (this.activeCategoryId()) {
-      prods = prods.filter(p => p.category_id === this.activeCategoryId());
+      prods = prods.filter(p => p.category_id === this.activeCategoryId() || p.category?.id === this.activeCategoryId());
     }
     return prods;
   });
@@ -65,12 +69,11 @@ export class Kiosk implements OnInit, OnDestroy {
   );
 
   ngOnInit() {
-    this.branchId = this.route.snapshot.paramMap.get('branchId') || 'default';
+    this.branchId = this.route.snapshot.paramMap.get('branchId') ||
+                    this.route.snapshot.queryParamMap.get('branch_id') ||
+                    this.route.snapshot.queryParamMap.get('branchId') || '';
     
-    const params = this.branchId !== 'default' ? { branch_id: this.branchId } : undefined;
-    this.catalogService.getProducts(params).subscribe();
-    this.catalogService.getCategories().subscribe();
-    this.storefrontService.getSettings().subscribe();
+    this.loadKioskData();
     
     // Setup idle detection
     if (isPlatformBrowser(this.platformId)) {
@@ -78,6 +81,35 @@ export class Kiosk implements OnInit, OnDestroy {
       document.addEventListener('click', this.resetIdleTimer.bind(this));
     }
     this.resetIdleTimer();
+  }
+
+  loadKioskData() {
+    this.loading.set(true);
+    const params: any = { page_size: 100 };
+    if (this.branchId && this.branchId !== 'default') {
+      params.branch_id = this.branchId;
+    }
+
+    this.productService.getProducts(params).subscribe({
+      next: (res) => {
+        this.productsList.set(res.products || []);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+
+    const bId = this.branchId && this.branchId !== 'default' ? this.branchId : undefined;
+    this.productService.getCategories(bId).subscribe({
+      next: (cats) => this.categoriesList.set(cats || [])
+    });
+
+    this.storefrontService.loadSettings().subscribe();
+  }
+
+  getCategoryName(id: string | null): string {
+    if (!id) return 'Our Menu';
+    const cat = this.categoriesList().find(c => c.id === id);
+    return cat ? cat.name : 'Our Menu';
   }
 
   ngOnDestroy() {

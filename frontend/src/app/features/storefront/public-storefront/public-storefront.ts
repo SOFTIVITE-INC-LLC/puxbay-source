@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { CatalogService } from '../../../core/services/catalog.service';
-import { StorefrontService } from '../../../core/services/storefront.service';
+import { ProductService } from '../../../core/store/services/product.service';
+import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 
 @Component({
   selector: 'app-public-storefront',
@@ -16,10 +16,11 @@ import { StorefrontService } from '../../../core/services/storefront.service';
 export class PublicStorefront implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
-  catalogService = inject(CatalogService);
-  storefrontService = inject(StorefrontService);
+  productService = inject(ProductService);
+  storefrontService = inject(StorefrontSettingsService);
 
   slug = signal('');
+  productsList = signal<any[]>([]);
   cart = signal<{product: any, qty: number}[]>([]);
   isCartOpen = signal(false);
   isCheckoutOpen = signal(false);
@@ -49,20 +50,20 @@ export class PublicStorefront implements OnInit {
   orderTrackingNumber = signal('');
 
   categories = computed(() => {
-    const cats = new Set(this.catalogService.products().map(p => p.category));
+    const cats = new Set(this.productsList().map(p => p.category?.name || p.category || ''));
     return ['All', ...Array.from(cats).filter(c => !!c)];
   });
 
   filteredProducts = computed(() => {
-    let p = this.catalogService.products().filter(prod => prod.is_active);
+    let p = [...this.productsList()].filter(prod => prod.is_active !== false);
     
     // Apply text search
     const q = this.searchQuery().toLowerCase();
-    if (q) p = p.filter(prod => prod.name.toLowerCase().includes(q) || prod.sku?.toLowerCase().includes(q));
+    if (q) p = p.filter(prod => prod.name?.toLowerCase().includes(q) || prod.sku?.toLowerCase().includes(q));
     
     // Apply category
     const c = this.selectedCategory();
-    if (c !== 'All') p = p.filter(prod => prod.category === c);
+    if (c !== 'All') p = p.filter(prod => (prod.category?.name || prod.category) === c);
     
     // Apply stock filter
     if (this.inStockOnly()) p = p.filter(prod => (prod.current_stock || 0) > 0);
@@ -83,8 +84,6 @@ export class PublicStorefront implements OnInit {
     } else if (sort === 'price_high_low') {
       p.sort((a, b) => (b.selling_price || 0) - (a.selling_price || 0));
     } else {
-      // newest (default fallback assuming higher id or created_at logic, here just reverse order as a mock for 'newest' if no dates exist)
-      // or we can sort by id descending
       p.sort((a, b) => {
         if (a.created_at && b.created_at) return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         return (b.id > a.id ? 1 : -1);
@@ -98,8 +97,8 @@ export class PublicStorefront implements OnInit {
     const p = this.quickViewProduct();
     if (!p) return [];
     
-    const all = this.catalogService.products().filter(prod => prod.is_active && prod.id !== p.id && prod.category === p.category);
-    // Return max 4 related products
+    const catName = p.category?.name || p.category;
+    const all = this.productsList().filter(prod => (prod.category?.name || prod.category) === catName && prod.id !== p.id);
     return all.slice(0, 4);
   });
 
@@ -107,8 +106,7 @@ export class PublicStorefront implements OnInit {
     const ids = this.recentlyViewedIds();
     if (ids.length === 0) return [];
     
-    const all = this.catalogService.products();
-    // Maintain order of recentlyViewedIds
+    const all = this.productsList();
     return ids.map(id => all.find(p => p.id === id)).filter(p => !!p);
   });
 
@@ -121,12 +119,14 @@ export class PublicStorefront implements OnInit {
     const branchId = this.route.snapshot.queryParamMap.get('branch_id') ||
                      this.route.snapshot.queryParamMap.get('branchId') ||
                      this.route.snapshot.paramMap.get('branchId');
-    const productParams: any = {};
+    const productParams: any = { page_size: 100 };
     if (branchId) {
       productParams.branch_id = branchId;
     }
-    this.catalogService.getProducts(productParams).subscribe();
-    this.storefrontService.getSettings().subscribe();
+    this.productService.getProducts(productParams).subscribe({
+      next: (res) => this.productsList.set(res.products || [])
+    });
+    this.storefrontService.loadSettings().subscribe();
 
     // Load Paystack Inline JS Script
     if (typeof document !== 'undefined') {

@@ -1,9 +1,9 @@
 import { ToastService } from '../../../core/services/toast';
-import { Component, inject, OnInit } from '@angular/core';
-
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StorefrontService } from '../../../core/services/storefront.service';
 import { SettingsService } from '../../../core/services/settings.service';
+import { TenantStore } from '../../../core/services/tenant.store';
 
 @Component({
   selector: 'app-storefront',
@@ -25,6 +25,9 @@ export class Storefront implements OnInit {
   toastService = inject(ToastService);
   storefrontService = inject(StorefrontService);
   settingsService = inject(SettingsService);
+  tenantStore = inject(TenantStore);
+
+  subdomain = computed(() => this.tenantStore.subdomain() || 'yourstore');
 
   ngOnInit() {
     this.storefrontService.getSettings().subscribe();
