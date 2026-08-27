@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -327,6 +328,96 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 				if customer.Phone != nil && *customer.Phone != "" && s.smsService != nil {
 					msg := fmt.Sprintf("Thank you for your order at Puxbay! Order #%s for %.2f has been completed.", order.OrderNumber, order.Total)
 					_ = s.smsService.SendSMS([]string{*customer.Phone}, msg)
+				}
+			}
+		}
+
+		// Process Store Credit / BNPL Drawdown if payment was on credit
+		var creditAmount float64
+		for _, p := range input.Payments {
+			if strings.EqualFold(p.Method, "credit") || strings.EqualFold(p.Method, "bnpl") || strings.EqualFold(p.Method, "store_credit") {
+				creditAmount += p.Amount
+			}
+		}
+		if creditAmount == 0 && (strings.EqualFold(order.PaymentMethod, "credit") || strings.EqualFold(order.PaymentMethod, "bnpl") || strings.EqualFold(order.PaymentMethod, "store_credit")) {
+			creditAmount = order.Total
+		}
+
+		if creditAmount > 0 && input.CustomerID != nil {
+			var acc models.CreditAccount
+			if err := tx.Where("customer_id = ?", *input.CustomerID).First(&acc).Error; err != nil {
+				acc = models.CreditAccount{
+					CustomerID:  *input.CustomerID,
+					CreditLimit: 0,
+					Balance:     0,
+					Status:      "active",
+					DaysToRepay: 30,
+				}
+				if err := tx.Create(&acc).Error; err != nil {
+					return err
+				}
+			}
+
+			newBalance := acc.Balance + creditAmount
+			now := time.Now()
+			days := acc.DaysToRepay
+			if days <= 0 {
+				days = 30
+			}
+			dueDate := now.AddDate(0, 0, days)
+
+			ref := fmt.Sprintf("BNPL-%s", order.OrderNumber)
+			creditTx := models.CreditTransaction{
+				CreditAccountID: acc.ID,
+				CustomerID:      *input.CustomerID,
+				OrderID:         &order.ID,
+				Amount:          creditAmount,
+				BalanceAfter:    newBalance,
+				TransactionType: "drawdown",
+				Reference:       ref,
+				DueDate:         &dueDate,
+				Status:          "pending",
+				Notes:           fmt.Sprintf("POS Credit / BNPL Sale #%s", order.OrderNumber),
+				CreatedByID:     order.CashierID,
+			}
+
+			if err := tx.Create(&creditTx).Error; err != nil {
+				return err
+			}
+
+			acc.Balance = newBalance
+			acc.LastDrawdownAt = &now
+			if err := tx.Save(&acc).Error; err != nil {
+				return err
+			}
+
+			// Update Customer debt_balance
+			if err := tx.Model(&models.Customer{}).Where("id = ?", *input.CustomerID).
+				Update("debt_balance", newBalance).Error; err != nil {
+				return err
+			}
+
+			// Create scheduled BNPL Instalment
+			inst := models.BNPLInstalment{
+				CreditTransactionID: creditTx.ID,
+				CustomerID:          *input.CustomerID,
+				OrderID:             &order.ID,
+				InstalmentNumber:    1,
+				TotalInstalments:    1,
+				Amount:              creditAmount,
+				DueDate:             dueDate,
+				Status:              "pending",
+			}
+			if err := tx.Create(&inst).Error; err != nil {
+				return err
+			}
+
+			// Send SMS confirmation for BNPL / Store Credit sale
+			if s.smsService != nil {
+				var cust models.Customer
+				if err := tx.Where("id = ?", *input.CustomerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
+					msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f on Store Credit/BNPL (Order #%s) is recorded. Total balance owed: GHS %.2f. Due: %s.", cust.Name, creditAmount, order.OrderNumber, newBalance, dueDate.Format("02 Jan 2006"))
+					go s.smsService.SendSMS([]string{*cust.Phone}, msg)
 				}
 			}
 		}
