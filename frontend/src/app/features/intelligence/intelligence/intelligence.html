@@ -1,57 +1,57 @@
-<div class="h-full flex flex-col p-6 space-y-8 max-w-[1400px] mx-auto text-zinc-900 dark:text-white" style="font-family: 'Outfit', sans-serif;">
+<div class="h-full flex flex-col p-4 sm:p-6 space-y-5 sm:space-y-8 max-w-[1400px] mx-auto text-zinc-900 dark:text-white" style="font-family: 'Outfit', sans-serif;">
 
   <!-- ── Hero Header ── -->
-  <div class="relative overflow-hidden rounded-3xl p-8 bg-zinc-950 text-white shadow-2xl">
+  <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-zinc-950 text-white shadow-2xl">
     <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-teal-900/40 to-zinc-950 animated-gradient"></div>
     <!-- Decorative blobs -->
-    <div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
-    <div class="absolute -bottom-16 left-10 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-16 left-10 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
       <div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-            <span class="material-symbols-outlined !text-[22px]">psychology</span>
+        <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <span class="material-symbols-outlined !text-[18px] sm:!text-[22px]">psychology</span>
           </div>
-          <span class="text-xs font-black uppercase tracking-[0.25em] text-emerald-400">AI-Powered</span>
+          <span class="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.25em] text-emerald-400">AI-Powered</span>
         </div>
-        <h1 class="text-4xl font-black tracking-tight text-white">Business Intelligence</h1>
-        <p class="text-zinc-400 mt-1 font-medium">Forecasts, segmentation, and actionable insights — all in real time.</p>
+        <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white">Business Intelligence</h1>
+        <p class="text-zinc-400 mt-0.5 sm:mt-1 font-medium text-xs sm:text-sm">Forecasts, segmentation, and actionable insights — all in real time.</p>
       </div>
       <button (click)="refreshAll()"
-              class="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold text-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm">
-        <span class="material-symbols-outlined !text-[20px]">sync</span>
+              class="w-full md:w-auto justify-center flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold text-xs sm:text-sm transition-all hover:-translate-y-1 hover:shadow-xl backdrop-blur-sm">
+        <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">sync</span>
         Refresh All
       </button>
     </div>
 
     <!-- Quick KPI Strip -->
-    <div class="relative z-10 mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Critical Stock</p>
-        <p class="text-3xl font-black text-rose-400">{{ criticalCount() }}</p>
-        <p class="text-[10px] text-zinc-600 mt-1">Items below 7 days</p>
+    <div class="relative z-10 mt-5 sm:mt-8 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+      <div class="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center backdrop-blur-sm min-w-0">
+        <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 mb-0.5 sm:mb-1 truncate">Critical Stock</p>
+        <p class="text-xl sm:text-3xl font-black text-rose-400">{{ criticalCount() }}</p>
+        <p class="text-[9px] sm:text-[10px] text-zinc-600 mt-0.5 sm:mt-1 truncate">Items below 7 days</p>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Low Stock</p>
-        <p class="text-3xl font-black text-amber-400">{{ warningCount() }}</p>
-        <p class="text-[10px] text-zinc-600 mt-1">Items below 30 days</p>
+      <div class="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center backdrop-blur-sm min-w-0">
+        <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 mb-0.5 sm:mb-1 truncate">Low Stock</p>
+        <p class="text-xl sm:text-3xl font-black text-amber-400">{{ warningCount() }}</p>
+        <p class="text-[9px] sm:text-[10px] text-zinc-600 mt-0.5 sm:mt-1 truncate">Items below 30 days</p>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Healthy Stock</p>
-        <p class="text-3xl font-black text-emerald-400">{{ healthyCount() }}</p>
-        <p class="text-[10px] text-zinc-600 mt-1">Items 30+ days supply</p>
+      <div class="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center backdrop-blur-sm min-w-0">
+        <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 mb-0.5 sm:mb-1 truncate">Healthy Stock</p>
+        <p class="text-xl sm:text-3xl font-black text-emerald-400">{{ healthyCount() }}</p>
+        <p class="text-[9px] sm:text-[10px] text-zinc-600 mt-0.5 sm:mt-1 truncate">Items 30+ days supply</p>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-sm">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">Total Customers</p>
-        <p class="text-3xl font-black text-teal-400">{{ svc.totalCustomers() }}</p>
-        <p class="text-[10px] text-zinc-600 mt-1">Segmented by RFM</p>
+      <div class="bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center backdrop-blur-sm min-w-0">
+        <p class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-zinc-500 mb-0.5 sm:mb-1 truncate">Total Customers</p>
+        <p class="text-xl sm:text-3xl font-black text-teal-400">{{ svc.totalCustomers() }}</p>
+        <p class="text-[9px] sm:text-[10px] text-zinc-600 mt-0.5 sm:mt-1 truncate">Segmented by RFM</p>
       </div>
     </div>
   </div>
 
   <!-- ── Tab Navigation ── -->
-  <div class="flex flex-wrap gap-3 p-1.5 glass rounded-2xl w-fit shadow-sm">
+  <div class="flex gap-1.5 sm:gap-3 p-1.5 glass rounded-2xl w-full sm:w-fit shadow-sm overflow-x-auto no-scrollbar">
     @for (tab of [
       { id: 'forecast', label: 'Inventory Forecast', icon: 'inventory_2' },
       { id: 'leaderboard', label: 'Staff Performance', icon: 'leaderboard' },
@@ -59,11 +59,11 @@
       { id: 'pricing', label: 'Dynamic Pricing', icon: 'price_change' }
     ]; track tab.id) {
       <button (click)="loadTab($any(tab.id))"
-              class="px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 flex items-center gap-2"
+              class="px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap"
               [ngClass]="activeTab() === tab.id
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105'
                 : 'text-zinc-500 hover:bg-white/60 dark:hover:bg-white/5'">
-        <span class="material-symbols-outlined !text-[18px]">{{ tab.icon }}</span>
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">{{ tab.icon }}</span>
         {{ tab.label }}
       </button>
     }
@@ -167,12 +167,12 @@
        TAB: STAFF LEADERBOARD
   ═══════════════════════════════════════════════ -->
   @if (activeTab() === 'leaderboard') {
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
       <!-- Period selector -->
-      <div class="flex items-center gap-3 glass rounded-2xl p-2 w-fit">
+      <div class="flex items-center gap-2 sm:gap-3 glass rounded-2xl p-1.5 sm:p-2 w-fit">
         @for (d of [7, 14, 30, 90]; track d) {
           <button (click)="changeLeaderboardDays(d)"
-                  class="px-5 py-2 rounded-xl text-sm font-black transition-all"
+                  class="px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black transition-all"
                   [ngClass]="leaderboardDays() === d ? 'bg-emerald-500 text-white shadow-lg' : 'text-zinc-500 hover:bg-white/60 dark:hover:bg-white/10'">
             {{ d }}d
           </button>
@@ -198,16 +198,16 @@
           <p class="text-sm text-zinc-400 mt-1">Complete some orders with assigned cashiers to see rankings.</p>
         </div>
       } @else {
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           @for (entry of svc.leaderboard(); track entry.cashier_id; let i = $index) {
-            <div class="glass rounded-3xl p-5 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300"
+            <div class="glass rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex items-center gap-3 sm:gap-5 hover:-translate-y-1 transition-all duration-300"
                  [ngClass]="{
                    'ring-2 ring-amber-400/50 shadow-xl shadow-amber-500/10': i === 0,
                    'ring-1 ring-zinc-300/50 dark:ring-zinc-700/50': i === 1,
                    'ring-1 ring-orange-400/30 dark:ring-orange-800/30': i === 2
                  }">
               <!-- Rank Badge -->
-              <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black shrink-0 shadow-inner"
+              <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl font-black shrink-0 shadow-inner"
                    [ngClass]="{
                      'bg-gradient-to-br from-amber-400 to-yellow-500 text-white': i === 0,
                      'bg-gradient-to-br from-zinc-300 to-zinc-400 text-white': i === 1,
@@ -222,14 +222,14 @@
 
               <!-- Name + Bar -->
               <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between mb-2">
-                  <h3 class="font-black text-lg">{{ entry.first_name }} {{ entry.last_name }}</h3>
-                  <div class="text-right">
-                    <p class="font-black text-emerald-600 dark:text-emerald-400 text-lg">{{ entry.total_sales | appCurrency }}</p>
-                    <p class="text-[10px] text-zinc-400 font-bold">{{ entry.order_count }} orders</p>
+                <div class="flex items-center justify-between mb-1.5 sm:mb-2 gap-2">
+                  <h3 class="font-black text-sm sm:text-lg truncate">{{ entry.first_name }} {{ entry.last_name }}</h3>
+                  <div class="text-right shrink-0">
+                    <p class="font-black text-emerald-600 dark:text-emerald-400 text-sm sm:text-lg">{{ entry.total_sales | appCurrency }}</p>
+                    <p class="text-[9px] sm:text-[10px] text-zinc-400 font-bold">{{ entry.order_count }} orders</p>
                   </div>
                 </div>
-                <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div class="h-2 sm:h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
                        [style.width.%]="(entry.total_sales / maxSales()) * 100"></div>
                 </div>

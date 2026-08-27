@@ -1,4 +1,4 @@
-<div class="flex flex-col p-6 space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white relative min-h-full">
+<div class="flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto text-zinc-900 dark:text-white relative min-h-full">
   
   <!-- Decorative Background Blobs for Glassmorphism -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -7,12 +7,12 @@
   </div>
 
   <!-- ── Page Header ── -->
-  <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
     <div>
-      <h1 class="text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400">
+      <h1 class="text-2xl sm:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400">
         Global Settings
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-2 font-medium">
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 sm:mt-2 font-medium text-xs sm:text-sm">
         Configure system-wide preferences, hardware, and integrations.
       </p>
     </div>
@@ -26,10 +26,10 @@
   }
 
   @if (!settingsService.loading() && settingsService.settings(); as config) {
-    <div class="flex flex-col md:flex-row gap-8 items-start">
-      
-      <!-- ── Sidebar Navigation ── -->
-      <div class="w-full md:w-64 flex-shrink-0 flex flex-col gap-2">
+    <div class="flex flex-col md:flex-row gap-8 items-start">      <!-- ── Sidebar Navigation (horizontal scroll on mobile, vertical on md+) ── -->
+      <div class="w-full md:w-64 flex-shrink-0">
+        <!-- Mobile: horizontal scroll pill tabs -->
+        <div class="flex md:flex-col gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
         <button (click)="activeTab.set('store')"
                 [class.bg-white]="activeTab() === 'store'"
                 [class.dark:bg-zinc-800]="activeTab() === 'store'"
@@ -37,8 +37,8 @@
                 [class.text-indigo-600]="activeTab() === 'store'"
                 [class.dark:text-indigo-400]="activeTab() === 'store'"
                 [class.font-bold]="activeTab() === 'store'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">storefront</span>
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">storefront</span>
           Store Details
         </button>
         <button (click)="activeTab.set('hardware')"
@@ -48,8 +48,8 @@
                 [class.text-indigo-600]="activeTab() === 'hardware'"
                 [class.dark:text-indigo-400]="activeTab() === 'hardware'"
                 [class.font-bold]="activeTab() === 'hardware'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">point_of_sale</span>
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">point_of_sale</span>
           Hardware Proxy
         </button>
         <button (click)="activeTab.set('payments')"
@@ -59,8 +59,8 @@
                 [class.text-indigo-600]="activeTab() === 'payments'"
                 [class.dark:text-indigo-400]="activeTab() === 'payments'"
                 [class.font-bold]="activeTab() === 'payments'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">credit_card</span>
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">credit_card</span>
           Payment Methods
         </button>
         <button (click)="activeTab.set('notifications')"
@@ -70,8 +70,8 @@
                 [class.text-indigo-600]="activeTab() === 'notifications'"
                 [class.dark:text-indigo-400]="activeTab() === 'notifications'"
                 [class.font-bold]="activeTab() === 'notifications'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">notifications_active</span>
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">notifications_active</span>
           Notifications
         </button>
         <button (click)="activeTab.set('domains')"
@@ -81,8 +81,8 @@
                 [class.text-indigo-600]="activeTab() === 'domains'"
                 [class.dark:text-indigo-400]="activeTab() === 'domains'"
                 [class.font-bold]="activeTab() === 'domains'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">language</span>
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">language</span>
           Custom Domains
         </button>
         <button (click)="activeTab.set('roles')"
@@ -92,24 +92,25 @@
                 [class.text-indigo-600]="activeTab() === 'roles'"
                 [class.dark:text-indigo-400]="activeTab() === 'roles'"
                 [class.font-bold]="activeTab() === 'roles'"
-                class="px-4 py-3 rounded-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left">
-          <span class="material-symbols-outlined !text-[20px]">manage_accounts</span>
-          Roles & Permissions
+                class="shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-xl flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all text-left whitespace-nowrap">
+          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">manage_accounts</span>
+          Roles &amp; Permissions
         </button>
+        </div>
       </div>
 
       <!-- ── Content Area ── -->
-      <div class="flex-1 w-full relative z-10 glass-panel bg-white/70 dark:bg-zinc-900/70 rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl min-h-[500px]">
+      <div class="flex-1 w-full relative z-10 glass-panel bg-white/70 dark:bg-zinc-900/70 rounded-2xl sm:rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl backdrop-blur-xl min-h-[500px]">
         
         <!-- Store Details Tab -->
         @if (activeTab() === 'store') {
           <div class="animate-fade-in">
-            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
-              <h2 class="text-xl font-black tracking-tight mb-1">Store Details</h2>
-              <p class="text-sm text-zinc-500">Manage basic information, localization, and receipts.</p>
+            <div class="p-4 sm:p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-lg sm:text-xl font-black tracking-tight mb-1">Store Details</h2>
+              <p class="text-xs sm:text-sm text-zinc-500">Manage basic information, localization, and receipts.</p>
             </div>
             
-            <div class="p-8 space-y-8">
+            <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
               <!-- General Settings -->
               <div class="space-y-5">
                 <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
@@ -243,12 +244,12 @@
         <!-- Hardware Proxy Tab -->
         @if (activeTab() === 'hardware') {
           <div class="animate-fade-in">
-            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
-              <h2 class="text-xl font-black tracking-tight mb-1">Hardware Proxy</h2>
-              <p class="text-sm text-zinc-500">Configure connections to local hardware like receipt printers and scales.</p>
+            <div class="p-4 sm:p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-lg sm:text-xl font-black tracking-tight mb-1">Hardware Proxy</h2>
+              <p class="text-xs sm:text-sm text-zinc-500">Configure connections to local hardware like receipt printers and scales.</p>
             </div>
             
-            <div class="p-8 space-y-8">
+            <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
               <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
                 <div>
                   <h4 class="font-black text-zinc-900 dark:text-white">Enable Hardware Proxy</h4>
@@ -289,12 +290,12 @@
         <!-- Notifications Tab -->
         @if (activeTab() === 'notifications') {
           <div class="animate-fade-in">
-            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
-              <h2 class="text-xl font-black tracking-tight mb-1">Notifications</h2>
-              <p class="text-sm text-zinc-500">Manage internal alerts and customer notifications.</p>
+            <div class="p-4 sm:p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-lg sm:text-xl font-black tracking-tight mb-1">Notifications</h2>
+              <p class="text-xs sm:text-sm text-zinc-500">Manage internal alerts and customer notifications.</p>
             </div>
             
-            <div class="p-8 space-y-8">
+            <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
               <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
                 <div>
                   <h4 class="font-black text-zinc-900 dark:text-white">SMS Notifications</h4>
@@ -336,16 +337,16 @@
         <!-- Payment Methods Tab -->
         @if (activeTab() === 'payments') {
           <div class="animate-fade-in flex flex-col h-full">
-            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+            <div class="p-4 sm:p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
               <div class="flex justify-between items-center">
                 <div>
-                  <h2 class="text-xl font-black tracking-tight mb-1">Payment Methods</h2>
-                  <p class="text-sm text-zinc-500">Configure available payment options at checkout.</p>
+                  <h2 class="text-lg sm:text-xl font-black tracking-tight mb-1">Payment Methods</h2>
+                  <p class="text-xs sm:text-sm text-zinc-500">Configure available payment options at checkout.</p>
                 </div>
               </div>
             </div>
             
-            <div class="p-8 flex-1">
+            <div class="p-4 sm:p-8 flex-1">
               @if (paymentMethodService.loading()) {
                 <div class="flex justify-center items-center py-20">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
@@ -390,12 +391,12 @@
         @if (activeTab() === 'domains') {
 
           <div class="animate-fade-in">
-            <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
-              <h2 class="text-xl font-black tracking-tight mb-1">Custom Domains</h2>
-              <p class="text-sm text-zinc-500">Manage custom domains for your storefront.</p>
+            <div class="p-4 sm:p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/50 dark:bg-zinc-800/20">
+              <h2 class="text-lg sm:text-xl font-black tracking-tight mb-1">Custom Domains</h2>
+              <p class="text-xs sm:text-sm text-zinc-500">Manage custom domains for your storefront.</p>
             </div>
             
-            <div class="p-8 space-y-8">
+            <div class="p-4 sm:p-8 space-y-6 sm:space-y-8">
               <!-- Add new domain -->
               <div class="flex flex-col sm:flex-row gap-4 mb-8">
                 <input type="text" 
