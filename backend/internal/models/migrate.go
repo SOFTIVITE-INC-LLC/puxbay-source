@@ -91,6 +91,9 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&BNPLInstalment{},
 		&ReportSchedule{},
 		&DeviceToken{},
+		&SMSSenderID{},
+		&SMSWallet{},
+		&SMSTransaction{},
 	)
 }
 
@@ -126,5 +129,6 @@ func MigratePublicModels(db *gorm.DB) error {
 		&SEOSettings{},
 		&Broadcast{},
 		&DeviceToken{},
+		&SMSGatewayConfig{},
 	)
 }

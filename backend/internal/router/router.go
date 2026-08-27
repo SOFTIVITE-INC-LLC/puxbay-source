@@ -126,6 +126,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	creditHandler := handlers.NewCreditHandler(db, creditService)
 	reportService := services.NewReportService(db, cfg.SMTP)
 	reportScheduleHandler := handlers.NewReportScheduleHandler(db, reportService, emailService)
+	smsHandler := handlers.NewSMSHandler(db, cfg.Paystack.SecretKey)
 	// ──────────────────────────────────────────────
 	// Health Check Endpoints (no auth required)
 	// ──────────────────────────────────────────────
@@ -654,6 +655,14 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.POST("/reports/schedules", reportScheduleHandler.SaveSchedule)
 			api.POST("/reports/send-test", reportScheduleHandler.SendTestReport)
 			api.GET("/reports/daily-z", reportScheduleHandler.GetDailyZReportData)
+
+			// SMS Wallet & Sender ID (Tenant)
+			api.GET("/sms/wallet", smsHandler.GetSMSWallet)
+			api.GET("/sms/transactions", smsHandler.GetSMSTransactions)
+			api.GET("/sms/sender-ids", smsHandler.ListSenderIDs)
+			api.POST("/sms/sender-ids", smsHandler.SubmitSenderID)
+			api.POST("/sms/wallet/topup/initiate", smsHandler.InitiateSMSTopup)
+			api.POST("/sms/wallet/topup/verify", smsHandler.VerifySMSTopup)
 		}
 
 		// Public Storefront Endpoints (Requires Tenant, NO POS Auth)
@@ -955,6 +964,13 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			admin.GET("/gift-cards", middleware.RequireAdminPermission("billing:read"), adminHandler.ListAllGiftCards)
 			admin.POST("/gift-cards", middleware.RequireAdminPermission("billing:write"), adminHandler.CreateGiftCardAdmin)
 			admin.POST("/gift-cards/:id/disable", middleware.RequireAdminPermission("billing:write"), adminHandler.DisableGiftCardAdmin)
+
+			// SMS Gateway & Sender ID Moderation
+			admin.GET("/sms/config", middleware.RequireAdminPermission("sms:read"), smsHandler.AdminGetSMSConfig)
+			admin.PUT("/sms/config", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminUpdateSMSConfig)
+			admin.GET("/sms/sender-ids", middleware.RequireAdminPermission("sms:read"), smsHandler.AdminListSenderIDs)
+			admin.POST("/sms/sender-ids/:id/approve", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminApproveSenderID)
+			admin.POST("/sms/sender-ids/:id/reject", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminRejectSenderID)
 		}
 
 		// Public Marketing Endpoints

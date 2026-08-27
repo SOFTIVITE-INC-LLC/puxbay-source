@@ -40,13 +40,19 @@ func (s *OrderService) ListOrders(params OrderListParams) ([]dto.OrderListRespon
 	query := s.db.Model(&models.Order{})
 
 	if params.BranchID != "" {
-		query = query.Where("(orders.branch_id = ? OR orders.order_type = 'online')", params.BranchID)
+		query = query.Where("(orders.branch_id = ? OR orders.branch_id IS NULL OR orders.order_type IN ('online', 'storefront', 'pickup', 'delivery'))", params.BranchID)
 	}
 	if params.Status != "" {
 		query = query.Where("orders.status = ?", params.Status)
 	}
 	if params.OrderType != "" {
-		query = query.Where("orders.order_type = ?", params.OrderType)
+		if params.OrderType == "online" || params.OrderType == "storefront" {
+			query = query.Where("orders.order_type IN ('online', 'storefront', 'pickup', 'delivery')")
+		} else if params.OrderType == "pos" || params.OrderType == "in_store" {
+			query = query.Where("orders.order_type IN ('pos', 'in_store')")
+		} else {
+			query = query.Where("orders.order_type = ?", params.OrderType)
+		}
 	}
 	if params.ProductID != "" {
 		query = query.Where("EXISTS (SELECT 1 FROM order_items WHERE order_items.order_id = orders.id AND order_items.product_id = ? AND order_items.deleted_at IS NULL)", params.ProductID)
@@ -137,7 +143,7 @@ func (s *OrderService) GetOrderSummaryStats(branchID string, cashierID string) (
 	query := s.db.Model(&models.Order{})
 	
 	if branchID != "" {
-		query = query.Where("(branch_id = ? OR order_type = 'online')", branchID)
+		query = query.Where("(branch_id = ? OR branch_id IS NULL OR order_type IN ('online', 'storefront', 'pickup', 'delivery'))", branchID)
 	}
 	if cashierID != "" {
 		query = query.Where("cashier_id = ?", cashierID)
@@ -147,9 +153,9 @@ func (s *OrderService) GetOrderSummaryStats(branchID string, cashierID string) (
 	err := query.Select(`
 		COUNT(id) as total_orders,
 		COUNT(id) FILTER (WHERE status IN ('voided', 'cancelled')) as failed_orders,
-		COUNT(id) FILTER (WHERE order_type = 'in_store') as pos_orders,
-		COUNT(id) FILTER (WHERE order_type = 'online') as storefront_orders,
-		COUNT(id) FILTER (WHERE order_type IN ('delivery', 'app')) as app_orders
+		COUNT(id) FILTER (WHERE order_type IN ('in_store', 'pos')) as pos_orders,
+		COUNT(id) FILTER (WHERE order_type IN ('online', 'storefront', 'pickup', 'delivery')) as storefront_orders,
+		COUNT(id) FILTER (WHERE order_type = 'kiosk') as app_orders
 	`).Scan(&stats).Error
 
 	if err != nil {

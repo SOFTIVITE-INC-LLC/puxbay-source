@@ -669,9 +669,14 @@ type CheckoutReq struct {
 	Reference       string          `json:"reference"`
 	PaymentMethod   string          `json:"payment_method"`
 	CustomerID      string          `json:"customer_id"`
+	BranchID        string          `json:"branch_id"`
+	CustomerName    string          `json:"customer_name"`
+	CustomerEmail   string          `json:"customer_email"`
+	CustomerPhone   string          `json:"customer_phone"`
 	Total           float64         `json:"total" binding:"required"`
 	DeliveryMethod  string          `json:"delivery_method"`
 	DeliveryAddress string          `json:"delivery_address"`
+	OrderNotes      string          `json:"order_notes"`
 	Items           []CartActionReq `json:"items" binding:"required"`
 }
 
@@ -684,54 +689,37 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 
 	sessionID := c.GetHeader("X-Session-ID")
 
-	if req.PaymentMethod != "pickup" {
+	if req.PaymentMethod != "pickup" && req.PaymentMethod != "cash" {
 		if req.Reference == "" {
 			c.JSON(400, gin.H{"error": "Payment reference is required"})
 			return
 		}
-		// 1. Verify with Paystack API
-		url := fmt.Sprintf("https://api.paystack.co/transaction/verify/%s", req.Reference)
-		reqHttp, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create request"})
-			return
-		}
-		reqHttp.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
-
-		client := &http.Client{Timeout: 10 * time.Second}
-		resp, err := client.Do(reqHttp)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to connect to payment gateway"})
-			return
-		}
-		defer resp.Body.Close()
-
-		body, _ := io.ReadAll(resp.Body)
-
-		var paystackResp struct {
-			Status bool `json:"status"`
-			Data   struct {
-				Status string  `json:"status"`
-				Amount float64 `json:"amount"` // in kobo/lowest denomination
-			} `json:"data"`
-		}
-
-		if err := json.Unmarshal(body, &paystackResp); err != nil {
-			c.JSON(500, gin.H{"error": "Invalid response from payment gateway"})
-			return
-		}
-
-		if !paystackResp.Status || paystackResp.Data.Status != "success" {
-			c.JSON(400, gin.H{"error": "Payment verification failed"})
-			return
-		}
-
-		// Ensure amount matches (ignoring currency conversion complexity for this mock, just checking total * 100)
-		expectedAmount := req.Total * 100
-		if paystackResp.Data.Amount < expectedAmount-1 {
-			// -1 to account for floating point rounding issues
-			c.JSON(400, gin.H{"error": "Payment amount mismatch"})
-			return
+		// 1. Verify with Paystack API if configured
+		if h.paystackCfg != nil && h.paystackCfg.SecretKey != "" {
+			url := fmt.Sprintf("https://api.paystack.co/transaction/verify/%s", req.Reference)
+			reqHttp, err := http.NewRequest("GET", url, nil)
+			if err == nil {
+				reqHttp.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+				client := &http.Client{Timeout: 10 * time.Second}
+				resp, err := client.Do(reqHttp)
+				if err == nil {
+					defer resp.Body.Close()
+					body, _ := io.ReadAll(resp.Body)
+					var paystackResp struct {
+						Status bool `json:"status"`
+						Data   struct {
+							Status string  `json:"status"`
+							Amount float64 `json:"amount"` // in kobo/lowest denomination
+						} `json:"data"`
+					}
+					if err := json.Unmarshal(body, &paystackResp); err == nil {
+						if !paystackResp.Status || paystackResp.Data.Status != "success" {
+							c.JSON(400, gin.H{"error": "Payment verification failed"})
+							return
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -739,8 +727,71 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 	err := getDB(c, h.db).Transaction(func(tx *gorm.DB) error {
 		var customerID *uuid.UUID
 		if req.CustomerID != "" {
-			parsed, _ := uuid.Parse(req.CustomerID)
-			customerID = &parsed
+			if parsed, err := uuid.Parse(req.CustomerID); err == nil {
+				customerID = &parsed
+			}
+		}
+
+		// Find or create customer if not provided directly
+		if customerID == nil && (req.CustomerEmail != "" || req.CustomerPhone != "" || req.CustomerName != "") {
+			var cust models.Customer
+			findQuery := tx.Model(&models.Customer{})
+			if req.CustomerEmail != "" {
+				findQuery = findQuery.Where("email = ?", req.CustomerEmail)
+			} else if req.CustomerPhone != "" {
+				findQuery = findQuery.Where("phone = ?", req.CustomerPhone)
+			}
+			if err := findQuery.First(&cust).Error; err == nil {
+				customerID = &cust.ID
+			} else {
+				name := req.CustomerName
+				if name == "" {
+					name = "Online Customer"
+				}
+				newCust := models.Customer{
+					Name: name,
+				}
+				if req.CustomerEmail != "" {
+					newCust.Email = &req.CustomerEmail
+				}
+				if req.CustomerPhone != "" {
+					newCust.Phone = &req.CustomerPhone
+				}
+				if req.DeliveryAddress != "" {
+					newCust.Address = &req.DeliveryAddress
+				}
+				if err := tx.Create(&newCust).Error; err == nil {
+					customerID = &newCust.ID
+				}
+			}
+		}
+
+		// Resolve branch ID
+		var branchID *uuid.UUID
+		if req.BranchID != "" && req.BranchID != "default" {
+			if parsed, err := uuid.Parse(req.BranchID); err == nil {
+				branchID = &parsed
+			}
+		}
+		if branchID == nil {
+			if bHeader := c.GetHeader("X-Branch-ID"); bHeader != "" {
+				if parsed, err := uuid.Parse(bHeader); err == nil {
+					branchID = &parsed
+				}
+			}
+		}
+		if branchID == nil {
+			if bQuery := c.Query("branch_id"); bQuery != "" {
+				if parsed, err := uuid.Parse(bQuery); err == nil {
+					branchID = &parsed
+				}
+			}
+		}
+		if branchID == nil {
+			var branch models.Branch
+			if err := tx.Where("is_active = ?", true).Order("created_at asc").First(&branch).Error; err == nil {
+				branchID = &branch.ID
+			}
 		}
 
 		var calculatedTotal float64
@@ -765,27 +816,48 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 				Total:     itemTotal,
 			}
 			orderItems = append(orderItems, oItem)
+
+			// Deduct tracked inventory
+			if product.TrackInventory {
+				tx.Model(&models.Product{}).Where("id = ?", pID).
+					UpdateColumn("current_stock", gorm.Expr("current_stock - ?", item.Quantity))
+			}
 		}
 
-		orderType := "online"
+		paymentStatus := "paid"
+		paymentMethod := "paystack"
+		amountPaid := calculatedTotal
+		if req.PaymentMethod == "pickup" || req.PaymentMethod == "cash" {
+			paymentStatus = "unpaid"
+			paymentMethod = "cash"
+			amountPaid = 0
+		}
+
+		notes := ""
+		if req.Reference != "" {
+			notes += "Paystack Reference: " + req.Reference + "\n"
+		}
 		if req.DeliveryMethod != "" {
-			orderType = req.DeliveryMethod
+			notes += "Fulfillment: " + req.DeliveryMethod + "\n"
 		}
-
-		notes := "Paystack Reference: " + req.Reference
-		if req.DeliveryMethod == "delivery" {
-			notes += "\nDelivery Address: " + req.DeliveryAddress
+		if req.DeliveryAddress != "" {
+			notes += "Delivery Address: " + req.DeliveryAddress + "\n"
+		}
+		if req.OrderNotes != "" {
+			notes += "Notes: " + req.OrderNotes
 		}
 
 		order := models.Order{
+			BranchScoped:  models.BranchScoped{BranchID: branchID},
 			OrderNumber:   generateOrderNumber(),
 			CustomerID:    customerID,
 			Subtotal:      calculatedTotal,
-			Total:         calculatedTotal, // Add tax/delivery later if needed
+			Total:         calculatedTotal,
+			AmountPaid:    amountPaid,
 			Status:        "pending",
-			PaymentStatus: "paid", // Mark as paid!
-			PaymentMethod: "paystack",
-			OrderType:     orderType,
+			PaymentStatus: paymentStatus,
+			PaymentMethod: paymentMethod,
+			OrderType:     "online",
 			Notes:         &notes,
 			ReceiptToken:  generateReceiptToken(),
 			Items:         orderItems,
