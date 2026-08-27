@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminSMSService, SMSGatewayConfig, AdminSenderIDEntry } from '../../services/sms.service';
@@ -27,16 +27,41 @@ export class SmsComponent implements OnInit {
   isLoadingConfig = signal(true);
   isSavingConfig = signal(false);
 
+  // Live Calculator State
+  calculatorAmount = signal<number>(50);
+
   // Sender IDs State
   senderIDs = signal<AdminSenderIDEntry[]>([]);
   isLoadingSenderIDs = signal(true);
   senderIDFilter = signal<'pending' | 'approved' | 'rejected' | ''>('pending');
+  searchQuery = signal<string>('');
 
   // Rejection Modal State
   isRejectModalOpen = signal(false);
   rejectTarget = signal<AdminSenderIDEntry | null>(null);
   rejectReason = signal('');
   isRejecting = signal(false);
+
+  // Computed KPIs
+  pendingCount = computed(() => this.senderIDs().filter(s => s.status === 'pending').length);
+  approvedCount = computed(() => this.senderIDs().filter(s => s.status === 'approved').length);
+  rejectedCount = computed(() => this.senderIDs().filter(s => s.status === 'rejected').length);
+  totalCount = computed(() => this.senderIDs().length);
+
+  // Filtered Sender IDs
+  filteredSenderIDs = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    const filter = this.senderIDFilter();
+    return this.senderIDs().filter(item => {
+      const matchFilter = !filter || item.status === filter;
+      const matchSearch = !q ||
+        (item.sender_id || '').toLowerCase().includes(q) ||
+        (item.tenant_name || '').toLowerCase().includes(q) ||
+        (item.tenant_id || '').toLowerCase().includes(q) ||
+        (item.purpose || '').toLowerCase().includes(q);
+      return matchFilter && matchSearch;
+    });
+  });
 
   ngOnInit() {
     this.loadConfig();
@@ -58,7 +83,7 @@ export class SmsComponent implements OnInit {
 
   loadSenderIDs() {
     this.isLoadingSenderIDs.set(true);
-    this.smsService.getSenderIDs(this.senderIDFilter() || undefined).subscribe({
+    this.smsService.getSenderIDs().subscribe({
       next: (res) => {
         this.senderIDs.set(res || []);
         this.isLoadingSenderIDs.set(false);
@@ -71,7 +96,6 @@ export class SmsComponent implements OnInit {
 
   setFilter(filter: 'pending' | 'approved' | 'rejected' | '') {
     this.senderIDFilter.set(filter);
-    this.loadSenderIDs();
   }
 
   saveConfig() {
@@ -89,11 +113,17 @@ export class SmsComponent implements OnInit {
     });
   }
 
+  calculateSimulatedCredits(amt: number): number {
+    const price = this.config().price_per_sms || 0.20;
+    if (price <= 0) return 0;
+    return Math.floor(amt / price);
+  }
+
   async approveSenderID(entry: AdminSenderIDEntry) {
     const confirmed = await this.alertService.confirm({
       title: 'Approve Sender ID',
-      message: `Are you sure you want to approve Sender ID "${entry.sender_id}" for tenant "${entry.tenant_name}"?`,
-      confirmText: 'Approve',
+      message: `Approve custom Sender ID "${entry.sender_id}" for tenant "${entry.tenant_name}"?`,
+      confirmText: 'Approve Sender ID',
       type: 'info'
     });
     if (confirmed) {
@@ -142,9 +172,5 @@ export class SmsComponent implements OnInit {
         this.isRejecting.set(false);
       }
     });
-  }
-
-  get pendingCount(): number {
-    return this.senderIDs().filter(s => s.status === 'pending').length;
   }
 }
