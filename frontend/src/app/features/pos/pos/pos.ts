@@ -38,15 +38,31 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
       animation: pulse-gradient 2s infinite;
     }
     @media print {
-      #pos-app {
+      body * {
+        visibility: hidden;
+      }
+      #pos-app, .no-print {
         display: none !important;
+      }
+      app-receipt, app-receipt *, #print-receipt, #print-receipt * {
+        visibility: visible !important;
+      }
+      app-receipt {
+        display: block !important;
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        z-index: 9999999 !important;
       }
       #print-receipt {
         display: block !important;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 80mm !important;
       }
     }
 

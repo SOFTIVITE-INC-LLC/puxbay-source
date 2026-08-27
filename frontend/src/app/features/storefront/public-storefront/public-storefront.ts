@@ -273,7 +273,6 @@ export class PublicStorefront implements OnInit {
     // Route directly to tenant's Paystack subaccount
     if (settings?.paystack_subaccount_code) {
       setupConfig.subaccount = settings.paystack_subaccount_code;
-      setupConfig.bearer = 'subaccount';
     }
 
     if ((window as any).PaystackPop) {

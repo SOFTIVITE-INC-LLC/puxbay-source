@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ViewEncapsulation } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { QRCodeComponent } from 'angularx-qrcode';
 
@@ -7,18 +8,20 @@ import { QRCodeComponent } from 'angularx-qrcode';
   selector: 'app-receipt',
   standalone: true,
   imports: [CommonModule, AppCurrencyPipe, QRCodeComponent],
+  // ViewEncapsulation.None so @media print styles apply globally (not shadow-scoped)
+  encapsulation: ViewEncapsulation.None,
   template: `
   <div id="print-receipt" class="legacy-receipt">
    <div class="header">
      <div class="store-logo" *ngIf="order?.tenant?.logo_url">
        <img [src]="order.tenant.logo_url" alt="Store Logo" style="max-height: 50px; margin-bottom: 10px;">
      </div>
-     <div class="store-name">{{ order?.branch?.name || order?.tenant?.name || 'THINKCE' }}</div>
+     <div class="store-name">{{ order?.branch?.name || order?.tenant?.name || 'PUXBAY STORE' }}</div>
      <div *ngIf="order?.branch?.address">{{ order?.branch?.address }}</div>
-     <div *ngIf="!order?.branch?.address">123 Commerce Avenue</div>
+     <div *ngIf="!order?.branch?.address">123 Commerce Avenue, Accra</div>
      <div *ngIf="order?.branch?.contact_email">{{ order?.branch?.contact_email }}</div>
      <div *ngIf="order?.branch?.phone">{{ order?.branch?.phone }}</div>
-     <div *ngIf="!order?.branch?.phone">+233 55 123 4567</div>
+     <div *ngIf="!order?.branch?.phone">+233 24 613 6978</div>
    </div>
 
    <div class="meta">
@@ -56,28 +59,46 @@ import { QRCodeComponent } from 'angularx-qrcode';
    </table>
 
    <div class="totals">
+     <div *ngIf="order?.discount_amount > 0" class="total-row subtotal-row">
+       <span>Subtotal</span>
+       <span>{{ ((order?.total_amount || order?.total) + (order?.discount_amount || 0)) | appCurrency }}</span>
+     </div>
+     <div *ngIf="order?.discount_amount > 0" class="total-row subtotal-row" style="color:#666;">
+       <span>Discount</span>
+       <span>-{{ order?.discount_amount | appCurrency }}</span>
+     </div>
      <div class="total-row">
        <span>TOTAL</span>
        <span>{{ (order?.total_amount || order?.total) | appCurrency }}</span>
+     </div>
+     <div *ngIf="order?.amount_paid > 0" class="total-row subtotal-row">
+       <span>Cash Paid</span>
+       <span>{{ order?.amount_paid | appCurrency }}</span>
+     </div>
+     <div *ngIf="order?.change_due > 0" class="total-row subtotal-row">
+       <span>Change</span>
+       <span>{{ order?.change_due | appCurrency }}</span>
      </div>
    </div>
 
    <div class="footer">
      <p>Thank you for shopping with us!</p>
      <p>Please keep this receipt for returns.</p>
-     
-     <div style="margin-top: 20px; padding: 15px; border: 1px solid #eee; border-radius: 8px;">
+     <div style="margin-top: 15px; padding: 12px; border: 1px solid #eee; border-radius: 8px;">
        <div style="font-weight: bold; margin-bottom: 5px;">Join MyWallet</div>
-       <div style="font-size: 10px; color: #666; margin-bottom: 10px;">Track points & receipts on your phone</div>
+       <div style="font-size: 10px; color: #666; margin-bottom: 10px;">Track points &amp; receipts on your phone</div>
        <qrcode [qrdata]="order?.order_number || '00000000'" [width]="100" [errorCorrectionLevel]="'M'"></qrcode>
      </div>
    </div>
   </div>
   `,
   styles: [`
+    /* ── Default: receipt is hidden in normal page view ── */
     #print-receipt {
       display: none;
     }
+
+    /* ── Receipt Styles (global since encapsulation is None) ── */
     .legacy-receipt {
       font-family: 'Courier New', Courier, monospace;
       font-size: 14px;
@@ -135,6 +156,10 @@ import { QRCodeComponent } from 'angularx-qrcode';
       font-size: 16px;
       margin-top: 5px;
     }
+    .legacy-receipt .subtotal-row {
+      font-size: 13px;
+      font-weight: normal;
+    }
     .legacy-receipt .footer {
       text-align: center;
       margin-top: 30px;
@@ -142,40 +167,32 @@ import { QRCodeComponent } from 'angularx-qrcode';
       border-top: 1px dashed #000;
       padding-top: 10px;
     }
-    ::ng-deep .legacy-receipt qrcode {
+    .legacy-receipt qrcode {
       display: flex;
       justify-content: center;
     }
 
+    /* ── Print Media: show receipt, hide everything else ── */
     @media print {
-      :host {
-        display: block !important;
-      }
-      ::ng-deep body * {
-        visibility: hidden;
-      }
-      ::ng-deep app-receipt, ::ng-deep app-receipt * {
-        visibility: visible;
-      }
-      ::ng-deep app-receipt {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
+      body * {
+        visibility: hidden !important;
       }
       #print-receipt {
         display: block !important;
-        margin: 0 !important;
+        visibility: visible !important;
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
         width: 100% !important;
-        padding: 0 !important;
+        max-width: 80mm !important;
+        margin: 0 auto !important;
+        padding: 10px !important;
+        background: #fff !important;
+        color: #000 !important;
+        z-index: 9999999 !important;
       }
-      .legacy-receipt {
-        padding: 10px;
-        margin: 0;
-      }
-      * {
+      #print-receipt * {
+        visibility: visible !important;
         color: #000 !important;
         background: transparent !important;
       }

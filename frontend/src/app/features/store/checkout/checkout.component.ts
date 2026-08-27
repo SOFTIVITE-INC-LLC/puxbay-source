@@ -248,7 +248,6 @@ export class CheckoutComponent implements OnInit {
 
     if (settings!.paystack_subaccount_code) {
       setupConfig.subaccount = settings!.paystack_subaccount_code;
-      setupConfig.bearer = 'subaccount';
     }
 
     const handler = (window as any).PaystackPop.setup(setupConfig);

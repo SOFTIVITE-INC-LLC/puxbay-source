@@ -448,7 +448,6 @@ export class PosFacade {
 
     if (settings?.paystack_subaccount_code) {
       setupConfig.subaccount = settings.paystack_subaccount_code;
-      setupConfig.bearer = 'subaccount';
     }
 
     if ((window as any).PaystackPop) {
@@ -500,7 +499,6 @@ export class PosFacade {
 
     if (settings?.paystack_subaccount_code) {
       setupConfig.subaccount = settings.paystack_subaccount_code;
-      setupConfig.bearer = 'subaccount';
     }
 
     if ((window as any).PaystackPop) {
@@ -525,13 +523,10 @@ export class PosFacade {
     }
     // Generate a unique reference for this transaction
     const reference = `POS-QR-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-    // Build a Paystack payment page URL as QR content
-    // The customer scans this and pays via their phone
     const email = this.selectedCustomer()?.email || 'pos-qr@puxbay.com';
     const amountInPesewas = Math.round(remaining * 100);
-    // Encode as Paystack inline URL so the popup opens on the customer device
     const qrUrl = `https://paystack.com/pay/?key=${encodeURIComponent(pubKey)}&email=${encodeURIComponent(email)}&amount=${amountInPesewas}&currency=GHS&ref=${reference}${
-      settings?.paystack_subaccount_code ? `&subaccount=${settings.paystack_subaccount_code}&bearer=subaccount` : ''
+      settings?.paystack_subaccount_code ? `&subaccount=${settings.paystack_subaccount_code}` : ''
     }`;
     this.qrPaymentData.set({ reference, amount: remaining, qrUrl });
     this.isQRModalOpen.set(true);
