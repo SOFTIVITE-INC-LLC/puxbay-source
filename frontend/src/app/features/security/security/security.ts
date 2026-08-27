@@ -37,6 +37,29 @@ export class Security implements OnInit {
   // Backup State
   backupMessage = signal('');
 
+  // Filter State
+  searchQuery = signal('');
+  actionFilter = signal('ALL');
+
+  filteredLogs = computed(() => {
+    let logs = this.securityService.auditLogs();
+    const query = this.searchQuery().trim().toLowerCase();
+    const action = this.actionFilter();
+
+    if (action !== 'ALL') {
+      logs = logs.filter(l => l.action?.toUpperCase() === action);
+    }
+    if (query) {
+      logs = logs.filter(l => 
+        (l.model_name && l.model_name.toLowerCase().includes(query)) ||
+        (l.user?.username && l.user.username.toLowerCase().includes(query)) ||
+        (l.action && l.action.toLowerCase().includes(query)) ||
+        (l.object_id && l.object_id.toLowerCase().includes(query))
+      );
+    }
+    return logs;
+  });
+
   // Pagination State
   currentPage = signal(1);
   pageSize = signal(10);

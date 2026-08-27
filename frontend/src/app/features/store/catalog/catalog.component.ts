@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/store/services/product.service';
 import { CartService } from '../../../core/store/services/cart.service';
@@ -27,9 +27,11 @@ export class CatalogComponent implements OnInit, OnDestroy {
   wishlistService = inject(WishlistService);
   settingsService = inject(StorefrontSettingsService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   recentlyViewedService = inject(RecentlyViewedService);
   destroyRef = inject(DestroyRef);
 
+  branchId = signal<string | null>(null);
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   searchQuery = signal('');
@@ -78,6 +80,33 @@ export class CatalogComponent implements OnInit, OnDestroy {
   notifyEmail = signal('');
 
   ngOnInit() {
+    // Check both route params (:branchId) and query params (?branch_id=...)
+    const paramBranch = this.route.snapshot.paramMap.get('branchId');
+    const queryBranch = this.route.snapshot.queryParamMap.get('branch_id') || this.route.snapshot.queryParamMap.get('branchId');
+    if (paramBranch) {
+      this.branchId.set(paramBranch);
+    } else if (queryBranch) {
+      this.branchId.set(queryBranch);
+    }
+
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const b = params.get('branchId');
+      if (b && b !== this.branchId()) {
+        this.branchId.set(b);
+        this.loadCategories();
+        this.loadProducts();
+      }
+    });
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(qp => {
+      const b = qp.get('branch_id') || qp.get('branchId');
+      if (b && b !== this.branchId()) {
+        this.branchId.set(b);
+        this.loadCategories();
+        this.loadProducts();
+      }
+    });
+
     this.loadCategories();
     this.loadProducts();
     this.recentlyViewedService.loadRecentlyViewed();
@@ -140,7 +169,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   loadCategories() {
-    this.productService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.productService.getCategories(this.branchId() || undefined).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (cats) => this.categories.set(cats || []),
       error: (err) => console.error('Failed to load categories', err)
     });
@@ -157,6 +186,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
       page_size: 12
     };
 
+    if (this.branchId()) {
+      params.branch_id = this.branchId();
+    }
     if (this.selectedCategoryId()) {
       params.category_id = this.selectedCategoryId();
     }

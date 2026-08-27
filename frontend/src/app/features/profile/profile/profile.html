@@ -298,6 +298,122 @@
               </button>
             </div>
           </div>
+
+          <!-- ── Two-Factor Authentication (2FA) Card ── -->
+          <div class="glass-panel rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in mt-6 sm:mt-8">
+            <div class="p-4 sm:p-8 border-b border-zinc-200/50 dark:border-white/5 bg-white/40 dark:bg-black/20 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg sm:text-xl font-black flex items-center gap-2">
+                  <span class="material-symbols-outlined text-emerald-500">verified_user</span>
+                  Two-Factor Authentication (2FA)
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-500 font-bold mt-0.5 sm:mt-1">Add an extra layer of security using Google Authenticator or any TOTP app.</p>
+              </div>
+              <div class="flex items-center gap-2 self-start sm:self-auto">
+                @if (user.is_2fa_enabled) {
+                  <span class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Enabled
+                  </span>
+                } @else {
+                  <span class="px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-zinc-400"></span> Disabled
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-8 space-y-6 bg-white/20 dark:bg-black/10">
+              @if (!user.is_2fa_enabled) {
+                @if (twoFactorStep() === 'initial') {
+                  <div class="p-6 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                      <h4 class="text-sm font-black text-indigo-950 dark:text-indigo-200">Protect Your Business Account</h4>
+                      <p class="text-xs text-indigo-800/80 dark:text-indigo-300/80 font-medium">When enabled, you'll need to enter a 6-digit TOTP code from your authenticator app each time you sign in.</p>
+                    </div>
+                    <button (click)="start2FASetup()" [disabled]="profileService.saving()"
+                            class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/25 hover:-translate-y-0.5 shrink-0 flex items-center gap-2">
+                      @if (profileService.saving()) {
+                        <span class="material-symbols-outlined animate-spin !text-[16px]">progress_activity</span>
+                      } @else {
+                        <span class="material-symbols-outlined !text-[16px]">qr_code_scanner</span>
+                      }
+                      Set Up 2FA
+                    </button>
+                  </div>
+                }
+
+                @if (twoFactorStep() === 'setup') {
+                  <div class="space-y-6 p-6 rounded-2xl bg-white/60 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800">
+                    <div class="flex items-center justify-between pb-4 border-b border-zinc-200/80 dark:border-zinc-800">
+                      <div>
+                        <h4 class="text-sm font-black text-zinc-900 dark:text-white">Scan QR Code</h4>
+                        <p class="text-xs text-zinc-500 font-bold mt-0.5">Scan this QR code with Google Authenticator, Authy, or 1Password</p>
+                      </div>
+                      <button (click)="cancel2FASetup()" class="text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white">Cancel</button>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                      <!-- QR Code Image -->
+                      <div class="p-3 bg-white rounded-2xl shadow-md border border-zinc-200 shrink-0">
+                        @if (qrCodeUrl()) {
+                          <img [src]="qrCodeUrl()" alt="2FA QR Code" class="w-44 h-44 rounded-xl object-contain">
+                        }
+                      </div>
+
+                      <div class="space-y-4 flex-1 w-full">
+                        <div>
+                          <label class="block text-[11px] font-black uppercase tracking-wider text-zinc-500 mb-1.5">Or enter secret key manually</label>
+                          <div class="p-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 select-all break-all">
+                            {{ twoFactorSecret() }}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label class="block text-[11px] font-black uppercase tracking-wider text-zinc-500 mb-1.5">Enter 6-digit Code from App</label>
+                          <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 !text-[20px]">pin</span>
+                            <input type="text" [ngModel]="twoFactorCode()" (ngModelChange)="twoFactorCode.set($event)"
+                                   placeholder="000000" maxlength="6" class="input-premium font-mono tracking-[6px] text-lg focus:border-indigo-500 focus:ring-indigo-500/20">
+                          </div>
+                        </div>
+
+                        <button (click)="confirm2FA()" [disabled]="profileService.saving() || twoFactorCode().length !== 6"
+                                class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-500/25 hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 flex items-center justify-center gap-2">
+                          @if (profileService.saving()) {
+                            <span class="material-symbols-outlined animate-spin !text-[16px]">progress_activity</span> Activating...
+                          } @else {
+                            <span class="material-symbols-outlined !text-[16px]">verified</span> Verify & Activate 2FA
+                          }
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <!-- 2FA Enabled State -->
+                <div class="p-6 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <span class="material-symbols-outlined !text-[24px]">shield_lock</span>
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-black text-emerald-950 dark:text-emerald-200">Your Account is Protected</h4>
+                      <p class="text-xs text-emerald-800/80 dark:text-emerald-300/80 font-medium mt-0.5">TOTP Two-Factor Authentication is active for all logins.</p>
+                    </div>
+                  </div>
+                  <button (click)="disable2FA()" [disabled]="profileService.saving()"
+                          class="px-5 py-2.5 rounded-xl bg-rose-100 hover:bg-rose-200 dark:bg-rose-500/20 dark:hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 font-bold text-xs transition-all border border-rose-300 dark:border-rose-500/30 shrink-0 flex items-center gap-1.5">
+                    @if (profileService.saving()) {
+                      <span class="material-symbols-outlined animate-spin !text-[14px]">progress_activity</span>
+                    } @else {
+                      <span class="material-symbols-outlined !text-[14px]">lock_open</span>
+                    }
+                    Disable 2FA
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
         }
 
       </div>

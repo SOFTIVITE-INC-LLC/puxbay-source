@@ -21,7 +21,8 @@ import (
 
 type EmailData struct {
 	Title      string
-	Paragraphs []string
+	Paragraphs []template.HTML
+	OTPCode    string
 	ActionURL  string
 	ActionText string
 	Year       int
@@ -66,9 +67,7 @@ func (s *EmailService) buildCompliantEmailHeaders(to []string, subject, htmlBody
 	buf.WriteString(fmt.Sprintf("Reply-To: %s\r\n", fromAddress))
 	buf.WriteString("MIME-Version: 1.0\r\n")
 	buf.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
-	buf.WriteString("Content-Transfer-Encoding: 8bit\r\n")
-	buf.WriteString("X-Mailer: Puxbay Cloud Commerce System v2.0\r\n")
-	buf.WriteString("Auto-Submitted: auto-generated\r\n")
+	buf.WriteString("Content-Transfer-Encoding: quoted-printable\r\n")
 	buf.WriteString("\r\n")
 	buf.WriteString(htmlBody)
 	buf.WriteString("\r\n")
@@ -139,12 +138,12 @@ func (s *EmailService) SendEmailVerification(to, firstName, token, otpCode, subd
 
 	data := EmailData{
 		Title: "Verify Your Email Address",
-		Paragraphs: []string{
-			fmt.Sprintf("Hello %s,", firstName),
+		Paragraphs: []template.HTML{
+			template.HTML(fmt.Sprintf("Hello %s,", template.HTMLEscapeString(firstName))),
 			"Welcome to Puxbay Commerce! Please verify your email address to secure your account and activate automated daily business reports.",
-			fmt.Sprintf("Your 6-digit verification code is: <strong><span style=\"font-size:24px; letter-spacing:4px; color:#041E42; background:#f1f5f9; padding:6px 16px; border-radius:8px; display:inline-block; font-family:monospace;\">%s</span></strong>", otpCode),
 			"Alternatively, you can click the button below to verify your account automatically:",
 		},
+		OTPCode:    otpCode,
 		ActionURL:  verifyURL,
 		ActionText: "Verify My Account",
 	}
@@ -176,7 +175,7 @@ func (s *EmailService) RequestPasswordReset(email string) error {
 	subject := "Reset your Puxbay password"
 	data := EmailData{
 		Title: "Password Reset Request",
-		Paragraphs: []string{
+		Paragraphs: []template.HTML{
 			"We received a request to reset the password for your Puxbay account.",
 			"If you made this request, click the button below within the next 15 minutes to choose a new password:",
 		},
@@ -240,9 +239,9 @@ func (s *EmailService) SendTrialExpiringEmail(tenant models.Tenant, daysLeft int
 	subject := fmt.Sprintf("Your %s Trial expires in %d days", tenant.Name, daysLeft)
 	data := EmailData{
 		Title: subject,
-		Paragraphs: []string{
+		Paragraphs: []template.HTML{
 			"We hope you are enjoying your trial of Puxbay!",
-			fmt.Sprintf("Just a friendly reminder that your trial for %s will expire in %d days.", tenant.Name, daysLeft),
+			template.HTML(fmt.Sprintf("Just a friendly reminder that your trial for %s will expire in %d days.", template.HTMLEscapeString(tenant.Name), daysLeft)),
 			"To ensure uninterrupted access to your admin dashboard and storefront, please log in and upgrade your account to a paid plan.",
 		},
 		ActionURL:  fmt.Sprintf("https://%s.puxbay.com/admin/pricing", tenant.Subdomain),
@@ -261,9 +260,9 @@ func (s *EmailService) SendTrialExpiredEmail(tenant models.Tenant) {
 	subject := fmt.Sprintf("Action Required: Your %s Trial has expired", tenant.Name)
 	data := EmailData{
 		Title: "Trial Expired",
-		Paragraphs: []string{
-			fmt.Sprintf("Your 7-day trial for %s has officially expired.", tenant.Name),
-			"Access to your admin dashboard has been temporarily locked, but don't worry—your public storefront is still online!",
+		Paragraphs: []template.HTML{
+			template.HTML(fmt.Sprintf("Your 7-day trial for %s has officially expired.", template.HTMLEscapeString(tenant.Name))),
+			"Access to your admin dashboard has been temporarily locked, but don&#39;t worry—your public storefront is still online!",
 			"To unlock your dashboard and continue managing your business, please log in and choose a pricing plan.",
 		},
 		ActionURL:  fmt.Sprintf("https://%s.puxbay.com/admin/pricing", tenant.Subdomain),
@@ -282,9 +281,9 @@ func (s *EmailService) SendPaymentFailedEmail(tenant models.Tenant) {
 	subject := fmt.Sprintf("Payment Failed: Action required for %s", tenant.Name)
 	data := EmailData{
 		Title: "Payment Failed",
-		Paragraphs: []string{
-			fmt.Sprintf("We were unable to process the latest subscription payment for %s.", tenant.Name),
-			"As a result, your account status is now 'Past Due' and dashboard access has been restricted.",
+		Paragraphs: []template.HTML{
+			template.HTML(fmt.Sprintf("We were unable to process the latest subscription payment for %s.", template.HTMLEscapeString(tenant.Name))),
+			"As a result, your account status is now &#39;Past Due&#39; and dashboard access has been restricted.",
 			"Please log in and update your payment method as soon as possible to restore full access.",
 		},
 		ActionURL:  fmt.Sprintf("https://%s.puxbay.com/admin/settings/payments", tenant.Subdomain),
@@ -296,22 +295,22 @@ func (s *EmailService) SendPaymentFailedEmail(tenant models.Tenant) {
 
 func (s *EmailService) SendStaffWelcomeEmail(to, tenantName, tenantURL, username, password string) {
 	subject := fmt.Sprintf("Welcome to %s!", tenantName)
-	var paragraphs []string
+	var paragraphs []template.HTML
 	if password != "" {
-		paragraphs = []string{
+		paragraphs = []template.HTML{
 			"An administrator has created a new staff account for you.",
 			"You can log in to the dashboard using the following credentials:",
-			fmt.Sprintf("URL: %s", tenantURL),
-			fmt.Sprintf("Username: %s", username),
-			fmt.Sprintf("Password: %s", password),
+			template.HTML(fmt.Sprintf("URL: %s", template.HTMLEscapeString(tenantURL))),
+			template.HTML(fmt.Sprintf("Username: %s", template.HTMLEscapeString(username))),
+			template.HTML(fmt.Sprintf("Password: %s", template.HTMLEscapeString(password))),
 			"Please log in and change your password as soon as possible.",
 		}
 	} else {
-		paragraphs = []string{
-			fmt.Sprintf("An administrator has added you to a new branch at %s.", tenantName),
+		paragraphs = []template.HTML{
+			template.HTML(fmt.Sprintf("An administrator has added you to a new branch at %s.", template.HTMLEscapeString(tenantName))),
 			"You can log in to the dashboard using your existing credentials:",
-			fmt.Sprintf("URL: %s", tenantURL),
-			fmt.Sprintf("Username: %s", username),
+			template.HTML(fmt.Sprintf("URL: %s", template.HTMLEscapeString(tenantURL))),
+			template.HTML(fmt.Sprintf("Username: %s", template.HTMLEscapeString(username))),
 		}
 	}
 

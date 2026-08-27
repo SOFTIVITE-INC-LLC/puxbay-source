@@ -10,8 +10,10 @@ export class ProductService {
   private http = inject(HttpClient);
   private apiUrl = '/api/v1/storefront';
 
-  getCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/categories`);
+  getCategories(branchId?: string): Observable<any[]> {
+    const params: any = {};
+    if (branchId) params.branch_id = branchId;
+    return this.http.get<any[]>(`${this.apiUrl}/categories`, { params });
   }
 
   getProducts(params?: any): Observable<ProductsResponse> {

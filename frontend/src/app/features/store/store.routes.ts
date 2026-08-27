@@ -10,6 +10,10 @@ export const storeRoutes: Routes = [
         loadComponent: () => import('./catalog/catalog.component').then(m => m.CatalogComponent)
       },
       {
+        path: 'branch/:branchId',
+        loadComponent: () => import('./catalog/catalog.component').then(m => m.CatalogComponent)
+      },
+      {
         path: 'product/:id',
         loadComponent: () => import('./product-detail/product-detail.component').then(m => m.ProductDetailComponent)
       },
@@ -44,6 +48,10 @@ export const storeRoutes: Routes = [
       {
         path: 'account',
         loadComponent: () => import('./account/account.component').then(m => m.AccountComponent)
+      },
+      {
+        path: ':branchId',
+        loadComponent: () => import('./catalog/catalog.component').then(m => m.CatalogComponent)
       }
     ]
   }

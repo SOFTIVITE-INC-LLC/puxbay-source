@@ -15,6 +15,7 @@ import (
 	"github.com/softivite/puxbay/internal/logger"
 	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/router"
+	"github.com/softivite/puxbay/internal/services"
 	"github.com/softivite/puxbay/internal/validation"
 	"github.com/softivite/puxbay/internal/websocket"
 	"github.com/softivite/puxbay/internal/workers"
@@ -128,10 +129,16 @@ func main() {
 	defer workerServer.Stop()
 
 	// 6.5. Start lightweight background workers
+	pushSvc := services.NewPushService(db, hub)
+	notifSvc := services.NewNotificationService(db, pushSvc)
+	intelligenceSvc := services.NewIntelligenceService(db)
+
 	workers.StartCartRecoveryWorker(db, cfg.SMTP)
 	workers.StartBillingWorker(db, cfg.SMTP)
 	workers.StartReportWorker(db, cfg.SMTP)
 	workers.StartTelemetryCleanupWorker(db)
+	workers.StartReorderWorker(db, notifSvc)
+	workers.StartAnomalyDetectionWorker(db, intelligenceSvc, notifSvc)
 
 	// 7. Start HTTP server with graceful shutdown
 	addr := fmt.Sprintf(":%s", cfg.App.Port)

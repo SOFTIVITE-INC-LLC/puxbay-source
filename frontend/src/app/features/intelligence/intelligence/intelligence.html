@@ -54,17 +54,23 @@
   <div class="flex gap-1.5 sm:gap-3 p-1.5 glass rounded-2xl w-full sm:w-fit shadow-sm overflow-x-auto no-scrollbar">
     @for (tab of [
       { id: 'forecast', label: 'Inventory Forecast', icon: 'inventory_2' },
+      { id: 'anomalies', label: 'Anomaly Detection', icon: 'warning' },
       { id: 'leaderboard', label: 'Staff Performance', icon: 'leaderboard' },
       { id: 'customers', label: 'Customer Segments', icon: 'people_outline' },
       { id: 'pricing', label: 'Dynamic Pricing', icon: 'price_change' }
     ]; track tab.id) {
       <button (click)="loadTab($any(tab.id))"
-              class="px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap"
+              class="px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap relative"
               [ngClass]="activeTab() === tab.id
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-105'
                 : 'text-zinc-500 hover:bg-white/60 dark:hover:bg-white/5'">
         <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">{{ tab.icon }}</span>
         {{ tab.label }}
+        @if (tab.id === 'anomalies' && criticalAnomalyCount() > 0) {
+          <span class="ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse">
+            {{ criticalAnomalyCount() }}
+          </span>
+        }
       </button>
     }
   </div>
@@ -520,6 +526,122 @@
             </table>
           </div>
         </div>
+      }
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════
+       TAB: ANOMALY DETECTION
+  ═══════════════════════════════════════════════ -->
+  @if (activeTab() === 'anomalies') {
+    <div class="space-y-6 animate-fade-in">
+      <!-- Top Anomaly Summary Strip -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="glass p-5 rounded-2xl flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-500 flex items-center justify-center font-black">
+            <span class="material-symbols-outlined !text-[24px]">radar</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Active Anomalies</p>
+            <p class="text-2xl font-black text-zinc-900 dark:text-white">{{ anomalyCount() }}</p>
+          </div>
+        </div>
+
+        <div class="glass p-5 rounded-2xl flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">
+            <span class="material-symbols-outlined !text-[24px]">error</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Critical Alerts</p>
+            <p class="text-2xl font-black text-rose-500">{{ criticalAnomalyCount() }}</p>
+          </div>
+        </div>
+
+        <div class="glass p-5 rounded-2xl flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-black">
+            <span class="material-symbols-outlined !text-[24px]">warning</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-wider text-zinc-500">Warnings</p>
+            <p class="text-2xl font-black text-amber-500">{{ warningAnomalyCount() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (svc.anomaliesLoading()) {
+        <div class="glass rounded-2xl p-12 flex flex-col items-center justify-center gap-3">
+          <span class="material-symbols-outlined animate-spin text-emerald-500 !text-[36px]">progress_activity</span>
+          <p class="text-sm font-bold text-zinc-500">Analyzing transactions and stock metrics...</p>
+        </div>
+      } @else {
+        @if (svc.anomalies().length === 0) {
+          <!-- Empty / Clean State -->
+          <div class="glass rounded-3xl p-12 text-center flex flex-col items-center justify-center space-y-4">
+            <div class="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[40px]">check_circle</span>
+            </div>
+            <div class="space-y-1 max-w-md">
+              <h3 class="text-xl font-black text-zinc-900 dark:text-white">All Systems Operating Normally</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                No revenue drops, unusual refunds, or stock discrepancies detected over the monitored period.
+              </p>
+            </div>
+          </div>
+        } @else {
+          <!-- Anomaly Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            @for (anomaly of svc.anomalies(); track anomaly.id) {
+              <div class="glass rounded-2xl p-6 relative overflow-hidden border transition-all hover:shadow-xl group"
+                   [ngClass]="anomaly.severity === 'critical' ? 'border-rose-500/40 dark:border-rose-500/30' : 'border-amber-500/40 dark:border-amber-500/30'">
+                <!-- Top Badge Strip -->
+                <div class="flex items-center justify-between gap-2 mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="p-2 rounded-xl"
+                          [ngClass]="anomaly.severity === 'critical' ? 'bg-rose-500/20 text-rose-500' : 'bg-amber-500/20 text-amber-500'">
+                      <span class="material-symbols-outlined !text-[20px]">
+                        {{ anomaly.type === 'sales_drop' ? 'trending_down' : anomaly.type === 'refund_spike' ? 'assignment_return' : 'inventory_2' }}
+                      </span>
+                    </span>
+                    <span class="text-xs font-black uppercase tracking-wider text-zinc-500">
+                      {{ anomaly.type.replace('_', ' ') }}
+                    </span>
+                  </div>
+
+                  <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest"
+                        [ngClass]="anomaly.severity === 'critical' ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/30' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'">
+                    {{ anomaly.severity }}
+                  </span>
+                </div>
+
+                <!-- Title & Description -->
+                <h4 class="text-base font-black text-zinc-900 dark:text-white mb-1.5">{{ anomaly.title }}</h4>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium mb-4 leading-relaxed">{{ anomaly.description }}</p>
+
+                <!-- Metric Deviation Bar -->
+                <div class="p-3.5 rounded-xl bg-black/5 dark:bg-white/5 space-y-2 border border-black/5 dark:border-white/5">
+                  <div class="flex items-center justify-between text-xs font-bold">
+                    <span class="text-zinc-500">Observed Deviation</span>
+                    <span class="font-mono font-black" [ngClass]="anomaly.severity === 'critical' ? 'text-rose-500' : 'text-amber-500'">
+                      {{ anomaly.deviation }}%
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px] text-zinc-500">
+                    <span>Baseline: <strong class="text-zinc-700 dark:text-zinc-300">{{ anomaly.baseline }}</strong></span>
+                    <span>Actual: <strong class="text-zinc-700 dark:text-zinc-300">{{ anomaly.actual }}</strong></span>
+                  </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-[11px] text-zinc-400 font-medium">
+                  <span>Detected: {{ anomaly.detected_at | date:'short' }}</span>
+                  <span class="text-emerald-500 font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined !text-[14px]">auto_awesome</span> AI Monitored
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
   }

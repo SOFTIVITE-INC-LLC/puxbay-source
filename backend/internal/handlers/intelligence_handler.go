@@ -152,3 +152,25 @@ func (h *IntelligenceHandler) GenerateAutoPOs(c *gin.Context) {
 	// Would scan Inventory Forecasts and automatically create POs for low stock
 	c.JSON(201, gin.H{"status": "auto_pos_generated", "pos_created": 2})
 }
+
+// GetAnomalies returns real-time detected anomalies for the tenant
+func (h *IntelligenceHandler) GetAnomalies(c *gin.Context) {
+	tenantID := c.GetString("tenant_id")
+	anomalies, err := h.service(c).GetAnomalyAlerts(tenantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to detect anomalies: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"anomalies": anomalies})
+}
+
+// GetAnomalyStats returns summary statistics of anomalies
+func (h *IntelligenceHandler) GetAnomalyStats(c *gin.Context) {
+	tenantID := c.GetString("tenant_id")
+	stats, err := h.service(c).GetAnomalyStats(tenantID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch anomaly statistics: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, stats)
+}

@@ -247,6 +247,15 @@
           <span class="nav-label" [class.hidden]="isCollapsed">Branches</span>
         </a>
         <a
+          routerLink="/qr-codes"
+          routerLinkActive="nav-link-active"
+          class="nav-link-premium group"
+          [title]="isCollapsed ? 'QR Codes' : ''"
+        >
+          <span class="material-symbols-outlined nav-icon">qr_code_2</span>
+          <span class="nav-label" [class.hidden]="isCollapsed">QR Codes</span>
+        </a>
+        <a
           routerLink="/inventory"
           routerLinkActive="nav-link-active"
           class="nav-link-premium group"

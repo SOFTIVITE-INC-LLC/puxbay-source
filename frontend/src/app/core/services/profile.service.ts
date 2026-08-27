@@ -85,4 +85,58 @@ export class ProfileService {
       })
     );
   }
+
+  setup2FA(): Observable<{ secret: string; qr_code: string; message: string }> {
+    this.saving.set(true);
+    this.error.set(null);
+    return this.api.post<{ secret: string; qr_code: string; message: string }>('/security/2fa/setup', {}).pipe(
+      tap({
+        next: () => this.saving.set(false),
+        error: (err) => {
+          this.error.set(err?.error?.error || 'Failed to initialize 2FA setup');
+          this.saving.set(false);
+        }
+      })
+    );
+  }
+
+  verify2FA(code: string): Observable<any> {
+    this.saving.set(true);
+    this.error.set(null);
+    return this.api.post<any>('/security/2fa/verify', { code }).pipe(
+      tap({
+        next: () => {
+          const current = this.profile();
+          if (current) {
+            this.profile.set({ ...current, is_2fa_enabled: true });
+          }
+          this.saving.set(false);
+        },
+        error: (err) => {
+          this.error.set(err?.error?.error || 'Invalid 2FA verification code');
+          this.saving.set(false);
+        }
+      })
+    );
+  }
+
+  disable2FA(): Observable<any> {
+    this.saving.set(true);
+    this.error.set(null);
+    return this.api.post<any>('/security/2fa/disable', {}).pipe(
+      tap({
+        next: () => {
+          const current = this.profile();
+          if (current) {
+            this.profile.set({ ...current, is_2fa_enabled: false });
+          }
+          this.saving.set(false);
+        },
+        error: (err) => {
+          this.error.set(err?.error?.error || 'Failed to disable 2FA');
+          this.saving.set(false);
+        }
+      })
+    );
+  }
 }

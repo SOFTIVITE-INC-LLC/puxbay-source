@@ -300,7 +300,7 @@ func (h *StorefrontAPIHandler) SearchProducts(c *gin.Context) {
 
 // ListCategories returns all categories.
 func (h *StorefrontAPIHandler) ListCategories(c *gin.Context) {
-	branchID := c.GetHeader("X-Branch-ID")
+	branchID := middleware.ResolveBranchID(c, c.Query("branch_id"))
 	categories, err := h.service(c).ListCategories(branchID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch categories"})

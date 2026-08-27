@@ -1,0 +1,104 @@
+package workers
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/softivite/puxbay/internal/models"
+	"github.com/softivite/puxbay/internal/services"
+	"gorm.io/gorm"
+)
+
+// StartAnomalyDetectionWorker starts a background worker that periodically runs
+// anomaly detection across all active tenants and pushes alerts to admins.
+func StartAnomalyDetectionWorker(db *gorm.DB, intelligenceSvc *services.IntelligenceService, notifSvc *services.NotificationService) {
+	go func() {
+		log.Println("🔍 Starting Anomaly Detection worker...")
+		// Run once an hour
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			processAnomalyDetection(db, intelligenceSvc, notifSvc)
+		}
+	}()
+}
+
+func processAnomalyDetection(db *gorm.DB, intelligenceSvc *services.IntelligenceService, notifSvc *services.NotificationService) {
+	// Fetch all active tenant IDs
+	var tenants []models.Tenant
+	if err := db.Where("is_active = ?", true).Find(&tenants).Error; err != nil {
+		log.Printf("[AnomalyWorker] Error fetching tenants: %v", err)
+		return
+	}
+
+	for _, tenant := range tenants {
+		// Anti-spam: skip if we already sent an anomaly alert in the last hour
+		var recentCount int64
+		db.Model(&models.Notification{}).
+			Where("tenant_id = ? AND category = ? AND created_at > ?",
+				tenant.ID, "anomaly", time.Now().Add(-1*time.Hour)).
+			Count(&recentCount)
+		if recentCount > 0 {
+			continue
+		}
+
+		anomalies, err := intelligenceSvc.DetectAnomalies(tenant.ID.String())
+		if err != nil || len(anomalies) == 0 {
+			continue
+		}
+
+		// Send one consolidated notification per tenant
+		criticalCount := 0
+		for _, a := range anomalies {
+			if a.Severity == "critical" {
+				criticalCount++
+			}
+		}
+
+		severity := "warning"
+		notifType := "warning"
+		if criticalCount > 0 {
+			severity = "critical"
+			notifType = "error"
+		}
+
+		title := fmt.Sprintf("⚠️ %d Anomaly Alert(s) Detected", len(anomalies))
+		msg := buildAnomalySummary(anomalies)
+
+		tenantID, err := uuid.Parse(tenant.ID.String())
+		if err != nil {
+			continue
+		}
+
+		notifSvc.CreateAndPushToAdmins(
+			tenantID,
+			title,
+			msg,
+			"anomaly",
+			"/intelligence?tab=anomalies",
+			notifType,
+		)
+
+		log.Printf("[AnomalyWorker] Sent %s anomaly alert for tenant %s (%d anomalies, %d critical)",
+			severity, tenant.ID, len(anomalies), criticalCount)
+	}
+}
+
+func buildAnomalySummary(anomalies []services.Anomaly) string {
+	msg := ""
+	for i, a := range anomalies {
+		if i >= 3 {
+			msg += fmt.Sprintf("...and %d more anomaly/anomalies.\n", len(anomalies)-3)
+			break
+		}
+		icon := "⚠️"
+		if a.Severity == "critical" {
+			icon = "🔴"
+		}
+		msg += fmt.Sprintf("%s %s (deviation: %.1f%%)\n", icon, a.Title, a.Deviation)
+	}
+	return msg
+}

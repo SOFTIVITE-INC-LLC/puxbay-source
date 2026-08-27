@@ -9,19 +9,23 @@ import (
 	"github.com/softivite/puxbay/internal/middleware"
 	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/services"
+	"github.com/softivite/puxbay/internal/websocket"
 	"gorm.io/gorm"
 )
 
 type NotificationHandler struct {
-	db *gorm.DB
+	db  *gorm.DB
+	hub *websocket.Hub
 }
 
-func NewNotificationHandler(db *gorm.DB) *NotificationHandler {
-	return &NotificationHandler{db: db}
+func NewNotificationHandler(db *gorm.DB, hub *websocket.Hub) *NotificationHandler {
+	return &NotificationHandler{db: db, hub: hub}
 }
 
 func (h *NotificationHandler) service(c *gin.Context) *services.NotificationService {
-	return services.NewNotificationService(getDB(c, h.db))
+	tenantDB := getDB(c, h.db)
+	pushSvc := services.NewPushService(tenantDB, h.hub)
+	return services.NewNotificationService(tenantDB, pushSvc)
 }
 
 func (h *NotificationHandler) getUserID(c *gin.Context) uuid.UUID {

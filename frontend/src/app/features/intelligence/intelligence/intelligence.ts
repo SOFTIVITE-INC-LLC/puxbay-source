@@ -56,7 +56,7 @@ export class Intelligence implements OnInit {
   private toast = inject(ToastService);
   Math = Math;
 
-  activeTab = signal<'forecast' | 'leaderboard' | 'customers' | 'pricing'>('forecast');
+  activeTab = signal<'forecast' | 'leaderboard' | 'customers' | 'pricing' | 'anomalies'>('forecast');
   leaderboardDays = signal(30);
 
   // Dynamic Pricing state
@@ -68,6 +68,11 @@ export class Intelligence implements OnInit {
   criticalCount = computed(() => this.svc.forecasts().filter(f => f.status === 'critical').length);
   warningCount = computed(() => this.svc.forecasts().filter(f => f.status === 'warning').length);
   healthyCount = computed(() => this.svc.forecasts().filter(f => f.status === 'healthy').length);
+
+  // Anomaly Alerts computed stats
+  anomalyCount = computed(() => this.svc.anomalies().length);
+  criticalAnomalyCount = computed(() => this.svc.anomalies().filter(a => a.severity === 'critical').length);
+  warningAnomalyCount = computed(() => this.svc.anomalies().filter(a => a.severity === 'warning').length);
 
   // Dynamic Pricing computed stats
   surgeCount = computed(() => this.svc.pricingSuggestions().filter(s => s.strategy === 'surge').length);
@@ -112,9 +117,10 @@ export class Intelligence implements OnInit {
   ngOnInit() {
     this.loadTab('forecast');
     this.svc.getCustomerSegmentation().subscribe();
+    this.svc.getAnomalies().subscribe();
   }
 
-  loadTab(tab: 'forecast' | 'leaderboard' | 'customers' | 'pricing') {
+  loadTab(tab: 'forecast' | 'leaderboard' | 'customers' | 'pricing' | 'anomalies') {
     this.activeTab.set(tab);
     switch (tab) {
       case 'forecast':
@@ -129,6 +135,9 @@ export class Intelligence implements OnInit {
       case 'pricing':
         this.svc.getDynamicPricing().subscribe();
         break;
+      case 'anomalies':
+        this.svc.getAnomalies().subscribe();
+        break;
     }
   }
 
@@ -142,6 +151,7 @@ export class Intelligence implements OnInit {
     this.svc.getStaffLeaderboard(this.leaderboardDays()).subscribe();
     this.svc.getCustomerSegmentation().subscribe();
     this.svc.getDynamicPricing().subscribe();
+    this.svc.getAnomalies().subscribe();
   }
 
   applySinglePricing(suggestion: PricingSuggestion) {

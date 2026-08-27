@@ -50,8 +50,18 @@ export class WebsocketService {
 
     this.socket.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data) as WebSocketMessage;
+        const data = JSON.parse(event.data);
         this.messages$.next(data);
+
+        // Native Browser Push Notification
+        if (data.type === 'notification' && 'Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification(data.title || 'Puxbay Notification', {
+              body: data.message,
+              icon: '/assets/icons/icon-192x192.png',
+            });
+          } catch (_) {}
+        }
       } catch (e) {
         console.error('[WebSocket] Failed to parse message', e);
       }

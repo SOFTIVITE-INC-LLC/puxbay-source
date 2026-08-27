@@ -132,6 +132,7 @@ type OrderCreateRequest struct {
 	Discount      float64                      `json:"discount"`
 	Total         float64                      `json:"total"`
 	AmountPaid    float64                      `json:"amount_paid"`
+	RedeemPoints  float64                      `json:"redeem_points"`
 	PaymentMethod string                       `json:"payment_method"`
 	Payments      []services.OrderPaymentInput `json:"payments"`
 	OrderType     string                       `json:"order_type"`
@@ -196,18 +197,19 @@ func (h *OrderHandler) Create(c *gin.Context) {
 	}
 
 	input := services.OrderCreateInput{
-		BranchID:   branchID,
-		CustomerID: req.CustomerID,
-		CashierID:  cashierID,
-		Subtotal:   req.Subtotal,
-		Tax:        req.Tax,
-		Discount:   req.Discount,
-		Total:      req.Total,
-		AmountPaid: req.AmountPaid,
-		Payments:   payments,
-		OrderType:  req.OrderType,
-		Notes:      req.Notes,
-		Items:      items,
+		BranchID:     branchID,
+		CustomerID:   req.CustomerID,
+		CashierID:    cashierID,
+		Subtotal:     req.Subtotal,
+		Tax:          req.Tax,
+		Discount:     req.Discount,
+		Total:        req.Total,
+		AmountPaid:   req.AmountPaid,
+		RedeemPoints: req.RedeemPoints,
+		Payments:     payments,
+		OrderType:    req.OrderType,
+		Notes:        req.Notes,
+		Items:        items,
 	}
 
 	order, err := h.service(c).CreateOrder(input)
@@ -263,17 +265,18 @@ func (h *OrderHandler) POS(c *gin.Context) {
 	}
 
 	input := services.OrderCreateInput{
-		BranchID:   branchID,
-		CustomerID: req.CustomerID,
-		Subtotal:   req.Subtotal,
-		Tax:        req.Tax,
-		Discount:   req.Discount,
-		Total:      req.Total,
-		AmountPaid: req.AmountPaid,
-		Payments:   payments,
-		OrderType:  "in_store",
-		Notes:      req.Notes,
-		Items:      items,
+		BranchID:     branchID,
+		CustomerID:   req.CustomerID,
+		Subtotal:     req.Subtotal,
+		Tax:          req.Tax,
+		Discount:     req.Discount,
+		Total:        req.Total,
+		AmountPaid:   req.AmountPaid,
+		RedeemPoints: req.RedeemPoints,
+		Payments:     payments,
+		OrderType:    "in_store",
+		Notes:        req.Notes,
+		Items:        items,
 	}
 
 	order, err := h.service(c).ProcessPOSCheckout(input, cashierID)

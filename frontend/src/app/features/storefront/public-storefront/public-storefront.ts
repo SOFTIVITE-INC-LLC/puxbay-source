@@ -118,7 +118,14 @@ export class PublicStorefront implements OnInit {
 
   ngOnInit() {
     this.slug.set(this.route.snapshot.paramMap.get('slug') || '');
-    this.catalogService.getProducts().subscribe();
+    const branchId = this.route.snapshot.queryParamMap.get('branch_id') ||
+                     this.route.snapshot.queryParamMap.get('branchId') ||
+                     this.route.snapshot.paramMap.get('branchId');
+    const productParams: any = {};
+    if (branchId) {
+      productParams.branch_id = branchId;
+    }
+    this.catalogService.getProducts(productParams).subscribe();
     this.storefrontService.getSettings().subscribe();
 
     // Load Paystack Inline JS Script

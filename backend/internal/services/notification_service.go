@@ -9,11 +9,12 @@ import (
 )
 
 type NotificationService struct {
-	db *gorm.DB
+	db          *gorm.DB
+	pushService *PushService
 }
 
-func NewNotificationService(db *gorm.DB) *NotificationService {
-	return &NotificationService{db: db}
+func NewNotificationService(db *gorm.DB, push *PushService) *NotificationService {
+	return &NotificationService{db: db, pushService: push}
 }
 
 type NotificationListResult struct {
@@ -160,4 +161,52 @@ func (s *NotificationService) DeleteNotification(userID uuid.UUID, id string) er
 		return errors.New("notification not found")
 	}
 	return nil
+}
+
+// CreateAndPush creates a persistent DB notification and simultaneously broadcasts
+// a real-time push via the WebSocket hub to all connected clients for this user/tenant.
+func (s *NotificationService) CreateAndPush(tenantID, userID uuid.UUID, title, message, category, link, notifType string) error {
+	notif := models.Notification{
+		UserID:           userID,
+		Title:            title,
+		Message:          message,
+		Link:             link,
+		IsRead:           false,
+		NotificationType: notifType,
+		Category:         category,
+	}
+
+	if err := s.db.Create(&notif).Error; err != nil {
+		return err
+	}
+
+	// Fire WebSocket push (non-blocking — runs in goroutine)
+	if s.pushService != nil {
+		go s.pushService.SendToUser(tenantID, userID, title, message, category, link)
+	}
+
+	return nil
+}
+
+// CreateAndPushToAdmins creates a notification for all admin/manager users in a tenant
+// and broadcasts a real-time push to all connected WebSocket clients.
+func (s *NotificationService) CreateAndPushToAdmins(tenantID uuid.UUID, title, message, category, link, notifType string) {
+	// Find all admin and manager users for this tenant
+	var profiles []struct {
+		UserID uuid.UUID
+	}
+	s.db.Table("public.user_profiles").
+		Joins("JOIN public.roles ON public.roles.id = public.user_profiles.role_id").
+		Where("public.user_profiles.tenant_id = ? AND public.roles.name IN ('admin', 'manager', 'branch_manager')", tenantID).
+		Select("public.user_profiles.user_id").
+		Scan(&profiles)
+
+	for _, p := range profiles {
+		_ = s.CreateAndPush(tenantID, p.UserID, title, message, category, link, notifType)
+	}
+
+	// Also broadcast over WebSocket to all connected clients in this tenant
+	if s.pushService != nil {
+		go s.pushService.SendToTenantAdmins(tenantID, title, message, category, link)
+	}
 }

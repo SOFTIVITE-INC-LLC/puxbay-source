@@ -1,0 +1,216 @@
+<div class="min-h-screen bg-slate-50 dark:bg-zinc-950">
+
+  <!-- ── Page Header ── -->
+  <div class="relative bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.04%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+    <div class="relative px-4 sm:px-8 pt-8 pb-10 sm:pt-10 sm:pb-12">
+      <div class="max-w-5xl mx-auto">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <span class="material-symbols-outlined text-white !text-[22px]">qr_code_2</span>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Branches</p>
+            <h1 class="text-2xl font-black text-white tracking-tight leading-none">QR Codes</h1>
+          </div>
+        </div>
+        <p class="text-sm text-white/70 font-medium max-w-lg">
+          Generate scannable QR codes for your Kiosk self-service and Online Storefront. Print and place them anywhere.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-6">
+
+    <!-- Branch Selector -->
+    @if (loading()) {
+      <div class="glass rounded-2xl p-8 flex items-center justify-center gap-3 text-zinc-500">
+        <span class="material-symbols-outlined animate-spin !text-[24px]">progress_activity</span>
+        <span class="font-bold text-sm">Loading branches...</span>
+      </div>
+    } @else {
+      @if (branches().length > 1) {
+        <div class="glass rounded-2xl p-4 sm:p-5">
+          <p class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3">Select Branch</p>
+          <div class="flex flex-wrap gap-2">
+            @for (branch of branches(); track branch.id) {
+              <button
+                (click)="selectBranch(branch)"
+                class="px-4 py-2 rounded-xl text-sm font-bold border transition-all"
+                [ngClass]="selectedBranch()?.id === branch.id
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20 scale-105'
+                  : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-indigo-300'">
+                <span class="material-symbols-outlined !text-[14px] align-middle mr-1">store</span>
+                {{ branch.name }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- QR Code Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- ─── Kiosk QR ─── -->
+        <div class="glass rounded-3xl overflow-hidden border border-violet-200 dark:border-violet-500/20 shadow-xl shadow-violet-500/5">
+          <!-- Card Header -->
+          <div class="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-white !text-[20px]">tablet_android</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/70">Self-Service</p>
+              <h2 class="text-lg font-black text-white leading-tight">Kiosk Mode</h2>
+            </div>
+            <div class="ml-auto">
+              <span class="px-2.5 py-1 bg-white/20 rounded-lg text-[10px] font-black text-white uppercase tracking-widest">Touch-Optimised</span>
+            </div>
+          </div>
+
+          <!-- QR + Controls -->
+          <div class="p-6 flex flex-col items-center gap-5">
+            <div class="relative group">
+              <div class="w-56 h-56 bg-white rounded-2xl shadow-lg shadow-violet-500/15 border border-violet-100 dark:border-violet-500/20 flex items-center justify-center overflow-hidden p-2">
+                <img
+                  [src]="kioskQrUrl()"
+                  alt="Kiosk QR Code"
+                  class="w-full h-full object-contain"
+                  id="kiosk-qr-img"
+                />
+              </div>
+              <!-- Scan Overlay Label -->
+              <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-widest whitespace-nowrap">
+                Scan to Order
+              </div>
+            </div>
+
+            <!-- URL Display -->
+            <div class="w-full mt-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[16px] text-zinc-400 flex-shrink-0">link</span>
+              <span class="text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate flex-1">{{ kioskLinkUrl() }}</span>
+              <button
+                (click)="copyLink(kioskLinkUrl())"
+                title="Copy link"
+                class="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-200 dark:bg-white/10 hover:bg-violet-100 dark:hover:bg-violet-500/20 text-zinc-500 hover:text-violet-600 transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined !text-[14px]">content_copy</span>
+              </button>
+            </div>
+
+            <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 font-medium px-2 leading-relaxed">
+              Customers scan this code on their device to launch the self-service ordering kiosk for
+              <strong class="text-zinc-700 dark:text-zinc-300">{{ selectedBranch()?.name || 'all branches' }}</strong>.
+            </p>
+
+            <!-- Actions -->
+            <div class="flex gap-3 w-full">
+              <a
+                [href]="kioskLinkUrl()"
+                target="_blank"
+                class="flex-1 px-4 py-2.5 rounded-xl border border-violet-200 dark:border-violet-500/30 text-violet-600 dark:text-violet-400 text-xs font-bold hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined !text-[15px]">open_in_new</span>
+                Open Kiosk
+              </a>
+              <button
+                (click)="printQr('kiosk')"
+                class="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-black shadow-md shadow-violet-500/25 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined !text-[15px]">print</span>
+                Print QR Code
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Storefront QR ─── -->
+        <div class="glass rounded-3xl overflow-hidden border border-emerald-200 dark:border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+          <!-- Card Header -->
+          <div class="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-white !text-[20px]">storefront</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-white/70">Customer-Facing</p>
+              <h2 class="text-lg font-black text-white leading-tight">Storefront</h2>
+            </div>
+            <div class="ml-auto">
+              <span class="px-2.5 py-1 bg-white/20 rounded-lg text-[10px] font-black text-white uppercase tracking-widest">Online Store</span>
+            </div>
+          </div>
+
+          <!-- QR + Controls -->
+          <div class="p-6 flex flex-col items-center gap-5">
+            <div class="relative group">
+              <div class="w-56 h-56 bg-white rounded-2xl shadow-lg shadow-emerald-500/15 border border-emerald-100 dark:border-emerald-500/20 flex items-center justify-center overflow-hidden p-2">
+                <img
+                  [src]="storefrontQrUrl()"
+                  alt="Storefront QR Code"
+                  class="w-full h-full object-contain"
+                  id="storefront-qr-img"
+                />
+              </div>
+              <!-- Scan Overlay Label -->
+              <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-md uppercase tracking-widest whitespace-nowrap">
+                Scan to Shop
+              </div>
+            </div>
+
+            <!-- URL Display -->
+            <div class="w-full mt-2 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[16px] text-zinc-400 flex-shrink-0">link</span>
+              <span class="text-xs font-mono text-zinc-500 dark:text-zinc-400 truncate flex-1">{{ storefrontLinkUrl() }}</span>
+              <button
+                (click)="copyLink(storefrontLinkUrl())"
+                title="Copy link"
+                class="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-200 dark:bg-white/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 text-zinc-500 hover:text-emerald-600 transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined !text-[14px]">content_copy</span>
+              </button>
+            </div>
+
+            <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 font-medium px-2 leading-relaxed">
+              Customers scan this code to browse and purchase from your online storefront for
+              <strong class="text-zinc-700 dark:text-zinc-300">{{ selectedBranch()?.name || 'all branches' }}</strong>.
+            </p>
+
+            <!-- Actions -->
+            <div class="flex gap-3 w-full">
+              <a
+                [href]="storefrontLinkUrl()"
+                target="_blank"
+                class="flex-1 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined !text-[15px]">open_in_new</span>
+                Open Storefront
+              </a>
+              <button
+                (click)="printQr('storefront')"
+                class="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md shadow-emerald-500/25 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                <span class="material-symbols-outlined !text-[15px]">print</span>
+                Print QR Code
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Tips -->
+      <div class="glass rounded-2xl p-6">
+        <p class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4">💡 Tips for Using QR Codes</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          @for (tip of [
+            { icon: 'print', title: 'Print & Display', desc: 'Print the QR code and place it at the counter, tables, or entrance for customers to scan easily.', color: 'text-violet-500' },
+            { icon: 'table_restaurant', title: 'Table Ordering', desc: 'Use the Kiosk QR code on table cards so customers can order directly from their seats.', color: 'text-amber-500' },
+            { icon: 'share', title: 'Share Online', desc: 'Copy the storefront link and share it on social media, WhatsApp, or embed it in emails.', color: 'text-emerald-500' }
+          ]; track tip.title) {
+            <div class="flex gap-3 p-3 rounded-xl bg-slate-50 dark:bg-white/5">
+              <span class="material-symbols-outlined !text-[22px] mt-0.5 flex-shrink-0" [ngClass]="tip.color">{{ tip.icon }}</span>
+              <div>
+                <p class="text-xs font-black text-zinc-900 dark:text-white mb-0.5">{{ tip.title }}</p>
+                <p class="text-[11px] text-zinc-500 font-medium leading-relaxed">{{ tip.desc }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

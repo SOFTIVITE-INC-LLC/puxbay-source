@@ -1,10 +1,15 @@
 import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { passwordStrengthValidator } from '../../../core/validators/password-strength.validator';
 import { computed } from '@angular/core';
+
+function lettersOnlyValidator(control: AbstractControl): ValidationErrors | null {
+  const value: string = control.value || '';
+  return /^[a-z]+$/.test(value) ? null : { lettersOnly: true };
+}
 
 @Component({
   selector: 'app-register',
@@ -28,7 +33,7 @@ export class Register {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, passwordStrengthValidator()]],
     company_name: ['', Validators.required],
-    subdomain: ['', Validators.required],
+    subdomain: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(63), lettersOnlyValidator]],
     address: ['']
   });
 
@@ -47,6 +52,13 @@ export class Register {
     this.errorMessage.set('');
     // Optional: add check for step 1 fields if needed
     this.step.set(2);
+  }
+
+  sanitizeSubdomain(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/[^a-z]/g, '');
+    this.registerForm.get('subdomain')?.setValue(sanitized, { emitEvent: false });
+    input.value = sanitized;
   }
 
   onSubmit() {

@@ -95,9 +95,9 @@ func processAbandonedCarts(db *gorm.DB, smtpCfg config.SMTPConfig) {
 func sendRecoveryEmail(smtpCfg config.SMTPConfig, to string) error {
 	tmplData := services.EmailData{
 		Title: "You left something behind!",
-		Paragraphs: []string{
+		Paragraphs: []template.HTML{
 			"We noticed you left some items in your shopping cart.",
-			"Don't worry, we've saved them for you! Click the link below to complete your purchase.",
+			"Don&#39;t worry, we&#39;ve saved them for you! Click the link below to complete your purchase.",
 		},
 		ActionURL:  "https://puxbay.com/store/cart",
 		ActionText: "Return to Cart",

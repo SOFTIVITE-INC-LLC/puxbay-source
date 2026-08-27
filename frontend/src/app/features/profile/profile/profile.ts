@@ -138,4 +138,55 @@ export class Profile implements OnInit {
       }
     });
   }
+
+  // 2FA state
+  twoFactorStep = signal<'initial' | 'setup'>('initial');
+  twoFactorSecret = signal<string>('');
+  twoFactorCode = signal<string>('');
+  qrCodeUrl = signal<string>('');
+
+  start2FASetup() {
+    this.profileService.setup2FA().subscribe({
+      next: (res) => {
+        this.twoFactorSecret.set(res.secret);
+        const encoded = encodeURIComponent(res.qr_code);
+        this.qrCodeUrl.set(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encoded}`);
+        this.twoFactorStep.set('setup');
+      }
+    });
+  }
+
+  cancel2FASetup() {
+    this.twoFactorStep.set('initial');
+    this.twoFactorSecret.set('');
+    this.twoFactorCode.set('');
+    this.qrCodeUrl.set('');
+  }
+
+  confirm2FA() {
+    if (this.twoFactorCode().length !== 6) {
+      this.profileService.error.set('Please enter a 6-digit verification code.');
+      return;
+    }
+    this.profileService.verify2FA(this.twoFactorCode()).subscribe({
+      next: () => {
+        this.twoFactorStep.set('initial');
+        this.twoFactorCode.set('');
+        this.successMessage.set('Two-Factor Authentication has been successfully enabled!');
+        setTimeout(() => this.successMessage.set(null), 5000);
+      }
+    });
+  }
+
+  disable2FA() {
+    if (!confirm('Are you sure you want to disable Two-Factor Authentication? Your account will be less secure.')) {
+      return;
+    }
+    this.profileService.disable2FA().subscribe({
+      next: () => {
+        this.successMessage.set('Two-Factor Authentication has been disabled.');
+        setTimeout(() => this.successMessage.set(null), 4000);
+      }
+    });
+  }
 }

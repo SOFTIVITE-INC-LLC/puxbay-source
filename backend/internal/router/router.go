@@ -103,7 +103,9 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	storefrontHandler := handlers.NewStorefrontAPIHandler(db, authService, &cfg.Paystack, redisClient)
 	webhookHandler := handlers.NewWebhookHandler(db)
 	walletHandler := handlers.NewWalletAPIHandler(db)
-	notificationHandler := handlers.NewNotificationHandler(db)
+	notificationHandler := handlers.NewNotificationHandler(db, hub)
+	pushService := services.NewPushService(db, hub)
+	deviceTokenHandler := handlers.NewDeviceTokenHandler(pushService)
 	returnHandler := handlers.NewReturnHandler(db)
 	cashDrawerHandler := handlers.NewCashDrawerHandler(db)
 	giftCardHandler := handlers.NewGiftCardHandler(db)
@@ -433,6 +435,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.PUT("/notifications/settings", notificationHandler.UpdateSettings)
 			api.DELETE("/notifications/:id", notificationHandler.Delete)
 
+			// Device Push Tokens
+			api.POST("/devices/register", deviceTokenHandler.RegisterDeviceToken)
+			api.DELETE("/devices/unregister", deviceTokenHandler.UnregisterDeviceToken)
+
 			// Gift Cards
 			api.GET("/gift-cards", giftCardHandler.List)
 			api.POST("/gift-cards", giftCardHandler.Create)
@@ -605,6 +611,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.POST("/intelligence/dynamic-pricing/apply", intelligenceHandler.ApplyPricingAction)
 			api.POST("/intelligence/dynamic-pricing/apply-bulk", intelligenceHandler.BulkApplyPricingAction)
 			api.POST("/intelligence/auto-po", intelligenceHandler.GenerateAutoPOs)
+			api.GET("/intelligence/anomalies", intelligenceHandler.GetAnomalies)
+			api.GET("/intelligence/anomalies/stats", intelligenceHandler.GetAnomalyStats)
 
 			// Copilot
 			api.POST("/copilot/chat", copilotHandler.Chat)

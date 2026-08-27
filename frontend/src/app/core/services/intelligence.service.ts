@@ -47,9 +47,26 @@ export interface PricingSuggestion {
   current_stock: number;
 }
 
+export interface AnomalyAlert {
+  id: string;
+  type: string;
+  severity: 'warning' | 'critical';
+  title: string;
+  description: string;
+  metric: string;
+  baseline: number;
+  actual: number;
+  deviation: number;
+  detected_at: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class IntelligenceService {
   private api = inject(ApiService);
+
+  // Anomaly Alerts
+  anomalies = signal<AnomalyAlert[]>([]);
+  anomaliesLoading = signal(false);
 
   // Inventory Forecast
   forecasts = signal<InventoryForecast[]>([]);
@@ -74,6 +91,16 @@ export class IntelligenceService {
 
   getInsights() {
     return this.api.get<any[]>('/intelligence/insights').pipe(tap(res => this.insights.set(res || [])));
+  }
+
+  getAnomalies() {
+    this.anomaliesLoading.set(true);
+    return this.api.get<{ anomalies: AnomalyAlert[] }>('/intelligence/anomalies').pipe(
+      tap(res => {
+        this.anomalies.set(res?.anomalies || []);
+        this.anomaliesLoading.set(false);
+      })
+    );
   }
 
   getInventoryForecast(branchId?: string) {

@@ -399,10 +399,38 @@
         </div>
         <div>
           <label for="subdomain" class="auth-label">Subdomain</label>
-          <input id="subdomain" formControlName="subdomain" type="text" required class="auth-input">
-          <p
-            style="margin-top:4px; font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em;">
-            yourstore.puxbay.com</p>
+          <input
+            id="subdomain"
+            formControlName="subdomain"
+            type="text"
+            required
+            class="auth-input"
+            placeholder="e.g. mystore"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            (input)="sanitizeSubdomain($event)"
+            [class.error]="registerForm.get('subdomain')?.invalid && registerForm.get('subdomain')?.touched">
+          <!-- Hint and preview -->
+          <div style="margin-top:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <p style="font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em; flex-shrink:0;">
+              <span style="color:#8b5cf6;">{{ registerForm.get('subdomain')?.value || 'yourstore' }}</span>.puxbay.com
+            </p>
+          </div>
+          <!-- Validation errors -->
+          @if (registerForm.get('subdomain')?.invalid && registerForm.get('subdomain')?.touched) {
+            @if (registerForm.get('subdomain')?.errors?.['required']) {
+              <p style="margin-top:4px; font-size:11px; font-weight:700; color:#ef4444;">Subdomain is required.</p>
+            } @else if (registerForm.get('subdomain')?.errors?.['minlength']) {
+              <p style="margin-top:4px; font-size:11px; font-weight:700; color:#ef4444;">Must be at least 3 characters.</p>
+            } @else if (registerForm.get('subdomain')?.errors?.['lettersOnly']) {
+              <p style="margin-top:4px; font-size:11px; font-weight:700; color:#ef4444;">Only lowercase letters (a–z) are allowed — no numbers, symbols, or spaces.</p>
+            }
+          }
+          @if (!registerForm.get('subdomain')?.invalid || !registerForm.get('subdomain')?.touched) {
+            <p style="margin-top:4px; font-size:11px; color:#94a3b8; font-weight:600;">Lowercase letters only (a–z). No numbers, symbols, or spaces.</p>
+          }
         </div>
         <div>
           <label for="address" class="auth-label">Address</label>

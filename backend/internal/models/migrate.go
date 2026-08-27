@@ -90,6 +90,7 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&CreditTransaction{},
 		&BNPLInstalment{},
 		&ReportSchedule{},
+		&DeviceToken{},
 	)
 }
 
@@ -124,5 +125,6 @@ func MigratePublicModels(db *gorm.DB) error {
 		&FeatureFlag{},
 		&SEOSettings{},
 		&Broadcast{},
+		&DeviceToken{},
 	)
 }

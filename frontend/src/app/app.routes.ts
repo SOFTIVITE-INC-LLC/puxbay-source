@@ -197,6 +197,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/branches/branches/branches').then(m => m.Branches)
       },
       {
+        path: 'qr-codes',
+        canActivate: [permissionGuard],
+        data: { roles: ['admin', 'manager', 'superadmin'] },
+        loadComponent: () => import('./features/branches/qr-codes/qr-codes').then(m => m.QrCodes)
+      },
+      {
         path: 'suppliers',
         loadComponent: () => import('./features/suppliers/suppliers/suppliers').then(m => m.Suppliers)
       },

@@ -114,7 +114,7 @@ type RegisterRequest struct {
 
 	// Tenant fields
 	CompanyName string `json:"company_name" binding:"required,min=2,max=100"`
-	Subdomain   string `json:"subdomain" binding:"required,min=3,max=100,alphanum"`
+	Subdomain   string `json:"subdomain" binding:"required,min=3,max=63,alpha"`
 }
 
 // Login authenticates a user and returns JWT tokens.

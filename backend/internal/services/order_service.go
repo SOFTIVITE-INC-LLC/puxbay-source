@@ -182,18 +182,19 @@ type OrderPaymentInput struct {
 }
 
 type OrderCreateInput struct {
-	BranchID   *uuid.UUID
-	CustomerID *uuid.UUID
-	CashierID  *uuid.UUID
-	Subtotal   float64
-	Tax        float64
-	Discount   float64
-	Total      float64
-	AmountPaid float64
-	Payments   []OrderPaymentInput
-	OrderType  string
-	Notes      string
-	Items      []OrderItemInput
+	BranchID     *uuid.UUID
+	CustomerID   *uuid.UUID
+	CashierID    *uuid.UUID
+	Subtotal     float64
+	Tax          float64
+	Discount     float64
+	Total        float64
+	AmountPaid   float64
+	RedeemPoints float64
+	Payments     []OrderPaymentInput
+	OrderType    string
+	Notes        string
+	Items        []OrderItemInput
 }
 
 // CreateOrder creates an order and deducts inventory for tracked products (Gap #17).
@@ -310,19 +311,72 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 			}
 		}
 
-		// Gap #10: Loyalty points accrual inside transaction (not fire-and-forget)
-		if input.CustomerID != nil && order.Total > 0 {
+		// Feature 5: Automated Loyalty Program with CRM Settings and Tier Upgrades
+		if input.CustomerID != nil {
 			var customer models.Customer
 			if err := tx.Where("id = ?", input.CustomerID).First(&customer).Error; err == nil {
-				pointsEarned := order.Total / 10.0
-				if err := tx.Model(&customer).
-					Updates(map[string]interface{}{
+				// 1. Fetch CRM Settings for tenant
+				var crmSettings models.CRMSettings
+				if err := tx.First(&crmSettings).Error; err != nil {
+					crmSettings.PointsPerCurrency = 1.0
+					crmSettings.RedemptionRate = 0.01
+				}
+
+				// 2. Handle points redemption if requested
+				if input.RedeemPoints > 0 && customer.LoyaltyPts >= input.RedeemPoints {
+					redeemTx := models.LoyaltyTransaction{
+						CustomerID:      *input.CustomerID,
+						OrderID:         &order.ID,
+						Points:          -input.RedeemPoints,
+						TransactionType: "redeemed",
+					}
+					desc := fmt.Sprintf("Redeemed %.0f points on Order #%s", input.RedeemPoints, order.OrderNumber)
+					redeemTx.Description = &desc
+					_ = tx.Create(&redeemTx)
+
+					_ = tx.Model(&customer).Update("loyalty_pts", gorm.Expr("loyalty_pts - ?", input.RedeemPoints))
+				}
+
+				// 3. Earn points based on order total and CRMSettings
+				if order.Total > 0 && status == "completed" {
+					pointsRate := crmSettings.PointsPerCurrency
+					if pointsRate <= 0 {
+						pointsRate = 1.0
+					}
+					pointsEarned := order.Total * pointsRate
+
+					earnTx := models.LoyaltyTransaction{
+						CustomerID:      *input.CustomerID,
+						OrderID:         &order.ID,
+						Points:          pointsEarned,
+						TransactionType: "earned",
+					}
+					desc := fmt.Sprintf("Earned points on Order #%s", order.OrderNumber)
+					earnTx.Description = &desc
+					_ = tx.Create(&earnTx)
+
+					newTotalSpend := customer.TotalSpend + order.Total
+
+					// 4. Auto-upgrade customer tier if eligible
+					var eligibleTier models.CustomerTier
+					var newTierID *uuid.UUID
+					if err := tx.Where("min_spend <= ?", newTotalSpend).Order("min_spend DESC").First(&eligibleTier).Error; err == nil {
+						newTierID = &eligibleTier.ID
+					}
+
+					updates := map[string]interface{}{
 						"total_spend": gorm.Expr("total_spend + ?", order.Total),
 						"order_count": gorm.Expr("order_count + 1"),
 						"loyalty_pts": gorm.Expr("loyalty_pts + ?", pointsEarned),
 						"last_visit":  time.Now(),
-					}).Error; err != nil {
-					return err
+					}
+					if newTierID != nil {
+						updates["tier_id"] = newTierID
+					}
+
+					if err := tx.Model(&customer).Updates(updates).Error; err != nil {
+						return err
+					}
 				}
 
 				if customer.Phone != nil && *customer.Phone != "" && s.smsService != nil {
@@ -542,18 +596,73 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 			}
 		}
 
-		// Gap #10: Loyalty points accrual inside transaction (not fire-and-forget goroutine)
-		if input.CustomerID != nil && order.Total > 0 {
-			pointsEarned := order.Total / 10.0
-			if err := tx.Model(&models.Customer{}).
-				Where("id = ?", input.CustomerID).
-				Updates(map[string]interface{}{
-					"total_spend": gorm.Expr("total_spend + ?", order.Total),
-					"order_count": gorm.Expr("order_count + 1"),
-					"loyalty_pts": gorm.Expr("loyalty_pts + ?", pointsEarned),
-					"last_visit":  time.Now(),
-				}).Error; err != nil {
-				return err
+		// Feature 5: Automated Loyalty Program with CRM Settings and Tier Upgrades for POS
+		if input.CustomerID != nil {
+			var customer models.Customer
+			if err := tx.Where("id = ?", input.CustomerID).First(&customer).Error; err == nil {
+				// 1. Fetch CRM Settings
+				var crmSettings models.CRMSettings
+				if err := tx.First(&crmSettings).Error; err != nil {
+					crmSettings.PointsPerCurrency = 1.0
+					crmSettings.RedemptionRate = 0.01
+				}
+
+				// 2. Handle points redemption
+				if input.RedeemPoints > 0 && customer.LoyaltyPts >= input.RedeemPoints {
+					redeemTx := models.LoyaltyTransaction{
+						CustomerID:      *input.CustomerID,
+						OrderID:         &order.ID,
+						Points:          -input.RedeemPoints,
+						TransactionType: "redeemed",
+					}
+					desc := fmt.Sprintf("Redeemed %.0f points on POS Order #%s", input.RedeemPoints, order.OrderNumber)
+					redeemTx.Description = &desc
+					_ = tx.Create(&redeemTx)
+
+					_ = tx.Model(&customer).Update("loyalty_pts", gorm.Expr("loyalty_pts - ?", input.RedeemPoints))
+				}
+
+				// 3. Earn points based on order total and CRMSettings
+				if order.Total > 0 {
+					pointsRate := crmSettings.PointsPerCurrency
+					if pointsRate <= 0 {
+						pointsRate = 1.0
+					}
+					pointsEarned := order.Total * pointsRate
+
+					earnTx := models.LoyaltyTransaction{
+						CustomerID:      *input.CustomerID,
+						OrderID:         &order.ID,
+						Points:          pointsEarned,
+						TransactionType: "earned",
+					}
+					desc := fmt.Sprintf("Earned points on POS Order #%s", order.OrderNumber)
+					earnTx.Description = &desc
+					_ = tx.Create(&earnTx)
+
+					newTotalSpend := customer.TotalSpend + order.Total
+
+					// 4. Auto-upgrade customer tier if eligible
+					var eligibleTier models.CustomerTier
+					var newTierID *uuid.UUID
+					if err := tx.Where("min_spend <= ?", newTotalSpend).Order("min_spend DESC").First(&eligibleTier).Error; err == nil {
+						newTierID = &eligibleTier.ID
+					}
+
+					updates := map[string]interface{}{
+						"total_spend": gorm.Expr("total_spend + ?", order.Total),
+						"order_count": gorm.Expr("order_count + 1"),
+						"loyalty_pts": gorm.Expr("loyalty_pts + ?", pointsEarned),
+						"last_visit":  time.Now(),
+					}
+					if newTierID != nil {
+						updates["tier_id"] = newTierID
+					}
+
+					if err := tx.Model(&customer).Updates(updates).Error; err != nil {
+						return err
+					}
+				}
 			}
 		}
 
