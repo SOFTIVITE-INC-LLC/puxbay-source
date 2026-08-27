@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puxbay — The All-in-One Cloud Commerce & POS Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: #0f172a !important; }
+      .page-break { page-break-after: always; }
+      .card-print { break-inside: avoid; border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+    }
+    .hero-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.18) 0%, rgba(14, 165, 233, 0.08) 35%, transparent 70%);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Sticky Quick Action Bar (Hidden in Print) -->
+  <header class="no-print sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-sky-500 to-emerald-400 p-[2px] shadow-lg shadow-indigo-500/20">
+        <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+          <span class="material-symbols-outlined text-transparent bg-clip-text bg-gradient-to-tr from-indigo-400 to-sky-400 font-black">point_of_sale</span>
+        </div>
+      </div>
+      <div>
+        <span class="font-black text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400">PUXBAY</span>
+        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 ml-2 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Enterprise v2.0</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 border border-slate-700/60 transition-all shadow-sm">
+        <span class="material-symbols-outlined !text-[18px]">print</span>
+        Print / Save PDF
+      </button>
+      <a href="https://puxbay.com" target="_blank" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-1.5">
+        Live Platform <span class="material-symbols-outlined !text-[16px]">arrow_forward</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-20 px-6 hero-glow border-b border-slate-800/60">
+    <div class="max-w-5xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Next-Generation Multi-Tenant Commerce Architecture
+      </div>
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] mb-6">
+        The Complete Operating System for <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400">Modern Commerce</span>
+      </h1>
+      <p class="text-base sm:text-xl text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed mb-10">
+        Unified Point of Sale, Instant Online Storefronts, Multi-Branch Warehousing, Instant Paystack Subaccount Payouts, Fleet Delivery, and Deep Customer Intelligence in one unified platform.
+      </p>
+
+      <!-- Key Metrics Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 text-left">
+        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm card-print">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Offline-First</p>
+          <h4 class="text-2xl sm:text-3xl font-black text-white mt-1">100% Uptime</h4>
+          <p class="text-[11px] text-slate-400 mt-1">IndexedDB Queue & Auto-Sync</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm card-print">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Direct Settlement</p>
+          <h4 class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">0 Days Wait</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Direct to Tenant Bank / MoMo</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm card-print">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Payment Modes</p>
+          <h4 class="text-2xl sm:text-3xl font-black text-sky-400 mt-1">Omnichannel</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Cash, Card, MoMo, QR & Wallet</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm card-print">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Multi-Location</p>
+          <h4 class="text-2xl sm:text-3xl font-black text-indigo-400 mt-1">Unlimited</h4>
+          <p class="text-[11px] text-slate-400 mt-1">Branches, Warehouses & Staff</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Pillars Section -->
+  <main class="max-w-6xl mx-auto px-6 py-16 space-y-20">
+
+    <!-- Pillar 1: Smart POS & Cashier Desk -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">point_of_sale</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">1. Ultra-Fast Intelligent Point of Sale (POS)</h2>
+          <p class="text-sm text-slate-400">High-throughput checkout engineered for retail, grocery, pharmacies, and hospitality.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-indigo-400 text-3xl">qr_code_scanner</span>
+          <h3 class="text-lg font-black text-white">Camera & Laser Scanning</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Instantly scan physical barcodes or 2D QR codes via device cameras or hardware laser guns with sub-100ms item lookup and sound haptics.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-cyan-400 text-3xl">call_split</span>
+          <h3 class="text-lg font-black text-white">Multi-Tender Split Payments</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Seamlessly split an order across Cash, Credit Cards, Mobile Money (MTN, Telecel, AirtelTigo), Scan-to-Pay QR, and Gift Cards in any denomination.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-emerald-400 text-3xl">cloud_sync</span>
+          <h3 class="text-lg font-black text-white">Offline Fault Tolerance</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Internet went down? POS keeps processing sales via local IndexedDB. Once reconnected, all offline orders, cash drawers, and stock levels auto-sync.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 2: Paystack Subaccount & Instant MoMo Routing -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">account_balance</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">2. Paystack Subaccounts & Automated Direct Settlements</h2>
+          <p class="text-sm text-slate-400">Zero intermediary delays — customer money lands straight into the merchant's bank or Mobile Money account.</p>
+        </div>
+      </div>
+
+      <div class="p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/90 to-indigo-950/40 border border-slate-800 card-print">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div class="space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-black">
+              <span class="material-symbols-outlined !text-[16px]">verified</span> Direct Merchant Payout Engine
+            </div>
+            <h3 class="text-2xl font-black text-white">How Puxbay Direct Settlement Works</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              Every merchant can connect or create their own Paystack subaccount in 60 seconds with bank verification. When customers pay via POS, Storefront, Mobile Money, or Dynamic QR:
+            </p>
+            <ul class="space-y-2.5 text-xs text-slate-300 font-medium">
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-400 !text-[18px]">check_circle</span> 100% of proceeds route directly into the tenant's subaccount (<code class="bg-slate-800 px-1.5 py-0.5 rounded text-cyan-300">bearer: subaccount</code>).</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-400 !text-[18px]">check_circle</span> Supports all major African Mobile Money providers (MTN MoMo, Telecel Cash, AT Money).</li>
+              <li class="flex items-center gap-2"><span class="material-symbols-outlined text-emerald-400 !text-[18px]">check_circle</span> Instant webhook signature validation & receipt token generation.</li>
+            </ul>
+          </div>
+          <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 font-mono text-xs space-y-3">
+            <div class="flex justify-between items-center text-slate-500 border-b border-slate-800 pb-2">
+              <span>Paystack Split Routing</span>
+              <span class="text-emerald-400 font-bold">ACTIVE</span>
+            </div>
+            <div class="space-y-1.5 text-slate-400">
+              <p><span class="text-indigo-400">Subaccount:</span> ACCT_8x94q9031n9</p>
+              <p><span class="text-indigo-400">Settlement:</span> GCB Bank / MTN MoMo (0244******)</p>
+              <p><span class="text-indigo-400">Channels:</span> Mobile Money, Visa, Mastercard, QR</p>
+              <p><span class="text-indigo-400">Platform Cut:</span> 0% (Direct Settlement)</p>
+            </div>
+            <div class="pt-2 border-t border-slate-800 flex justify-between text-slate-200 font-bold">
+              <span>Customer Pays:</span>
+              <span class="text-emerald-400">GH₵ 450.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 3: Branded Online Storefront & E-Commerce -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">storefront</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">3. Turnkey E-Commerce & Online Storefront</h2>
+          <p class="text-sm text-slate-400">Launch a multi-category digital store with live stock sync in seconds.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-amber-400 text-3xl">shopping_bag</span>
+          <h3 class="text-lg font-black text-white">Custom Brand Domain & Theme</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Customize store branding, primary palette, hero banners, store view mode (Global vs Branch), and SEO metadata with automated slug generation.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-sky-400 text-3xl">local_shipping</span>
+          <h3 class="text-lg font-black text-white">Click & Collect or Delivery</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Customers choose between Store Pickup or GPS-accurate Delivery with customizable delivery fees, minimum order thresholds, and notes.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-rose-400 text-3xl">mark_email_unread</span>
+          <h3 class="text-lg font-black text-white">Abandoned Cart Recovery</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Tracks dropped checkout sessions and automatically sends discount recovery emails to convert lost visitors into confirmed sales.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 4: Multi-Branch & Warehousing Inventory -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">warehouse</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">4. Multi-Location Inventory & Stock Logistics</h2>
+          <p class="text-sm text-slate-400">Total control over inventory across headquarters, regional branches, and warehouses.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-emerald-400 text-3xl">swap_horiz</span>
+          <h3 class="text-lg font-black text-white">Inter-Branch Stock Transfers</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Transfer inventory between branches with multi-step approval workflows (Requested, Dispatched, Received) and transit audit logs.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-amber-400 text-3xl">notification_important</span>
+          <h3 class="text-lg font-black text-white">Low-Stock & Expiry Alerts</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Automated re-order trigger levels, batch number tracking, expiry date monitoring, and supplier restock suggestions.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-indigo-400 text-3xl">inventory_2</span>
+          <h3 class="text-lg font-black text-white">Stock Valuation & Waste Audit</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Real-time Cost of Goods Sold (COGS), stock adjustment audit trails, damage/spoilage logging, and stocktake reconciliation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 5: Fleet & Delivery Management -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">two_wheeler</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">5. Fleet Dispatch & Order Tracking</h2>
+          <p class="text-sm text-slate-400">Streamlined in-house driver dispatching and real-time fulfillment management.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-violet-400 text-3xl">badge</span>
+          <h3 class="text-lg font-black text-white">Driver Fleet Profiles</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Manage drivers, contact numbers, vehicle registration numbers, delivery statuses (Available, On Route, Inactive), and performance metrics.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-sky-400 text-3xl">send_and_archive</span>
+          <h3 class="text-lg font-black text-white">One-Click Dispatch</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Assign pending delivery orders directly to available drivers with customer address notes and recipient contact details.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-emerald-400 text-3xl">track_changes</span>
+          <h3 class="text-lg font-black text-white">Live Tracking Numbers</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Every dispatch generates an immutable TRK tracking code allowing customers to check fulfillment progress in real-time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 6: Customer Loyalty, Wallet & Marketing -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">loyalty</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">6. Customer Wallet, Store Credit & Loyalty Rewards</h2>
+          <p class="text-sm text-slate-400">Retain high-value customers with digital credit, point redemption, and gift cards.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-rose-400 text-3xl">wallet</span>
+          <h3 class="text-lg font-black text-white">Digital Store Credit Wallet</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Issue, top-up, and adjust digital wallet balances for returns or VIP prepayments, spendable at POS and Storefront.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-amber-400 text-3xl">stars</span>
+          <h3 class="text-lg font-black text-white">Automated Point Accrual</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Customers earn loyalty points on every purchase, redeemable at checkout with configurable cash-to-point discount conversion rates.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-indigo-400 text-3xl">card_giftcard</span>
+          <h3 class="text-lg font-black text-white">PIN-Secured Gift Cards</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Generate serialized gift card vouchers with encrypted balances, partial redemptions, and expiration safeguards.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 7: Staff, Shifts & Kitchen Display (KOT) -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">badge</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">7. Staff Management, Attendance & Kitchen Display</h2>
+          <p class="text-sm text-slate-400">Keep operations tight with shift accounting and real-time kitchen coordination.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-teal-400 text-3xl">alarm_on</span>
+          <h3 class="text-lg font-black text-white">Attendance Clock-In / Out</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Staff clock-in records with status tracking (Present, Late, Absent), total work hours calculation, and staff shift scheduling.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-indigo-400 text-3xl">point_of_sale</span>
+          <h3 class="text-lg font-black text-white">Register Shift Auditing</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Opening float entry, expected cash reconciliation, drop cash tracking, and automated Z-Report drawer balances.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-amber-400 text-3xl">skillet</span>
+          <h3 class="text-lg font-black text-white">Kitchen Display System (KDS)</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Instant order dispatch from POS to kitchen screens with order timer tags, prep station routing, and completion alerts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pillar 8: Business Intelligence & Accounting -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-2xl">monitoring</span>
+        </div>
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white">8. Real-Time Business Intelligence & Financials</h2>
+          <p class="text-sm text-slate-400">Actionable executive dashboards for revenue, gross margins, and top performers.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-fuchsia-400 text-3xl">trending_up</span>
+          <h3 class="text-lg font-black text-white">Gross Margin & Profit Analysis</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Automated calculation of net revenue, cost of goods, gross margin %, and discounts across daily, weekly, and monthly intervals.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-sky-400 text-3xl">leaderboard</span>
+          <h3 class="text-lg font-black text-white">Staff Sales Leaderboards</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Track top-performing cashiers, average basket size per cashier, and sales commission calculations.</p>
+        </div>
+        <div class="p-6 rounded-3xl bg-slate-900/70 border border-slate-800 card-print space-y-3">
+          <span class="material-symbols-outlined text-emerald-400 text-3xl">receipt_long</span>
+          <h3 class="text-lg font-black text-white">One-Click Accounting Export</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Export sales ledgers, tax breakdowns, and payment logs to CSV or sync directly with cloud accounting platforms.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Matrix -->
+    <section class="space-y-6 pt-10">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <h2 class="text-3xl font-black text-white">Why Puxbay Outperforms Traditional Systems</h2>
+        <p class="text-xs sm:text-sm text-slate-400">A modern architecture built for African & global multi-channel businesses.</p>
+      </div>
+
+      <div class="overflow-x-auto rounded-3xl border border-slate-800 bg-slate-900/60 card-print">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900 text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+              <th class="p-4 sm:p-5">Capability</th>
+              <th class="p-4 sm:p-5 text-indigo-400 font-black">Puxbay Platform</th>
+              <th class="p-4 sm:p-5 text-slate-500">Legacy Desktop POS</th>
+              <th class="p-4 sm:p-5 text-slate-500">Generic Shopify/Woo</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80 text-slate-300 font-medium">
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">MoMo & Paystack Direct Subaccounts</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Built-in (0-day payout)</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Manual / External phone</td>
+              <td class="p-4 sm:p-5 text-amber-400 font-bold">Plugin required</td>
+            </tr>
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">Offline POS with Auto-Sync</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Native IndexedDB</td>
+              <td class="p-4 sm:p-5 text-amber-400 font-bold">Local only (No cloud)</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Breaks offline</td>
+            </tr>
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">Unified POS + Online Store Stock</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Real-time single db</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Separate systems</td>
+              <td class="p-4 sm:p-5 text-amber-400 font-bold">Slow API sync</td>
+            </tr>
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">Multi-Branch Inter-transfers</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Native 3-step workflow</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Not supported</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Expensive add-on</td>
+            </tr>
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">Integrated Fleet & Driver Dispatch</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Included with TRK links</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">None</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">3rd party SaaS ($$)</td>
+            </tr>
+            <tr>
+              <td class="p-4 sm:p-5 font-bold text-white">Customer Display System (CDS)</td>
+              <td class="p-4 sm:p-5 text-emerald-400 font-bold flex items-center gap-1.5"><span class="material-symbols-outlined !text-[16px]">check_circle</span> Instant BroadcastSync</td>
+              <td class="p-4 sm:p-5 text-amber-400 font-bold">Requires proprietary hardware</td>
+              <td class="p-4 sm:p-5 text-rose-400 font-bold">Not available</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer Call to Action -->
+    <section class="p-10 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-sky-900 border border-indigo-700/50 text-center space-y-6 card-print">
+      <h3 class="text-3xl sm:text-4xl font-black text-white">Ready to Power Your Commerce with Puxbay?</h3>
+      <p class="text-sm text-indigo-200 max-w-xl mx-auto font-medium">
+        Experience zero downtime, instant mobile money payouts, and multi-branch efficiency.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <a href="https://puxbay.com" target="_blank" class="px-8 py-3.5 rounded-2xl bg-white text-slate-900 font-black text-sm hover:scale-105 transition-all shadow-xl">
+          Get Started Free
+        </a>
+        <button onclick="window.print()" class="px-6 py-3.5 rounded-2xl bg-indigo-700/60 hover:bg-indigo-700 text-white font-bold text-sm border border-indigo-400/30 transition-all">
+          Save Capability Brochure (PDF)
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-900 py-8 text-center text-xs text-slate-500">
+    <p>© 2026 Puxbay Enterprise Commerce. Built by Softivite Inc. LLC. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
