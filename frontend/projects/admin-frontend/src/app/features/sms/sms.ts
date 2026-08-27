@@ -8,7 +8,8 @@ import { AlertService } from '../../services/alert.service';
   selector: 'app-sms',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './sms.html'
+  templateUrl: './sms.html',
+  host: { class: 'block w-full min-h-full' }
 })
 export class SmsComponent implements OnInit {
   private smsService = inject(AdminSMSService);

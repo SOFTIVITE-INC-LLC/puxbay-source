@@ -13,6 +13,7 @@ import { StorefrontSettingsService } from '../../../core/store/services/storefro
   standalone: true,
   imports: [CommonModule, FormsModule, AppCurrencyPipe],
   templateUrl: './marketing.html',
+  host: { class: 'block w-full min-h-full' },
 })
 export class Marketing implements OnInit {
   marketingService = inject(MarketingService);
