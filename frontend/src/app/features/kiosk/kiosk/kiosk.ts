@@ -292,7 +292,10 @@ export class Kiosk implements OnInit, OnDestroy {
     const amountInLowestUnit = Math.round(total * 100);
     const currency = this.tenantCurrency();
     const customer = this.kioskCustomer();
-    const customerEmail = customer?.email || (this.customerPhone ? `${this.customerPhone.replace(/[^0-9]/g, '')}@kiosk.customer` : 'kiosk-customer@puxbay.com');
+    const cleanPhone = (this.customerPhone || '').replace(/[^0-9]/g, '');
+    const customerEmail = (customer?.email && customer.email.includes('@') && customer.email.includes('.'))
+      ? customer.email
+      : (cleanPhone ? `kiosk-${cleanPhone}@puxbay.com` : 'kiosk-customer@puxbay.com');
 
     const channels = method === 'mobile_money'
       ? ['mobile_money', 'qr', 'ussd']

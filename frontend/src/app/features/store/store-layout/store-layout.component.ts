@@ -43,8 +43,14 @@ export class StoreLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.cartService.loadCart();
-    this.settingsService.loadSettings().subscribe();
     this.currencyService.init();
+    this.settingsService.loadSettings().subscribe({
+      next: (settings) => {
+        if (settings?.currency) {
+          this.currencyService.init(settings.currency);
+        }
+      }
+    });
   }
 
   toggleMobileMenu() {
