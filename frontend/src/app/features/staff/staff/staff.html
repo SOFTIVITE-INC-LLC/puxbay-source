@@ -1,9 +1,14 @@
 <div class="h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1500px] mx-auto text-zinc-900 dark:text-zinc-100 font-sans" style="font-family: 'Outfit', sans-serif;">
 
+  <!-- ── Deep Background Glows ── -->
+  <div class="fixed inset-0 pointer-events-none hidden dark:block"
+    style="background-image: radial-gradient(ellipse at 25% 20%, rgba(147,51,234,0.08) 0%, transparent 55%), radial-gradient(ellipse at 85% 60%, rgba(79,70,229,0.06) 0%, transparent 50%), radial-gradient(ellipse at 50% 90%, rgba(16,185,129,0.04) 0%, transparent 50%);">
+  </div>
+
   <!-- ── Header ── -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
     <div class="flex items-center space-x-3 sm:space-x-4">
-      <button routerLink="/" class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:scale-105 transition-all shrink-0">
+      <button routerLink="/" class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-2xl bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:scale-105 transition-all shrink-0 active:scale-95">
         <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
       </button>
       <div>
@@ -29,12 +34,13 @@
   </div>
 
   <!-- ── KPI METRICS CARDS ── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-    <!-- Card 1 -->
-    <div class="p-4 sm:p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl relative overflow-hidden group hover:border-purple-500/40 transition-colors">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative z-10">
+    <!-- Card 1: Total Staff -->
+    <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-purple-500/40 transition-all duration-300">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total Staff</span>
-        <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined !text-[18px]">group</span>
         </div>
       </div>
@@ -44,11 +50,12 @@
       </p>
     </div>
 
-    <!-- Card 2 -->
-    <div class="p-4 sm:p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/40 transition-colors">
+    <!-- Card 2: Active & Operational -->
+    <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Active &amp; Operational</span>
-        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined !text-[18px]">verified</span>
         </div>
       </div>
@@ -59,11 +66,12 @@
       </p>
     </div>
 
-    <!-- Card 3 -->
-    <div class="p-4 sm:p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl relative overflow-hidden group hover:border-blue-500/40 transition-colors">
+    <!-- Card 3: Store Leadership -->
+    <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Store Leadership</span>
-        <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined !text-[18px]">manage_accounts</span>
         </div>
       </div>
@@ -71,11 +79,12 @@
       <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Managers &amp; supervisors</p>
     </div>
 
-    <!-- Card 4 -->
-    <div class="p-4 sm:p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/70 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl relative overflow-hidden group hover:border-amber-500/40 transition-colors">
+    <!-- Card 4: POS Cashiers -->
+    <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">POS Cashiers</span>
-        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
           <span class="material-symbols-outlined !text-[18px]">point_of_sale</span>
         </div>
       </div>
@@ -85,7 +94,7 @@
   </div>
 
   <!-- ── NAVIGATION TABS ── -->
-  <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 w-fit flex-wrap">
+  <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-xl w-fit flex-wrap relative z-10">
     <button (click)="activeTab.set('directory')"
             [class.bg-white]="activeTab() === 'directory'"
             [class.dark:bg-zinc-800]="activeTab() === 'directory'"
@@ -94,7 +103,7 @@
             [class.shadow-sm]="activeTab() === 'directory'"
             [class.text-zinc-600]="activeTab() !== 'directory'"
             [class.dark:text-zinc-400]="activeTab() !== 'directory'"
-            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2">
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 active:scale-95">
       <span class="material-symbols-outlined !text-[16px]">badge</span>
       <span>Staff Directory</span>
       <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -110,7 +119,7 @@
             [class.shadow-sm]="activeTab() === 'roles'"
             [class.text-zinc-600]="activeTab() !== 'roles'"
             [class.dark:text-zinc-400]="activeTab() !== 'roles'"
-            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2">
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 active:scale-95">
       <span class="material-symbols-outlined !text-[16px]">shield</span>
       <span>Role &amp; Permissions Matrix</span>
     </button>
@@ -123,9 +132,10 @@
             [class.shadow-sm]="activeTab() === 'security'"
             [class.text-zinc-600]="activeTab() !== 'security'"
             [class.dark:text-zinc-400]="activeTab() !== 'security'"
-            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2">
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 active:scale-95">
       <span class="material-symbols-outlined !text-[16px]">lock_reset</span>
       <span>Security Policies</span>
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
     </button>
   </div>
 
@@ -133,10 +143,10 @@
   <!-- TAB 1: STAFF DIRECTORY                                                    -->
   <!-- ══════════════════════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'directory') {
-    <div class="space-y-4">
+    <div class="space-y-4 relative z-10">
       
       <!-- Unified Compact Toolbar -->
-      <div class="p-3 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-sm backdrop-blur-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+      <div class="glass-panel p-3 rounded-2xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         
         <!-- Left: Search Box -->
         <div class="relative flex-1 min-w-[240px]">
@@ -145,7 +155,7 @@
           </div>
           <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
                  placeholder="Search staff by name, email, role, or phone..." 
-                 class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/60 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs font-medium">
+                 class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-purple-500 text-xs font-medium transition-colors">
         </div>
 
         <!-- Middle: Role Filter Pills -->
@@ -154,50 +164,50 @@
                   [class.bg-purple-600]="selectedRoleFilter() === 'all'"
                   [class.text-white]="selectedRoleFilter() === 'all'"
                   [class.bg-slate-100]="selectedRoleFilter() !== 'all'"
-                  [class.dark:bg-zinc-800]="selectedRoleFilter() !== 'all'"
+                  [class.dark:bg-white/5]="selectedRoleFilter() !== 'all'"
                   [class.text-zinc-600]="selectedRoleFilter() !== 'all'"
                   [class.dark:text-zinc-400]="selectedRoleFilter() !== 'all'"
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95">
             All ({{ staffList().length }})
           </button>
           <button (click)="selectedRoleFilter.set('admin')"
                   [class.bg-purple-600]="selectedRoleFilter() === 'admin'"
                   [class.text-white]="selectedRoleFilter() === 'admin'"
                   [class.bg-slate-100]="selectedRoleFilter() !== 'admin'"
-                  [class.dark:bg-zinc-800]="selectedRoleFilter() !== 'admin'"
+                  [class.dark:bg-white/5]="selectedRoleFilter() !== 'admin'"
                   [class.text-zinc-600]="selectedRoleFilter() !== 'admin'"
                   [class.dark:text-zinc-400]="selectedRoleFilter() !== 'admin'"
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95">
             Admins
           </button>
           <button (click)="selectedRoleFilter.set('manager')"
                   [class.bg-blue-600]="selectedRoleFilter() === 'manager'"
                   [class.text-white]="selectedRoleFilter() === 'manager'"
                   [class.bg-slate-100]="selectedRoleFilter() !== 'manager'"
-                  [class.dark:bg-zinc-800]="selectedRoleFilter() !== 'manager'"
+                  [class.dark:bg-white/5]="selectedRoleFilter() !== 'manager'"
                   [class.text-zinc-600]="selectedRoleFilter() !== 'manager'"
                   [class.dark:text-zinc-400]="selectedRoleFilter() !== 'manager'"
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95">
             Managers
           </button>
           <button (click)="selectedRoleFilter.set('supervisor')"
                   [class.bg-teal-600]="selectedRoleFilter() === 'supervisor'"
                   [class.text-white]="selectedRoleFilter() === 'supervisor'"
                   [class.bg-slate-100]="selectedRoleFilter() !== 'supervisor'"
-                  [class.dark:bg-zinc-800]="selectedRoleFilter() !== 'supervisor'"
+                  [class.dark:bg-white/5]="selectedRoleFilter() !== 'supervisor'"
                   [class.text-zinc-600]="selectedRoleFilter() !== 'supervisor'"
                   [class.dark:text-zinc-400]="selectedRoleFilter() !== 'supervisor'"
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95">
             Supervisors
           </button>
           <button (click)="selectedRoleFilter.set('cashier')"
                   [class.bg-amber-600]="selectedRoleFilter() === 'cashier'"
                   [class.text-white]="selectedRoleFilter() === 'cashier'"
                   [class.bg-slate-100]="selectedRoleFilter() !== 'cashier'"
-                  [class.dark:bg-zinc-800]="selectedRoleFilter() !== 'cashier'"
+                  [class.dark:bg-white/5]="selectedRoleFilter() !== 'cashier'"
                   [class.text-zinc-600]="selectedRoleFilter() !== 'cashier'"
                   [class.dark:text-zinc-400]="selectedRoleFilter() !== 'cashier'"
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95">
             Cashiers
           </button>
         </div>
@@ -206,7 +216,7 @@
         <div class="flex items-center gap-2">
           <!-- Branch Selector -->
           <select [ngModel]="selectedBranchFilter()" (ngModelChange)="selectedBranchFilter.set($event)"
-                  class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-purple-500 transition-colors">
             <option value="all">All Locations</option>
             <option value="global">Global (All Branches)</option>
             @for (branch of branches(); track branch.id) {
@@ -215,24 +225,24 @@
           </select>
 
           <!-- View Mode Toggle -->
-          <div class="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 shrink-0">
+          <div class="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shrink-0">
             <button (click)="viewMode.set('grid')"
                     [class.bg-white]="viewMode() === 'grid'"
-                    [class.dark:bg-zinc-700]="viewMode() === 'grid'"
+                    [class.dark:bg-zinc-800]="viewMode() === 'grid'"
                     [class.shadow-sm]="viewMode() === 'grid'"
                     [class.text-purple-600]="viewMode() === 'grid'"
                     [class.dark:text-white]="viewMode() === 'grid'"
-                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 transition-all"
+                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 transition-all active:scale-95"
                     title="Card Grid View">
               <span class="material-symbols-outlined !text-[18px] block">grid_view</span>
             </button>
             <button (click)="viewMode.set('table')"
                     [class.bg-white]="viewMode() === 'table'"
-                    [class.dark:bg-zinc-700]="viewMode() === 'table'"
+                    [class.dark:bg-zinc-800]="viewMode() === 'table'"
                     [class.shadow-sm]="viewMode() === 'table'"
                     [class.text-purple-600]="viewMode() === 'table'"
                     [class.dark:text-white]="viewMode() === 'table'"
-                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 transition-all"
+                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 transition-all active:scale-95"
                     title="Data Table View">
               <span class="material-symbols-outlined !text-[18px] block">table_rows</span>
             </button>
@@ -242,13 +252,13 @@
 
       <!-- Empty State -->
       @if (filteredStaff().length === 0) {
-        <div class="flex flex-col items-center justify-center py-20 bg-white/80 dark:bg-zinc-900/80 rounded-3xl border border-dashed border-slate-300 dark:border-zinc-800 text-center">
+        <div class="glass-panel flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-slate-300 dark:border-white/10 text-center">
           <div class="w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
             <span class="material-symbols-outlined !text-[32px]">person_search</span>
           </div>
           <h3 class="text-base font-black text-zinc-900 dark:text-white">No Staff Members Found</h3>
           <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm">No team members match your active search and filter criteria.</p>
-          <button (click)="searchQuery.set(''); selectedRoleFilter.set('all'); selectedBranchFilter.set('all'); selectedStatusFilter.set('all')" class="mt-4 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-md">
+          <button (click)="searchQuery.set(''); selectedRoleFilter.set('all'); selectedBranchFilter.set('all'); selectedStatusFilter.set('all')" class="mt-4 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md active:scale-95 transition-all">
             Reset Filters
           </button>
         </div>
@@ -258,7 +268,8 @@
       @if (viewMode() === 'grid' && filteredStaff().length > 0) {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           @for (member of filteredStaff(); track member.id) {
-            <div class="rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 p-5 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative group overflow-hidden">
+            <div class="glass-panel rounded-3xl p-5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative group overflow-hidden">
+              <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
               <!-- Card Top Header -->
               <div>
@@ -297,17 +308,17 @@
 
                 <!-- Info Grid -->
                 <div class="mt-4 space-y-2 text-xs">
-                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-zinc-800/60 py-2 px-3 rounded-xl">
+                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 py-2 px-3 rounded-xl border border-slate-200/50 dark:border-white/5">
                     <span class="material-symbols-outlined !text-[16px] text-zinc-400 shrink-0">mail</span>
                     <span class="truncate font-medium">{{ member.user?.email || 'No email assigned' }}</span>
                   </div>
 
-                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-zinc-800/60 py-2 px-3 rounded-xl">
+                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 py-2 px-3 rounded-xl border border-slate-200/50 dark:border-white/5">
                     <span class="material-symbols-outlined !text-[16px] text-zinc-400 shrink-0">call</span>
                     <span class="truncate font-medium">{{ member.user?.phone || 'No phone' }}</span>
                   </div>
 
-                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-zinc-800/60 py-2 px-3 rounded-xl font-mono text-[11px]">
+                  <div class="flex items-center gap-2 text-zinc-600 dark:text-zinc-300 bg-slate-50 dark:bg-white/5 py-2 px-3 rounded-xl font-mono text-[11px] border border-slate-200/50 dark:border-white/5">
                     <span class="material-symbols-outlined !text-[16px] text-zinc-400 shrink-0">storefront</span>
                     <span class="truncate">{{ getBranchName(member.branch_id) }}</span>
                   </div>
@@ -315,7 +326,7 @@
               </div>
 
               <!-- Card Bottom Actions -->
-              <div class="mt-5 pt-3 border-t border-slate-100 dark:border-zinc-800/80 flex items-center gap-2">
+              <div class="mt-5 pt-3 border-t border-slate-100 dark:border-white/10 flex items-center gap-2">
                 <button (click)="openStaffModal(member)" class="flex-1 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95">
                   <span class="material-symbols-outlined !text-[15px]">edit</span>
                   <span>Edit Profile</span>
@@ -331,10 +342,10 @@
 
       <!-- ── VIEW 2: DATA TABLE ── -->
       @if (viewMode() === 'table' && filteredStaff().length > 0) {
-        <div class="rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 overflow-hidden shadow-sm">
+        <div class="glass-panel rounded-3xl overflow-hidden shadow-sm">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
-              <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+              <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
                 <tr>
                   <th class="px-5 py-3.5">Staff Member</th>
                   <th class="px-5 py-3.5">Role</th>
@@ -345,9 +356,9 @@
                   <th class="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+              <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
                 @for (member of filteredStaff(); track member.id) {
-                  <tr class="hover:bg-slate-50/80 dark:hover:bg-zinc-800/30 transition-colors">
+                  <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors">
                     <td class="px-5 py-3.5">
                       <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
@@ -404,16 +415,16 @@
   <!-- TAB 2: ROLES & PERMISSIONS MATRIX                                         -->
   <!-- ══════════════════════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'roles') {
-    <div class="space-y-4">
-      <div class="p-5 rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 space-y-1">
+    <div class="space-y-4 relative z-10">
+      <div class="glass-panel p-5 rounded-3xl space-y-1">
         <h2 class="text-base font-black text-zinc-900 dark:text-white">Role Capability &amp; Privilege Matrix</h2>
         <p class="text-xs text-zinc-500 dark:text-zinc-400">Granular permission breakdown governing cashier POS actions, inventory movements, financial report visibility, and administrative overrides.</p>
       </div>
 
-      <div class="rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 overflow-hidden shadow-sm">
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
-            <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
               <tr>
                 <th class="px-5 py-3.5">Permission / Action</th>
                 <th class="px-5 py-3.5">Scope &amp; Description</th>
@@ -423,9 +434,9 @@
                 <th class="px-4 py-3.5 text-center text-amber-600 dark:text-amber-400 font-black">Cashier</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
               @for (row of permissionsMatrix; track row.permission) {
-                <tr class="hover:bg-slate-50/80 dark:hover:bg-zinc-800/30 transition-colors">
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors">
                   <td class="px-5 py-3 font-bold text-zinc-900 dark:text-white">
                     <span class="text-[9px] uppercase tracking-wider text-purple-500 block font-black">{{ row.category }}</span>
                     {{ row.permission }}
@@ -474,82 +485,247 @@
   <!-- TAB 3: ACCESS & SECURITY POLICIES                                         -->
   <!-- ══════════════════════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'security') {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Policy 1 -->
-      <div class="p-5 rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 space-y-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined !text-[20px]">dialpad</span>
+    <div class="space-y-5 relative z-10">
+
+      <!-- Security Status Bar -->
+      <div class="glass-panel p-5 rounded-3xl border-l-4 border-l-purple-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+            <span class="material-symbols-outlined !text-[22px]">security</span>
           </div>
           <div>
-            <h3 class="font-black text-sm text-zinc-900 dark:text-white">POS Cashier Quick PIN Access</h3>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Terminal shift lock &amp; quick cashier handover</p>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-black text-zinc-900 dark:text-white">Store Access Guard &amp; Security Policy Engine</h2>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">Enforced</span>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Real-time isolation, cashier PIN tokens, session protection, and audit logging parameters</p>
           </div>
         </div>
-        <p class="text-xs text-zinc-600 dark:text-zinc-300">Allows cashiers to unlock register terminals using a 4-digit security PIN without full password re-entry during busy shift handovers.</p>
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-          <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Enabled on All POS Registers
-          </span>
+        <div class="flex items-center gap-3">
+          <div class="text-right hidden sm:block">
+            <p class="text-xs font-black text-emerald-600 dark:text-emerald-400">100% Policy Compliance</p>
+            <p class="text-[10px] text-zinc-400">All 4 nodes synchronized</p>
+          </div>
         </div>
       </div>
 
-      <!-- Policy 2 -->
-      <div class="p-5 rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 space-y-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined !text-[20px]">timer</span>
-          </div>
-          <div>
-            <h3 class="font-black text-sm text-zinc-900 dark:text-white">Session Timeout &amp; Auto-Lock</h3>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Inactivity protection for terminals</p>
-          </div>
-        </div>
-        <p class="text-xs text-zinc-600 dark:text-zinc-300">Registers automatically lock screen after 15 minutes of idle time to prevent unauthorized checkout overrides and cash drawer pops.</p>
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-          <span class="font-bold text-zinc-600 dark:text-zinc-400">Lock Window: 15 minutes</span>
-        </div>
-      </div>
+      <!-- Policy Grid with Interactive Configurations -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Policy 1: Quick PIN -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-purple-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined !text-[20px]">dialpad</span>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm text-zinc-900 dark:text-white">POS Cashier Quick PIN Access</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Terminal shift lock &amp; quick cashier handover</p>
+                </div>
+              </div>
+              <!-- Toggle switch -->
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="quickPinEnabled()" (change)="quickPinEnabled.set(!quickPinEnabled())" class="sr-only peer">
+                <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
 
-      <!-- Policy 3 -->
-      <div class="p-5 rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 space-y-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined !text-[20px]">history</span>
-          </div>
-          <div>
-            <h3 class="font-black text-sm text-zinc-900 dark:text-white">User Activity Audit Logging</h3>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Permanent operational ledger</p>
-          </div>
-        </div>
-        <p class="text-xs text-zinc-600 dark:text-zinc-300">Every sensitive action (price adjustments, line item deletions, manual drawer openings, stock writes) is permanently indexed with user ID and timestamp.</p>
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-          <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Active &amp; Recording
-          </span>
-        </div>
-      </div>
+            <p class="text-xs text-zinc-600 dark:text-zinc-300">Allows cashiers to unlock register terminals using a numeric security PIN without full password re-entry during busy shift handovers.</p>
 
-      <!-- Policy 4 -->
-      <div class="p-5 rounded-3xl bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800/80 space-y-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined !text-[20px]">domain</span>
+            <!-- Configuration Options -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">PIN Complexity</label>
+                <select [ngModel]="pinLength()" (ngModelChange)="pinLength.set(+$event)" class="w-full bg-transparent font-bold text-xs text-zinc-900 dark:text-white focus:outline-none cursor-pointer">
+                  <option [value]="4" class="dark:bg-zinc-900">4-Digit Numeric</option>
+                  <option [value]="6" class="dark:bg-zinc-900">6-Digit High Security</option>
+                </select>
+              </div>
+
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Manager Override</label>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ requireManagerOverride() ? 'Mandatory' : 'Optional' }}</span>
+                  <input type="checkbox" [checked]="requireManagerOverride()" (change)="requireManagerOverride.set(!requireManagerOverride())" class="rounded accent-purple-600">
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="font-black text-sm text-zinc-900 dark:text-white">Branch-Scoped Isolation</h3>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Location-based access controls</p>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+            <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500" [class.animate-pulse]="quickPinEnabled()"></span>
+              {{ quickPinEnabled() ? 'Enabled on All POS Registers' : 'Disabled (Full Password Only)' }}
+            </span>
+            <button (click)="savePolicy('POS Cashier Quick PIN Access')" class="px-3 py-1 text-xs font-bold rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 transition-colors active:scale-95">
+              Save
+            </button>
           </div>
         </div>
-        <p class="text-xs text-zinc-600 dark:text-zinc-300">Cashiers and store supervisors only access catalog items, sales, and registers assigned to their specific store branch.</p>
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-          <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Enforced by Middleware
-          </span>
+
+        <!-- Policy 2: Session Timeout -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-blue-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined !text-[20px]">timer</span>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm text-zinc-900 dark:text-white">Session Timeout &amp; Auto-Lock</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Inactivity protection for terminals</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="sessionTimeoutEnabled()" (change)="sessionTimeoutEnabled.set(!sessionTimeoutEnabled())" class="sr-only peer">
+                <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            <p class="text-xs text-zinc-600 dark:text-zinc-300">Registers automatically lock screen after idle time to prevent unauthorized checkout overrides and cash drawer pops.</p>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Lockout Timer</label>
+                <select [ngModel]="sessionTimeoutMinutes()" (ngModelChange)="sessionTimeoutMinutes.set(+$event)" class="w-full bg-transparent font-bold text-xs text-zinc-900 dark:text-white focus:outline-none cursor-pointer">
+                  <option [value]="5" class="dark:bg-zinc-900">5 Minutes (Strict)</option>
+                  <option [value]="15" class="dark:bg-zinc-900">15 Minutes (Recommended)</option>
+                  <option [value]="30" class="dark:bg-zinc-900">30 Minutes (Relaxed)</option>
+                  <option [value]="60" class="dark:bg-zinc-900">60 Minutes</option>
+                </select>
+              </div>
+
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Auto Shift Suspend</label>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ autoLockOnIdle() ? 'Enabled' : 'Disabled' }}</span>
+                  <input type="checkbox" [checked]="autoLockOnIdle()" (change)="autoLockOnIdle.set(!autoLockOnIdle())" class="rounded accent-blue-600">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+            <span class="font-bold text-zinc-600 dark:text-zinc-400">
+              Lock Window: <strong class="text-zinc-900 dark:text-white">{{ sessionTimeoutMinutes() }} minutes</strong>
+            </span>
+            <button (click)="savePolicy('Session Timeout & Auto-Lock')" class="px-3 py-1 text-xs font-bold rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 transition-colors active:scale-95">
+              Save
+            </button>
+          </div>
         </div>
+
+        <!-- Policy 3: Audit Logging -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-teal-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-teal-500/0 via-teal-500 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined !text-[20px]">history</span>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm text-zinc-900 dark:text-white">User Activity Audit Logging</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Permanent operational ledger</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="auditLoggingEnabled()" (change)="auditLoggingEnabled.set(!auditLoggingEnabled())" class="sr-only peer">
+                <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+              </label>
+            </div>
+
+            <p class="text-xs text-zinc-600 dark:text-zinc-300">Every sensitive action (price adjustments, line item deletions, manual drawer openings, stock writes) is permanently indexed with user ID and timestamp.</p>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Retention Window</label>
+                <select [ngModel]="auditRetentionDays()" (ngModelChange)="auditRetentionDays.set($event)" class="w-full bg-transparent font-bold text-xs text-zinc-900 dark:text-white focus:outline-none cursor-pointer">
+                  <option value="90" class="dark:bg-zinc-900">90 Days</option>
+                  <option value="180" class="dark:bg-zinc-900">180 Days (Standard)</option>
+                  <option value="365" class="dark:bg-zinc-900">1 Year (Financial)</option>
+                  <option value="forever" class="dark:bg-zinc-900">Indefinite (Legal)</option>
+                </select>
+              </div>
+
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Tamper-Proof Ledger</label>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Cryptographic</span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+            <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Active &amp; Recording
+            </span>
+            <button (click)="savePolicy('User Activity Audit Logging')" class="px-3 py-1 text-xs font-bold rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 transition-colors active:scale-95">
+              Save
+            </button>
+          </div>
+        </div>
+
+        <!-- Policy 4: Branch Isolation -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-amber-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined !text-[20px]">domain</span>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm text-zinc-900 dark:text-white">Branch-Scoped Isolation</h3>
+                  <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Location-based access controls</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [checked]="branchIsolationEnabled()" (change)="branchIsolationEnabled.set(!branchIsolationEnabled())" class="sr-only peer">
+                <div class="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600"></div>
+              </label>
+            </div>
+
+            <p class="text-xs text-zinc-600 dark:text-zinc-300">Cashiers and store supervisors only access catalog items, sales, and registers assigned to their specific store branch.</p>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Isolation Scope</label>
+                <div class="text-xs font-bold text-zinc-900 dark:text-white mt-1">Tenant &amp; Branch DB</div>
+              </div>
+
+              <div class="p-3 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+                <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1">Cross-Branch Audit</label>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300">{{ crossBranchViewing() ? 'Allowed (Admin)' : 'Strict Restricted' }}</span>
+                  <input type="checkbox" [checked]="crossBranchViewing()" (change)="crossBranchViewing.set(!crossBranchViewing())" class="rounded accent-amber-600">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+            <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Enforced by Middleware
+            </span>
+            <button (click)="savePolicy('Branch-Scoped Isolation')" class="px-3 py-1 text-xs font-bold rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 transition-colors active:scale-95">
+              Save
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   }
@@ -558,62 +734,62 @@
   <!-- ADD / EDIT STAFF MODAL                                                    -->
   <!-- ══════════════════════════════════════════════════════════════════════════ -->
   @if (isModalOpen()) {
-    <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-md p-0 sm:p-4" (click)="closeModal()">
-      <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[560px] overflow-hidden shadow-2xl border border-slate-200 dark:border-zinc-800 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4" (click)="closeModal()">
+      <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[560px] overflow-hidden shadow-2xl shadow-black/60 border border-slate-200 dark:border-white/10 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
         
         <!-- Modal Header -->
-        <div class="p-5 sm:p-6 border-b border-slate-200/80 dark:border-zinc-800/80 flex justify-between items-center bg-slate-50 dark:bg-zinc-900/60 shrink-0">
+        <div class="px-6 py-5 border-b border-slate-200/80 dark:border-white/10 flex justify-between items-center bg-slate-50 dark:bg-white/[0.03] shrink-0 rounded-t-3xl">
           <div>
             <h2 class="text-lg sm:text-xl font-black text-zinc-900 dark:text-white tracking-tight">
               {{ editingStaffId() ? 'Update Staff Member' : 'Invite New Team Member' }}
             </h2>
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Configure access credentials and store role</p>
           </div>
-          <button (click)="closeModal()" class="w-9 h-9 rounded-full flex items-center justify-center bg-slate-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <button (click)="closeModal()" class="w-9 h-9 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-zinc-400">
             <span class="material-symbols-outlined !text-[18px]">close</span>
           </button>
         </div>
 
         <!-- Modal Body -->
-        <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        <div class="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
           <!-- Name Group -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">First Name</label>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">First Name</label>
               <input type="text" [ngModel]="currentStaff().first_name" (ngModelChange)="currentStaff.update(s => ({...s, first_name: $event}))"
-                     placeholder="e.g. Kofi" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
+                     placeholder="e.g. Kofi" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
             </div>
             <div>
-              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Last Name</label>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Last Name</label>
               <input type="text" [ngModel]="currentStaff().last_name" (ngModelChange)="currentStaff.update(s => ({...s, last_name: $event}))"
-                     placeholder="e.g. Bright" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
+                     placeholder="e.g. Bright" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
             </div>
           </div>
 
           <!-- Contact Group -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Email Address</label>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Email Address</label>
               <input type="email" [ngModel]="currentStaff().email" (ngModelChange)="currentStaff.update(s => ({...s, email: $event}))"
-                     placeholder="kofi@example.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
+                     placeholder="kofi@example.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
             </div>
             <div>
-              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Phone Number</label>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Phone Number</label>
               <input type="tel" [ngModel]="currentStaff().phone" (ngModelChange)="currentStaff.update(s => ({...s, phone: $event}))"
-                     placeholder="+233 55 000 0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
+                     placeholder="+233 55 000 0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
             </div>
           </div>
 
           <!-- Account Username & Password -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Username</label>
+              <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Username</label>
               <input type="text" [ngModel]="currentStaff().username" (ngModelChange)="currentStaff.update(s => ({...s, username: $event}))"
-                     placeholder="kbright" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
+                     placeholder="kbright" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold font-mono transition-colors">
             </div>
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500">Password</label>
+                <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 text-[10px]">Password</label>
                 @if (!editingStaffId()) {
                   <button type="button" (click)="currentStaff.update(s => ({...s, password: generateRandomPassword()}))" class="text-[10px] text-purple-600 dark:text-purple-400 font-bold hover:underline">
                     Generate
@@ -622,30 +798,30 @@
               </div>
               <input type="text" [ngModel]="currentStaff().password" (ngModelChange)="currentStaff.update(s => ({...s, password: $event}))"
                      [placeholder]="editingStaffId() ? 'Leave blank to keep unchanged' : 'Password'"
-                     class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono text-xs">
+                     class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono transition-colors">
             </div>
           </div>
 
           <!-- Role Selection & Permission Preview -->
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Role &amp; Privilege Level</label>
+            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Role &amp; Privilege Level</label>
             <select [ngModel]="currentStaff().role" (ngModelChange)="currentStaff.update(s => ({...s, role: $event}))"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
-              <option value="cashier">Cashier (POS Checkout &amp; Sales Register)</option>
-              <option value="supervisor">Supervisor (POS, Stocktake, Refunds &amp; Daily Reports)</option>
-              <option value="manager">Store Manager (POS, Full Inventory, AP &amp; Operations)</option>
-              <option value="admin">Administrator (Complete System &amp; Staff Access)</option>
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
+              <option value="cashier" class="dark:bg-zinc-900">Cashier (POS Checkout &amp; Sales Register)</option>
+              <option value="supervisor" class="dark:bg-zinc-900">Supervisor (POS, Stocktake, Refunds &amp; Daily Reports)</option>
+              <option value="manager" class="dark:bg-zinc-900">Store Manager (POS, Full Inventory, AP &amp; Operations)</option>
+              <option value="admin" class="dark:bg-zinc-900">Administrator (Complete System &amp; Staff Access)</option>
             </select>
           </div>
 
           <!-- Branch Assignment -->
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5">Assigned Store Branch</label>
+            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 text-[10px]">Assigned Store Branch</label>
             <select [ngModel]="currentStaff().branch_id" (ngModelChange)="currentStaff.update(s => ({...s, branch_id: $event}))"
-                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold text-xs">
-              <option value="">All Branches (Global Access)</option>
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-zinc-900 dark:text-white focus:outline-none focus:border-purple-500 font-bold transition-colors">
+              <option value="" class="dark:bg-zinc-900">All Branches (Global Access)</option>
               @for (branch of branches(); track branch.id) {
-                <option [value]="branch.id">{{ branch.name }}</option>
+                <option [value]="branch.id" class="dark:bg-zinc-900">{{ branch.name }}</option>
               }
             </select>
           </div>
@@ -663,5 +839,3 @@
     </div>
   }
 </div>
-
-

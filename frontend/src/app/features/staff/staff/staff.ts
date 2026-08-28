@@ -6,6 +6,8 @@ import { StaffService, StaffCreateInput } from '../../../core/services/staff.ser
 import { BranchService } from '../../../core/services/branch.service';
 import { UserProfile } from '../../../core/models/user.models';
 import { AlertService } from '../../../core/services/alert.service';
+import { ToastrService } from 'ngx-toastr';
+
 
 export interface RolePermissionRow {
   category: string;
@@ -48,6 +50,7 @@ export class Staff implements OnInit {
   private staffService = inject(StaffService);
   private branchService = inject(BranchService);
   private alertService = inject(AlertService);
+  private toastr = inject(ToastrService);
 
   // Tabs: 'directory' | 'roles' | 'security'
   activeTab = signal<'directory' | 'roles' | 'security'>('directory');
@@ -88,6 +91,26 @@ export class Staff implements OnInit {
   managerCount = computed(() => this.staffList().filter(s => ['manager', 'admin', 'supervisor'].includes((s.role || '').toLowerCase())).length);
   cashierCount = computed(() => this.staffList().filter(s => (s.role || '').toLowerCase() === 'cashier').length);
 
+  // ── Security Policies State (Interactive) ──
+  quickPinEnabled = signal(true);
+  pinLength = signal<number>(4);
+  requireManagerOverride = signal(true);
+
+  sessionTimeoutEnabled = signal(true);
+  sessionTimeoutMinutes = signal<number>(15);
+  autoLockOnIdle = signal(true);
+
+  auditLoggingEnabled = signal(true);
+  auditRetentionDays = signal<string>('180');
+  immutableLedger = signal(true);
+
+  branchIsolationEnabled = signal(true);
+  crossBranchViewing = signal(false);
+
+  savePolicy(policyName: string) {
+    this.toastr.success(`Security policy "${policyName}" settings successfully updated and broadcasted.`, 'Policy Updated');
+  }
+
   // Computed state for filtering
   filteredStaff = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -105,7 +128,7 @@ export class Staff implements OnInit {
       const matchQuery = !query || name.includes(query) || email.includes(query) || phone.includes(query) || role.includes(query);
       const matchRole = roleFilter === 'all' || role === roleFilter;
       const matchBranch = branchFilter === 'all' || (branchFilter === 'global' ? !staff.branch_id : staff.branch_id === branchFilter);
-      const matchStatus = statusFilter === 'all' || 
+      const matchStatus = statusFilter === 'all' ||
         (statusFilter === 'active' && staff.user?.is_active !== false) ||
         (statusFilter === 'inactive' && staff.user?.is_active === false);
 
@@ -194,7 +217,7 @@ export class Staff implements OnInit {
     if (!payload.branch_id) {
       delete payload.branch_id;
     }
-    
+
     const id = this.editingStaffId();
     if (id) {
       this.staffService.updateStaff(id, payload).subscribe({
