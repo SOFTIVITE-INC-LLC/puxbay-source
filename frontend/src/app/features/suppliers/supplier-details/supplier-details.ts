@@ -39,6 +39,9 @@ export class SupplierDetailsComponent implements OnInit {
   // Print Statement Modal state
   showStatementModal = signal(false);
 
+  // Today's date for Statement of Account header
+  readonly today = new Date();
+
   ngOnInit() {
     this.supplierId = this.route.snapshot.paramMap.get('id') || '';
     if (this.supplierId) {

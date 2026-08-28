@@ -451,85 +451,140 @@
 
 <!-- ── PRINTABLE STATEMENT OF ACCOUNT MODAL (PDF View) ── -->
 @if (showStatementModal()) {
-  <div class="fixed inset-0 z-[70] flex items-center justify-center bg-zinc-900/80 backdrop-blur-md p-4 overflow-y-auto">
-    <div class="w-full max-w-4xl bg-white text-zinc-900 rounded-3xl shadow-2xl p-8 space-y-6 my-auto print:m-0 print:p-0 print:shadow-none print:w-full">
-      
+  <div class="fixed inset-0 z-[70] flex items-start justify-center bg-black/70 backdrop-blur-md p-4 sm:p-8 overflow-y-auto">
+
+    <!-- Floating close button (hidden on print) -->
+    <button (click)="showStatementModal.set(false)"
+            class="fixed top-4 right-4 z-[80] w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all print:hidden">
+      <span class="material-symbols-outlined !text-[22px]">close</span>
+    </button>
+
+    <!-- Statement Card — always white (print document) -->
+    <div class="w-full max-w-4xl bg-white text-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 p-8 sm:p-10 space-y-6 my-auto print:m-0 print:p-0 print:shadow-none print:rounded-none print:border-0 print:w-full">
+
       <!-- Statement Header -->
-      <div class="flex justify-between items-start border-b border-zinc-200 pb-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-zinc-200 pb-6">
         <div>
-          <h1 class="text-2xl font-black tracking-tight">STATEMENT OF ACCOUNT</h1>
-          <p class="text-xs text-zinc-500 mt-1">Accounts Payable & Double-Entry Ledger Summary</p>
-          <div class="mt-4 text-xs space-y-0.5">
-            <p><strong>Vendor:</strong> {{ details()?.supplier?.name }}</p>
-            <p><strong>Tax Number (TIN):</strong> {{ details()?.supplier?.tax_number || 'N/A' }}</p>
-            <p><strong>Payment Terms:</strong> {{ details()?.supplier?.payment_terms || 'Net 30' }}</p>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-sm">
+              {{ (details()?.supplier?.name || 'S').charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <h1 class="text-xl font-black tracking-tight text-zinc-900">STATEMENT OF ACCOUNT</h1>
+              <p class="text-[11px] text-zinc-500">Accounts Payable &amp; Double-Entry Ledger Summary</p>
+            </div>
+          </div>
+          <div class="mt-4 text-xs space-y-1 text-zinc-700 bg-zinc-50 rounded-2xl border border-zinc-200 p-3">
+            <p><span class="font-semibold text-zinc-400 uppercase text-[10px] tracking-wider">Vendor</span><br/><strong class="text-zinc-900">{{ details()?.supplier?.name }}</strong></p>
+            <p><span class="font-semibold text-zinc-400 uppercase text-[10px] tracking-wider">TIN / Tax Number</span><br/><span class="font-mono">{{ details()?.supplier?.tax_number || 'N/A' }}</span></p>
+            <p><span class="font-semibold text-zinc-400 uppercase text-[10px] tracking-wider">Payment Terms</span><br/>{{ details()?.supplier?.payment_terms || 'Net 30' }}</p>
           </div>
         </div>
-        <div class="text-right text-xs space-y-1">
-          <p class="font-bold text-sm">Statement Date: {{ details()?.metrics?.statement_date || '' | date:'fullDate' }}</p>
-          <div class="mt-4 p-3 rounded-2xl bg-zinc-50 border border-zinc-200">
-            <span class="text-[10px] font-bold text-zinc-400 uppercase block">Total Outstanding Balance</span>
-            <span class="text-xl font-black text-rose-600">{{ (details()?.supplier?.credit_balance || 0) | appCurrency }}</span>
+        <div class="text-right shrink-0 space-y-3">
+          <p class="text-xs text-zinc-500">Statement Date: <strong class="text-zinc-700">{{ today | date:'fullDate' }}</strong></p>
+          <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+            <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">Total Outstanding Balance</span>
+            <span class="text-2xl font-black text-rose-600">{{ (details()?.supplier?.credit_balance || 0) | appCurrency }}</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-500">
+            Credit Limit: <strong class="text-zinc-700">{{ details()?.supplier?.credit_limit > 0 ? (details()?.supplier?.credit_limit | appCurrency) : 'Unlimited' }}</strong>
           </div>
         </div>
       </div>
 
-      <!-- Aging Breakdown in Statement -->
-      <div class="grid grid-cols-5 gap-2 text-center text-xs border border-zinc-200 rounded-2xl p-3 bg-zinc-50">
-        <div>
-          <span class="text-[9px] uppercase font-bold text-zinc-400 block">Current</span>
-          <p class="font-bold text-zinc-800">{{ (details()?.ap_aging?.current || 0) | appCurrency }}</p>
-        </div>
-        <div>
-          <span class="text-[9px] uppercase font-bold text-zinc-400 block">1–30 Days</span>
-          <p class="font-bold text-zinc-800">{{ (details()?.ap_aging?.days_1_30 || 0) | appCurrency }}</p>
-        </div>
-        <div>
-          <span class="text-[9px] uppercase font-bold text-zinc-400 block">31–60 Days</span>
-          <p class="font-bold text-zinc-800">{{ (details()?.ap_aging?.days_31_60 || 0) | appCurrency }}</p>
-        </div>
-        <div>
-          <span class="text-[9px] uppercase font-bold text-zinc-400 block">61–90 Days</span>
-          <p class="font-bold text-zinc-800">{{ (details()?.ap_aging?.days_61_90 || 0) | appCurrency }}</p>
-        </div>
-        <div>
-          <span class="text-[9px] uppercase font-bold text-zinc-400 block">90+ Days</span>
-          <p class="font-bold text-rose-600">{{ (details()?.ap_aging?.days_90_plus || 0) | appCurrency }}</p>
+      <!-- Aging Breakdown -->
+      <div>
+        <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">AP Debt Aging Breakdown</p>
+        <div class="grid grid-cols-5 gap-2 text-center text-xs">
+          <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
+            <span class="text-[9px] uppercase font-bold text-emerald-500 block mb-1">Current</span>
+            <p class="font-black text-emerald-700">{{ (details()?.ap_aging?.current || 0) | appCurrency }}</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-blue-50 border border-blue-200">
+            <span class="text-[9px] uppercase font-bold text-blue-500 block mb-1">1–30 Days</span>
+            <p class="font-black text-blue-700">{{ (details()?.ap_aging?.days_1_30 || 0) | appCurrency }}</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200">
+            <span class="text-[9px] uppercase font-bold text-amber-500 block mb-1">31–60 Days</span>
+            <p class="font-black text-amber-700">{{ (details()?.ap_aging?.days_31_60 || 0) | appCurrency }}</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-orange-50 border border-orange-200">
+            <span class="text-[9px] uppercase font-bold text-orange-500 block mb-1">61–90 Days</span>
+            <p class="font-black text-orange-700">{{ (details()?.ap_aging?.days_61_90 || 0) | appCurrency }}</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200">
+            <span class="text-[9px] uppercase font-bold text-rose-500 block mb-1">90+ Days</span>
+            <p class="font-black text-rose-700">{{ (details()?.ap_aging?.days_90_plus || 0) | appCurrency }}</p>
+          </div>
         </div>
       </div>
 
       <!-- Statement Ledger Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-zinc-700">
-          <thead class="bg-zinc-100 text-[10px] uppercase font-bold text-zinc-500 border-b border-zinc-200">
-            <tr>
-              <th class="px-3 py-2.5">Date</th>
-              <th class="px-3 py-2.5">Transaction Type</th>
-              <th class="px-3 py-2.5">Reference #</th>
-              <th class="px-3 py-2.5">Description</th>
-              <th class="px-3 py-2.5 text-right">Amount</th>
-              <th class="px-3 py-2.5 text-right">Balance</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-100">
-            @for (e of details()?.ledger_entries; track e.id) {
+      <div>
+        <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Transaction Ledger</p>
+        <div class="overflow-x-auto rounded-2xl border border-zinc-200">
+          <table class="w-full text-left text-xs text-zinc-700">
+            <thead class="bg-zinc-100 text-[10px] uppercase font-bold text-zinc-500">
               <tr>
-                <td class="px-3 py-2">{{ (e.transaction_date || e.created_at) | date:'mediumDate' }}</td>
-                <td class="px-3 py-2 uppercase font-bold text-[10px]">{{ e.entry_type }}</td>
-                <td class="px-3 py-2 font-mono">{{ e.reference_id || '—' }}</td>
-                <td class="px-3 py-2 text-zinc-500">{{ e.notes || '—' }}</td>
-                <td class="px-3 py-2 text-right font-bold">{{ e.amount | appCurrency }}</td>
-                <td class="px-3 py-2 text-right font-black font-mono">{{ e.balance | appCurrency }}</td>
+                <th class="px-4 py-3 border-b border-zinc-200">Date</th>
+                <th class="px-4 py-3 border-b border-zinc-200">Transaction Type</th>
+                <th class="px-4 py-3 border-b border-zinc-200">Reference #</th>
+                <th class="px-4 py-3 border-b border-zinc-200">Description</th>
+                <th class="px-4 py-3 border-b border-zinc-200 text-right">Amount</th>
+                <th class="px-4 py-3 border-b border-zinc-200 text-right">Balance</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-zinc-100">
+              @for (e of details()?.ledger_entries; track e.id) {
+                <tr class="hover:bg-zinc-50">
+                  <td class="px-4 py-2.5 text-zinc-600">{{ (e.transaction_date || e.created_at) | date:'mediumDate' }}</td>
+                  <td class="px-4 py-2.5">
+                    <span class="px-2 py-0.5 rounded-full font-bold uppercase text-[9px]"
+                          [class.bg-emerald-100]="e.entry_type === 'payment' || e.entry_type === 'credit_note'"
+                          [class.text-emerald-700]="e.entry_type === 'payment' || e.entry_type === 'credit_note'"
+                          [class.bg-rose-100]="e.entry_type === 'invoice'"
+                          [class.text-rose-700]="e.entry_type === 'invoice'"
+                          [class.bg-zinc-100]="e.entry_type === 'adjustment'"
+                          [class.text-zinc-600]="e.entry_type === 'adjustment'">
+                      {{ e.entry_type }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2.5 font-mono text-zinc-600">{{ e.reference_id || '—' }}</td>
+                  <td class="px-4 py-2.5 text-zinc-500">{{ e.notes || '—' }}</td>
+                  <td class="px-4 py-2.5 text-right font-bold"
+                      [class.text-emerald-600]="e.entry_type === 'payment' || e.entry_type === 'credit_note'"
+                      [class.text-rose-600]="e.entry_type === 'invoice'">
+                    {{ e.amount | appCurrency }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right font-black font-mono text-zinc-900">{{ e.balance | appCurrency }}</td>
+                </tr>
+              }
+              @if (!details()?.ledger_entries?.length) {
+                <tr>
+                  <td colspan="6" class="px-4 py-8 text-center text-zinc-400 text-xs">No transactions recorded yet.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Statement Actions (hidden on print) -->
-      <div class="flex justify-end gap-3 border-t border-zinc-200 pt-4 print:hidden">
-        <button (click)="showStatementModal.set(false)" class="px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold">Close</button>
-        <button (click)="printStatement()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md">Print / Save PDF</button>
+      <!-- Statement Footer note -->
+      <p class="text-[10px] text-zinc-400 border-t border-zinc-100 pt-4">
+        This statement was generated by Puxbay Commerce on {{ today | date:'medium' }}. Please contact your account manager for any discrepancies.
+      </p>
+
+      <!-- Actions (hidden on print) -->
+      <div class="flex justify-end gap-3 print:hidden">
+        <button (click)="showStatementModal.set(false)"
+                class="px-5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold transition-all border border-zinc-200">
+          Close
+        </button>
+        <button (click)="printStatement()"
+                class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined !text-[16px]">print</span>
+          Print / Save PDF
+        </button>
       </div>
 
     </div>
