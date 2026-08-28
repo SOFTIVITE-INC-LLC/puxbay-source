@@ -178,7 +178,7 @@ func (s *CreditService) DrawdownCredit(tenantID, customerID uuid.UUID, orderID *
 			var cust models.Customer
 			if err := s.db.Where("id = ?", customerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
 				msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f on Store Credit/BNPL has been recorded. Current balance: GHS %.2f. Thank you!", cust.Name, amount, txRecord.BalanceAfter)
-				_ = s.sms.SendSMS([]string{*cust.Phone}, msg)
+				_ = s.sms.SendTenantSMS(s.db, []string{*cust.Phone}, msg, "Store Credit / BNPL Drawdown SMS")
 			}
 		}()
 	}
@@ -199,27 +199,26 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 			return errors.New("credit account not found")
 		}
 
-		newBalance := acc.Balance - amount
-		if newBalance < 0 {
-			newBalance = 0
+		if amount > acc.Balance {
+			return fmt.Errorf("repayment amount (%.2f) exceeds current balance (%.2f)", amount, acc.Balance)
 		}
+
+		newBalance := acc.Balance - amount
 		now := time.Now()
 
 		ref := reference
 		if ref == "" {
-			ref = fmt.Sprintf("REPAY-%s-%d", customerID.String()[:6], now.Unix())
+			ref = fmt.Sprintf("REP-%d", now.Unix())
 		}
 
 		creditTx := models.CreditTransaction{
 			CreditAccountID: acc.ID,
 			CustomerID:      customerID,
-			Amount:          -amount, // negative represents balance reduction
+			Amount:          amount,
 			BalanceAfter:    newBalance,
 			TransactionType: "repayment",
 			PaymentMethod:   paymentMethod,
 			Reference:       ref,
-			PaidAt:          &now,
-			Status:          "completed",
 			Notes:           notes,
 			CreatedByID:     createdByID,
 		}
@@ -228,7 +227,6 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 			return err
 		}
 
-		// Update Credit Account balance
 		acc.Balance = newBalance
 		acc.LastRepaymentAt = &now
 		if err := tx.Save(&acc).Error; err != nil {
@@ -241,28 +239,27 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 			return err
 		}
 
-		// Mark pending instalments as paid sequentially
+		// Automatically settle earliest pending BNPL instalments
 		var pendingInstalments []models.BNPLInstalment
-		tx.Where("customer_id = ? AND status != 'paid'", customerID).
+		tx.Where("customer_id = ? AND status = ?", customerID, "pending").
 			Order("due_date asc").Find(&pendingInstalments)
 
-		remainingPayment := amount
+		remainingRepayment := amount
 		for _, inst := range pendingInstalments {
-			if remainingPayment <= 0 {
+			if remainingRepayment <= 0 {
 				break
 			}
-			needed := inst.Amount - inst.AmountPaid
-			if remainingPayment >= needed {
-				inst.AmountPaid = inst.Amount
+			if remainingRepayment >= inst.Amount {
 				inst.Status = "paid"
 				inst.PaidAt = &now
-				remainingPayment -= needed
+				tx.Save(&inst)
+				remainingRepayment -= inst.Amount
 			} else {
-				inst.AmountPaid += remainingPayment
-				inst.Status = "partial"
-				remainingPayment = 0
+				// Partial instalment reduction
+				inst.Amount -= remainingRepayment
+				tx.Save(&inst)
+				remainingRepayment = 0
 			}
-			tx.Save(&inst)
 		}
 
 		txRecord = &creditTx
@@ -279,7 +276,7 @@ func (s *CreditService) RecordRepayment(tenantID, customerID uuid.UUID, amount f
 			var cust models.Customer
 			if err := s.db.Where("id = ?", customerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
 				msg := fmt.Sprintf("Dear %s, your repayment of GHS %.2f via %s received. Remaining credit balance: GHS %.2f. Ref: %s.", cust.Name, amount, paymentMethod, txRecord.BalanceAfter, txRecord.Reference)
-				_ = s.sms.SendSMS([]string{*cust.Phone}, msg)
+				_ = s.sms.SendTenantSMS(s.db, []string{*cust.Phone}, msg, "Credit Repayment Receipt SMS")
 			}
 		}()
 	}

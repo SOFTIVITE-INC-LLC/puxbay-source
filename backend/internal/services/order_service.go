@@ -387,7 +387,8 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 
 				if customer.Phone != nil && *customer.Phone != "" && s.smsService != nil {
 					msg := fmt.Sprintf("Thank you for your order at Puxbay! Order #%s for %.2f has been completed.", order.OrderNumber, order.Total)
-					_ = s.smsService.SendSMS([]string{*customer.Phone}, msg)
+					desc := fmt.Sprintf("Order Receipt SMS: Order #%s", order.OrderNumber)
+					_ = s.smsService.SendTenantSMS(tx, []string{*customer.Phone}, msg, desc)
 				}
 			}
 		}
@@ -477,7 +478,8 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 				var cust models.Customer
 				if err := tx.Where("id = ?", *input.CustomerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
 					msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f on Store Credit/BNPL (Order #%s) is recorded. Total balance owed: GHS %.2f. Due: %s.", cust.Name, creditAmount, order.OrderNumber, newBalance, dueDate.Format("02 Jan 2006"))
-					go s.smsService.SendSMS([]string{*cust.Phone}, msg)
+					desc := fmt.Sprintf("BNPL Sale SMS: Order #%s", order.OrderNumber)
+					_ = s.smsService.SendTenantSMS(tx, []string{*cust.Phone}, msg, desc)
 				}
 			}
 		}

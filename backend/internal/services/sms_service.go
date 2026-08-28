@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/softivite/puxbay/internal/config"
+	"github.com/softivite/puxbay/internal/models"
+	"gorm.io/gorm"
 )
 
 type SMSService struct {
@@ -35,16 +37,18 @@ type ArkeselWhatsAppPayload struct {
 	Message   string `json:"message"`
 }
 
-// SendSMS sends an SMS message via Arkesel V2 API.
-func (s *SMSService) SendSMS(recipients []string, message string) error {
+// SendRawSMS dispatches an SMS directly via Arkesel with the specified sender ID.
+func (s *SMSService) SendRawSMS(sender string, recipients []string, message string) error {
 	if s.config.APIKey == "" {
 		log.Println("ℹ️ Arkesel SMS API Key not configured. Skipping SMS dispatch.")
 		return nil
 	}
 
-	sender := s.config.SenderID
 	if sender == "" {
-		sender = "PUXBAY"
+		sender = s.config.SenderID
+		if sender == "" {
+			sender = "PUXBAY"
+		}
 	}
 
 	payload := ArkeselSMSPayload{
@@ -80,46 +84,97 @@ func (s *SMSService) SendSMS(recipients []string, message string) error {
 	return nil
 }
 
-// SendWhatsApp sends a WhatsApp message via Arkesel WhatsApp API with automatic fallback to SMS.
-func (s *SMSService) SendWhatsApp(recipientPhone, message string) error {
-	if s.config.APIKey == "" {
-		log.Println("ℹ️ Arkesel API Key not configured. Skipping WhatsApp dispatch.")
+// SendSystemSMS sends an administrative / onboarding SMS (e.g. staff invites/adding staff)
+// using the platform's system credentials without deducting from tenant SMS balance.
+func (s *SMSService) SendSystemSMS(recipients []string, message string) error {
+	sender := s.config.SenderID
+	if sender == "" {
+		sender = "PUXBAY"
+	}
+	return s.SendRawSMS(sender, recipients, message)
+}
+
+// SendSMS is a backward-compatible alias for SendSystemSMS.
+func (s *SMSService) SendSMS(recipients []string, message string) error {
+	return s.SendSystemSMS(recipients, message)
+}
+
+// SendTenantSMS dispatches an SMS on behalf of a tenant.
+// STRICT RULE: All tenant SMS (orders, carts, campaigns, alerts) MUST use the tenant's
+// funded SMS wallet balance. If the balance is insufficient, SMS sending is paused.
+func (s *SMSService) SendTenantSMS(db *gorm.DB, recipients []string, message string, description string) error {
+	if len(recipients) == 0 || message == "" {
 		return nil
 	}
 
-	payload := ArkeselWhatsAppPayload{
-		Recipient: recipientPhone,
-		Message:   message,
+	if db == nil {
+		log.Println("⚠️ [SMSService] No database context provided for tenant SMS. Skipping.")
+		return nil
 	}
 
-	jsonData, err := json.Marshal(payload)
-	if err != nil {
-		return s.SendSMS([]string{recipientPhone}, message)
+	requiredCredits := int64(len(recipients))
+
+	// 1. Fetch Tenant SMS Wallet
+	var wallet models.SMSWallet
+	if err := db.First(&wallet).Error; err != nil {
+		log.Println("⚠️ [SMSService] Tenant SMS wallet not found. SMS paused.")
+		return fmt.Errorf("tenant SMS wallet not initialized")
 	}
 
-	req, err := http.NewRequest("POST", "https://sms.arkesel.com/api/v2/whatsapp/send", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return s.SendSMS([]string{recipientPhone}, message)
+	// 2. Strict Balance Check: Pause SMS if balance is insufficient
+	if wallet.CreditsBalance < requiredCredits {
+		log.Printf("🛑 [SMSService] SMS PAUSED: Insufficient tenant SMS credits (Balance: %d, Required: %d). Skipping message to %v",
+			wallet.CreditsBalance, requiredCredits, recipients)
+		return nil // Gracefully pause without crashing the caller
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("api-key", s.config.APIKey)
+	// 3. Resolve Sender ID: Use tenant's approved custom Sender ID or fallback to default
+	sender := s.config.SenderID
+	if sender == "" {
+		sender = "PUXBAY"
+	}
 
-	resp, err := s.client.Do(req)
-	if err != nil || (resp != nil && resp.StatusCode >= 400) {
-		// Fallback to regular SMS if WhatsApp endpoint fails or is unconfigured
-		if resp != nil {
-			resp.Body.Close()
+	var approvedSender models.SMSSenderID
+	if err := db.Where("status = ?", "approved").Order("updated_at desc").First(&approvedSender).Error; err == nil && approvedSender.SenderID != "" {
+		sender = approvedSender.SenderID
+	}
+
+	// 4. Deduct SMS Credits & Record Transaction
+	err := db.Transaction(func(tx *gorm.DB) error {
+		wallet.CreditsBalance -= requiredCredits
+		wallet.CreditsUsed += requiredCredits
+		if err := tx.Save(&wallet).Error; err != nil {
+			return err
 		}
-		return s.SendSMS([]string{recipientPhone}, message)
-	}
-	defer resp.Body.Close()
 
+		txn := models.SMSTransaction{
+			TenantID:    wallet.TenantID,
+			Type:        "deduction",
+			CreditsUsed: requiredCredits,
+			PricePerSMS: wallet.PricePerSMS,
+			Status:      "completed",
+			Description: description,
+		}
+		return tx.Create(&txn).Error
+	})
+	if err != nil {
+		log.Printf("⚠️ [SMSService] Failed to record credit deduction: %v", err)
+		return err
+	}
+
+	// 5. Dispatch SMS via Arkesel Gateway
+	if err := s.SendRawSMS(sender, recipients, message); err != nil {
+		log.Printf("⚠️ [SMSService] Arkesel dispatch error: %v", err)
+		return err
+	}
+
+	log.Printf("✅ [SMSService] Dispatched %d SMS from sender '%s' (Remaining balance: %d)",
+		requiredCredits, sender, wallet.CreditsBalance)
 	return nil
 }
 
-// SendOrderConfirmation notifies the customer when an in-store or online order is completed.
-func (s *SMSService) SendOrderConfirmation(phone, customerName, orderNumber string, total float64, storeName string) {
+// SendOrderConfirmation notifies the customer when an in-store or online order is completed using tenant balance.
+func (s *SMSService) SendOrderConfirmation(db *gorm.DB, phone, customerName, orderNumber string, total float64, storeName string) {
 	if phone == "" {
 		return
 	}
@@ -127,29 +182,32 @@ func (s *SMSService) SendOrderConfirmation(phone, customerName, orderNumber stri
 		storeName = "Puxbay Store"
 	}
 	msg := fmt.Sprintf("Hi %s! Your order #%s of GHS %.2f at %s has been confirmed. Thank you for shopping with us! 🛍️", customerName, orderNumber, total, storeName)
+	desc := fmt.Sprintf("Order Confirmation SMS: Order #%s", orderNumber)
 	go func() {
-		_ = s.SendWhatsApp(phone, msg)
+		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
 	}()
 }
 
-// SendDeliveryDispatch notifies the customer when their order is dispatched with a driver.
-func (s *SMSService) SendDeliveryDispatch(phone, customerName, orderNumber, trkCode, driverName, driverPhone string) {
+// SendDeliveryDispatch notifies the customer when their order is dispatched with a driver using tenant balance.
+func (s *SMSService) SendDeliveryDispatch(db *gorm.DB, phone, customerName, orderNumber, trkCode, driverName, driverPhone string) {
 	if phone == "" {
 		return
 	}
 	msg := fmt.Sprintf("Hi %s! Your order #%s is on the way with driver %s (%s). Track live: https://puxbay.com/track/%s 🚚", customerName, orderNumber, driverName, driverPhone, trkCode)
+	desc := fmt.Sprintf("Delivery Dispatch SMS: Order #%s", orderNumber)
 	go func() {
-		_ = s.SendWhatsApp(phone, msg)
+		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
 	}()
 }
 
-// SendLoyaltyPointsEarned alerts the customer to loyalty points accrued.
-func (s *SMSService) SendLoyaltyPointsEarned(phone, customerName string, ptsEarned, newBalance float64, storeName string) {
+// SendLoyaltyPointsEarned alerts the customer to loyalty points accrued using tenant balance.
+func (s *SMSService) SendLoyaltyPointsEarned(db *gorm.DB, phone, customerName string, ptsEarned, newBalance float64, storeName string) {
 	if phone == "" {
 		return
 	}
 	msg := fmt.Sprintf("Congratulations %s! You just earned %.0f loyalty points at %s. Total balance: %.0f pts (worth GHS %.2f discount). 🌟", customerName, ptsEarned, storeName, newBalance, newBalance*0.1)
+	desc := "Loyalty Points SMS"
 	go func() {
-		_ = s.SendSMS([]string{phone}, msg)
+		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
 	}()
 }
