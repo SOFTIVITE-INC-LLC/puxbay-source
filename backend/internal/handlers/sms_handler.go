@@ -359,7 +359,6 @@ func (h *SMSHandler) AdminListSenderIDs(c *gin.Context) {
 	var results []map[string]interface{}
 	for _, tenant := range tenants {
 		tenantDB := h.db.Exec(fmt.Sprintf("SET search_path TO %s", tenant.SchemaName)).Session(&gorm.Session{NewDB: true})
-		tenantDB = tenantDB.Table("s_m_s_sender_i_ds")
 
 		var senderIDs []models.SMSSenderID
 		q := tenantDB.Order("created_at desc")
