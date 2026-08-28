@@ -4,154 +4,530 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
       <div class="flex items-center gap-2.5 mb-1">
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Vendor Scorecard</h1>
-        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">SLA Metrics</span>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Vendor Scorecard &amp; SLA</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">Performance Analytics</span>
       </div>
-      <p class="text-xs text-slate-500 dark:text-zinc-400">Live quality benchmarks, on-time delivery rate (OTD), and order fulfillment accuracy.</p>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">Live quality benchmarks, on-time delivery rate (OTD), fulfillment accuracy, and tier progression.</p>
+    </div>
+    
+    <div class="flex items-center gap-2.5">
+      <!-- Period Selector -->
+      <div class="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-xl">
+        <button (click)="selectedPeriod.set('30d')"
+                [class.bg-white]="selectedPeriod() === '30d'"
+                [class.dark:bg-zinc-800]="selectedPeriod() === '30d'"
+                [class.text-indigo-600]="selectedPeriod() === '30d'"
+                [class.dark:text-white]="selectedPeriod() === '30d'"
+                [class.shadow-sm]="selectedPeriod() === '30d'"
+                [class.text-slate-600]="selectedPeriod() !== '30d'"
+                [class.dark:text-zinc-400]="selectedPeriod() !== '30d'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all">
+          30D
+        </button>
+        <button (click)="selectedPeriod.set('90d')"
+                [class.bg-white]="selectedPeriod() === '90d'"
+                [class.dark:bg-zinc-800]="selectedPeriod() === '90d'"
+                [class.text-indigo-600]="selectedPeriod() === '90d'"
+                [class.dark:text-white]="selectedPeriod() === '90d'"
+                [class.shadow-sm]="selectedPeriod() === '90d'"
+                [class.text-slate-600]="selectedPeriod() !== '90d'"
+                [class.dark:text-zinc-400]="selectedPeriod() !== '90d'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all">
+          90D
+        </button>
+        <button (click)="selectedPeriod.set('ytd')"
+                [class.bg-white]="selectedPeriod() === 'ytd'"
+                [class.dark:bg-zinc-800]="selectedPeriod() === 'ytd'"
+                [class.text-indigo-600]="selectedPeriod() === 'ytd'"
+                [class.dark:text-white]="selectedPeriod() === 'ytd'"
+                [class.shadow-sm]="selectedPeriod() === 'ytd'"
+                [class.text-slate-600]="selectedPeriod() !== 'ytd'"
+                [class.dark:text-zinc-400]="selectedPeriod() !== 'ytd'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all">
+          YTD 2026
+        </button>
+        <button (click)="selectedPeriod.set('all')"
+                [class.bg-white]="selectedPeriod() === 'all'"
+                [class.dark:bg-zinc-800]="selectedPeriod() === 'all'"
+                [class.text-indigo-600]="selectedPeriod() === 'all'"
+                [class.dark:text-white]="selectedPeriod() === 'all'"
+                [class.shadow-sm]="selectedPeriod() === 'all'"
+                [class.text-slate-600]="selectedPeriod() !== 'all'"
+                [class.dark:text-zinc-400]="selectedPeriod() !== 'all'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all">
+          All-Time
+        </button>
+      </div>
+
+      <!-- Export / Print Button -->
+      <button (click)="printScorecard()"
+              class="px-3.5 py-2 text-xs font-bold rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-white/10 transition-all shadow-sm inline-flex items-center gap-1.5 active:scale-95">
+        <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        Print Report
+      </button>
     </div>
   </div>
 
-  <!-- VENDOR TIER HERO CARD -->
-  @if (loadingTier()) {
-    <div class="glass-panel p-8 rounded-2xl text-center text-slate-400 animate-pulse text-sm">Computing vendor tier...</div>
-  } @else if (scorecard()) {
-    <div class="glass-panel rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 transition-all"
-         [class.border-l-violet-500]="scorecard()!.tier === 'platinum'"
-         [class.border-l-amber-500]="scorecard()!.tier === 'gold'"
-         [class.border-l-slate-400]="scorecard()!.tier === 'silver'"
-         [class.border-l-orange-500]="scorecard()!.tier === 'standard'">
-      <div class="flex items-center gap-4">
-        <span class="text-5xl">{{ tierIcon(scorecard()!.tier) }}</span>
-        <div>
-          <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400">Current Vendor Tier</p>
-          <span class="inline-block mt-1 px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-wider" [ngClass]="tierBadgeClass(scorecard()!.tier)">
-            {{ scorecard()!.tier | uppercase }} SUPPLIER
-          </span>
-          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">OTD: {{ scorecard()!.otd_rate | number:'1.1-1' }}% &nbsp;·&nbsp; Defect Rate: {{ scorecard()!.defect_rate | number:'1.2-2' }}% &nbsp;·&nbsp; {{ scorecard()!.total_pos }} POs Fulfilled</p>
+  <!-- ── Navigation Tabs ── -->
+  <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-xl w-fit flex-wrap">
+    <button (click)="activeTab.set('overview')"
+            [class.bg-white]="activeTab() === 'overview'"
+            [class.dark:bg-zinc-800]="activeTab() === 'overview'"
+            [class.text-indigo-600]="activeTab() === 'overview'"
+            [class.dark:text-white]="activeTab() === 'overview'"
+            [class.shadow-sm]="activeTab() === 'overview'"
+            [class.text-slate-600]="activeTab() !== 'overview'"
+            [class.dark:text-zinc-400]="activeTab() !== 'overview'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all">
+      Overview &amp; Metrics
+    </button>
+    <button (click)="activeTab.set('matrix')"
+            [class.bg-white]="activeTab() === 'matrix'"
+            [class.dark:bg-zinc-800]="activeTab() === 'matrix'"
+            [class.text-indigo-600]="activeTab() === 'matrix'"
+            [class.dark:text-white]="activeTab() === 'matrix'"
+            [class.shadow-sm]="activeTab() === 'matrix'"
+            [class.text-slate-600]="activeTab() !== 'matrix'"
+            [class.dark:text-zinc-400]="activeTab() !== 'matrix'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all">
+      Tier Matrix &amp; Perks
+    </button>
+    <button (click)="activeTab.set('history')"
+            [class.bg-white]="activeTab() === 'history'"
+            [class.dark:bg-zinc-800]="activeTab() === 'history'"
+            [class.text-indigo-600]="activeTab() === 'history'"
+            [class.dark:text-white]="activeTab() === 'history'"
+            [class.shadow-sm]="activeTab() === 'history'"
+            [class.text-slate-600]="activeTab() !== 'history'"
+            [class.dark:text-zinc-400]="activeTab() !== 'history'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all">
+      Quarterly Audit History
+    </button>
+    <button (click)="activeTab.set('sla')"
+            [class.bg-white]="activeTab() === 'sla'"
+            [class.dark:bg-zinc-800]="activeTab() === 'sla'"
+            [class.text-indigo-600]="activeTab() === 'sla'"
+            [class.dark:text-white]="activeTab() === 'sla'"
+            [class.shadow-sm]="activeTab() === 'sla'"
+            [class.text-slate-600]="activeTab() !== 'sla'"
+            [class.dark:text-zinc-400]="activeTab() !== 'sla'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all">
+      SLA Benchmarks
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 1: OVERVIEW & METRICS                                                 -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'overview') {
+    <div class="space-y-6">
+      
+      <!-- VENDOR TIER HERO CARD -->
+      @if (loadingTier()) {
+        <div class="glass-panel p-8 rounded-3xl text-center text-slate-400 animate-pulse text-sm">Computing vendor tier &amp; SLA benchmarks...</div>
+      } @else if (scorecard()) {
+        <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-l-4 transition-all relative overflow-hidden"
+             [class.border-l-violet-500]="scorecard()!.tier === 'platinum'"
+             [class.border-l-amber-500]="scorecard()!.tier === 'gold'"
+             [class.border-l-slate-400]="scorecard()!.tier === 'silver'"
+             [class.border-l-orange-500]="scorecard()!.tier === 'standard'">
+          
+          <div class="flex items-start sm:items-center gap-5">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shrink-0">
+              {{ tierIcon(scorecard()!.tier) }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-zinc-500">Official Supplier Standing</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+              <div class="mt-1 flex items-center gap-3 flex-wrap">
+                <span class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-black uppercase tracking-wider inline-flex items-center gap-1.5" [ngClass]="tierBadgeClass(scorecard()!.tier)">
+                  {{ scorecard()!.tier | uppercase }} SUPPLIER
+                </span>
+                <span class="text-xs font-bold text-slate-600 dark:text-zinc-300">
+                  {{ scorecard()!.total_pos }} Purchase Orders Fulfilled
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1.5">
+                OTD Rate: <strong class="text-emerald-600 dark:text-emerald-400 font-black">{{ scorecard()!.otd_rate | number:'1.1-1' }}%</strong> &nbsp;·&nbsp;
+                Defect Rate: <strong class="text-slate-900 dark:text-white font-black">{{ scorecard()!.defect_rate | number:'1.2-2' }}%</strong> &nbsp;·&nbsp;
+                Order Fill Rate: <strong class="text-indigo-600 dark:text-indigo-400 font-black">99.2%</strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- Tier Benefits List -->
+          <div class="w-full lg:w-auto p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 space-y-2 text-xs">
+            <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500">Unlocked Tier Privileges</p>
+            @for (benefit of scorecard()!.benefits; track benefit) {
+              <div class="text-slate-700 dark:text-zinc-300 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{{ benefit }}</span>
+              </div>
+            }
+          </div>
         </div>
-      </div>
-      <div class="space-y-1.5">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Tier Benefits</p>
-        @for (benefit of scorecard()!.benefits; track benefit) {
-          <p class="text-xs text-slate-600 dark:text-zinc-300 flex items-center gap-1.5">
-            <svg class="w-3 h-3 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-            {{ benefit }}
-          </p>
+
+        <!-- TIER PROGRESSION MILESTONE BAR -->
+        @if (scorecard()!.tier_progress) {
+          <div class="glass-panel p-6 rounded-3xl space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-zinc-500 block">Next Tier Progression</span>
+                <p class="font-black text-slate-900 dark:text-white text-sm">
+                  Path to <span class="capitalize text-indigo-600 dark:text-indigo-400">{{ scorecard()!.tier_progress!.next_tier }} Status</span>
+                </p>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ scorecard()!.tier_progress!.progress_pct }}% Completed</span>
+                <p class="text-[10px] text-slate-400">Target OTD &ge; {{ scorecard()!.tier_progress!.target_otd }}% · Defect &le; {{ scorecard()!.tier_progress!.target_defect }}%</p>
+              </div>
+            </div>
+
+            <!-- Visual Progress Bar -->
+            <div class="h-2.5 rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden p-0.5 border border-slate-200/60 dark:border-white/5">
+              <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 rounded-full transition-all duration-500"
+                   [style.width.%]="scorecard()!.tier_progress!.progress_pct"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider pt-1">
+              <span>Standard</span>
+              <span [class.text-indigo-600]="scorecard()!.tier === 'silver'">Silver</span>
+              <span [class.text-amber-500]="scorecard()!.tier === 'gold'">Gold</span>
+              <span [class.text-purple-500]="scorecard()!.tier === 'platinum'">Platinum Elite 🏆</span>
+            </div>
+          </div>
         }
+      }
+
+      <!-- ── 4 KPI CARDS ── -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="glass-panel p-5 rounded-2xl group hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">On-Time Delivery (OTD)</span>
+          <div class="mt-3 text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+            {{ (scorecard()?.otd_rate || stats().otd_score) | number:'1.1-1' }}%
+          </div>
+          <div class="mt-1 text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1 font-bold">
+            <span>▲ Exceeds 95.0% Target</span>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl group hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500/0 via-indigo-500 to-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Order Fill Rate</span>
+          <div class="mt-3 text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">99.2%</div>
+          <div class="mt-1 text-xs text-indigo-600 dark:text-indigo-400/80">Percentage of line items supplied in full</div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl group hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-rose-500/0 via-rose-500 to-rose-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Quality Defect Rate</span>
+          <div class="mt-3 text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            {{ (scorecard()?.defect_rate || 0.3) | number:'1.2-2' }}%
+          </div>
+          <div class="mt-1 text-xs text-slate-500 dark:text-zinc-500">Warehouse return &amp; damage claims</div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl group hover:border-purple-300 dark:hover:border-purple-500/40 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Avg Lead Time</span>
+          <div class="mt-3 text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">3.4 days</div>
+          <div class="mt-1 text-xs text-purple-600 dark:text-purple-400/80">PO issue to dock receiving</div>
+        </div>
+
       </div>
+
+      <!-- ── SLA BREAKDOWN & PREFERRED BADGE ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        <div class="glass-panel p-6 rounded-3xl space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <h3 class="font-black text-slate-900 dark:text-white text-base">Fulfillment SLA Standards</h3>
+          </div>
+          
+          <div class="space-y-4 text-xs">
+            <div>
+              <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
+                <span>Order Acknowledgment (&lt; 24 hrs)</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-black">100%</span>
+              </div>
+              <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
+                <span>On-Time Dispatch with ASN</span>
+                <span class="text-indigo-600 dark:text-indigo-400 font-black">98.5%</span>
+              </div>
+              <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full" style="width: 98.5%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
+                <span>Invoice 3-Way Match Accuracy</span>
+                <span class="text-purple-600 dark:text-purple-400 font-black">99.8%</span>
+              </div>
+              <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style="width: 99.8%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vendor Status Tier Card -->
+        <div class="glass-panel p-6 rounded-3xl space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3 class="font-black text-slate-900 dark:text-white text-base">Supplier Status Badge</h3>
+          </div>
+          
+          <div class="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/20">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div>
+              <h4 class="font-black text-indigo-900 dark:text-indigo-300 text-sm">Tier 1 Preferred Vendor</h4>
+              <p class="text-xs text-indigo-700 dark:text-indigo-400 mt-0.5">Top-rated supplier on the Puxbay B2B Network. Eligible for priority automated PO placement.</p>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs text-slate-600 dark:text-zinc-400">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Automatic zero-touch 3-way match invoice approvals</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Expedited warehouse receiving dock reservation</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Direct EDI / API catalog auto-synchronization</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   }
 
-  <!-- METRIC CARDS -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    
-    <div class="glass-panel p-5 rounded-2xl group hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-all duration-300 relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">On-Time Delivery (OTD)</span>
-      <div class="mt-3 text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ stats().otd_score }}%</div>
-      <div class="mt-1 text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1 font-bold">
-        <span>▲ Exceeds 95% SLA Target</span>
-      </div>
-    </div>
-
-    <div class="glass-panel p-5 rounded-2xl group hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-all duration-300 relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500/0 via-indigo-500 to-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Order Fill Rate</span>
-      <div class="mt-3 text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">99.2%</div>
-      <div class="mt-1 text-xs text-indigo-600 dark:text-indigo-400/80">Percentage of line items supplied in full</div>
-    </div>
-
-    <div class="glass-panel p-5 rounded-2xl group hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-rose-500/0 via-rose-500 to-rose-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Quality Defect Rate</span>
-      <div class="mt-3 text-3xl font-black text-slate-900 dark:text-white tracking-tight">0.3%</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-zinc-500">Warehouse return & damage rate</div>
-    </div>
-
-    <div class="glass-panel p-5 rounded-2xl group hover:border-purple-300 dark:hover:border-purple-500/40 transition-all duration-300 relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Avg Lead Time</span>
-      <div class="mt-3 text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">3.4 days</div>
-      <div class="mt-1 text-xs text-purple-600 dark:text-purple-400/80">PO issue to receiving dock</div>
-    </div>
-
-  </div>
-
-  <!-- SLA BREAKDOWN & PERFORMANCE DETAILS -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-    
-    <div class="glass-panel p-6 rounded-2xl space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        </div>
-        <h3 class="font-black text-slate-900 dark:text-white text-base">Fulfillment SLA Standards</h3>
-      </div>
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 2: TIER MATRIX & CRITERIA                                             -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'matrix') {
+    <div class="space-y-6">
       
-      <div class="space-y-4 text-xs">
-        <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
-            <span>Order Acknowledgment (&lt; 24 hrs)</span>
-            <span class="text-emerald-600 dark:text-emerald-400 font-black">100%</span>
-          </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style="width: 100%"></div>
-          </div>
-        </div>
+      <div class="glass-panel p-6 rounded-3xl space-y-2">
+        <h2 class="text-base font-black text-slate-900 dark:text-white">Vendor Performance Tier Structure &amp; Criteria</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400">Supplier tiers are dynamically recalculated on a rolling 90-day window based on on-time delivery rates, RMA defects, and volume fulfillment.</p>
+      </div>
 
-        <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
-            <span>On-Time Dispatch with ASN</span>
-            <span class="text-indigo-600 dark:text-indigo-400 font-black">98.5%</span>
-          </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full" style="width: 98.5%"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
-            <span>Invoice 3-Way Match Accuracy</span>
-            <span class="text-purple-600 dark:text-purple-400 font-black">99.8%</span>
-          </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style="width: 99.8%"></div>
-          </div>
+      <!-- Tier Levels Comparison Table -->
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
+              <tr>
+                <th class="px-5 py-3.5">Tier Level</th>
+                <th class="px-5 py-3.5">Min. On-Time (OTD)</th>
+                <th class="px-5 py-3.5">Max. Defect Rate</th>
+                <th class="px-5 py-3.5">Min. Orders</th>
+                <th class="px-5 py-3.5">Settlement Window</th>
+                <th class="px-5 py-3.5">Key Tier Privileges</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+              @for (lvl of scorecard()?.tier_levels || []; track lvl.tier) {
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors"
+                    [class.bg-indigo-500/5]="scorecard()?.tier === lvl.tier">
+                  <td class="px-5 py-4">
+                    <div class="flex items-center gap-2.5">
+                      <span class="text-lg">{{ tierIcon(lvl.tier) }}</span>
+                      <div>
+                        <p class="font-black text-slate-900 dark:text-white text-xs">{{ lvl.name }}</p>
+                        @if (scorecard()?.tier === lvl.tier) {
+                          <span class="px-2 py-0.2 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase">Your Current Tier</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4 font-black text-emerald-600 dark:text-emerald-400 font-mono text-xs">
+                    &ge; {{ lvl.min_otd }}%
+                  </td>
+                  <td class="px-5 py-4 font-bold text-slate-700 dark:text-zinc-300 font-mono text-xs">
+                    &le; {{ lvl.max_defect }}%
+                  </td>
+                  <td class="px-5 py-4 font-mono text-xs">
+                    {{ lvl.min_pos }}+ POs
+                  </td>
+                  <td class="px-5 py-4 font-bold text-indigo-600 dark:text-indigo-400">
+                    {{ lvl.settlement }}
+                  </td>
+                  <td class="px-5 py-4 text-slate-600 dark:text-zinc-400 text-[11px] max-w-xs">
+                    {{ lvl.perks }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
+
     </div>
+  }
 
-    <!-- Vendor Status Tier Card -->
-    <div class="glass-panel p-6 rounded-2xl space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <h3 class="font-black text-slate-900 dark:text-white text-base">Supplier Status Badge</h3>
-      </div>
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 3: QUARTERLY AUDIT HISTORY                                            -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'history') {
+    <div class="space-y-6">
       
-      <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-start gap-3">
-        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <div>
-          <h4 class="font-black text-indigo-900 dark:text-indigo-300 text-sm">Tier 1 Preferred Vendor</h4>
-          <p class="text-xs text-indigo-700 dark:text-indigo-400 mt-0.5">Top-rated supplier on the Puxbay B2B Network. Eligible for priority automated PO placement.</p>
+      <div class="glass-panel p-6 rounded-3xl space-y-2">
+        <h2 class="text-base font-black text-slate-900 dark:text-white">Quarterly Performance &amp; Evaluation Log</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400">Official quarterly compliance evaluations generated by merchant procurement.</p>
+      </div>
+
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
+              <tr>
+                <th class="px-5 py-3.5">Review Period</th>
+                <th class="px-5 py-3.5 text-center">Orders Fulfilled</th>
+                <th class="px-5 py-3.5 text-center">On-Time %</th>
+                <th class="px-5 py-3.5 text-center">Fill Rate %</th>
+                <th class="px-5 py-3.5 text-center">Defect Rate %</th>
+                <th class="px-5 py-3.5 text-center">Quality Score</th>
+                <th class="px-5 py-3.5 text-right">Audit Result</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+              @for (q of scorecard()?.quarterly_history || []; track q.period) {
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors">
+                  <td class="px-5 py-4 font-black text-slate-900 dark:text-white text-xs">
+                    {{ q.period }}
+                  </td>
+                  <td class="px-5 py-4 text-center font-mono font-bold">
+                    {{ q.total_pos }}
+                  </td>
+                  <td class="px-5 py-4 text-center font-black text-emerald-600 dark:text-emerald-400 font-mono">
+                    {{ q.on_time_pct | number:'1.1-1' }}%
+                  </td>
+                  <td class="px-5 py-4 text-center font-mono">
+                    {{ q.fill_rate | number:'1.1-1' }}%
+                  </td>
+                  <td class="px-5 py-4 text-center font-mono text-slate-500 dark:text-zinc-400">
+                    {{ q.defect_rate | number:'1.2-2' }}%
+                  </td>
+                  <td class="px-5 py-4 text-center">
+                    <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ q.score }}</span>
+                    <span class="text-[10px] text-slate-400">/100</span>
+                  </td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border uppercase" [ngClass]="statusScoreClass(q.status)">
+                      {{ q.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="space-y-2 text-xs text-slate-600 dark:text-zinc-400">
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Automatic invoice approvals enabled</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Expedited receiving dock queue</span>
-        </div>
-      </div>
     </div>
+  }
 
-  </div>
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- TAB 4: SLA BENCHMARKS & GUIDELINES                                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'sla') {
+    <div class="space-y-6">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div class="glass-panel p-6 rounded-3xl space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 dark:text-white text-sm">Response &amp; Dispatch SLA</h3>
+              <p class="text-[11px] text-slate-500 dark:text-zinc-400">Standard operational fulfillment timelines</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-slate-900 dark:text-white block">PO Acknowledgment</span>
+                <span class="text-[11px] text-slate-500">Confirm purchase order acceptance</span>
+              </div>
+              <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">&lt; 24 Hours</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-slate-900 dark:text-white block">ASN Generation</span>
+                <span class="text-[11px] text-slate-500">Submit barcode label prior to transit</span>
+              </div>
+              <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">At Dispatch</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-slate-900 dark:text-white block">RMA Resolution</span>
+                <span class="text-[11px] text-slate-500">Dispatch zero-cost replacement / credit</span>
+              </div>
+              <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">&lt; 48 Hours</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-3xl space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 dark:text-white text-sm">Preferred Tier Incentives &amp; Penalties</h3>
+              <p class="text-[11px] text-slate-500 dark:text-zinc-400">Commercial advantages for high SLA compliance</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs text-slate-600 dark:text-zinc-300">
+            <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 space-y-1">
+              <p class="font-bold text-emerald-800 dark:text-emerald-300">Priority Volume Allocation</p>
+              <p class="text-[11px] text-emerald-700 dark:text-emerald-400">Platinum and Gold vendors receive automated priority order distribution during seasonal restocks.</p>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 space-y-1">
+              <p class="font-bold text-indigo-800 dark:text-indigo-300">Instant AP Settlements</p>
+              <p class="text-[11px] text-indigo-700 dark:text-indigo-400">Automated 3-way match without manual accounts payable hold, enabling fast payouts.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  }
 
 </div>

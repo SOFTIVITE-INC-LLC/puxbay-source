@@ -542,15 +542,55 @@ export interface ThreeWayMatchAudit {
   };
 }
 
+export interface TierLevel {
+  tier: 'platinum' | 'gold' | 'silver' | 'standard';
+  name: string;
+  badge: string;
+  min_otd: number;
+  max_defect: number;
+  min_pos: number;
+  settlement: string;
+  perks: string;
+}
+
+export interface QuarterlyReview {
+  period: string;
+  total_pos: number;
+  on_time_pct: number;
+  fill_rate: number;
+  defect_rate: number;
+  score: number;
+  status: string;
+}
+
 export interface SupplierScorecard {
   supplier_id: string;
   name: string;
   tier: 'platinum' | 'gold' | 'silver' | 'standard';
   otd_rate: number;
   defect_rate: number;
+  fill_rate?: number;
+  avg_lead_time_days?: number;
+  match_accuracy_rate?: number;
   total_pos: number;
   total_rmas: number;
   benefits: string[];
+  tier_progress?: {
+    current_tier: string;
+    next_tier: string;
+    progress_pct: number;
+    points_needed: number;
+    target_otd: number;
+    target_defect: number;
+  };
+  tier_levels?: TierLevel[];
+  quarterly_history?: QuarterlyReview[];
+  sla_benchmarks?: {
+    order_acknowledgment_pct: number;
+    asn_dispatch_pct: number;
+    match_accuracy_pct: number;
+    packaging_compliance_pct: number;
+  };
 }
 
 export interface SupplierAPIKey {
