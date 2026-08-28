@@ -16,7 +16,62 @@
     </div>
   </div>
 
+  <!-- MERCHANT ANNOUNCEMENT BANNERS -->
+  @if (announcements().length > 0) {
+    <div class="space-y-2">
+      @for (ann of announcements(); track ann.id) {
+        <div class="flex items-start gap-3 px-4 py-3.5 rounded-2xl border backdrop-blur-sm transition-all"
+             [class.bg-indigo-50]="ann.priority === 'info'"
+             [class.dark:bg-indigo-500/10]="ann.priority === 'info'"
+             [class.border-indigo-200]="ann.priority === 'info'"
+             [class.dark:border-indigo-500/30]="ann.priority === 'info'"
+             [class.bg-amber-50]="ann.priority === 'warning'"
+             [class.dark:bg-amber-500/10]="ann.priority === 'warning'"
+             [class.border-amber-200]="ann.priority === 'warning'"
+             [class.dark:border-amber-500/30]="ann.priority === 'warning'"
+             [class.bg-rose-50]="ann.priority === 'urgent'"
+             [class.dark:bg-rose-500/10]="ann.priority === 'urgent'"
+             [class.border-rose-200]="ann.priority === 'urgent'"
+             [class.dark:border-rose-500/30]="ann.priority === 'urgent'">
+          <div class="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
+               [class.bg-indigo-500/20]="ann.priority === 'info'"
+               [class.bg-amber-500/20]="ann.priority === 'warning'"
+               [class.bg-rose-500/20]="ann.priority === 'urgent'">
+            @if (ann.priority === 'urgent') {
+              <svg class="w-4 h-4 text-rose-600 dark:text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+            } @else if (ann.priority === 'warning') {
+              <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            } @else {
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+              </svg>
+            }
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="text-xs font-black uppercase tracking-wide"
+                  [class.text-indigo-700]="ann.priority === 'info'"
+                  [class.dark:text-indigo-300]="ann.priority === 'info'"
+                  [class.text-amber-700]="ann.priority === 'warning'"
+                  [class.dark:text-amber-300]="ann.priority === 'warning'"
+                  [class.text-rose-700]="ann.priority === 'urgent'"
+                  [class.dark:text-rose-300]="ann.priority === 'urgent'">
+              {{ ann.priority === 'urgent' ? '🔴 Urgent Notice' : ann.priority === 'warning' ? '⚠️ Advisory' : '📢 Announcement' }}
+            </span>
+            <p class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">{{ ann.title }}</p>
+            <p class="text-xs text-slate-600 dark:text-zinc-300 mt-0.5 line-clamp-2">{{ ann.content }}</p>
+          </div>
+          <button (click)="dismissAnnouncement(ann.id)" class="flex-shrink-0 text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-200 transition-colors text-lg font-bold leading-none">×</button>
+        </div>
+      }
+    </div>
+  }
+
   <!-- KPI CARDS -->
+
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     
     <!-- Card 1: Active POs -->

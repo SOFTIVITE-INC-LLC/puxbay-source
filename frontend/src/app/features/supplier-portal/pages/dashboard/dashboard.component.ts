@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { SupplierPortalService, DashboardStats, PurchaseOrder, DemandForecast, QRScanResult } from '../../services/supplier-portal.service';
+import { SupplierPortalService, DashboardStats, PurchaseOrder, DemandForecast, QRScanResult, SupplierAnnouncement } from '../../services/supplier-portal.service';
 import { AppCurrencyPipe } from '../../../../core/pipes/app-currency.pipe';
 
 @Component({
@@ -26,6 +26,10 @@ export class SupplierPortalDashboardComponent implements OnInit {
   forecasts = signal<DemandForecast[]>([]);
   loading = signal<boolean>(true);
 
+  // Announcements
+  announcements = signal<SupplierAnnouncement[]>([]);
+  dismissedAnnouncements = new Set<string>();
+
   // QR Scanner
   showScanner = signal<boolean>(false);
   qrInput = signal<string>('');
@@ -36,12 +40,21 @@ export class SupplierPortalDashboardComponent implements OnInit {
     this.loadData();
   }
 
+  dismissAnnouncement(id: string) {
+    this.dismissedAnnouncements.add(id);
+    this.announcements.update(anns => anns.filter(a => a.id !== id));
+  }
+
   loadData() {
     this.loading.set(true);
     this.portalService.getDashboard().subscribe({
       next: (res) => {
         if (res) this.stats.set(res);
       }
+    });
+
+    this.portalService.getAnnouncements().subscribe({
+      next: (anns) => this.announcements.set(anns || [])
     });
 
     this.portalService.getPurchaseOrders().subscribe({
