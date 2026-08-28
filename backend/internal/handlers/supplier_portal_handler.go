@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/middleware"
 	"github.com/softivite/puxbay/internal/services"
 	"gorm.io/gorm"
@@ -41,7 +42,19 @@ func (h *SupplierPortalHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.authService.GenerateSupplierToken(supplier.ID, supplier.TenantScoped.Base.ID)
+	// Get the real tenant UUID from context (set by TenantMiddleware from subdomain lookup)
+	var tenantID uuid.UUID
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	}
+	if tenantID == uuid.Nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not resolve tenant context"})
+		return
+	}
+
+	token, err := h.authService.GenerateSupplierToken(supplier.ID, tenantID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
