@@ -1,115 +1,245 @@
-<div class="space-y-8 max-w-4xl mx-auto">
+<div class="space-y-6 max-w-5xl mx-auto">
   
   <!-- Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-white tracking-tight">Supplier Profile & Payout Settings</h1>
-    <p class="text-sm text-zinc-400 mt-1">Manage vendor profile, contact details, and settlement bank or Mobile Money disbursement accounts.</p>
-  </div>
-
-  <!-- COMPANY PROFILE -->
-  <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl space-y-4">
-    <h2 class="text-lg font-bold text-white tracking-tight border-b border-zinc-800 pb-3">Company Information</h2>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-      <div>
-        <span class="text-zinc-500 font-semibold block mb-1">Company / Vendor Name</span>
-        <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 font-bold text-white">{{ profile()?.name || 'Verified Supplier' }}</div>
-      </div>
-
-      <div>
-        <span class="text-zinc-500 font-semibold block mb-1">Portal Login Email</span>
-        <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-zinc-300">{{ profile()?.portal_email || profile()?.email || 'N/A' }}</div>
-      </div>
-
-      <div>
-        <span class="text-zinc-500 font-semibold block mb-1">Tax / VAT Identification Number</span>
-        <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-zinc-300">{{ profile()?.tax_number || 'Registered on File' }}</div>
-      </div>
-
-      <div>
-        <span class="text-zinc-500 font-semibold block mb-1">Credit / Ledger Balance</span>
-        <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800 text-emerald-400 font-bold">{{ (profile()?.credit_balance || 0) | currency }}</div>
-      </div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Settings & Team Access</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage disbursement accounts, company profile, and team member roles.</p>
     </div>
   </div>
 
-  <!-- PAYOUT DISBURSEMENT SETTINGS -->
-  <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl space-y-5">
-    <div class="border-b border-zinc-800 pb-3">
-      <h2 class="text-lg font-bold text-white tracking-tight">Payout & Bank Settlement Account</h2>
-      <p class="text-xs text-zinc-400 mt-0.5">Where invoice settlements and merchant payouts are automatically transferred.</p>
-    </div>
+  <!-- Settings Navigation Tabs -->
+  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit">
+    <button
+      (click)="activeTab.set('payout')"
+      [class.bg-indigo-600]="activeTab() === 'payout'"
+      [class.text-white]="activeTab() === 'payout'"
+      [class.text-slate-600]="activeTab() !== 'payout'"
+      [class.dark:text-zinc-400]="activeTab() !== 'payout'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
+    >
+      Payout Accounts
+    </button>
+    <button
+      (click)="activeTab.set('team')"
+      [class.bg-indigo-600]="activeTab() === 'team'"
+      [class.text-white]="activeTab() === 'team'"
+      [class.text-slate-600]="activeTab() !== 'team'"
+      [class.dark:text-zinc-400]="activeTab() !== 'team'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+    >
+      <span>Team Members & Roles</span>
+      @if (teamMembers().length > 0) {
+        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ teamMembers().length }}</span>
+      }
+    </button>
+    <button
+      (click)="activeTab.set('profile')"
+      [class.bg-indigo-600]="activeTab() === 'profile'"
+      [class.text-white]="activeTab() === 'profile'"
+      [class.text-slate-600]="activeTab() !== 'profile'"
+      [class.dark:text-zinc-400]="activeTab() !== 'profile'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
+    >
+      Company Profile
+    </button>
+  </div>
 
-    <div class="space-y-4 text-xs">
+  <!-- TAB 1: PAYOUT ACCOUNTS -->
+  @if (activeTab() === 'payout') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
       <div>
-        <label class="block text-zinc-400 font-medium mb-1">Disbursement Method</label>
-        <div class="grid grid-cols-2 gap-3 max-w-sm">
-          <button (click)="accountType = 'bank'"
-                  [class.bg-indigo-600]="accountType === 'bank'"
-                  [class.text-white]="accountType === 'bank'"
-                  [class.bg-zinc-950]="accountType !== 'bank'"
-                  [class.text-zinc-400]="accountType !== 'bank'"
-                  class="py-2.5 px-3 rounded-xl text-xs font-semibold border border-zinc-800 hover:border-zinc-700 transition-all">
-            Direct Bank Wire
-          </button>
-          <button (click)="accountType = 'momo'"
-                  [class.bg-indigo-600]="accountType === 'momo'"
-                  [class.text-white]="accountType === 'momo'"
-                  [class.bg-zinc-950]="accountType !== 'momo'"
-                  [class.text-zinc-400]="accountType !== 'momo'"
-                  class="py-2.5 px-3 rounded-xl text-xs font-semibold border border-zinc-800 hover:border-zinc-700 transition-all">
-            Mobile Money (MoMo)
-          </button>
-        </div>
+        <h2 class="text-base font-black text-slate-900 dark:text-white">Settlement Disbursement Account</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Where merchant AP payments and early settlements are transferred.</p>
+      </div>
+
+      <div class="flex gap-4">
+        <label class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300 cursor-pointer">
+          <input type="radio" [(ngModel)]="accountType" value="bank" class="text-indigo-600 focus:ring-indigo-500" />
+          <span>Bank Wire / Transfer</span>
+        </label>
+        <label class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300 cursor-pointer">
+          <input type="radio" [(ngModel)]="accountType" value="momo" class="text-indigo-600 focus:ring-indigo-500" />
+          <span>Mobile Money (MoMo)</span>
+        </label>
       </div>
 
       @if (accountType === 'bank') {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Bank Name</label>
-            <input type="text" [(ngModel)]="bankName" placeholder="e.g. Standard Chartered, Ecobank, Chase" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Bank Name</label>
+            <input type="text" [(ngModel)]="bankName" placeholder="e.g. Standard Chartered Bank" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
           </div>
-
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Account Holder Name</label>
-            <input type="text" [(ngModel)]="accountName" placeholder="Official business registered name" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Account Number / IBAN</label>
+            <input type="text" [(ngModel)]="accountNumber" placeholder="e.g. 0100234567890" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
           </div>
-
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Account / IBAN Number</label>
-            <input type="text" [(ngModel)]="accountNumber" placeholder="Account or IBAN #" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500 font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Account Holder Name</label>
+            <input type="text" [(ngModel)]="accountName" placeholder="e.g. Acme Corp Supplies Ltd" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
           </div>
-
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Routing / SWIFT / Sort Code</label>
-            <input type="text" [(ngModel)]="routingCode" placeholder="SWIFT / Routing Code" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500 font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Routing Code / SWIFT / Branch</label>
+            <input type="text" [(ngModel)]="routingCode" placeholder="e.g. SCBLGHAC" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
           </div>
         </div>
       } @else {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Mobile Money Network</label>
-            <select [(ngModel)]="momoNetwork" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Mobile Money Network</label>
+            <select [(ngModel)]="momoNetwork" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
               <option value="MTN">MTN MoMo</option>
               <option value="Telecel">Telecel Cash</option>
               <option value="AirtelTigo">AirtelTigo Money</option>
               <option value="MPesa">M-Pesa</option>
             </select>
           </div>
-
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Mobile Money Wallet Number</label>
-            <input type="text" [(ngModel)]="momoNumber" placeholder="e.g. 0244123456" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500 font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Mobile Money Phone Number</label>
+            <input type="text" [(ngModel)]="momoNumber" placeholder="e.g. 0244123456" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
           </div>
         </div>
       }
 
-      <div class="pt-3">
-        <button (click)="savePayout()" class="px-6 py-2.5 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all">
+      <div class="pt-2">
+        <button (click)="savePayout()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all">
           Save Payout Settings
         </button>
       </div>
     </div>
-  </div>
+  }
+
+  <!-- TAB 2: TEAM MEMBERS & RBAC -->
+  @if (activeTab() === 'team') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Team Members & Role-Based Access</h2>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Control staff access for Dispatch, Accounting, and Catalog management.</p>
+        </div>
+        <button (click)="showInviteModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition-all">
+          + Invite Member
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200 dark:border-zinc-800">
+            <tr>
+              <th class="px-4 py-3">Member Name</th>
+              <th class="px-4 py-3">Email Address</th>
+              <th class="px-4 py-3">Role</th>
+              <th class="px-4 py-3">Phone</th>
+              <th class="px-4 py-3 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            @if (teamMembers().length === 0) {
+              <tr>
+                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
+                  No staff members added yet. Click "+ Invite Member" to give your warehouse or finance team access.
+                </td>
+              </tr>
+            } @else {
+              @for (m of teamMembers(); track m.id) {
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20">
+                  <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ m.full_name }}</td>
+                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400 font-mono">{{ m.email }}</td>
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border uppercase"
+                          [class.border-indigo-500/30]="m.role === 'admin'"
+                          [class.bg-indigo-500/10]="m.role === 'admin'"
+                          [class.text-indigo-600]="m.role === 'admin'"
+                          [class.border-emerald-500/30]="m.role === 'finance'"
+                          [class.bg-emerald-500/10]="m.role === 'finance'"
+                          [class.text-emerald-600]="m.role === 'finance'"
+                          [class.border-amber-500/30]="m.role === 'warehouse'"
+                          [class.bg-amber-500/10]="m.role === 'warehouse'"
+                          [class.text-amber-600]="m.role === 'warehouse'"
+                          [class.border-purple-500/30]="m.role === 'sales'"
+                          [class.bg-purple-500/10]="m.role === 'sales'"
+                          [class.text-purple-600]="m.role === 'sales'">
+                      {{ m.role }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ m.phone || 'N/A' }}</td>
+                  <td class="px-4 py-3 text-right">
+                    <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">Active</span>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 3: COMPANY PROFILE -->
+  @if (activeTab() === 'profile') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
+      <div>
+        <h2 class="text-base font-black text-slate-900 dark:text-white">Vendor Company Profile</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Official company contact and tax credentials registered with merchant.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div>
+          <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Vendor Name</span>
+          <p class="font-bold text-slate-900 dark:text-white mt-0.5">{{ profile()?.name || 'Verified Vendor' }}</p>
+        </div>
+        <div>
+          <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Primary Contact</span>
+          <p class="font-bold text-slate-900 dark:text-white mt-0.5">{{ profile()?.contact_person || 'N/A' }}</p>
+        </div>
+        <div>
+          <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Tax Number / TIN</span>
+          <p class="font-bold text-slate-900 dark:text-white mt-0.5 font-mono">{{ profile()?.tax_number || 'N/A' }}</p>
+        </div>
+        <div>
+          <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Portal Login Email</span>
+          <p class="font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 font-mono">{{ profile()?.portal_email || profile()?.email || 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+  }
 
 </div>
+
+<!-- INVITE MEMBER MODAL -->
+@if (showInviteModal()) {
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Invite Staff Member</h3>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Full Name</label>
+          <input type="text" [(ngModel)]="newMemberName" placeholder="e.g. John Doe" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Email Address</label>
+          <input type="email" [(ngModel)]="newMemberEmail" placeholder="e.g. john@vendor.com" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Role / Permission</label>
+          <select [(ngModel)]="newMemberRole" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+            <option value="admin">Admin (Full Access)</option>
+            <option value="finance">Finance / Billing (Invoices & Payouts)</option>
+            <option value="warehouse">Warehouse / Dispatch (POs & ASNs)</option>
+            <option value="sales">Sales / Catalog (Quotes & Pricing)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Phone Number (Optional)</label>
+          <input type="text" [(ngModel)]="newMemberPhone" placeholder="e.g. +233 24 000 0000" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showInviteModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        <button (click)="inviteTeamMember()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Send Invitation</button>
+      </div>
+    </div>
+  </div>
+}

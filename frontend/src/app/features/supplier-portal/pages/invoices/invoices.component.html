@@ -3,69 +3,86 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-white tracking-tight">Invoices & Accounts Payable</h1>
-      <p class="text-sm text-zinc-400 mt-1">Track submitted invoices, payment settlements, and aging balances.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Invoices & Accounts Payable</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Track submitted invoices, payment settlements, and instant disbursements.</p>
     </div>
   </div>
 
   <!-- SUMMARY CARDS -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-    <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl">
-      <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Total Invoices</span>
-      <div class="mt-3 text-2xl font-extrabold text-white">{{ invoices().length }}</div>
-      <span class="text-xs text-zinc-500 mt-1 block">Submitted billing documents</span>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Total Invoices</span>
+      <div class="mt-2 text-2xl font-black text-slate-900 dark:text-white">{{ invoices().length }}</div>
+      <span class="text-xs text-slate-500 dark:text-zinc-500 mt-0.5 block">Submitted billing documents</span>
     </div>
 
-    <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl">
-      <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Total Outstanding</span>
-      <div class="mt-3 text-2xl font-extrabold text-amber-400">{{ totalOutstanding | appCurrency }}</div>
-      <span class="text-xs text-amber-500/80 mt-1 block">Awaiting merchant settlement</span>
+    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Total Outstanding</span>
+      <div class="mt-2 text-2xl font-black text-amber-500 dark:text-amber-400">{{ totalOutstanding | appCurrency }}</div>
+      <span class="text-xs text-amber-600 dark:text-amber-500/80 mt-0.5 block">Awaiting merchant settlement</span>
     </div>
 
-    <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl">
-      <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Settled & Paid</span>
-      <div class="mt-3 text-2xl font-extrabold text-emerald-400">{{ totalPaid | appCurrency }}</div>
-      <span class="text-xs text-emerald-500/80 mt-1 block">Disbursed to payout account</span>
+    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+      <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Settled & Paid</span>
+      <div class="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ totalPaid | appCurrency }}</div>
+      <span class="text-xs text-emerald-600 dark:text-emerald-500/80 mt-0.5 block">Disbursed to payout account</span>
     </div>
   </div>
 
   <!-- INVOICES TABLE -->
-  <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-xl">
+  <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
     @if (loading()) {
-      <div class="p-16 text-center text-zinc-500 text-sm animate-pulse">Loading invoices...</div>
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">Loading invoices...</div>
     } @else if (invoices().length === 0) {
-      <div class="p-16 text-center text-zinc-500 text-sm">
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
         No invoices generated yet. Use "Flip to Invoice" on fulfilled Purchase Orders to generate one.
       </div>
     } @else {
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-zinc-300">
-          <thead class="bg-zinc-800/40 text-xs uppercase font-semibold text-zinc-400 border-b border-zinc-800/60">
+        <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
             <tr>
-              <th class="px-6 py-4">Invoice Number</th>
-              <th class="px-6 py-4">Purchase Order</th>
-              <th class="px-6 py-4">Issue Date</th>
-              <th class="px-6 py-4">Due Date</th>
-              <th class="px-6 py-4 text-right">Invoice Total</th>
-              <th class="px-6 py-4 text-right">Paid Amount</th>
-              <th class="px-6 py-4 text-right">Status</th>
+              <th class="px-5 py-3.5">Invoice Number</th>
+              <th class="px-5 py-3.5">Purchase Order</th>
+              <th class="px-5 py-3.5">Issue Date</th>
+              <th class="px-5 py-3.5">Due Date</th>
+              <th class="px-5 py-3.5 text-right">Invoice Total</th>
+              <th class="px-5 py-3.5 text-right">Paid Amount</th>
+              <th class="px-5 py-3.5 text-right">Status</th>
+              <th class="px-5 py-3.5 text-right">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-800/40">
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
             @for (inv of invoices(); track inv.id) {
-              <tr class="hover:bg-zinc-800/20 transition-colors">
-                <td class="px-6 py-4 font-bold text-white tracking-wide">{{ inv.invoice_number }}</td>
-                <td class="px-6 py-4 text-indigo-400 font-medium">
+              <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ inv.invoice_number }}</td>
+                <td class="px-5 py-3.5 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
                   {{ inv.purchase_order?.po_number || 'Direct Billing' }}
                 </td>
-                <td class="px-6 py-4 text-zinc-400">{{ inv.issue_date | date:'mediumDate' }}</td>
-                <td class="px-6 py-4 text-zinc-400">{{ inv.due_date | date:'mediumDate' }}</td>
-                <td class="px-6 py-4 text-right font-bold text-white">{{ inv.total | appCurrency }}</td>
-                <td class="px-6 py-4 text-right font-medium text-emerald-400">{{ inv.amount_paid | appCurrency }}</td>
-                <td class="px-6 py-4 text-right">
-                  <span class="px-2.5 py-1 text-xs font-semibold rounded-full border" [ngClass]="statusClass(inv.status)">
+                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ inv.issue_date | date:'mediumDate' }}</td>
+                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ inv.due_date | date:'mediumDate' }}</td>
+                <td class="px-5 py-3.5 text-right font-black text-slate-900 dark:text-white">{{ inv.total | appCurrency }}</td>
+                <td class="px-5 py-3.5 text-right font-bold text-emerald-600 dark:text-emerald-400">{{ (inv.amount_paid || 0) | appCurrency }}</td>
+                <td class="px-5 py-3.5 text-right">
+                  <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(inv.status)">
                     {{ inv.status | uppercase }}
                   </span>
+                </td>
+                <td class="px-5 py-3.5 text-right">
+                  @if (inv.status !== 'paid') {
+                    <button
+                      (click)="requestEarlyPayout(inv)"
+                      [disabled]="payoutLoading() === inv.id"
+                      class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors disabled:opacity-50"
+                    >
+                      @if (payoutLoading() === inv.id) { Processing... } @else { Instant Payout }
+                    </button>
+                  } @else {
+                    <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-end gap-1">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                      Settled
+                    </span>
+                  }
                 </td>
               </tr>
             }

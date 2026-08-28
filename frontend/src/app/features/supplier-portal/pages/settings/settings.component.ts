@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount } from '../../services/supplier-portal.service';
+import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount, SupplierTeamMember } from '../../services/supplier-portal.service';
 import { ToastService } from '../../../../core/services/toast';
 
 @Component({
@@ -16,6 +16,9 @@ export class SupplierPortalSettingsComponent implements OnInit {
 
   profile = signal<SupplierProfile | null>(null);
   
+  activeTab = signal<'payout' | 'team' | 'profile'>('payout');
+
+  // Payout state
   accountType = 'bank';
   bankName = '';
   accountNumber = '';
@@ -23,6 +26,14 @@ export class SupplierPortalSettingsComponent implements OnInit {
   routingCode = '';
   momoNetwork = 'MTN';
   momoNumber = '';
+
+  // Team state
+  teamMembers = signal<SupplierTeamMember[]>([]);
+  showInviteModal = signal<boolean>(false);
+  newMemberName = '';
+  newMemberEmail = '';
+  newMemberRole: 'admin' | 'finance' | 'warehouse' | 'sales' = 'warehouse';
+  newMemberPhone = '';
 
   loading = signal<boolean>(false);
 
@@ -43,6 +54,36 @@ export class SupplierPortalSettingsComponent implements OnInit {
           this.momoNumber = acc.momo_number || '';
         }
       }
+    });
+
+    this.loadTeam();
+  }
+
+  loadTeam() {
+    this.portalService.getTeam().subscribe({
+      next: (members) => this.teamMembers.set(members || []),
+      error: () => {}
+    });
+  }
+
+  inviteTeamMember() {
+    if (!this.newMemberName || !this.newMemberEmail) return;
+
+    this.portalService.inviteTeamMember({
+      full_name: this.newMemberName,
+      email: this.newMemberEmail,
+      role: this.newMemberRole,
+      phone: this.newMemberPhone || undefined
+    }).subscribe({
+      next: (created) => {
+        this.toast.showSuccess(`Invited ${created.full_name} (${created.role}) to team!`);
+        this.showInviteModal.set(false);
+        this.newMemberName = '';
+        this.newMemberEmail = '';
+        this.newMemberPhone = '';
+        this.loadTeam();
+      },
+      error: (err) => this.toast.showError(err.error?.error || 'Failed to invite team member')
     });
   }
 
