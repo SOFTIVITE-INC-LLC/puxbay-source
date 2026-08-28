@@ -61,6 +61,6 @@ type SMSTransaction struct {
 }
 
 func (SMSGatewayConfig) TableName() string { return "sms_gateway_configs" }
-func (SMSSenderID) TableName() string      { return "sms_sender_ids" }
-func (SMSWallet) TableName() string        { return "sms_wallets" }
-func (SMSTransaction) TableName() string   { return "sms_transactions" }
+func (SMSSenderID) TableName() string      { return "s_m_s_sender_i_ds" }
+func (SMSWallet) TableName() string        { return "s_m_s_wallets" }
+func (SMSTransaction) TableName() string   { return "s_m_s_transactions" }

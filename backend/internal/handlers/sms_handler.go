@@ -347,39 +347,46 @@ func (h *SMSHandler) AdminUpdateSMSConfig(c *gin.Context) {
 func (h *SMSHandler) AdminListSenderIDs(c *gin.Context) {
 	status := c.Query("status") // pending, approved, rejected, or empty for all
 
-	type SenderIDWithSchema struct {
-		models.SMSSenderID
-		SchemaName string `json:"schema_name"`
-	}
-
 	// We query the public tenant table to get all schemas
 	var tenants []models.Tenant
-	h.db.Where("is_active = ?", true).Find(&tenants)
+	if err := h.db.Table("public.tenants").Find(&tenants).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to fetch tenants: " + err.Error()})
+		return
+	}
 
 	var results []map[string]interface{}
 	for _, tenant := range tenants {
-		tenantDB := h.db.Exec(fmt.Sprintf("SET search_path TO %s", tenant.SchemaName)).Session(&gorm.Session{NewDB: true})
-
-		var senderIDs []models.SMSSenderID
-		q := tenantDB.Order("created_at desc")
-		if status != "" {
-			q = q.Where("status = ?", status)
+		if tenant.SchemaName == "" {
+			continue
 		}
-		q.Find(&senderIDs)
 
-		for _, sid := range senderIDs {
-			results = append(results, map[string]interface{}{
-				"id":               sid.ID,
-				"tenant_id":        tenant.SchemaName,
-				"tenant_name":      tenant.Name,
-				"sender_id":        sid.SenderID,
-				"purpose":          sid.Purpose,
-				"status":           sid.Status,
-				"rejection_reason": sid.RejectionReason,
-				"approved_at":      sid.ApprovedAt,
-				"created_at":       sid.CreatedAt,
-			})
-		}
+		_ = h.db.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenant.SchemaName)).Error; err != nil {
+				return err
+			}
+
+			var senderIDs []models.SMSSenderID
+			q := tx.Order("created_at desc")
+			if status != "" {
+				q = q.Where("status = ?", status)
+			}
+			if err := q.Find(&senderIDs).Error; err == nil {
+				for _, sid := range senderIDs {
+					results = append(results, map[string]interface{}{
+						"id":               sid.ID,
+						"tenant_id":        tenant.SchemaName,
+						"tenant_name":      tenant.Name,
+						"sender_id":        sid.SenderID,
+						"purpose":          sid.Purpose,
+						"status":           sid.Status,
+						"rejection_reason": sid.RejectionReason,
+						"approved_at":      sid.ApprovedAt,
+						"created_at":       sid.CreatedAt,
+					})
+				}
+			}
+			return nil
+		})
 	}
 
 	if results == nil {
@@ -397,15 +404,23 @@ func (h *SMSHandler) AdminApproveSenderID(c *gin.Context) {
 		return
 	}
 
-	tenantDB := h.db.Exec(fmt.Sprintf("SET search_path TO %s", tenantSchema)).Session(&gorm.Session{NewDB: true})
 	parsedID, _ := uuid.Parse(id)
 	now := time.Now()
 
-	result := tenantDB.Model(&models.SMSSenderID{}).Where("id = ?", parsedID).Updates(map[string]interface{}{
-		"status":      "approved",
-		"approved_at": &now,
+	var rowsAffected int64
+	err := h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenantSchema)).Error; err != nil {
+			return err
+		}
+		res := tx.Model(&models.SMSSenderID{}).Where("id = ?", parsedID).Updates(map[string]interface{}{
+			"status":      "approved",
+			"approved_at": &now,
+		})
+		rowsAffected = res.RowsAffected
+		return res.Error
 	})
-	if result.Error != nil || result.RowsAffected == 0 {
+
+	if err != nil || rowsAffected == 0 {
 		c.JSON(404, gin.H{"error": "Sender ID not found"})
 		return
 	}
@@ -429,14 +444,21 @@ func (h *SMSHandler) AdminRejectSenderID(c *gin.Context) {
 		return
 	}
 
-	tenantDB := h.db.Exec(fmt.Sprintf("SET search_path TO %s", tenantSchema)).Session(&gorm.Session{NewDB: true})
 	parsedID, _ := uuid.Parse(id)
-
-	result := tenantDB.Model(&models.SMSSenderID{}).Where("id = ?", parsedID).Updates(map[string]interface{}{
-		"status":           "rejected",
-		"rejection_reason": req.Reason,
+	var rowsAffected int64
+	err := h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenantSchema)).Error; err != nil {
+			return err
+		}
+		res := tx.Model(&models.SMSSenderID{}).Where("id = ?", parsedID).Updates(map[string]interface{}{
+			"status":           "rejected",
+			"rejection_reason": req.Reason,
+		})
+		rowsAffected = res.RowsAffected
+		return res.Error
 	})
-	if result.Error != nil || result.RowsAffected == 0 {
+
+	if err != nil || rowsAffected == 0 {
 		c.JSON(404, gin.H{"error": "Sender ID not found"})
 		return
 	}
