@@ -72,6 +72,7 @@
                 <th class="px-5 py-3.5">Expected Arrival</th>
                 <th class="px-5 py-3.5">Packages</th>
                 <th class="px-5 py-3.5 text-right">Status</th>
+                <th class="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
@@ -92,6 +93,15 @@
                     <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(asn.status)">
                       {{ asn.status | uppercase }}
                     </span>
+                  </td>
+                  <td class="px-5 py-3.5 text-right">
+                    <button (click)="openShippingLabel(asn)"
+                            class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800/40 transition-colors inline-flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      Label
+                    </button>
                   </td>
                 </tr>
               }
@@ -267,3 +277,117 @@
     </div>
   </div>
 }
+
+<!-- ── PRINTABLE GS1-128 SHIPPING LABEL MODAL ── -->
+@if (showLabelModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    
+    <!-- Floating close button (hidden on print) -->
+    <button (click)="showLabelModal.set(false)"
+            class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all print:hidden">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Physical Carton Label Card (4x6 format) -->
+    <div class="w-full max-w-lg bg-white text-zinc-900 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-4 my-auto border-2 border-dashed border-zinc-300 print:m-0 print:p-0 print:shadow-none print:rounded-none print:border-0 print:w-full">
+      
+      @if (loadingLabel()) {
+        <div class="p-12 text-center text-zinc-400 animate-pulse text-sm">Generating barcode shipping label...</div>
+      } @else if (labelData()) {
+        <!-- Header -->
+        <div class="border-b-2 border-black pb-3 flex justify-between items-start">
+          <div>
+            <span class="text-[9px] font-mono uppercase tracking-widest text-zinc-500 block">SHIP FROM (VENDOR)</span>
+            <h2 class="text-base font-black text-black">{{ labelData().vendor_name }}</h2>
+            <p class="text-[11px] text-zinc-600">{{ labelData().vendor_address || 'Vendor Warehouse' }}</p>
+            <p class="text-[10px] font-mono text-zinc-500">TIN: {{ labelData().vendor_tin || 'N/A' }} | Phone: {{ labelData().vendor_phone || '—' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="px-2 py-1 bg-black text-white text-[10px] font-black uppercase tracking-wider rounded">
+              {{ labelData().carrier }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Destination & PO Reference -->
+        <div class="grid grid-cols-2 gap-4 border-b-2 border-black pb-3 text-xs">
+          <div>
+            <span class="text-[9px] font-mono uppercase tracking-widest text-zinc-500 block">SHIP TO</span>
+            <p class="font-black text-sm text-black">Central Inward Dock</p>
+            <p class="text-zinc-600 text-[11px]">Softivite Hub / Puxbay Tenant</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[9px] font-mono uppercase tracking-widest text-zinc-500 block">PURCHASE ORDER</span>
+            <p class="font-mono font-black text-sm text-indigo-600">{{ labelData().po_number }}</p>
+            <p class="text-zinc-500 font-mono text-[10px]">ASN: {{ labelData().asn_number }}</p>
+          </div>
+        </div>
+
+        <!-- Packages & Weight Grid -->
+        <div class="grid grid-cols-3 gap-2 text-center border-b-2 border-black pb-3 text-xs">
+          <div class="p-2 bg-zinc-100 rounded-lg">
+            <span class="text-[9px] uppercase font-bold text-zinc-400 block">Cartons</span>
+            <span class="font-black text-sm text-black">{{ labelData().package_count }} PKG</span>
+          </div>
+          <div class="p-2 bg-zinc-100 rounded-lg">
+            <span class="text-[9px] uppercase font-bold text-zinc-400 block">Gross Weight</span>
+            <span class="font-black text-sm text-black">{{ labelData().total_weight_kg }} KG</span>
+          </div>
+          <div class="p-2 bg-zinc-100 rounded-lg">
+            <span class="text-[9px] uppercase font-bold text-zinc-400 block">Dispatch</span>
+            <span class="font-black text-[11px] text-black">{{ labelData().dispatch_date | date:'shortDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Barcode Block -->
+        <div class="py-4 text-center space-y-2 border-b-2 border-black">
+          <div class="inline-block p-3 bg-white border border-zinc-200 rounded-xl">
+            <!-- Simulated High-Density Code 128 / GS1 Barcode -->
+            <div class="flex items-center justify-center gap-[3px] h-14 px-4 bg-white">
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[4px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[4px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[4px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[4px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+              <span class="w-[1px] h-full bg-black"></span>
+              <span class="w-[4px] h-full bg-black"></span>
+              <span class="w-[2px] h-full bg-black"></span>
+              <span class="w-[3px] h-full bg-black"></span>
+            </div>
+            <p class="font-mono text-xs tracking-widest font-black text-black mt-1.5">{{ labelData().barcode }}</p>
+          </div>
+          <p class="text-[9px] uppercase tracking-wider text-zinc-400 font-bold">GS1-128 Standard Inward Logistics Barcode</p>
+        </div>
+
+        <!-- Footer Actions (hidden on print) -->
+        <div class="flex justify-end gap-3 pt-2 print:hidden">
+          <button (click)="showLabelModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700">Close</button>
+          <button (click)="printLabel()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Shipping Label (4x6)
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+

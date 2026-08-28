@@ -56,6 +56,17 @@
     >
       Company Profile
     </button>
+    <button
+      (click)="switchToApiTab()"
+      [class.bg-indigo-600]="activeTab() === 'api'"
+      [class.text-white]="activeTab() === 'api'"
+      [class.text-slate-600]="activeTab() !== 'api'"
+      [class.dark:text-zinc-400]="activeTab() !== 'api'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+      API & Webhooks
+    </button>
   </div>
 
   <!-- TAB 1: PAYOUT ACCOUNTS -->
@@ -348,6 +359,142 @@
         <button (click)="showUploadDocModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
         <button (click)="submitDocument()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Upload to Vault</button>
       </div>
+    </div>
+  </div>
+}
+
+<!-- TAB: API KEYS & WEBHOOKS -->
+@if (activeTab() === 'api') {
+  <div class="space-y-6">
+    <!-- API Keys Section -->
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-white">API Keys</h2>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Authenticate external ERP systems (SAP, NetSuite, QuickBooks) to this supplier account.</p>
+        </div>
+      </div>
+
+      <!-- New Key Plain Display -->
+      @if (newKeyPlain()) {
+        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700/40 space-y-2">
+          <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase">⚠ Copy this key now — it will never be shown again!</p>
+          <code class="block font-mono text-sm text-emerald-800 dark:text-emerald-300 bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/40 break-all">{{ newKeyPlain() }}</code>
+          <button (click)="newKeyPlain.set(null)" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline">I've copied it, dismiss</button>
+        </div>
+      }
+
+      <!-- Create New Key Form -->
+      <div class="flex items-end gap-3">
+        <div class="flex-1">
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Key Name / Label</label>
+          <input type="text" [(ngModel)]="newKeyName" placeholder="e.g. SAP Integration Prod" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
+        </div>
+        <button (click)="createKey()" [disabled]="loadingAPI()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md disabled:opacity-60 whitespace-nowrap">
+          @if (loadingAPI()) { Generating... } @else { + Generate Key }
+        </button>
+      </div>
+
+      <!-- Keys Table -->
+      @if (apiKeys().length > 0) {
+        <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
+          <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400">
+              <tr>
+                <th class="px-4 py-2.5 text-left">Name</th>
+                <th class="px-4 py-2.5 text-left">Preview</th>
+                <th class="px-4 py-2.5 text-left">Created</th>
+                <th class="px-4 py-2.5 text-left">Last Used</th>
+                <th class="px-4 py-2.5 text-center">Status</th>
+                <th class="px-4 py-2.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+              @for (key of apiKeys(); track key.id) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/30">
+                  <td class="px-4 py-2.5 font-bold text-slate-900 dark:text-white">{{ key.name }}</td>
+                  <td class="px-4 py-2.5 font-mono text-slate-400">{{ key.key_preview }}...</td>
+                  <td class="px-4 py-2.5">{{ key.created_at | date:'mediumDate' }}</td>
+                  <td class="px-4 py-2.5 text-slate-400">{{ key.last_used_at ? (key.last_used_at | date:'mediumDate') : 'Never' }}</td>
+                  <td class="px-4 py-2.5 text-center">
+                    <span [ngClass]="key.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-rose-500/10 text-rose-600 border-rose-500/30'"
+                          class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
+                      {{ key.is_active ? 'ACTIVE' : 'REVOKED' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2.5 text-right">
+                    @if (key.is_active) {
+                      <button (click)="revokeKey(key.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Revoke</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No API keys generated yet.</p>
+      }
+    </div>
+
+    <!-- Webhooks Section -->
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
+      <div>
+        <h2 class="text-base font-black text-slate-900 dark:text-white">Webhook Endpoints</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Receive real-time event notifications (PO created, invoice paid, ASN received) via HTTP POST.</p>
+      </div>
+
+      <!-- New Webhook Form -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Endpoint URL (HTTPS)</label>
+          <input type="url" [(ngModel)]="newWebhookURL" placeholder="https://your-erp.example.com/webhook" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Events (comma-separated)</label>
+          <input type="text" [(ngModel)]="newWebhookEvents" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button (click)="createWebhook()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">+ Register Endpoint</button>
+      </div>
+
+      <!-- Webhooks Table -->
+      @if (webhooks().length > 0) {
+        <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
+          <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400">
+              <tr>
+                <th class="px-4 py-2.5 text-left">URL</th>
+                <th class="px-4 py-2.5 text-left">Events</th>
+                <th class="px-4 py-2.5 text-left">Last Triggered</th>
+                <th class="px-4 py-2.5 text-center">Status</th>
+                <th class="px-4 py-2.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+              @for (hook of webhooks(); track hook.id) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/30">
+                  <td class="px-4 py-2.5 font-mono text-indigo-600 dark:text-indigo-400 max-w-xs truncate">{{ hook.url }}</td>
+                  <td class="px-4 py-2.5 font-mono text-[10px] text-slate-500 dark:text-zinc-400 max-w-xs truncate">{{ hook.events }}</td>
+                  <td class="px-4 py-2.5 text-slate-400">{{ hook.last_triggered_at ? (hook.last_triggered_at | date:'medium') : 'Never' }}</td>
+                  <td class="px-4 py-2.5 text-center">
+                    <span [ngClass]="hook.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-slate-100 text-slate-500 border-slate-200'"
+                          class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
+                      {{ hook.is_active ? 'ACTIVE' : 'INACTIVE' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2.5 text-right">
+                    <button (click)="deleteWebhook(hook.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Delete</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No webhook endpoints configured yet.</p>
+      }
     </div>
   </div>
 }

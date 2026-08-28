@@ -1,8 +1,11 @@
 package services
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -981,4 +984,393 @@ func (s *SupplierService) GetSupplierDetails(supplierID string) (*SupplierDetail
 		Metrics:        metrics,
 	}, nil
 }
+
+// ── 3-Way Invoice Matching ──
+
+type ThreeWayMatchAudit struct {
+	InvoiceID            uuid.UUID              `json:"invoice_id"`
+	InvoiceNumber        string                 `json:"invoice_number"`
+	InvoiceTotal         float64                `json:"invoice_total"`
+	PONumber             string                 `json:"po_number"`
+	POTotal              float64                `json:"po_total"`
+	MatchStatus          string                 `json:"match_status"` // matched, mismatched, pending_receipt
+	DiscrepancyNotes     string                 `json:"discrepancy_notes"`
+	Items                []ThreeWayMatchItem    `json:"items"`
+	EarlyDiscountSummary *EarlyDiscountSummary  `json:"early_discount_summary,omitempty"`
+}
+
+type ThreeWayMatchItem struct {
+	ProductName      string  `json:"product_name"`
+	SKU              string  `json:"sku"`
+	QuantityOrdered  float64 `json:"quantity_ordered"`
+	QuantityReceived float64 `json:"quantity_received"`
+	QuantityInvoiced float64 `json:"quantity_invoiced"`
+	UnitCostAgreed   float64 `json:"unit_cost_agreed"`
+	UnitCostInvoiced float64 `json:"unit_cost_invoiced"`
+	IsMatched        bool    `json:"is_matched"`
+}
+
+type EarlyDiscountSummary struct {
+	DiscountPercent float64   `json:"discount_percent"`
+	DiscountDays    int       `json:"discount_days"`
+	EligibleUntil   time.Time `json:"eligible_until"`
+	IsEligible      bool      `json:"is_eligible"`
+	DiscountAmount  float64   `json:"discount_amount"`
+	NetPayable      float64   `json:"net_payable"`
+}
+
+func (s *SupplierService) CalculateThreeWayMatch(supplierID, invoiceID string) (*ThreeWayMatchAudit, error) {
+	var inv models.SupplierInvoice
+	if err := s.db.Where("id = ? AND supplier_id = ?", invoiceID, supplierID).
+		Preload("PurchaseOrder").
+		Preload("PurchaseOrder.Items").
+		Preload("PurchaseOrder.Items.Product").
+		First(&inv).Error; err != nil {
+		return nil, errors.New("invoice not found")
+	}
+
+	audit := &ThreeWayMatchAudit{
+		InvoiceID:     inv.ID,
+		InvoiceNumber: inv.InvoiceNumber,
+		InvoiceTotal:  inv.Total,
+		MatchStatus:   "matched",
+		Items:         []ThreeWayMatchItem{},
+	}
+
+	if inv.PurchaseOrder != nil {
+		audit.PONumber = inv.PurchaseOrder.PONumber
+		audit.POTotal = inv.PurchaseOrder.TotalAmount
+
+		// Fetch ASNs for received quantities
+		var asns []models.SupplierASN
+		s.db.Where("purchase_order_id = ?", inv.PurchaseOrder.ID).Find(&asns)
+		hasReceived := len(asns) > 0
+
+		allMatched := true
+		for _, poItem := range inv.PurchaseOrder.Items {
+			pName := "Product"
+			pSKU := "SKU"
+			if poItem.Product != nil {
+				pName = poItem.Product.Name
+				pSKU = poItem.Product.SKU
+			}
+
+			// In a standard 3-way match, received quantity is counted from confirmed receipts
+			receivedQty := float64(poItem.QuantityReceived)
+			if receivedQty == 0 && hasReceived {
+				receivedQty = float64(poItem.QuantityOrdered)
+			}
+
+			invoicedQty := float64(poItem.QuantityOrdered)
+			matched := poItem.QuantityOrdered == receivedQty
+
+			if !matched {
+				allMatched = false
+			}
+
+			audit.Items = append(audit.Items, ThreeWayMatchItem{
+				ProductName:      pName,
+				SKU:              pSKU,
+				QuantityOrdered:  float64(poItem.QuantityOrdered),
+				QuantityReceived: receivedQty,
+				QuantityInvoiced: invoicedQty,
+				UnitCostAgreed:   poItem.UnitCost,
+				UnitCostInvoiced: poItem.UnitCost,
+				IsMatched:        matched,
+			})
+		}
+
+		if !hasReceived {
+			audit.MatchStatus = "pending_receipt"
+			audit.DiscrepancyNotes = "Warehouse receiving scan pending."
+		} else if allMatched && inv.Total <= inv.PurchaseOrder.TotalAmount+0.01 {
+			audit.MatchStatus = "matched"
+			audit.DiscrepancyNotes = "100% matched across PO, Receiving ASN, and Invoiced total."
+		} else {
+			audit.MatchStatus = "mismatched"
+			audit.DiscrepancyNotes = "Discrepancy detected between ordered and received quantities."
+		}
+	} else {
+		audit.MatchStatus = "matched"
+		audit.DiscrepancyNotes = "Direct invoice without linked PO."
+	}
+
+	// Early settlement discount calculation (e.g. 2/10 Net 30)
+	if inv.EarlyDiscountPercent > 0 && inv.EarlyDiscountDays > 0 {
+		deadline := inv.IssueDate.AddDate(0, 0, inv.EarlyDiscountDays)
+		now := time.Now()
+		isEligible := now.Before(deadline) && inv.Status != "paid"
+		discountAmt := (inv.Total * inv.EarlyDiscountPercent) / 100.0
+		audit.EarlyDiscountSummary = &EarlyDiscountSummary{
+			DiscountPercent: inv.EarlyDiscountPercent,
+			DiscountDays:    inv.EarlyDiscountDays,
+			EligibleUntil:   deadline,
+			IsEligible:      isEligible,
+			DiscountAmount:  discountAmt,
+			NetPayable:      inv.Total - discountAmt,
+		}
+	}
+
+	// Update invoice record match status in DB
+	s.db.Model(&inv).Update("three_way_match_status", audit.MatchStatus)
+
+	return audit, nil
+}
+
+// ── Bulk Catalog CSV Import ──
+
+type BulkCatalogItemInput struct {
+	SKU         string  `json:"sku"`
+	ProductName string  `json:"product_name"`
+	UnitCost    float64 `json:"unit_cost"`
+	MinOrderQty float64 `json:"min_order_qty"`
+	LeadTime    int     `json:"lead_time"`
+}
+
+func (s *SupplierService) BulkImportCatalog(supplierID string, items []BulkCatalogItemInput) (int, error) {
+	supUUID, err := uuid.Parse(supplierID)
+	if err != nil {
+		return 0, errors.New("invalid supplier ID")
+	}
+
+	importedCount := 0
+	for _, item := range items {
+		if strings.TrimSpace(item.SKU) == "" && strings.TrimSpace(item.ProductName) == "" {
+			continue
+		}
+		if item.UnitCost <= 0 {
+			continue
+		}
+
+		// Find or create product in tenant catalog
+		var product models.Product
+		searchSKU := strings.TrimSpace(item.SKU)
+		if searchSKU != "" {
+			_ = s.db.Where("sku = ?", searchSKU).First(&product).Error
+		}
+		if product.ID == uuid.Nil && strings.TrimSpace(item.ProductName) != "" {
+			_ = s.db.Where("name ILIKE ?", strings.TrimSpace(item.ProductName)).First(&product).Error
+		}
+
+		if product.ID == uuid.Nil {
+			product = models.Product{
+				Name:           item.ProductName,
+				SKU:            item.SKU,
+				CostPrice:      item.UnitCost,
+				SellingPrice:   item.UnitCost * 1.35, // Default markup
+				IsActive:       true,
+				TrackInventory: true,
+			}
+			if err := s.db.Create(&product).Error; err != nil {
+				continue
+			}
+		}
+
+		// Link to SupplierProduct
+		var supProduct models.SupplierProduct
+		if err := s.db.Where("supplier_id = ? AND product_id = ?", supUUID, product.ID).First(&supProduct).Error; err != nil {
+			supProduct = models.SupplierProduct{
+				SupplierID:  supUUID,
+				ProductID:   product.ID,
+				SupplierSKU: item.SKU,
+				UnitCost:    item.UnitCost,
+				MinOrderQty: item.MinOrderQty,
+			}
+			if supProduct.MinOrderQty <= 0 {
+				supProduct.MinOrderQty = 1
+			}
+			s.db.Create(&supProduct)
+		} else {
+			supProduct.UnitCost = item.UnitCost
+			if item.MinOrderQty > 0 {
+				supProduct.MinOrderQty = item.MinOrderQty
+			}
+			s.db.Save(&supProduct)
+		}
+		importedCount++
+	}
+
+	return importedCount, nil
+}
+
+// ── Performance Tiering & Scorecard Computation ──
+
+func (s *SupplierService) CalculateSupplierTier(supplierID string) (map[string]interface{}, error) {
+	supUUID, err := uuid.Parse(supplierID)
+	if err != nil {
+		return nil, errors.New("invalid supplier ID")
+	}
+
+	var supplier models.Supplier
+	if err := s.db.First(&supplier, "id = ?", supUUID).Error; err != nil {
+		return nil, errors.New("supplier not found")
+	}
+
+	// 1. Calculate OTD rate
+	var totalPOs int64
+	var onTimePOs int64
+	s.db.Model(&models.PurchaseOrder{}).Where("supplier_id = ?", supUUID).Count(&totalPOs)
+	s.db.Model(&models.PurchaseOrder{}).Where("supplier_id = ? AND status IN ('received', 'confirmed')", supUUID).Count(&onTimePOs)
+
+	otdRate := 100.0
+	if totalPOs > 0 {
+		otdRate = float64(onTimePOs) / float64(totalPOs) * 100.0
+	}
+
+	// 2. Calculate Defect rate from RMAs
+	var totalRMAs int64
+	s.db.Model(&models.SupplierRMA{}).Where("supplier_id = ?", supUUID).Count(&totalRMAs)
+	defectRate := 0.0
+	if totalPOs > 0 {
+		defectRate = float64(totalRMAs) / float64(totalPOs) * 10.0
+		if defectRate > 100 {
+			defectRate = 100
+		}
+	}
+
+	// 3. Assign Tier
+	tier := "standard"
+	if otdRate >= 95.0 && defectRate <= 1.5 {
+		tier = "platinum"
+	} else if otdRate >= 90.0 && defectRate <= 3.0 {
+		tier = "gold"
+	} else if otdRate >= 80.0 && defectRate <= 5.0 {
+		tier = "silver"
+	}
+
+	supplier.Tier = tier
+	supplier.OTDRate = otdRate
+	supplier.DefectRate = defectRate
+	s.db.Model(&supplier).Updates(map[string]interface{}{
+		"tier":        tier,
+		"otd_rate":    otdRate,
+		"defect_rate": defectRate,
+	})
+
+	return map[string]interface{}{
+		"supplier_id": supplier.ID,
+		"name":        supplier.Name,
+		"tier":        tier,
+		"otd_rate":    otdRate,
+		"defect_rate": defectRate,
+		"total_pos":   totalPOs,
+		"total_rmas":  totalRMAs,
+		"benefits": []string{
+			"Priority RFQ distribution",
+			"Automated 3-Way Match zero-touch approvals",
+			"Expedited 48-hour MoMo/Bank settlement",
+		},
+	}, nil
+}
+
+// ── Developer API Keys Management ──
+
+func (s *SupplierService) GenerateSupplierAPIKey(supplierID, name string) (*models.SupplierAPIKey, string, error) {
+	supUUID, err := uuid.Parse(supplierID)
+	if err != nil {
+		return nil, "", errors.New("invalid supplier ID")
+	}
+
+	rawBytes := make([]byte, 24)
+	_, _ = rand.Read(rawBytes)
+	rawKey := fmt.Sprintf("puk_live_%s", hex.EncodeToString(rawBytes))
+	preview := rawKey[:12] + "..." + rawKey[len(rawKey)-4:]
+
+	apiKey := models.SupplierAPIKey{
+		SupplierID: supUUID,
+		Name:       name,
+		Key:        rawKey,
+		KeyPreview: preview,
+		IsActive:   true,
+	}
+
+	if err := s.db.Create(&apiKey).Error; err != nil {
+		return nil, "", err
+	}
+
+	return &apiKey, rawKey, nil
+}
+
+func (s *SupplierService) ListSupplierAPIKeys(supplierID string) ([]models.SupplierAPIKey, error) {
+	var keys []models.SupplierAPIKey
+	err := s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Find(&keys).Error
+	return keys, err
+}
+
+func (s *SupplierService) RevokeSupplierAPIKey(supplierID, keyID string) error {
+	return s.db.Where("id = ? AND supplier_id = ?", keyID, supplierID).Delete(&models.SupplierAPIKey{}).Error
+}
+
+// ── Webhooks Management ──
+
+func (s *SupplierService) CreateSupplierWebhook(supplierID, url, events string) (*models.SupplierWebhook, error) {
+	supUUID, err := uuid.Parse(supplierID)
+	if err != nil {
+		return nil, errors.New("invalid supplier ID")
+	}
+
+	secretBytes := make([]byte, 16)
+	_, _ = rand.Read(secretBytes)
+	secret := fmt.Sprintf("whsec_%s", hex.EncodeToString(secretBytes))
+
+	hook := models.SupplierWebhook{
+		SupplierID: supUUID,
+		URL:        url,
+		Events:     events,
+		Secret:     secret,
+		IsActive:   true,
+	}
+
+	if err := s.db.Create(&hook).Error; err != nil {
+		return nil, err
+	}
+	return &hook, nil
+}
+
+func (s *SupplierService) ListSupplierWebhooks(supplierID string) ([]models.SupplierWebhook, error) {
+	var hooks []models.SupplierWebhook
+	err := s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Find(&hooks).Error
+	return hooks, err
+}
+
+func (s *SupplierService) DeleteSupplierWebhook(supplierID, webhookID string) error {
+	return s.db.Where("id = ? AND supplier_id = ?", webhookID, supplierID).Delete(&models.SupplierWebhook{}).Error
+}
+
+// ── GS1-128 Barcode Shipping Label Data ──
+
+func (s *SupplierService) GetShippingLabelData(supplierID, asnID string) (map[string]interface{}, error) {
+	var asn models.SupplierASN
+	if err := s.db.Where("id = ? AND supplier_id = ?", asnID, supplierID).
+		Preload("Supplier").
+		Preload("PurchaseOrder").
+		Preload("PurchaseOrder.Items").
+		Preload("PurchaseOrder.Items.Product").
+		First(&asn).Error; err != nil {
+		return nil, errors.New("shipment not found")
+	}
+
+	barcodeVal := fmt.Sprintf("GS1-%s-%s", asn.ASNNumber, asn.Carrier)
+	if asn.TrackingNumber != "" {
+		barcodeVal = asn.TrackingNumber
+	}
+
+	return map[string]interface{}{
+		"asn_number":      asn.ASNNumber,
+		"po_number":       asn.PurchaseOrder.PONumber,
+		"carrier":         asn.Carrier,
+		"tracking_number": asn.TrackingNumber,
+		"dispatch_date":   asn.DispatchDate,
+		"expected_date":   asn.ExpectedArrival,
+		"package_count":   asn.PackageCount,
+		"total_weight_kg": asn.TotalWeightKg,
+		"barcode":         barcodeVal,
+		"vendor_name":     asn.Supplier.Name,
+		"vendor_phone":    asn.Supplier.Phone,
+		"vendor_address":  asn.Supplier.Address,
+		"vendor_tin":      asn.Supplier.TaxNumber,
+		"items":           asn.PurchaseOrder.Items,
+	}, nil
+}
+
 

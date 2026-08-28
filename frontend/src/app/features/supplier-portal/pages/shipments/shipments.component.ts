@@ -39,6 +39,11 @@ export class SupplierPortalShipmentsComponent implements OnInit {
   vehiclePlate = '';
   driverPhone = '';
 
+  // Shipping Label state
+  showLabelModal = signal<boolean>(false);
+  labelData = signal<any | null>(null);
+  loadingLabel = signal<boolean>(false);
+
   ngOnInit() {
     this.loadData();
   }
@@ -121,6 +126,26 @@ export class SupplierPortalShipmentsComponent implements OnInit {
       },
       error: (err) => this.toast.showError(err.error?.error || 'Failed to book dock slot')
     });
+  }
+
+  openShippingLabel(asn: SupplierASN) {
+    if (!asn.id) return;
+    this.loadingLabel.set(true);
+    this.showLabelModal.set(true);
+    this.portalService.getShippingLabel(asn.id).subscribe({
+      next: (res) => {
+        this.labelData.set(res);
+        this.loadingLabel.set(false);
+      },
+      error: () => {
+        this.loadingLabel.set(false);
+        this.toast.showError('Failed to load shipping label data');
+      }
+    });
+  }
+
+  printLabel() {
+    window.print();
   }
 
   statusClass(status: string = ''): string {

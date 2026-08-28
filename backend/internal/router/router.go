@@ -203,6 +203,16 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 				portalProtected.GET("/documents", supplierPortalHandler.ListDocuments)
 				portalProtected.POST("/documents", supplierPortalHandler.UploadDocument)
 				portalProtected.GET("/announcements", supplierPortalHandler.ListAnnouncements)
+				portalProtected.GET("/shipments/:id/shipping-label", supplierPortalHandler.GetShippingLabel)
+				portalProtected.POST("/catalog/bulk", supplierPortalHandler.BulkImportCatalog)
+				portalProtected.GET("/invoices/:id/three-way-match", supplierPortalHandler.GetThreeWayMatch)
+				portalProtected.GET("/scorecard", supplierPortalHandler.GetSupplierScorecard)
+				portalProtected.GET("/api-keys", supplierPortalHandler.ListAPIKeys)
+				portalProtected.POST("/api-keys", supplierPortalHandler.CreateAPIKey)
+				portalProtected.DELETE("/api-keys/:id", supplierPortalHandler.RevokeAPIKey)
+				portalProtected.GET("/webhooks", supplierPortalHandler.ListWebhooks)
+				portalProtected.POST("/webhooks", supplierPortalHandler.CreateWebhook)
+				portalProtected.DELETE("/webhooks/:id", supplierPortalHandler.DeleteWebhook)
 			}
 		}
 

@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount, SupplierTeamMember, SupplierDocument } from '../../services/supplier-portal.service';
+import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount, SupplierTeamMember, SupplierDocument, SupplierAPIKey, SupplierWebhook } from '../../services/supplier-portal.service';
 import { ToastService } from '../../../../core/services/toast';
 
 @Component({
   selector: 'app-supplier-portal-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule],
   templateUrl: './settings.component.html'
 })
 export class SupplierPortalSettingsComponent implements OnInit {
@@ -16,7 +16,7 @@ export class SupplierPortalSettingsComponent implements OnInit {
 
   profile = signal<SupplierProfile | null>(null);
   
-  activeTab = signal<'payout' | 'team' | 'documents' | 'profile'>('payout');
+  activeTab = signal<'payout' | 'team' | 'documents' | 'profile' | 'api'>('payout');
 
   // Payout state
   accountType = 'bank';
@@ -143,5 +143,61 @@ export class SupplierPortalSettingsComponent implements OnInit {
       next: () => this.toast.showSuccess('Payout account settings saved successfully!'),
       error: (err) => this.toast.showError(err.error?.error || 'Failed to save payout settings')
     });
+  }
+
+  // ── API Keys & Webhooks ──
+  apiKeys = signal<SupplierAPIKey[]>([]);
+  webhooks = signal<SupplierWebhook[]>([]);
+  newKeyName = '';
+  newWebhookURL = '';
+  newWebhookEvents = 'po.created,invoice.paid';
+  newKeyPlain = signal<string | null>(null);
+  loadingAPI = signal<boolean>(false);
+
+  loadAPIData() {
+    this.portalService.listApiKeys().subscribe({ next: (k) => this.apiKeys.set(k || []) });
+    this.portalService.listWebhooks().subscribe({ next: (w) => this.webhooks.set(w || []) });
+  }
+
+  createKey() {
+    if (!this.newKeyName) { this.toast.showError('Enter a name for the API key'); return; }
+    this.loadingAPI.set(true);
+    this.portalService.createApiKey(this.newKeyName).subscribe({
+      next: (res) => {
+        this.newKeyPlain.set(res.plain_key);
+        this.newKeyName = '';
+        this.loadAPIData();
+        this.loadingAPI.set(false);
+      },
+      error: (err) => { this.toast.showError(err.error?.error || 'Failed'); this.loadingAPI.set(false); }
+    });
+  }
+
+  revokeKey(id: string) {
+    this.portalService.revokeApiKey(id).subscribe({
+      next: () => { this.toast.showSuccess('API key revoked'); this.loadAPIData(); },
+      error: (err) => this.toast.showError(err.error?.error || 'Failed')
+    });
+  }
+
+  createWebhook() {
+    if (!this.newWebhookURL) { this.toast.showError('Enter a webhook URL'); return; }
+    this.portalService.createWebhook(this.newWebhookURL, this.newWebhookEvents).subscribe({
+      next: () => { this.toast.showSuccess('Webhook endpoint registered!'); this.newWebhookURL = ''; this.loadAPIData(); },
+      error: (err) => this.toast.showError(err.error?.error || 'Failed')
+    });
+  }
+
+  deleteWebhook(id: string) {
+    this.portalService.deleteWebhook(id).subscribe({
+      next: () => { this.toast.showSuccess('Webhook deleted'); this.loadAPIData(); },
+      error: (err) => this.toast.showError(err.error?.error || 'Failed')
+    });
+  }
+
+  switchToApiTab() {
+    this.activeTab.set('api');
+    this.newKeyPlain.set(null);
+    this.loadAPIData();
   }
 }

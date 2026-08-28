@@ -895,3 +895,187 @@ func (h *SupplierPortalHandler) RemoveProduct(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Product removed from catalog"})
 }
+
+// ── GET /api/v1/supplier-portal/shipments/:id/shipping-label ──
+func (h *SupplierPortalHandler) GetShippingLabel(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	asnID := c.Param("id")
+	data, err := h.supplierService(c).GetShippingLabelData(supplierID, asnID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, data)
+}
+
+// ── POST /api/v1/supplier-portal/catalog/bulk ──
+func (h *SupplierPortalHandler) BulkImportCatalog(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	var req struct {
+		Items []services.BulkCatalogItemInput `json:"items" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	count, err := h.supplierService(c).BulkImportCatalog(supplierID, req.Items)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":        fmt.Sprintf("Successfully imported %d catalog items", count),
+		"imported_count": count,
+	})
+}
+
+// ── GET /api/v1/supplier-portal/invoices/:id/three-way-match ──
+func (h *SupplierPortalHandler) GetThreeWayMatch(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	invoiceID := c.Param("id")
+	audit, err := h.supplierService(c).CalculateThreeWayMatch(supplierID, invoiceID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, audit)
+}
+
+// ── GET /api/v1/supplier-portal/scorecard ──
+func (h *SupplierPortalHandler) GetSupplierScorecard(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	scorecard, err := h.supplierService(c).CalculateSupplierTier(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, scorecard)
+}
+
+// ── GET /api/v1/supplier-portal/api-keys ──
+func (h *SupplierPortalHandler) ListAPIKeys(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	keys, err := h.supplierService(c).ListSupplierAPIKeys(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, keys)
+}
+
+// ── POST /api/v1/supplier-portal/api-keys ──
+func (h *SupplierPortalHandler) CreateAPIKey(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req struct {
+		Name string `json:"name" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	apiKey, plainKey, err := h.supplierService(c).GenerateSupplierAPIKey(supplierID, req.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{
+		"api_key":   apiKey,
+		"plain_key": plainKey,
+		"message":   "API Key generated successfully. Please copy the key now as it will not be shown again.",
+	})
+}
+
+// ── DELETE /api/v1/supplier-portal/api-keys/:id ──
+func (h *SupplierPortalHandler) RevokeAPIKey(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	keyID := c.Param("id")
+	if err := h.supplierService(c).RevokeSupplierAPIKey(supplierID, keyID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "API key revoked"})
+}
+
+// ── GET /api/v1/supplier-portal/webhooks ──
+func (h *SupplierPortalHandler) ListWebhooks(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	hooks, err := h.supplierService(c).ListSupplierWebhooks(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, hooks)
+}
+
+// ── POST /api/v1/supplier-portal/webhooks ──
+func (h *SupplierPortalHandler) CreateWebhook(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req struct {
+		URL    string `json:"url" binding:"required,url"`
+		Events string `json:"events" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	hook, err := h.supplierService(c).CreateSupplierWebhook(supplierID, req.URL, req.Events)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, hook)
+}
+
+// ── DELETE /api/v1/supplier-portal/webhooks/:id ──
+func (h *SupplierPortalHandler) DeleteWebhook(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	hookID := c.Param("id")
+	if err := h.supplierService(c).DeleteSupplierWebhook(supplierID, hookID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Webhook endpoint deleted"})
+}

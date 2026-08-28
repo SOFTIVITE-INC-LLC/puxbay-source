@@ -18,8 +18,36 @@ export class SupplierPortalInvoicesComponent implements OnInit {
   loading = signal<boolean>(false);
   payoutLoading = signal<string | null>(null);
 
+  // 3-Way Match Audit state
+  showAuditModal = signal<boolean>(false);
+  auditData = signal<any | null>(null);
+  loadingAudit = signal<boolean>(false);
+
   ngOnInit() {
     this.loadInvoices();
+  }
+
+  openThreeWayMatch(inv: SupplierInvoice) {
+    if (!inv.id) return;
+    this.loadingAudit.set(true);
+    this.showAuditModal.set(true);
+    this.portalService.getThreeWayMatch(inv.id).subscribe({
+      next: (res) => {
+        this.auditData.set(res);
+        this.loadingAudit.set(false);
+      },
+      error: () => {
+        this.loadingAudit.set(false);
+        this.toast.showError('Failed to load 3-way matching audit');
+      }
+    });
+  }
+
+  matchBadgeClass(status: string = ''): string {
+    const s = status.toLowerCase();
+    if (s === 'matched') return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+    if (s === 'mismatched') return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30';
+    return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
   }
 
   loadInvoices() {

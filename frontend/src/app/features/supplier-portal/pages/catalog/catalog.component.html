@@ -27,6 +27,10 @@
               class="px-3.5 py-2 text-xs font-bold rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 transition-all shadow-sm">
         Price Proposals ({{ priceRequests().length }})
       </button>
+      <button (click)="openBulkModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all inline-flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+        Bulk Import CSV
+      </button>
     </div>
   </div>
 
@@ -166,6 +170,92 @@
       <div class="flex items-center justify-end gap-2.5 pt-2">
         <button (click)="showPriceModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
         <button (click)="submitPriceRequest()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Submit Proposal</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── BULK CSV CATALOG IMPORT MODAL ── -->
+@if (showBulkModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <button (click)="showBulkModal.set(false)"
+            class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="w-full max-w-3xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-6 space-y-5 border border-slate-200 dark:border-zinc-800 my-auto">
+      <div>
+        <h2 class="text-lg font-black text-slate-900 dark:text-white">Bulk Catalog Import (CSV)</h2>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Upload a CSV with columns: <code class="bg-slate-100 dark:bg-zinc-800 px-1 rounded font-mono">sku, name, cost, min_qty</code></p>
+      </div>
+
+      <!-- Drop Zone -->
+      <label class="block w-full cursor-pointer">
+        <div class="flex flex-col items-center justify-center gap-3 p-10 rounded-2xl border-2 border-dashed border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors text-center">
+          <svg class="w-10 h-10 text-slate-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <div>
+            <p class="text-sm font-bold text-slate-700 dark:text-zinc-300">Drop CSV file here or click to browse</p>
+            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-0.5">Supports .csv and .txt formats</p>
+          </div>
+        </div>
+        <input type="file" accept=".csv,.txt" class="hidden" (change)="onCSVFile($event)" />
+      </label>
+
+      <!-- CSV Error -->
+      @if (csvError()) {
+        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-800/30 text-xs text-rose-700 dark:text-rose-400 font-medium">{{ csvError() }}</div>
+      }
+
+      <!-- Preview Table -->
+      @if (csvPreview().length > 0) {
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-slate-700 dark:text-zinc-300">Preview — {{ csvPreview().length }} rows detected</p>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-black">Ready to import</span>
+          </div>
+          <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+              <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+                <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400 sticky top-0">
+                  <tr>
+                    <th class="px-4 py-2.5 text-left">#</th>
+                    <th class="px-4 py-2.5 text-left">SKU</th>
+                    <th class="px-4 py-2.5 text-left">Product Name</th>
+                    <th class="px-4 py-2.5 text-right">Unit Cost</th>
+                    <th class="px-4 py-2.5 text-right">Min Order Qty</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+                  @for (row of csvPreview(); track row.sku; let i = $index) {
+                    <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/30">
+                      <td class="px-4 py-2 text-slate-400 font-mono">{{ i + 1 }}</td>
+                      <td class="px-4 py-2 font-mono font-bold text-slate-900 dark:text-white">{{ row.sku }}</td>
+                      <td class="px-4 py-2">{{ row.product_name }}</td>
+                      <td class="px-4 py-2 text-right">{{ row.unit_cost | appCurrency }}</td>
+                      <td class="px-4 py-2 text-right">{{ row.min_order_qty }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showBulkModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        @if (csvPreview().length > 0) {
+          <button (click)="submitBulkImport()" [disabled]="importingBulk()" class="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md flex items-center gap-1.5 disabled:opacity-60">
+            @if (importingBulk()) { Importing... } @else {
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              Import {{ csvPreview().length }} Items
+            }
+          </button>
+        }
       </div>
     </div>
   </div>

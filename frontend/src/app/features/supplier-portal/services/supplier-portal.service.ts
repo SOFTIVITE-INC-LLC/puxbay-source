@@ -80,6 +80,9 @@ export interface SupplierInvoice {
   status: string; // pending, approved, partially_paid, paid, rejected
   payment_ref?: string;
   notes?: string;
+  three_way_match_status?: 'matched' | 'mismatched' | 'pending_receipt';
+  early_discount_percent?: number;
+  early_discount_days?: number;
 }
 
 export interface SupplierProduct {
@@ -391,6 +394,52 @@ export class SupplierPortalService {
   getAnnouncements(): Observable<SupplierAnnouncement[]> {
     return this.api.get<SupplierAnnouncement[]>(`${this.base}/announcements`);
   }
+
+  // Enterprise Suite: GS1-128 Shipping Label
+  getShippingLabel(asnId: string): Observable<ShippingLabelData> {
+    return this.api.get<ShippingLabelData>(`${this.base}/shipments/${asnId}/shipping-label`);
+  }
+
+  // Enterprise Suite: Bulk CSV Catalog Import
+  bulkImportCatalog(items: Array<{ sku: string; product_name: string; unit_cost: number; min_order_qty: number }>): Observable<{ message: string; imported_count: number }> {
+    return this.api.post<{ message: string; imported_count: number }>(`${this.base}/catalog/bulk`, { items });
+  }
+
+  // Enterprise Suite: 3-Way Matching Audit
+  getThreeWayMatch(invoiceId: string): Observable<ThreeWayMatchAudit> {
+    return this.api.get<ThreeWayMatchAudit>(`${this.base}/invoices/${invoiceId}/three-way-match`);
+  }
+
+  // Enterprise Suite: Scorecard & Vendor Tier
+  getScorecard(): Observable<SupplierScorecard> {
+    return this.api.get<SupplierScorecard>(`${this.base}/scorecard`);
+  }
+
+  // Enterprise Suite: Developer API Keys
+  listApiKeys(): Observable<SupplierAPIKey[]> {
+    return this.api.get<SupplierAPIKey[]>(`${this.base}/api-keys`);
+  }
+
+  createApiKey(name: string): Observable<{ api_key: SupplierAPIKey; plain_key: string; message: string }> {
+    return this.api.post<{ api_key: SupplierAPIKey; plain_key: string; message: string }>(`${this.base}/api-keys`, { name });
+  }
+
+  revokeApiKey(id: string): Observable<{ message: string }> {
+    return this.api.delete<{ message: string }>(`${this.base}/api-keys/${id}`);
+  }
+
+  // Enterprise Suite: Webhooks Management
+  listWebhooks(): Observable<SupplierWebhook[]> {
+    return this.api.get<SupplierWebhook[]>(`${this.base}/webhooks`);
+  }
+
+  createWebhook(url: string, events: string): Observable<SupplierWebhook> {
+    return this.api.post<SupplierWebhook>(`${this.base}/webhooks`, { url, events });
+  }
+
+  deleteWebhook(id: string): Observable<{ message: string }> {
+    return this.api.delete<{ message: string }>(`${this.base}/webhooks/${id}`);
+  }
 }
 
 export interface SupplierRMA {
@@ -446,5 +495,82 @@ export interface SupplierAnnouncement {
   priority: 'info' | 'warning' | 'urgent';
   expires_at?: string;
   is_active: boolean;
+}
+
+export interface ShippingLabelData {
+  asn_number: string;
+  po_number: string;
+  carrier: string;
+  tracking_number?: string;
+  dispatch_date: string;
+  expected_date?: string;
+  package_count: number;
+  total_weight_kg: number;
+  barcode: string;
+  vendor_name: string;
+  vendor_phone?: string;
+  vendor_address?: string;
+  vendor_tin?: string;
+  items?: PurchaseOrderItem[];
+}
+
+export interface ThreeWayMatchAudit {
+  invoice_id: string;
+  invoice_number: string;
+  invoice_total: number;
+  po_number: string;
+  po_total: number;
+  match_status: 'matched' | 'mismatched' | 'pending_receipt';
+  discrepancy_notes: string;
+  items: Array<{
+    product_name: string;
+    sku: string;
+    quantity_ordered: number;
+    quantity_received: number;
+    quantity_invoiced: number;
+    unit_cost_agreed: number;
+    unit_cost_invoiced: number;
+    is_matched: boolean;
+  }>;
+  early_discount_summary?: {
+    discount_percent: number;
+    discount_days: number;
+    eligible_until: string;
+    is_eligible: boolean;
+    discount_amount: number;
+    net_payable: number;
+  };
+}
+
+export interface SupplierScorecard {
+  supplier_id: string;
+  name: string;
+  tier: 'platinum' | 'gold' | 'silver' | 'standard';
+  otd_rate: number;
+  defect_rate: number;
+  total_pos: number;
+  total_rmas: number;
+  benefits: string[];
+}
+
+export interface SupplierAPIKey {
+  id: string;
+  created_at: string;
+  name: string;
+  key_preview: string;
+  last_used_at?: string;
+  expires_at?: string;
+  is_active: boolean;
+}
+
+export interface SupplierWebhook {
+  id: string;
+  created_at: string;
+  url: string;
+  events: string;
+  secret: string;
+  is_active: boolean;
+  last_triggered_at?: string;
+  last_status?: number;
 }
 

@@ -111,6 +111,8 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&SupplierDeliverySlot{},
 		&SupplierDocument{},
 		&SupplierAnnouncement{},
+		&SupplierAPIKey{},
+		&SupplierWebhook{},
 	)
 }
 

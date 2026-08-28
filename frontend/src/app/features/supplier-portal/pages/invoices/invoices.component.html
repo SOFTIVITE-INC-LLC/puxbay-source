@@ -48,6 +48,7 @@
               <th class="px-5 py-3.5">Due Date</th>
               <th class="px-5 py-3.5 text-right">Invoice Total</th>
               <th class="px-5 py-3.5 text-right">Paid Amount</th>
+              <th class="px-5 py-3.5 text-center">3-Way Match</th>
               <th class="px-5 py-3.5 text-right">Status</th>
               <th class="px-5 py-3.5 text-right">Action</th>
             </tr>
@@ -63,6 +64,16 @@
                 <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ inv.due_date | date:'mediumDate' }}</td>
                 <td class="px-5 py-3.5 text-right font-black text-slate-900 dark:text-white">{{ inv.total | appCurrency }}</td>
                 <td class="px-5 py-3.5 text-right font-bold text-emerald-600 dark:text-emerald-400">{{ (inv.amount_paid || 0) | appCurrency }}</td>
+                <td class="px-5 py-3.5 text-center">
+                  <button (click)="openThreeWayMatch(inv)"
+                          class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-full border transition-colors"
+                          [ngClass]="matchBadgeClass(inv.three_way_match_status || 'pending_receipt')">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    {{ (inv.three_way_match_status || 'PENDING') | uppercase }}
+                  </button>
+                </td>
                 <td class="px-5 py-3.5 text-right">
                   <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(inv.status)">
                     {{ inv.status | uppercase }}
@@ -93,3 +104,108 @@
   </div>
 
 </div>
+
+<!-- ── 3-WAY MATCH AUDIT MODAL ── -->
+@if (showAuditModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <button (click)="showAuditModal.set(false)"
+            class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-6 space-y-5 border border-slate-200 dark:border-zinc-800 my-auto">
+      @if (loadingAudit()) {
+        <div class="p-12 text-center text-slate-400 animate-pulse text-sm">Running 3-way audit verification...</div>
+      } @else if (auditData()) {
+        <!-- Audit Header -->
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="text-lg font-black text-slate-900 dark:text-white">3-Way Match Audit</h2>
+            <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">PO · Invoice · Goods Receipt reconciliation</p>
+          </div>
+          <span class="px-3 py-1.5 text-xs font-extrabold rounded-full border" [ngClass]="matchBadgeClass(auditData().match_status)">
+            {{ auditData().match_status | uppercase }}
+          </span>
+        </div>
+
+        <!-- PO vs Invoice Summary -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block mb-1">Purchase Order</span>
+            <p class="font-black text-slate-900 dark:text-white text-sm font-mono">{{ auditData().po_number }}</p>
+            <p class="text-base font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ auditData().po_total | appCurrency }}</p>
+          </div>
+          <div class="p-4 bg-slate-50 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500 block mb-1">Invoice Total</span>
+            <p class="font-black text-slate-900 dark:text-white text-sm font-mono">{{ auditData().invoice_number }}</p>
+            <p class="text-base font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ auditData().invoice_total | appCurrency }}</p>
+          </div>
+        </div>
+
+        <!-- Line Items Audit Table -->
+        @if (auditData().items?.length > 0) {
+          <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
+            <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+              <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400">
+                <tr>
+                  <th class="px-4 py-2.5 text-left">Item</th>
+                  <th class="px-4 py-2.5 text-right">Ordered</th>
+                  <th class="px-4 py-2.5 text-right">Received</th>
+                  <th class="px-4 py-2.5 text-right">Invoiced</th>
+                  <th class="px-4 py-2.5 text-center">Match</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+                @for (item of auditData().items; track item.sku) {
+                  <tr [class.bg-rose-50]="!item.is_matched" [class.dark:bg-rose-900/10]="!item.is_matched">
+                    <td class="px-4 py-2.5">
+                      <p class="font-bold text-slate-900 dark:text-white">{{ item.product_name }}</p>
+                      <p class="font-mono text-[10px] text-slate-400">{{ item.sku }}</p>
+                    </td>
+                    <td class="px-4 py-2.5 text-right font-mono">{{ item.quantity_ordered }}</td>
+                    <td class="px-4 py-2.5 text-right font-mono">{{ item.quantity_received }}</td>
+                    <td class="px-4 py-2.5 text-right font-mono">{{ item.quantity_invoiced }}</td>
+                    <td class="px-4 py-2.5 text-center">
+                      @if (item.is_matched) {
+                        <span class="text-emerald-500 dark:text-emerald-400 font-black text-sm">✓</span>
+                      } @else {
+                        <span class="text-rose-500 dark:text-rose-400 font-black text-sm">✗</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- Discrepancy Notes -->
+        @if (auditData().discrepancy_notes) {
+          <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 text-xs text-amber-700 dark:text-amber-400 font-medium">
+            <span class="font-bold">Note: </span>{{ auditData().discrepancy_notes }}
+          </div>
+        }
+
+        <!-- Early Payment Discount -->
+        @if (auditData().early_discount_summary?.discount_percent > 0) {
+          <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/30 space-y-1">
+            <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Early Payment Discount Available</p>
+            <p class="text-sm text-emerald-800 dark:text-emerald-300">
+              Pay within <strong>{{ auditData().early_discount_summary.discount_days }} days</strong> to earn
+              <strong>{{ auditData().early_discount_summary.discount_percent }}%</strong> discount
+              — save <strong>{{ auditData().early_discount_summary.discount_amount | appCurrency }}</strong>,
+              net payable: <strong>{{ auditData().early_discount_summary.net_payable | appCurrency }}</strong>
+            </p>
+          </div>
+        }
+
+        <div class="flex justify-end pt-2">
+          <button (click)="showAuditModal.set(false)" class="px-5 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-200">Close</button>
+        </div>
+      }
+    </div>
+  </div>
+}
+

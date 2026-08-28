@@ -24,6 +24,11 @@ type Supplier struct {
 	CreditLimit   float64 `gorm:"type:decimal(12,2);default:0" json:"credit_limit"` // 0 = unlimited
 	IsActive      bool    `gorm:"default:true" json:"is_active"`
 
+	// Performance Tiering & SLA metrics
+	Tier       string  `gorm:"size:30;default:'standard'" json:"tier"` // platinum, gold, silver, standard
+	OTDRate    float64 `gorm:"type:decimal(5,2);default:100" json:"otd_rate"`
+	DefectRate float64 `gorm:"type:decimal(5,2);default:0" json:"defect_rate"`
+
 	// Portal access — set when supplier is invited to the portal
 	PortalEmail    *string `gorm:"size:254;index" json:"portal_email,omitempty"`
 	PortalPassword *string `gorm:"size:255" json:"-"` // bcrypt hash
@@ -107,6 +112,11 @@ type SupplierInvoice struct {
 	Status          string     `gorm:"size:30;default:'pending'" json:"status"` // pending, approved, partially_paid, paid, rejected
 	PaymentRef      *string    `gorm:"size:100" json:"payment_ref,omitempty"`
 	Notes           *string    `gorm:"type:text" json:"notes,omitempty"`
+
+	// 3-Way Match & Dynamic Settlement
+	ThreeWayMatchStatus  string  `gorm:"size:30;default:'pending_receipt'" json:"three_way_match_status"` // matched, mismatched, pending_receipt
+	EarlyDiscountPercent float64 `gorm:"type:decimal(5,2);default:0" json:"early_discount_percent"`       // e.g. 2%
+	EarlyDiscountDays    int     `gorm:"default:0" json:"early_discount_days"`                             // e.g. within 10 days
 
 	// Relations
 	Supplier      Supplier       `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
@@ -257,4 +267,34 @@ type SupplierAnnouncement struct {
 	Priority  string     `gorm:"size:30;default:'info'" json:"priority"` // info, warning, urgent
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	IsActive  bool       `gorm:"default:true" json:"is_active"`
+}
+
+// SupplierAPIKey allows enterprise vendors to connect their ERP/SAP/NetSuite systems via REST API.
+type SupplierAPIKey struct {
+	Base
+	SupplierID uuid.UUID  `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	Name       string     `gorm:"size:100;not null" json:"name"`
+	Key        string     `gorm:"size:255;uniqueIndex;not null" json:"key"` // puk_live_...
+	KeyPreview string     `gorm:"size:30" json:"key_preview"`
+	LastUsedAt *time.Time `json:"last_used_at,omitempty"`
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
+	IsActive   bool       `gorm:"default:true" json:"is_active"`
+
+	// Relations
+	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"-"`
+}
+
+// SupplierWebhook delivers real-time event webhooks (po.created, invoice.paid, rma.issued) to vendor endpoints.
+type SupplierWebhook struct {
+	Base
+	SupplierID      uuid.UUID  `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	URL             string     `gorm:"size:512;not null" json:"url"`
+	Events          string     `gorm:"size:255;not null" json:"events"` // "po.created,invoice.paid,rma.issued"
+	Secret          string     `gorm:"size:255;not null" json:"secret"`
+	IsActive        bool       `gorm:"default:true" json:"is_active"`
+	LastTriggeredAt *time.Time `json:"last_triggered_at,omitempty"`
+	LastStatus      int        `json:"last_status,omitempty"` // 200, 500 etc.
+
+	// Relations
+	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"-"`
 }
