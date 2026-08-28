@@ -329,6 +329,7 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 				// 2. Handle points redemption if requested
 				if input.RedeemPoints > 0 && customer.LoyaltyPts >= input.RedeemPoints {
 					redeemTx := models.LoyaltyTransaction{
+						TenantID:        s.tenantID,
 						CustomerID:      *input.CustomerID,
 						OrderID:         &order.ID,
 						Points:          -input.RedeemPoints,
@@ -350,6 +351,7 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 					pointsEarned := order.Total * pointsRate
 
 					earnTx := models.LoyaltyTransaction{
+						TenantID:        s.tenantID,
 						CustomerID:      *input.CustomerID,
 						OrderID:         &order.ID,
 						Points:          pointsEarned,
@@ -613,6 +615,7 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 				// 2. Handle points redemption
 				if input.RedeemPoints > 0 && customer.LoyaltyPts >= input.RedeemPoints {
 					redeemTx := models.LoyaltyTransaction{
+						TenantID:        s.tenantID,
 						CustomerID:      *input.CustomerID,
 						OrderID:         &order.ID,
 						Points:          -input.RedeemPoints,
@@ -634,6 +637,7 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 					pointsEarned := order.Total * pointsRate
 
 					earnTx := models.LoyaltyTransaction{
+						TenantID:        s.tenantID,
 						CustomerID:      *input.CustomerID,
 						OrderID:         &order.ID,
 						Points:          pointsEarned,
