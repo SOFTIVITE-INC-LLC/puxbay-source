@@ -63,7 +63,7 @@ func processBillingEmails(db *gorm.DB, emailSvc *services.EmailService) {
 			emailSent := false
 
 			switch lockedSub.Status {
-case "trialing":
+			case "trialing":
 				daysLeft := int(lockedSub.CurrentPeriodEnd.Sub(now).Hours() / 24)
 
 				// Trigger 3-day warning

@@ -34,10 +34,10 @@ export const globalErrorInterceptor: HttpInterceptorFn = (req, next) => {
           }
           // Do not show session expired toast for public storefront/kiosk/auth pages
           const isPublicReq = req.url.includes('/storefront') ||
-                              req.url.includes('/kiosk') ||
-                              req.url.includes('/public') ||
-                              req.url.includes('/auth/login') ||
-                              req.url.includes('/auth/register');
+            req.url.includes('/kiosk') ||
+            req.url.includes('/public') ||
+            req.url.includes('/auth/login') ||
+            req.url.includes('/auth/register');
           if (isPublicReq) {
             return throwError(() => error);
           }

@@ -140,7 +140,7 @@ func (s *EmailService) SendEmailVerification(to, firstName, token, otpCode, subd
 		Title: "Verify Your Email Address",
 		Paragraphs: []template.HTML{
 			template.HTML(fmt.Sprintf("Hello %s,", template.HTMLEscapeString(firstName))),
-			"Welcome to Puxbay Commerce! Please verify your email address to secure your account and activate automated daily business reports.",
+			"Welcome to Puxbay! Please verify your email address to secure your account and activate automated daily business reports.",
 			"Alternatively, you can click the button below to verify your account automatically:",
 		},
 		OTPCode:    otpCode,
