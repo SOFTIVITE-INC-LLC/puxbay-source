@@ -323,3 +323,32 @@ func (s *EmailService) SendStaffWelcomeEmail(to, tenantName, tenantURL, username
 
 	s.sendHTMLEmail(to, subject, data)
 }
+
+// SendSupplierPortalWelcomeEmail sends a branded onboarding email to a supplier
+// when they are granted access to the supplier portal by a tenant admin.
+func (s *EmailService) SendSupplierPortalWelcomeEmail(to, supplierName, tenantName, portalURL, loginEmail, password string) {
+	subject := fmt.Sprintf("🎉 You're invited to %s's Supplier Portal", tenantName)
+
+	paragraphs := []template.HTML{
+		template.HTML(fmt.Sprintf("Hello <strong>%s</strong>,", template.HTMLEscapeString(supplierName))),
+		template.HTML(fmt.Sprintf("<strong>%s</strong> has granted you access to their Supplier Portal on Puxbay.", template.HTMLEscapeString(tenantName))),
+		"You can now log in to view purchase orders, submit invoices, track shipments, and manage your collaboration with the team.",
+		"<strong>Your Portal Login Credentials:</strong>",
+		template.HTML(fmt.Sprintf("🌐 Portal URL: <a href='%s'>%s</a>", template.HTMLEscapeString(portalURL), template.HTMLEscapeString(portalURL))),
+		template.HTML(fmt.Sprintf("📧 Login Email: <strong>%s</strong>", template.HTMLEscapeString(loginEmail))),
+		template.HTML(fmt.Sprintf("🔑 Temporary Password: <strong>%s</strong>", template.HTMLEscapeString(password))),
+		"<em>Please log in and update your password from the Settings page at your earliest convenience.</em>",
+		"If you have any questions, please contact your account manager directly.",
+	}
+
+	data := EmailData{
+		Title:      fmt.Sprintf("Welcome to %s's Supplier Portal", tenantName),
+		Paragraphs: paragraphs,
+		ActionURL:  portalURL,
+		ActionText: "Access Supplier Portal",
+		Year:       time.Now().Year(),
+	}
+
+	s.sendHTMLEmail(to, subject, data)
+}
+

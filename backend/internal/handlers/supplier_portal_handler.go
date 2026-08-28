@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -63,13 +64,21 @@ func clearSupplierAuthCookies(c *gin.Context, rootDomain string) {
 
 // SupplierPortalHandler handles supplier-facing portal endpoints.
 type SupplierPortalHandler struct {
-	db          *gorm.DB
-	authService *services.AuthService
-	rootDomain  string
+	db           *gorm.DB
+	authService  *services.AuthService
+	emailService *services.EmailService
+	smsService   *services.SMSService
+	rootDomain   string
 }
 
-func NewSupplierPortalHandler(db *gorm.DB, authService *services.AuthService, rootDomain string) *SupplierPortalHandler {
-	return &SupplierPortalHandler{db: db, authService: authService, rootDomain: rootDomain}
+func NewSupplierPortalHandler(db *gorm.DB, authService *services.AuthService, rootDomain string, emailSvc *services.EmailService, smsSvc *services.SMSService) *SupplierPortalHandler {
+	return &SupplierPortalHandler{
+		db:           db,
+		authService:  authService,
+		emailService: emailSvc,
+		smsService:   smsSvc,
+		rootDomain:   rootDomain,
+	}
 }
 
 func (h *SupplierPortalHandler) supplierService(c *gin.Context) *services.SupplierService {
@@ -728,9 +737,61 @@ func (h *SupplierPortalHandler) InviteUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Resolve tenant info for portal URL and notification branding
+	var tenantName, tenantSubdomain string
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if tenantID, ok := tid.(uuid.UUID); ok {
+			var tenant models.Tenant
+			if dbErr := h.db.Where("id = ?", tenantID).First(&tenant).Error; dbErr == nil {
+				tenantName = tenant.Name
+				tenantSubdomain = tenant.Subdomain
+			}
+		}
+	}
+	if tenantName == "" {
+		tenantName = "Your Merchant"
+	}
+
+	// Build the portal login URL
+	protocol := "https"
+	if h.rootDomain == "localhost" || strings.HasPrefix(h.rootDomain, "localhost:") {
+		protocol = "http"
+	}
+	var portalURL string
+	if tenantSubdomain != "" {
+		portalURL = fmt.Sprintf("%s://%s.%s/supplier-portal/login", protocol, tenantSubdomain, h.rootDomain)
+	} else {
+		portalURL = fmt.Sprintf("%s://%s/supplier-portal/login", protocol, h.rootDomain)
+	}
+
+	supplierName := supplier.Name
+
+	// Send email notification asynchronously
+	if h.emailService != nil {
+		go h.emailService.SendSupplierPortalWelcomeEmail(
+			req.Email,
+			supplierName,
+			tenantName,
+			portalURL,
+			req.Email,
+			req.Password,
+		)
+	}
+
+	// Send SMS notification asynchronously if supplier has a phone number
+	if h.smsService != nil && supplier.Phone != nil && *supplier.Phone != "" {
+		smsMsg := fmt.Sprintf(
+			"Hi %s, %s has invited you to their Supplier Portal. Login: %s | Email: %s | Pass: %s",
+			supplierName, tenantName, portalURL, req.Email, req.Password,
+		)
+		go h.smsService.SendSMS([]string{*supplier.Phone}, smsMsg)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message":      "Portal access granted",
+		"message":      "Portal access granted. Credentials have been sent via email and SMS.",
 		"portal_email": supplier.PortalEmail,
+		"portal_url":   portalURL,
 	})
 }
 
