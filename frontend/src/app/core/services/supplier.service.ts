@@ -85,4 +85,50 @@ export class SupplierService {
   inviteToPortal(id: string, data: { email: string; password: string }): Observable<any> {
     return this.api.post<any>(`/suppliers/${id}/invite`, data);
   }
+
+  // Synergy Features
+  disburseInvoicePayout(invoiceId: string): Observable<any> {
+    return this.api.post<any>(`/suppliers/invoices/${invoiceId}/disburse`, {});
+  }
+
+  approvePriceProposal(requestId: string, notes?: string): Observable<any> {
+    return this.api.post<any>(`/suppliers/price-requests/${requestId}/approve`, { notes: notes || '' });
+  }
+
+  rejectPriceProposal(requestId: string, notes?: string): Observable<any> {
+    return this.api.post<any>(`/suppliers/price-requests/${requestId}/reject`, { notes: notes || '' });
+  }
+
+  getRMAs(branchId?: string): Observable<any[]> {
+    const params = branchId ? { branch_id: branchId } : undefined;
+    return this.api.get<any[]>('/suppliers/rmas', params ? { params } : undefined);
+  }
+
+  createRMA(rma: {
+    supplier_id: string;
+    product_id: string;
+    quantity: number;
+    reason: string;
+    photo_url?: string;
+    purchase_order_id?: string;
+    branch_id?: string;
+  }): Observable<any> {
+    return this.api.post<any>('/suppliers/rmas', rma);
+  }
+
+  resolveRMA(rmaId: string, payload: { status: string; resolution_notes?: string; credit_amount?: number }): Observable<any> {
+    return this.api.post<any>(`/suppliers/rmas/${rmaId}/resolve`, payload);
+  }
+
+  createAnnouncement(announcement: { title: string; content: string; priority?: string }): Observable<any> {
+    return this.api.post<any>('/suppliers/announcements', announcement);
+  }
+
+  getBranchDockSlots(branchId?: string, date?: string): Observable<any[]> {
+    const params: any = {};
+    if (branchId) params.branch_id = branchId;
+    if (date) params.date = date;
+    return this.api.get<any[]>('/suppliers/dock-slots', { params });
+  }
 }
+
