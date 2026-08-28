@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/middleware"
+	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/services"
 	"gorm.io/gorm"
 )
@@ -99,6 +100,293 @@ func (h *SupplierPortalHandler) ListPurchaseOrders(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, orders)
+}
+
+// GET /api/v1/supplier-portal/dashboard
+func (h *SupplierPortalHandler) GetDashboard(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	stats, err := h.supplierService(c).GetSupplierDashboardStats(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch dashboard stats"})
+		return
+	}
+	c.JSON(http.StatusOK, stats)
+}
+
+// POST /api/v1/supplier-portal/purchase-orders/:id/acknowledge
+func (h *SupplierPortalHandler) AcknowledgePO(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	poID := c.Param("id")
+	var req struct {
+		Status       string `json:"status"` // confirmed, rejected, partially_received
+		ExpectedDate string `json:"expected_date"`
+		Notes        string `json:"notes"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	po, err := h.supplierService(c).AcknowledgePO(supplierID, poID, req.Status, req.ExpectedDate, req.Notes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, po)
+}
+
+// GET /api/v1/supplier-portal/shipments
+func (h *SupplierPortalHandler) ListASNs(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	asns, err := h.supplierService(c).ListSupplierASNs(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch shipments"})
+		return
+	}
+	c.JSON(http.StatusOK, asns)
+}
+
+// POST /api/v1/supplier-portal/shipments
+func (h *SupplierPortalHandler) CreateASN(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierASN
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	asn, err := h.supplierService(c).CreateSupplierASN(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, asn)
+}
+
+// GET /api/v1/supplier-portal/invoices
+func (h *SupplierPortalHandler) ListInvoices(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	invoices, err := h.supplierService(c).ListSupplierInvoices(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch invoices"})
+		return
+	}
+	c.JSON(http.StatusOK, invoices)
+}
+
+// POST /api/v1/supplier-portal/purchase-orders/:id/invoice
+func (h *SupplierPortalHandler) FlipToInvoice(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	poID := c.Param("id")
+	var req struct {
+		InvoiceNumber string `json:"invoice_number"`
+		DueDate       string `json:"due_date"`
+	}
+	_ = c.ShouldBindJSON(&req)
+
+	var due time.Time
+	if req.DueDate != "" {
+		due, _ = time.Parse("2006-01-02", req.DueDate)
+	}
+
+	inv, err := h.supplierService(c).FlipPOToInvoice(supplierID, poID, req.InvoiceNumber, due)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, inv)
+}
+
+// GET /api/v1/supplier-portal/catalog
+func (h *SupplierPortalHandler) ListCatalog(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	products, err := h.supplierService(c).ListSupplierProducts(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch catalog"})
+		return
+	}
+	c.JSON(http.StatusOK, products)
+}
+
+// GET /api/v1/supplier-portal/price-requests
+func (h *SupplierPortalHandler) ListPriceRequests(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	reqs, err := h.supplierService(c).ListSupplierPriceRequests(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch price requests"})
+		return
+	}
+	c.JSON(http.StatusOK, reqs)
+}
+
+// POST /api/v1/supplier-portal/price-requests
+func (h *SupplierPortalHandler) CreatePriceRequest(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierPriceChangeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.supplierService(c).CreateSupplierPriceRequest(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, res)
+}
+
+// GET /api/v1/supplier-portal/quotes
+func (h *SupplierPortalHandler) ListQuotes(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	quotes, err := h.supplierService(c).ListSupplierQuotes(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch quotes"})
+		return
+	}
+	c.JSON(http.StatusOK, quotes)
+}
+
+// POST /api/v1/supplier-portal/quotes
+func (h *SupplierPortalHandler) CreateQuote(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierQuote
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	quote, err := h.supplierService(c).CreateSupplierQuote(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, quote)
+}
+
+// GET /api/v1/supplier-portal/payout-account
+func (h *SupplierPortalHandler) GetPayoutAccount(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	acc, err := h.supplierService(c).GetSupplierPayoutAccount(supplierID)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
+	c.JSON(http.StatusOK, acc)
+}
+
+// POST /api/v1/supplier-portal/payout-account
+func (h *SupplierPortalHandler) SavePayoutAccount(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierPayoutAccount
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	acc, err := h.supplierService(c).SaveSupplierPayoutAccount(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, acc)
+}
+
+// GET /api/v1/supplier-portal/messages
+func (h *SupplierPortalHandler) ListMessages(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	refID := c.Query("reference_id")
+
+	msgs, err := h.supplierService(c).ListSupplierMessages(supplierID, refID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch messages"})
+		return
+	}
+	c.JSON(http.StatusOK, msgs)
+}
+
+// POST /api/v1/supplier-portal/messages
+func (h *SupplierPortalHandler) SendMessage(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierMessage
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	msg, err := h.supplierService(c).SendSupplierMessage(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, msg)
 }
 
 // resolveSupplierID extracts the supplier_id from the JWT claims.

@@ -174,7 +174,22 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			portalProtected.Use(handlers.SupplierAuthMiddleware(authService))
 			{
 				portalProtected.GET("/me", supplierPortalHandler.Me)
+				portalProtected.GET("/dashboard", supplierPortalHandler.GetDashboard)
 				portalProtected.GET("/purchase-orders", supplierPortalHandler.ListPurchaseOrders)
+				portalProtected.POST("/purchase-orders/:id/acknowledge", supplierPortalHandler.AcknowledgePO)
+				portalProtected.POST("/purchase-orders/:id/invoice", supplierPortalHandler.FlipToInvoice)
+				portalProtected.GET("/shipments", supplierPortalHandler.ListASNs)
+				portalProtected.POST("/shipments", supplierPortalHandler.CreateASN)
+				portalProtected.GET("/invoices", supplierPortalHandler.ListInvoices)
+				portalProtected.GET("/catalog", supplierPortalHandler.ListCatalog)
+				portalProtected.GET("/price-requests", supplierPortalHandler.ListPriceRequests)
+				portalProtected.POST("/price-requests", supplierPortalHandler.CreatePriceRequest)
+				portalProtected.GET("/quotes", supplierPortalHandler.ListQuotes)
+				portalProtected.POST("/quotes", supplierPortalHandler.CreateQuote)
+				portalProtected.GET("/payout-account", supplierPortalHandler.GetPayoutAccount)
+				portalProtected.POST("/payout-account", supplierPortalHandler.SavePayoutAccount)
+				portalProtected.GET("/messages", supplierPortalHandler.ListMessages)
+				portalProtected.POST("/messages", supplierPortalHandler.SendMessage)
 			}
 		}
 

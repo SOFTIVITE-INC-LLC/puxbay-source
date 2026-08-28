@@ -100,6 +100,12 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&SMSSenderID{},
 		&SMSWallet{},
 		&SMSTransaction{},
+		&SupplierASN{},
+		&SupplierInvoice{},
+		&SupplierPriceChangeRequest{},
+		&SupplierQuote{},
+		&SupplierPayoutAccount{},
+		&SupplierMessage{},
 	)
 }
 

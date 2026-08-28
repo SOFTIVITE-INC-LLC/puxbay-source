@@ -379,8 +379,42 @@ export const routes: Routes = [
         loadComponent: () => import('./features/supplier-portal/pages/login/login.component').then(m => m.SupplierPortalLoginComponent)
       },
       {
-        path: 'orders',
-        loadComponent: () => import('./features/supplier-portal/pages/orders/orders.component').then(m => m.SupplierPortalOrdersComponent)
+        path: '',
+        loadComponent: () => import('./features/supplier-portal/layout/supplier-portal-layout.component').then(m => m.SupplierPortalLayoutComponent),
+        children: [
+          {
+            path: 'dashboard',
+            loadComponent: () => import('./features/supplier-portal/pages/dashboard/dashboard.component').then(m => m.SupplierPortalDashboardComponent)
+          },
+          {
+            path: 'orders',
+            loadComponent: () => import('./features/supplier-portal/pages/orders/orders.component').then(m => m.SupplierPortalOrdersComponent)
+          },
+          {
+            path: 'shipments',
+            loadComponent: () => import('./features/supplier-portal/pages/shipments/shipments.component').then(m => m.SupplierPortalShipmentsComponent)
+          },
+          {
+            path: 'catalog',
+            loadComponent: () => import('./features/supplier-portal/pages/catalog/catalog.component').then(m => m.SupplierPortalCatalogComponent)
+          },
+          {
+            path: 'invoices',
+            loadComponent: () => import('./features/supplier-portal/pages/invoices/invoices.component').then(m => m.SupplierPortalInvoicesComponent)
+          },
+          {
+            path: 'rfqs',
+            loadComponent: () => import('./features/supplier-portal/pages/rfqs/rfqs.component').then(m => m.SupplierPortalRfqsComponent)
+          },
+          {
+            path: 'scorecard',
+            loadComponent: () => import('./features/supplier-portal/pages/scorecard/scorecard.component').then(m => m.SupplierPortalScorecardComponent)
+          },
+          {
+            path: 'settings',
+            loadComponent: () => import('./features/supplier-portal/pages/settings/settings.component').then(m => m.SupplierPortalSettingsComponent)
+          }
+        ]
       }
     ]
   },

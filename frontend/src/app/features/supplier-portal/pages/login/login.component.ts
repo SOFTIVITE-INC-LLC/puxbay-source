@@ -27,7 +27,7 @@ export class SupplierPortalLoginComponent {
     this.portalService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/supplier-portal/orders']);
+        this.router.navigate(['/supplier-portal/dashboard']);
       },
       error: (err) => {
         this.loading.set(false);

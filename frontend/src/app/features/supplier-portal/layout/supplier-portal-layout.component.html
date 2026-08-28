@@ -1,0 +1,149 @@
+<div class="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white font-sans">
+  
+  <!-- Mobile Backdrop -->
+  @if (isMobileMenuOpen()) {
+    <div (click)="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"></div>
+  }
+
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- SIDEBAR -->
+    <aside 
+      [class.w-64]="isSidebarOpen()" 
+      [class.w-20]="!isSidebarOpen()" 
+      [class.translate-x-0]="isMobileMenuOpen()"
+      [class.-translate-x-full]="!isMobileMenuOpen()"
+      class="fixed lg:static inset-y-0 left-0 z-50 flex flex-col bg-zinc-900/95 backdrop-blur-xl border-r border-zinc-800/80 transition-all duration-300 ease-in-out lg:translate-x-0">
+      
+      <!-- Brand & Header -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-zinc-800/60">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          @if (isSidebarOpen()) {
+            <div class="flex flex-col min-w-0">
+              <span class="font-bold text-sm text-white tracking-wide truncate">Supplier Portal</span>
+              <span class="text-xs text-indigo-400 font-medium truncate">{{ currentSupplier()?.name || 'B2B Vendor' }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Collapse Button Desktop -->
+        <button (click)="toggleSidebar()" class="hidden lg:flex p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+          <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="!isSidebarOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+        @for (item of navItems; track item.route) {
+          <a [routerLink]="item.route" 
+             routerLinkActive="bg-indigo-600/15 text-indigo-400 border-indigo-500/50 shadow-sm"
+             [routerLinkActiveOptions]="{exact: item.route === '/supplier-portal/dashboard'}"
+             class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent transition-all duration-200 group relative">
+            
+            <svg class="w-5 h-5 shrink-0 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" [attr.d]="item.icon" />
+            </svg>
+            
+            @if (isSidebarOpen()) {
+              <span class="text-sm font-medium tracking-wide flex-1 truncate">{{ item.label }}</span>
+              @if (item.badge) {
+                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{{ item.badge }}</span>
+              }
+            } @else {
+              <!-- Tooltip on collapsed state -->
+              <div class="absolute left-full ml-2 px-2.5 py-1 bg-zinc-800 text-white text-xs rounded-md shadow-xl whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                {{ item.label }}
+              </div>
+            }
+          </a>
+        }
+      </nav>
+
+      <!-- Bottom Profile & Logout -->
+      <div class="p-3 border-t border-zinc-800/60 bg-zinc-900/40">
+        @if (isSidebarOpen()) {
+          <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-800/40 border border-zinc-700/30">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <div class="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center font-bold text-xs text-white uppercase shrink-0">
+                {{ currentSupplier()?.name?.charAt(0) || 'S' }}
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-xs font-medium text-zinc-200 truncate">{{ currentSupplier()?.name }}</span>
+                <span class="text-[10px] text-zinc-400 truncate">{{ currentSupplier()?.email || 'Verified Supplier' }}</span>
+              </div>
+            </div>
+            <button (click)="logout()" title="Sign Out" class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        } @else {
+          <button (click)="logout()" title="Sign Out" class="w-full flex justify-center p-2 rounded-xl text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        }
+      </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      
+      <!-- Top Sticky Bar -->
+      <header class="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-zinc-800/80 bg-zinc-900/50 backdrop-blur-xl z-30">
+        
+        <!-- Mobile Hamburger Button -->
+        <button (click)="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        <!-- Search / Breadcrumb -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2 text-xs text-zinc-400">
+            <span>Supplier Portal</span>
+            <span>/</span>
+            <span class="text-zinc-200 font-medium capitalize">{{ currentSupplier()?.name || 'Workspace' }}</span>
+          </div>
+        </div>
+
+        <!-- Quick Header Actions -->
+        <div class="flex items-center gap-3">
+          
+          <a routerLink="/supplier-portal/shipments" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-colors">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Dispatch ASN
+          </a>
+
+          <a routerLink="/supplier-portal/rfqs" class="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Submit Quote
+          </a>
+          
+        </div>
+      </header>
+
+      <!-- Router Content Outlet -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-8 bg-zinc-950/80 custom-scrollbar">
+        <router-outlet></router-outlet>
+      </main>
+
+    </div>
+
+  </div>
+</div>
