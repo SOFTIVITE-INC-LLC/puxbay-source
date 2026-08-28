@@ -35,55 +35,77 @@ func processAnomalyDetection(db *gorm.DB, intelligenceSvc *services.Intelligence
 	}
 
 	for _, tenant := range tenants {
-		// Anti-spam: skip if we already sent an anomaly alert in the last hour
-		var recentCount int64
-		db.Model(&models.Notification{}).
-			Where("tenant_id = ? AND category = ? AND created_at > ?",
-				tenant.ID, "anomaly", time.Now().Add(-1*time.Hour)).
-			Count(&recentCount)
-		if recentCount > 0 {
+		if tenant.SchemaName == "" {
 			continue
 		}
 
-		anomalies, err := intelligenceSvc.DetectAnomalies(tenant.ID.String())
-		if err != nil || len(anomalies) == 0 {
-			continue
-		}
-
-		// Send one consolidated notification per tenant
-		criticalCount := 0
-		for _, a := range anomalies {
-			if a.Severity == "critical" {
-				criticalCount++
+		err := db.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenant.SchemaName)).Error; err != nil {
+				return err
 			}
-		}
 
-		severity := "warning"
-		notifType := "warning"
-		if criticalCount > 0 {
-			severity = "critical"
-			notifType = "error"
-		}
+			// Anti-spam: skip if we already sent an anomaly alert in the last hour
+			var recentCount int64
+			if err := tx.Model(&models.Notification{}).
+				Where("tenant_id = ? AND category = ? AND created_at > ?",
+					tenant.ID, "anomaly", time.Now().Add(-1*time.Hour)).
+				Count(&recentCount).Error; err != nil {
+				return err
+			}
+			if recentCount > 0 {
+				return nil
+			}
 
-		title := fmt.Sprintf("⚠️ %d Anomaly Alert(s) Detected", len(anomalies))
-		msg := buildAnomalySummary(anomalies)
+			tenantIntelSvc := services.NewIntelligenceService(tx)
+			anomalies, err := tenantIntelSvc.DetectAnomalies(tenant.ID.String())
+			if err != nil || len(anomalies) == 0 {
+				return nil
+			}
 
-		tenantID, err := uuid.Parse(tenant.ID.String())
+			// Send one consolidated notification per tenant
+			criticalCount := 0
+			for _, a := range anomalies {
+				if a.Severity == "critical" {
+					criticalCount++
+				}
+			}
+
+			severity := "warning"
+			notifType := "warning"
+			if criticalCount > 0 {
+				severity = "critical"
+				notifType = "error"
+			}
+
+			title := fmt.Sprintf("⚠️ %d Anomaly Alert(s) Detected", len(anomalies))
+			msg := buildAnomalySummary(anomalies)
+
+			tenantID, err := uuid.Parse(tenant.ID.String())
+			if err != nil {
+				return nil
+			}
+
+			var pushSvc *services.PushService
+			if notifSvc != nil {
+				pushSvc = notifSvc.GetPushService()
+			}
+			tenantNotifSvc := services.NewNotificationService(tx, pushSvc)
+			tenantNotifSvc.CreateAndPushToAdmins(
+				tenantID,
+				title,
+				msg,
+				"anomaly",
+				"/intelligence?tab=anomalies",
+				notifType,
+			)
+
+			log.Printf("[AnomalyWorker] Sent %s anomaly alert for tenant %s (%d anomalies, %d critical)",
+				severity, tenant.ID, len(anomalies), criticalCount)
+			return nil
+		})
 		if err != nil {
-			continue
+			log.Printf("[AnomalyWorker] Error processing anomalies for tenant %s: %v", tenant.ID, err)
 		}
-
-		notifSvc.CreateAndPushToAdmins(
-			tenantID,
-			title,
-			msg,
-			"anomaly",
-			"/intelligence?tab=anomalies",
-			notifType,
-		)
-
-		log.Printf("[AnomalyWorker] Sent %s anomaly alert for tenant %s (%d anomalies, %d critical)",
-			severity, tenant.ID, len(anomalies), criticalCount)
 	}
 }
 

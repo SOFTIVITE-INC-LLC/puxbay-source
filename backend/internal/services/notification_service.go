@@ -17,6 +17,10 @@ func NewNotificationService(db *gorm.DB, push *PushService) *NotificationService
 	return &NotificationService{db: db, pushService: push}
 }
 
+func (s *NotificationService) GetPushService() *PushService {
+	return s.pushService
+}
+
 type NotificationListResult struct {
 	Notifications []models.Notification
 	Total         int64
