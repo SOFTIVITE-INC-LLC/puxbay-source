@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,6 +20,8 @@ export class Marketing implements OnInit {
   marketingService = inject(MarketingService);
   smsService = inject(SMSService);
   private toastService = inject(ToastService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   settingsService = inject(SettingsService);
   storefrontSettingsService = inject(StorefrontSettingsService);
 
@@ -65,6 +68,39 @@ export class Marketing implements OnInit {
     this.marketingService.getPromotions().subscribe();
     this.marketingService.getDiscounts().subscribe();
     this.marketingService.getSegments().subscribe();
+
+    // Automatic verification when returning from Paystack redirect
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab) {
+        this.setTab(tab);
+      }
+
+      const ref = params['reference'] || params['trxref'];
+      if (ref && ref.startsWith('SMS-TOPUP-')) {
+        this.setTab('sms');
+        this.smsService.verifyTopup(ref).subscribe({
+          next: (res: any) => {
+            this.toastService.showSuccess(`Payment verified! ${res.credits_added || ''} SMS credits added to your wallet.`);
+            this.loadSMSData();
+            // Clean up reference parameter from URL so it doesn't re-trigger
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { tab: 'sms' },
+              replaceUrl: true
+            });
+          },
+          error: () => {
+            this.loadSMSData();
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { tab: 'sms' },
+              replaceUrl: true
+            });
+          }
+        });
+      }
+    });
   }
 
   // ── Campaign CRUD ────────────────────────────────────────────────────

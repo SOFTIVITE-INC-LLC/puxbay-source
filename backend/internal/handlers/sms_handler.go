@@ -158,11 +158,28 @@ func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 	if h.paystackCfg != nil {
 		publicKey = h.paystackCfg.PublicKey
 		if h.paystackCfg.SecretKey != "" {
+			origin := c.GetHeader("Origin")
+			if origin == "" {
+				origin = c.GetHeader("Referer")
+			}
+			if origin == "" {
+				origin = "https://app.puxbay.com"
+			}
+			if len(origin) > 0 && origin[len(origin)-1] == '/' {
+				origin = origin[:len(origin)-1]
+			}
+			callbackURL := fmt.Sprintf("%s/marketing?tab=sms&reference=%s", origin, ref)
+
 			psInitPayload := map[string]interface{}{
-				"email":     req.Email,
-				"amount":    int64(req.Amount * 100), // in pesewas/kobo
-				"currency":  cfg.PriceCurrency,
-				"reference": ref,
+				"email":        req.Email,
+				"amount":       int64(req.Amount * 100), // in pesewas/kobo
+				"currency":     cfg.PriceCurrency,
+				"reference":    ref,
+				"callback_url": callbackURL,
+				"metadata": map[string]interface{}{
+					"type":      "sms_topup",
+					"tenant_id": tenantID,
+				},
 			}
 			jsonBytes, _ := json.Marshal(psInitPayload)
 			httpReq, _ := http.NewRequest("POST", "https://api.paystack.co/transaction/initialize", bytes.NewBuffer(jsonBytes))

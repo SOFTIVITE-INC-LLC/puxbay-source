@@ -5,12 +5,15 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/softivite/puxbay/internal/logger"
 	"github.com/softivite/puxbay/internal/models"
 	"gorm.io/gorm"
 )
@@ -88,7 +91,7 @@ func (h *PaystackWebhookHandler) Handle(c *gin.Context) {
 	// 4. Process Event
 	switch event.Event {
 	case "charge.success", "invoice.update":
-		// Paystack often uses charge.success for standard recurring billing
+		// Paystack often uses charge.success for standard recurring billing & charges
 		if event.Data.Status == "success" || event.Data.Status == "paid" {
 			h.handlePaymentSuccess(event)
 		}
@@ -103,6 +106,12 @@ func (h *PaystackWebhookHandler) Handle(c *gin.Context) {
 }
 
 func (h *PaystackWebhookHandler) handlePaymentSuccess(event PaystackEvent) {
+	// 1. Check if this is an SMS wallet top-up payment
+	if strings.HasPrefix(event.Data.Reference, "SMS-TOPUP-") {
+		h.handleSMSTopupSuccess(event)
+		return
+	}
+
 	var sub models.Subscription
 
 	// Try to find subscription by customer code
@@ -187,5 +196,52 @@ func (h *PaystackWebhookHandler) handleSubscriptionCanceled(event PaystackEvent)
 		}
 		sub.Status = "canceled"
 		h.db.Save(&sub)
+	}
+}
+
+func (h *PaystackWebhookHandler) handleSMSTopupSuccess(event PaystackEvent) {
+	ref := event.Data.Reference
+	tenantIDStr, _ := event.Data.Metadata["tenant_id"].(string)
+
+	var tenants []models.Tenant
+	if tenantIDStr != "" {
+		h.db.Where("id = ?", tenantIDStr).Find(&tenants)
+	} else {
+		h.db.Where("is_active = ?", true).Find(&tenants)
+	}
+
+	for _, tenant := range tenants {
+		tenantDB := h.db.Exec(fmt.Sprintf("SET search_path TO %s", tenant.SchemaName)).Session(&gorm.Session{NewDB: true})
+
+		var txn models.SMSTransaction
+		if err := tenantDB.Where("reference = ? AND status = ?", ref, "pending").First(&txn).Error; err == nil {
+			// Found transaction in this tenant schema - complete it and credit wallet
+			_ = tenantDB.Transaction(func(tx *gorm.DB) error {
+				txn.Status = "completed"
+				if err := tx.Save(&txn).Error; err != nil {
+					return err
+				}
+
+				var wallet models.SMSWallet
+				if err := tx.Where("tenant_id = ?", txn.TenantID).First(&wallet).Error; err != nil {
+					wallet = models.SMSWallet{
+						TenantID:       txn.TenantID,
+						CreditsBalance: txn.CreditsAdded,
+						CreditsTotal:   txn.CreditsAdded,
+						BalanceAmount:  txn.Amount,
+						PricePerSMS:    txn.PricePerSMS,
+						Currency:       event.Data.Currency,
+					}
+					return tx.Create(&wallet).Error
+				}
+
+				wallet.CreditsBalance += txn.CreditsAdded
+				wallet.CreditsTotal += txn.CreditsAdded
+				wallet.BalanceAmount += txn.Amount
+				return tx.Save(&wallet).Error
+			})
+			logger.Log.Info(fmt.Sprintf("✅ Auto-credited %d SMS credits to tenant %s for reference %s via Paystack webhook", txn.CreditsAdded, tenant.Name, ref))
+			return
+		}
 	}
 }
