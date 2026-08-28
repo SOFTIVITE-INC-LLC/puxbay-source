@@ -771,7 +771,7 @@
     }
   </nav>
 
-  <!-- ── Bottom Actions (Logout & Collapse) ── -->
+  <!-- ── Bottom Actions (Logout) ── -->
   <div class="p-3 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 flex flex-col gap-2">
     <!-- Logout Button -->
     <button
@@ -781,19 +781,6 @@
     >
       <span class="material-symbols-outlined !text-[18px]">logout</span>
       <span class="text-[13px] font-bold" [class.hidden]="isCollapsed">Sign Out</span>
-    </button>
-    
-    <!-- Collapse Button -->
-    <button
-      (click)="onToggle()"
-      class="w-full flex items-center justify-center p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10 shadow-sm"
-      [title]="isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'"
-    >
-      <span
-        class="material-symbols-outlined !text-[18px] transition-transform duration-300"
-        [class.rotate-180]="isCollapsed"
-        >chevron_left</span
-      >
     </button>
   </div>
 </aside>
