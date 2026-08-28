@@ -283,10 +283,33 @@ export class Marketing implements OnInit {
   topupEmail = signal('');
   isProcessingTopup = signal(false);
 
+  // SMS Preview Simulator
+  previewTemplate = signal<'receipt' | 'delivery' | 'promo' | 'cart'>('receipt');
+  
+  get previewMessage(): string {
+    const brand = this.smsService.activeSenderID()?.sender_id || 'PUXBAY';
+    switch (this.previewTemplate()) {
+      case 'receipt':
+        return `Hi Alex! Your order #PB-4821 of GHS 180.00 at ${brand} has been confirmed. Track status in your dashboard. Thank you!`;
+      case 'delivery':
+        return `Your package from ${brand} is out for delivery with rider Kwame (0244123456). Expect delivery within 45 mins.`;
+      case 'promo':
+        return `FLASH SALE! Get 25% OFF all store items today only at ${brand}. Use code FLASH25 at checkout: puxbay.com/s/store`;
+      case 'cart':
+        return `You left items in your cart at ${brand}! Complete your checkout today and get free delivery on us: puxbay.com/s/cart`;
+    }
+  }
+
   loadSMSData() {
-    this.smsService.getWallet().subscribe();
-    this.smsService.getSenderIDs().subscribe();
-    this.smsService.getTransactions().subscribe();
+    this.smsService.getWallet().subscribe({
+      error: () => {}
+    });
+    this.smsService.getSenderIDs().subscribe({
+      error: () => {}
+    });
+    this.smsService.getTransactions().subscribe({
+      error: () => {}
+    });
   }
 
   openSenderIDModal() {
