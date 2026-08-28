@@ -32,13 +32,35 @@ func StartReportWorker(db *gorm.DB, smtpCfg config.SMTPConfig) {
 }
 
 func processReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emailSvc *services.EmailService) {
-	var schedules []models.ReportSchedule
-	if err := db.Where("is_enabled = ?", true).Find(&schedules).Error; err != nil {
-		log.Printf("[ReportWorker] Error fetching report schedules: %v", err)
+	var tenants []models.Tenant
+	if err := db.Where("status = ?", "active").Find(&tenants).Error; err != nil {
+		log.Printf("[ReportWorker] Error fetching tenants: %v", err)
 		return
 	}
 
 	now := time.Now()
+
+	for _, tenant := range tenants {
+		if tenant.SchemaName == "" {
+			continue
+		}
+		processTenantReportSchedules(db, reportSvc, emailSvc, tenant, now)
+	}
+}
+
+func processTenantReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emailSvc *services.EmailService, tenant models.Tenant, now time.Time) {
+	var schedules []models.ReportSchedule
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName)).Error; err != nil {
+			return err
+		}
+		return tx.Where("is_enabled = ?", true).Find(&schedules).Error
+	})
+	if err != nil {
+		log.Printf("[ReportWorker] Error fetching report schedules for tenant %s: %v", tenant.ID, err)
+		return
+	}
 
 	for _, sched := range schedules {
 		// Anti-spam & frequency check
@@ -65,9 +87,12 @@ func processReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emai
 				if renderErr == nil {
 					subject := fmt.Sprintf("📊 [%s] Daily Z-Report & Sales Audit (%s)", zData.TenantName, zData.Date)
 					_ = emailSvc.SendRawHTML(recipients, subject, html)
-					db.Model(&sched).Updates(map[string]interface{}{
-						"last_sent_at": now,
-						"last_status":  "sent",
+					_ = db.Transaction(func(tx *gorm.DB) error {
+						_ = tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName))
+						return tx.Model(&sched).Updates(map[string]interface{}{
+							"last_sent_at": now,
+							"last_status":  "sent",
+						}).Error
 					})
 				}
 			}
@@ -82,9 +107,12 @@ func processReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emai
 					if renderErr == nil {
 						subject := fmt.Sprintf("📈 [%s] Weekly Profit & Loss Summary (%s - %s)", plData.TenantName, plData.StartDate, plData.EndDate)
 						_ = emailSvc.SendRawHTML(recipients, subject, html)
-						db.Model(&sched).Updates(map[string]interface{}{
-							"last_sent_at": now,
-							"last_status":  "sent",
+						_ = db.Transaction(func(tx *gorm.DB) error {
+							_ = tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName))
+							return tx.Model(&sched).Updates(map[string]interface{}{
+								"last_sent_at": now,
+								"last_status":  "sent",
+							}).Error
 						})
 					}
 				}
@@ -100,9 +128,12 @@ func processReportSchedules(db *gorm.DB, reportSvc *services.ReportService, emai
 					if renderErr == nil {
 						subject := fmt.Sprintf("📑 [%s] Monthly Financial P&L Statement (%s - %s)", plData.TenantName, plData.StartDate, plData.EndDate)
 						_ = emailSvc.SendRawHTML(recipients, subject, html)
-						db.Model(&sched).Updates(map[string]interface{}{
-							"last_sent_at": now,
-							"last_status":  "sent",
+						_ = db.Transaction(func(tx *gorm.DB) error {
+							_ = tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName))
+							return tx.Model(&sched).Updates(map[string]interface{}{
+								"last_sent_at": now,
+								"last_status":  "sent",
+							}).Error
 						})
 					}
 				}

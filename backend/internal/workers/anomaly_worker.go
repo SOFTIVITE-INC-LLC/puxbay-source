@@ -29,7 +29,7 @@ func StartAnomalyDetectionWorker(db *gorm.DB, intelligenceSvc *services.Intellig
 func processAnomalyDetection(db *gorm.DB, intelligenceSvc *services.IntelligenceService, notifSvc *services.NotificationService) {
 	// Fetch all active tenant IDs
 	var tenants []models.Tenant
-	if err := db.Where("is_active = ?", true).Find(&tenants).Error; err != nil {
+	if err := db.Where("status = ?", "active").Find(&tenants).Error; err != nil {
 		log.Printf("[AnomalyWorker] Error fetching tenants: %v", err)
 		return
 	}
