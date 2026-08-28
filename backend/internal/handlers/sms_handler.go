@@ -125,7 +125,10 @@ func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 
 	// Create pending SMS transaction
 	tenantID := c.GetString("tenant_id")
-	ref := fmt.Sprintf("SMS-TOPUP-%s-%d", tenantID[:8], time.Now().UnixMilli())
+	if tenantID == "" {
+		tenantID = c.GetHeader("X-Tenant-ID")
+	}
+	ref := fmt.Sprintf("SMS-TOPUP-%s-%d", uuid.New().String()[:8], time.Now().UnixMilli())
 	txn := models.SMSTransaction{
 		TenantID:      tenantID,
 		Type:          "topup",
