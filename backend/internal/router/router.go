@@ -126,7 +126,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	creditHandler := handlers.NewCreditHandler(db, creditService)
 	reportService := services.NewReportService(db, cfg.SMTP)
 	reportScheduleHandler := handlers.NewReportScheduleHandler(db, reportService, emailService)
-	smsHandler := handlers.NewSMSHandler(db, cfg.Paystack.SecretKey)
+	smsHandler := handlers.NewSMSHandler(db, &cfg.Paystack)
 	// ──────────────────────────────────────────────
 	// Health Check Endpoints (no auth required)
 	// ──────────────────────────────────────────────

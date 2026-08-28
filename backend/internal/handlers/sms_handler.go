@@ -1,15 +1,16 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 
-	"encoding/json"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/softivite/puxbay/internal/config"
 	"github.com/softivite/puxbay/internal/models"
 	"gorm.io/gorm"
 )
@@ -17,11 +18,11 @@ import (
 // SMSHandler handles SMS wallet, sender ID, and admin SMS gateway management.
 type SMSHandler struct {
 	db          *gorm.DB
-	paystackKey string // platform-level Paystack key for wallet top-ups
+	paystackCfg *config.PaystackConfig
 }
 
-func NewSMSHandler(db *gorm.DB, paystackSecretKey string) *SMSHandler {
-	return &SMSHandler{db: db, paystackKey: paystackSecretKey}
+func NewSMSHandler(db *gorm.DB, paystackCfg *config.PaystackConfig) *SMSHandler {
+	return &SMSHandler{db: db, paystackCfg: paystackCfg}
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -89,12 +90,17 @@ func (h *SMSHandler) SubmitSenderID(c *gin.Context) {
 	}
 
 	tenantID := c.GetString("tenant_id")
+	if tenantID == "" {
+		tenantID = c.GetHeader("X-Tenant-ID")
+	}
+
 	senderID := models.SMSSenderID{
+		TenantID: tenantID,
 		SenderID: req.SenderID,
 		Purpose:  req.Purpose,
 		Status:   "pending",
-		TenantID: tenantID,
 	}
+
 	if err := db.Create(&senderID).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Failed to submit Sender ID: " + err.Error()})
 		return
@@ -145,13 +151,53 @@ func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 		return
 	}
 
+	var authURL string
+	var accessCode string
+	var publicKey string
+
+	if h.paystackCfg != nil {
+		publicKey = h.paystackCfg.PublicKey
+		if h.paystackCfg.SecretKey != "" {
+			psInitPayload := map[string]interface{}{
+				"email":     req.Email,
+				"amount":    int64(req.Amount * 100), // in pesewas/kobo
+				"currency":  cfg.PriceCurrency,
+				"reference": ref,
+			}
+			jsonBytes, _ := json.Marshal(psInitPayload)
+			httpReq, _ := http.NewRequest("POST", "https://api.paystack.co/transaction/initialize", bytes.NewBuffer(jsonBytes))
+			httpReq.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
+			httpReq.Header.Set("Content-Type", "application/json")
+			client := &http.Client{Timeout: 10 * time.Second}
+			if resp, err := client.Do(httpReq); err == nil {
+				defer resp.Body.Close()
+				body, _ := io.ReadAll(resp.Body)
+				var psInitResp struct {
+					Status bool `json:"status"`
+					Data   struct {
+						AuthorizationURL string `json:"authorization_url"`
+						AccessCode       string `json:"access_code"`
+						Reference        string `json:"reference"`
+					} `json:"data"`
+				}
+				if json.Unmarshal(body, &psInitResp) == nil && psInitResp.Status {
+					authURL = psInitResp.Data.AuthorizationURL
+					accessCode = psInitResp.Data.AccessCode
+				}
+			}
+		}
+	}
+
 	c.JSON(200, gin.H{
-		"reference":    ref,
-		"amount":       req.Amount,
-		"credits":      credits,
-		"price_per_sms": cfg.PricePerSMS,
-		"currency":     cfg.PriceCurrency,
-		"transaction_id": txn.ID,
+		"reference":         ref,
+		"amount":            req.Amount,
+		"credits":           credits,
+		"price_per_sms":     cfg.PricePerSMS,
+		"currency":          cfg.PriceCurrency,
+		"transaction_id":    txn.ID,
+		"authorization_url": authURL,
+		"access_code":       accessCode,
+		"public_key":        publicKey,
 	})
 }
 
@@ -170,19 +216,25 @@ func (h *SMSHandler) VerifySMSTopup(c *gin.Context) {
 	// Find the pending transaction
 	var txn models.SMSTransaction
 	if err := db.Where("reference = ? AND status = ?", req.Reference, "pending").First(&txn).Error; err != nil {
+		// Check if already completed
+		var completedTxn models.SMSTransaction
+		if err2 := db.Where("reference = ? AND status = ?", req.Reference, "completed").First(&completedTxn).Error; err2 == nil {
+			c.JSON(200, gin.H{"status": "completed", "credits_added": completedTxn.CreditsAdded})
+			return
+		}
 		c.JSON(404, gin.H{"error": "Transaction not found or already processed"})
 		return
 	}
 
-	// Verify with Paystack
-	if h.paystackKey != "" {
+	// Verify with Paystack if secret key is present
+	if h.paystackCfg != nil && h.paystackCfg.SecretKey != "" {
 		url := fmt.Sprintf("https://api.paystack.co/transaction/verify/%s", req.Reference)
 		httpReq, _ := http.NewRequest("GET", url, nil)
-		httpReq.Header.Set("Authorization", "Bearer "+h.paystackKey)
+		httpReq.Header.Set("Authorization", "Bearer "+h.paystackCfg.SecretKey)
 		client := &http.Client{Timeout: 10 * time.Second}
 		resp, err := client.Do(httpReq)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Could not verify payment"})
+			c.JSON(500, gin.H{"error": "Could not connect to payment gateway"})
 			return
 		}
 		defer resp.Body.Close()
@@ -196,8 +248,7 @@ func (h *SMSHandler) VerifySMSTopup(c *gin.Context) {
 		}
 		if json.Unmarshal(body, &psResp) == nil {
 			if !psResp.Status || psResp.Data.Status != "success" {
-				db.Model(&txn).Update("status", "failed")
-				c.JSON(400, gin.H{"error": "Payment verification failed"})
+				c.JSON(400, gin.H{"error": "Payment is not yet confirmed by Paystack. Status: " + psResp.Data.Status})
 				return
 			}
 		}

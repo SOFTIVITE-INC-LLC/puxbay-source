@@ -373,9 +373,16 @@ export class Marketing implements OnInit {
     this.isProcessingTopup.set(true);
 
     this.smsService.initiateTopup(amt, email).subscribe({
-      next: (res) => {
-        const settings = this.storefrontSettingsService.settings();
-        const publicKey = settings?.paystack_public_key;
+      next: (res: any) => {
+        // If Paystack returned an authorization URL (Standard Checkout)
+        if (res.authorization_url) {
+          this.isProcessingTopup.set(false);
+          this.closeTopupModal();
+          window.location.href = res.authorization_url;
+          return;
+        }
+
+        const publicKey = res.public_key || this.storefrontSettingsService.settings()?.paystack_public_key;
 
         // If Paystack inline is available on window
         if ((window as any).PaystackPop && publicKey) {
@@ -391,6 +398,7 @@ export class Marketing implements OnInit {
                   this.toastService.showSuccess(`${res.credits} SMS credits added to your wallet!`);
                   this.isProcessingTopup.set(false);
                   this.closeTopupModal();
+                  this.loadSMSData();
                 },
                 error: (err) => {
                   this.toastService.showError(err.error?.error || 'Failed to verify payment');
@@ -404,15 +412,16 @@ export class Marketing implements OnInit {
           });
           handler.openIframe();
         } else {
-          // Direct verification for local/test mode
+          // If no Paystack key is set on platform, verify directly (sandbox/demo)
           this.smsService.verifyTopup(res.reference).subscribe({
             next: () => {
               this.toastService.showSuccess(`${res.credits} SMS credits added to your wallet!`);
               this.isProcessingTopup.set(false);
               this.closeTopupModal();
+              this.loadSMSData();
             },
             error: (err) => {
-              this.toastService.showError(err.error?.error || 'Failed to verify topup');
+              this.toastService.showError(err.error?.error || 'Failed to verify payment');
               this.isProcessingTopup.set(false);
             }
           });
