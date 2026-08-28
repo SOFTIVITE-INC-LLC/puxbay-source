@@ -43,7 +43,7 @@ func (h *SMSHandler) GetSMSWallet(c *gin.Context) {
 	db.Where("status = ?", "approved").Order("updated_at desc").First(&senderID)
 
 	// Get platform pricing
-	cfg := h.getGatewayConfig(db)
+	cfg := h.getGatewayConfig()
 
 	c.JSON(200, gin.H{
 		"wallet":    wallet,
@@ -120,7 +120,7 @@ func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 		return
 	}
 
-	cfg := h.getGatewayConfig(db)
+	cfg := h.getGatewayConfig()
 	credits := int64(req.Amount / cfg.PricePerSMS)
 
 	// Create pending SMS transaction
@@ -233,7 +233,7 @@ func (h *SMSHandler) VerifySMSTopup(c *gin.Context) {
 
 // AdminGetSMSConfig returns the current platform SMS gateway configuration.
 func (h *SMSHandler) AdminGetSMSConfig(c *gin.Context) {
-	cfg := h.getGatewayConfig(h.db)
+	cfg := h.getGatewayConfig()
 	c.JSON(200, cfg)
 }
 
@@ -250,7 +250,7 @@ func (h *SMSHandler) AdminUpdateSMSConfig(c *gin.Context) {
 		return
 	}
 
-	cfg := h.getGatewayConfig(h.db)
+	cfg := h.getGatewayConfig()
 
 	if req.DefaultSenderID != "" {
 		cfg.DefaultSenderID = req.DefaultSenderID
@@ -265,7 +265,7 @@ func (h *SMSHandler) AdminUpdateSMSConfig(c *gin.Context) {
 		cfg.IsActive = *req.IsActive
 	}
 
-	if err := h.db.Save(&cfg).Error; err != nil {
+	if err := h.db.Table("public.sms_gateway_configs").Save(&cfg).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Failed to update SMS config: " + err.Error()})
 		return
 	}
@@ -377,9 +377,10 @@ func (h *SMSHandler) AdminRejectSenderID(c *gin.Context) {
 // HELPERS
 // ──────────────────────────────────────────────────────────────────────────────
 
-func (h *SMSHandler) getGatewayConfig(db *gorm.DB) *models.SMSGatewayConfig {
+func (h *SMSHandler) getGatewayConfig() *models.SMSGatewayConfig {
 	var cfg models.SMSGatewayConfig
-	if err := db.First(&cfg).Error; err != nil {
+	// SMSGatewayConfig is a public-schema model. Always query public schema explicitly.
+	if err := h.db.Table("public.sms_gateway_configs").Where("deleted_at IS NULL").First(&cfg).Error; err != nil {
 		// Create default config
 		cfg = models.SMSGatewayConfig{
 			Provider:        "arkesel",
@@ -388,7 +389,7 @@ func (h *SMSHandler) getGatewayConfig(db *gorm.DB) *models.SMSGatewayConfig {
 			PriceCurrency:   "GHS",
 			IsActive:        true,
 		}
-		h.db.Create(&cfg) // always save to public schema (h.db not tenant db)
+		_ = h.db.Table("public.sms_gateway_configs").Create(&cfg).Error
 	}
 	return &cfg
 }
@@ -402,7 +403,7 @@ func (h *SMSHandler) ensureWallet(c *gin.Context, db *gorm.DB) *models.SMSWallet
 	var wallet models.SMSWallet
 	if err := db.Where("tenant_id = ?", tenantID).First(&wallet).Error; err != nil {
 		// Auto-create wallet
-		cfg := h.getGatewayConfig(h.db)
+		cfg := h.getGatewayConfig()
 		wallet = models.SMSWallet{
 			TenantID:    tenantID,
 			PricePerSMS: cfg.PricePerSMS,
