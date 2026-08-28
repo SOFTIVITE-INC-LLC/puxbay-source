@@ -222,9 +222,8 @@ func (s *InventoryService) UpdateTransferStatus(id string, status string) error 
 					return err
 				}
 				movement := models.StockMovement{
-					TenantID:      s.tenantID,
 					ProductID:     product.ID,
-					BranchID:      transfer.FromBranchID,
+					BranchID:      &transfer.FromBranchID,
 					Quantity:      -item.Quantity,
 					PreviousStock: product.CurrentStock,
 					NewStock:      newStock,
@@ -271,9 +270,8 @@ func (s *InventoryService) UpdateTransferStatus(id string, status string) error 
 				}
 
 				movement := models.StockMovement{
-					TenantID:      s.tenantID,
 					ProductID:     product.ID,
-					BranchID:      transfer.ToBranchID,
+					BranchID:      &transfer.ToBranchID,
 					Quantity:      item.Quantity,
 					PreviousStock: product.CurrentStock,
 					NewStock:      newStock,
@@ -363,9 +361,8 @@ func (s *InventoryService) ReceivePO(id string, input POReceiveInput) error {
 				}
 
 				movement := models.StockMovement{
-					TenantID:      s.tenantID,
 					ProductID:     destProduct.ID,
-					BranchID:      branchID,
+					BranchID:      &branchID,
 					Quantity:      qtyToReceive,
 					PreviousStock: destProduct.CurrentStock,
 					NewStock:      newStock,
@@ -499,8 +496,7 @@ func (s *InventoryService) FinalizeStocktake(id string) error {
 				}
 
 				movement := models.StockMovement{
-					TenantID:      s.tenantID,
-					BranchID:      *session.BranchID,
+					BranchID:      session.BranchID,
 					ProductID:     entry.ProductID,
 					Quantity:      entry.Difference,
 					PreviousStock: entry.Product.CurrentStock,
@@ -644,8 +640,7 @@ func (s *InventoryService) ReceiveStock(productID string, quantity float64, reas
 		}
 
 		movement := models.StockMovement{
-			TenantID:      tenantID,
-			BranchID:      branchID,
+			BranchID:      &branchID,
 			ProductID:     product.ID,
 			Quantity:      quantity,
 			PreviousStock: previousStock,

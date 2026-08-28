@@ -177,8 +177,7 @@ func (s *ReturnService) ApproveReturn(id string) (*models.Return, error) {
 
 				retIDStr := ret.ID.String()
 				movement := models.StockMovement{
-					TenantID:      s.tenantID,
-					BranchID:      branchID,
+					BranchID:      &branchID,
 					ProductID:     destProduct.ID,
 					Quantity:      item.Quantity,
 					PreviousStock: destProduct.CurrentStock,

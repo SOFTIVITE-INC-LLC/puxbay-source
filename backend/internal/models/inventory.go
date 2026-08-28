@@ -77,10 +77,8 @@ type StocktakeSession struct {
 
 // StockMovement tracks the audit trail of inventory changes.
 type StockMovement struct {
-	Base
-	TenantID      uuid.UUID  `gorm:"type:uuid;not null;index" json:"tenant_id"`
-	Tenant        *Tenant    `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	BranchID      uuid.UUID  `gorm:"type:uuid;not null;index" json:"branch_id"`
+	TenantScoped
+	BranchID      *uuid.UUID `gorm:"type:uuid;index" json:"branch_id,omitempty"`
 	Branch        *Branch    `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
 	ProductID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"product_id"`
 	VariantID     *uuid.UUID `gorm:"type:uuid" json:"variant_id,omitempty"`
@@ -147,11 +145,15 @@ func (sm *StockMovement) AfterSave(tx *gorm.DB) error {
 	}
 
 	if product.TrackInventory && sm.NewStock <= product.ReorderLevel {
+		branchID := uuid.Nil
+		if sm.BranchID != nil {
+			branchID = *sm.BranchID
+		}
 		var count int64
-		tx.Model(&StockAlert{}).Where("product_id = ? AND branch_id = ? AND is_resolved = ?", sm.ProductID, sm.BranchID, false).Count(&count)
+		tx.Model(&StockAlert{}).Where("product_id = ? AND branch_id = ? AND is_resolved = ?", sm.ProductID, branchID, false).Count(&count)
 		if count == 0 {
 			alert := StockAlert{
-				BranchID:  sm.BranchID,
+				BranchID:  branchID,
 				ProductID: sm.ProductID,
 				Message:   "Stock level has reached reorder level.",
 			}
