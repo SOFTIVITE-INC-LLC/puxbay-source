@@ -3,24 +3,28 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-white tracking-tight">Product Catalog & Pricing</h1>
-      <p class="text-sm text-zinc-400 mt-1">Manage vendor SKU links, review current unit costs, and submit cost adjustment proposals.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Product Catalog & Pricing</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage vendor SKU links, review current unit costs, and submit cost adjustment proposals.</p>
     </div>
     <div class="flex items-center gap-2">
       <button (click)="activeTab.set('catalog')" 
               [class.bg-indigo-600]="activeTab() === 'catalog'"
               [class.text-white]="activeTab() === 'catalog'"
-              [class.bg-zinc-800]="activeTab() !== 'catalog'"
-              [class.text-zinc-400]="activeTab() !== 'catalog'"
-              class="px-4 py-2 text-xs font-semibold rounded-xl border border-transparent hover:border-zinc-700 transition-all">
+              [class.bg-slate-100]="activeTab() !== 'catalog'"
+              [class.dark:bg-zinc-800]="activeTab() !== 'catalog'"
+              [class.text-slate-700]="activeTab() !== 'catalog'"
+              [class.dark:text-zinc-300]="activeTab() !== 'catalog'"
+              class="px-3.5 py-2 text-xs font-bold rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 transition-all shadow-sm">
         Active Catalog ({{ catalog().length }})
       </button>
       <button (click)="activeTab.set('requests')" 
               [class.bg-indigo-600]="activeTab() === 'requests'"
               [class.text-white]="activeTab() === 'requests'"
-              [class.bg-zinc-800]="activeTab() !== 'requests'"
-              [class.text-zinc-400]="activeTab() !== 'requests'"
-              class="px-4 py-2 text-xs font-semibold rounded-xl border border-transparent hover:border-zinc-700 transition-all">
+              [class.bg-slate-100]="activeTab() !== 'requests'"
+              [class.dark:bg-zinc-800]="activeTab() !== 'requests'"
+              [class.text-slate-700]="activeTab() !== 'requests'"
+              [class.dark:text-zinc-300]="activeTab() !== 'requests'"
+              class="px-3.5 py-2 text-xs font-bold rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 transition-all shadow-sm">
         Price Proposals ({{ priceRequests().length }})
       </button>
     </div>
@@ -28,42 +32,43 @@
 
   <!-- TAB 1: CATALOG -->
   @if (activeTab() === 'catalog') {
-    <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-xl">
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
       @if (loading()) {
-        <div class="p-16 text-center text-zinc-500 text-sm animate-pulse">Loading catalog...</div>
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">Loading catalog...</div>
       } @else if (catalog().length === 0) {
-        <div class="p-16 text-center text-zinc-500 text-sm">No products linked to your supplier catalog yet.</div>
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">No products linked to your supplier catalog yet.</div>
       } @else {
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-zinc-300">
-            <thead class="bg-zinc-800/40 text-xs uppercase font-semibold text-zinc-400 border-b border-zinc-800/60">
+          <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
               <tr>
-                <th class="px-6 py-4">Product</th>
-                <th class="px-6 py-4">Supplier SKU</th>
-                <th class="px-6 py-4">Min Order Qty</th>
-                <th class="px-6 py-4">Merchant Stock</th>
-                <th class="px-6 py-4 text-right">Agreed Unit Cost</th>
-                <th class="px-6 py-4 text-right">Action</th>
+                <th class="px-5 py-3.5">Product</th>
+                <th class="px-5 py-3.5">Supplier SKU</th>
+                <th class="px-5 py-3.5">Min Order Qty</th>
+                <th class="px-5 py-3.5">Merchant Stock</th>
+                <th class="px-5 py-3.5 text-right">Agreed Unit Cost</th>
+                <th class="px-5 py-3.5 text-right">Action</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-zinc-800/40">
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
               @for (item of catalog(); track item.id) {
-                <tr class="hover:bg-zinc-800/20 transition-colors">
-                  <td class="px-6 py-4">
-                    <div class="font-bold text-white">{{ item.product?.name || 'Catalog Item' }}</div>
-                    <div class="text-xs text-zinc-500">{{ item.product?.sku || 'SKU-000' }}</div>
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                  <td class="px-5 py-3.5">
+                    <div class="font-bold text-slate-900 dark:text-white">{{ item.product?.name || 'Catalog Item' }}</div>
+                    <div class="text-[10px] text-slate-400 dark:text-zinc-500">{{ item.product?.sku || 'SKU-000' }}</div>
                   </td>
-                  <td class="px-6 py-4 font-mono text-zinc-300">{{ item.supplier_sku || 'N/A' }}</td>
-                  <td class="px-6 py-4 text-zinc-300">{{ item.min_order_qty }} units</td>
-                  <td class="px-6 py-4">
-                    <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800 text-zinc-300 font-medium">
+                  <td class="px-5 py-3.5 font-mono text-slate-600 dark:text-zinc-300 text-xs">{{ item.supplier_sku || 'N/A' }}</td>
+                  <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ item.min_order_qty }} units</td>
+                  <td class="px-5 py-3.5">
+                    <span class="px-2.5 py-1 text-[10px] rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-bold border border-slate-200 dark:border-zinc-700">
                       {{ item.product?.current_stock || 0 }} in stock
                     </span>
                   </td>
-                  <td class="px-6 py-4 text-right font-extrabold text-emerald-400">{{ item.unit_cost | appCurrency }}</td>
-                  <td class="px-6 py-4 text-right">
-                    <button (click)="openPriceModal(item)" class="px-3 py-1 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-colors">
-                      Propose Price Edit
+                  <td class="px-5 py-3.5 text-right font-black text-slate-900 dark:text-white">{{ item.unit_cost | appCurrency }}</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <button (click)="openPriceModal(item)" 
+                            class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors">
+                      Propose Price Revision
                     </button>
                   </td>
                 </tr>
@@ -75,44 +80,46 @@
     </div>
   }
 
-  <!-- TAB 2: PRICE PROPOSALS -->
+  <!-- TAB 2: PROPOSALS -->
   @if (activeTab() === 'requests') {
-    <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-xl">
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
       @if (priceRequests().length === 0) {
-        <div class="p-16 text-center text-zinc-500 text-sm">No price change proposals submitted.</div>
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
+          No price adjustment proposals submitted yet.
+        </div>
       } @else {
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-zinc-300">
-            <thead class="bg-zinc-800/40 text-xs uppercase font-semibold text-zinc-400 border-b border-zinc-800/60">
+          <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
               <tr>
-                <th class="px-6 py-4">Product</th>
-                <th class="px-6 py-4">Current Cost</th>
-                <th class="px-6 py-4">Proposed Cost</th>
-                <th class="px-6 py-4">Effective Date</th>
-                <th class="px-6 py-4">Reason</th>
-                <th class="px-6 py-4 text-right">Status</th>
+                <th class="px-5 py-3.5">Product</th>
+                <th class="px-5 py-3.5">Current Cost</th>
+                <th class="px-5 py-3.5">Proposed Cost</th>
+                <th class="px-5 py-3.5">Effective Date</th>
+                <th class="px-5 py-3.5">Justification</th>
+                <th class="px-5 py-3.5 text-right">Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-zinc-800/40">
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
               @for (req of priceRequests(); track req.id) {
-                <tr class="hover:bg-zinc-800/20 transition-colors">
-                  <td class="px-6 py-4 font-bold text-white">{{ req.product?.name || 'Item' }}</td>
-                  <td class="px-6 py-4 text-zinc-400">{{ req.current_cost | appCurrency }}</td>
-                  <td class="px-6 py-4 font-bold text-indigo-400">{{ req.proposed_cost | appCurrency }}</td>
-                  <td class="px-6 py-4 text-zinc-300">{{ req.effective_date | date:'mediumDate' }}</td>
-                  <td class="px-6 py-4 text-xs text-zinc-400 max-w-xs truncate">{{ req.reason }}</td>
-                  <td class="px-6 py-4 text-right">
-                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full border"
-                          [class.bg-amber-500/10]="req.status === 'pending'"
-                          [class.text-amber-400]="req.status === 'pending'"
-                          [class.border-amber-500/20]="req.status === 'pending'"
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                  <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white">{{ req.product?.name || 'Product' }}</td>
+                  <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ req.current_cost | appCurrency }}</td>
+                  <td class="px-5 py-3.5 font-black text-indigo-600 dark:text-indigo-400 text-xs">{{ req.proposed_cost | appCurrency }}</td>
+                  <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ req.effective_date | date:'mediumDate' }}</td>
+                  <td class="px-5 py-3.5 text-slate-600 dark:text-zinc-300 text-xs max-w-xs truncate">{{ req.reason }}</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border capitalize"
+                          [class.border-emerald-500/30]="req.status === 'approved'"
                           [class.bg-emerald-500/10]="req.status === 'approved'"
-                          [class.text-emerald-400]="req.status === 'approved'"
-                          [class.border-emerald-500/20]="req.status === 'approved'"
+                          [class.text-emerald-600]="req.status === 'approved'"
+                          [class.border-amber-500/30]="req.status === 'pending'"
+                          [class.bg-amber-500/10]="req.status === 'pending'"
+                          [class.text-amber-600]="req.status === 'pending'"
+                          [class.border-rose-500/30]="req.status === 'rejected'"
                           [class.bg-rose-500/10]="req.status === 'rejected'"
-                          [class.text-rose-400]="req.status === 'rejected'"
-                          [class.border-rose-500/20]="req.status === 'rejected'">
-                      {{ req.status | uppercase }}
+                          [class.text-rose-600]="req.status === 'rejected'">
+                      {{ req.status }}
                     </span>
                   </td>
                 </tr>
@@ -126,45 +133,39 @@
 
 </div>
 
-<!-- PROPOSE PRICE MODAL -->
-@if (showPriceModal()) {
+<!-- PROPOSAL MODAL -->
+@if (showPriceModal() && selectedProduct) {
   <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-6 space-y-5 animate-scale-in">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <h3 class="font-bold text-white text-base">Propose Price Revision</h3>
-        <button (click)="showPriceModal.set(false)" class="text-zinc-400 hover:text-white">✕</button>
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Propose Cost Revision</h3>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">For {{ selectedProduct.product?.name }}</p>
+
+      <div class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Current Unit Cost</label>
+            <input type="number" [value]="selectedProduct.unit_cost" disabled class="w-full p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400" />
+          </div>
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Proposed Unit Cost</label>
+            <input type="number" [(ngModel)]="proposedCost" min="0.01" step="0.01" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Effective Date</label>
+          <input type="date" [(ngModel)]="effectiveDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Market Justification / Reason</label>
+          <textarea [(ngModel)]="reason" rows="3" placeholder="Explain raw material changes, freight cost increases, or promotional discounts..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white"></textarea>
+        </div>
       </div>
 
-      <div class="space-y-3.5 text-xs">
-        <div class="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800">
-          <div class="text-zinc-400">Target Product:</div>
-          <div class="font-bold text-white text-sm mt-0.5">{{ selectedProduct?.product?.name }}</div>
-          <div class="text-zinc-500 text-[11px] mt-0.5">Current Agreed Cost: {{ selectedProduct?.unit_cost | appCurrency }}</div>
-        </div>
-
-        <div>
-          <label class="block text-zinc-400 font-medium mb-1">Proposed New Unit Cost</label>
-          <input type="number" step="0.01" [(ngModel)]="proposedCost" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white font-bold focus:outline-none focus:border-indigo-500" />
-        </div>
-
-        <div>
-          <label class="block text-zinc-400 font-medium mb-1">Effective Date</label>
-          <input type="date" [(ngModel)]="effectiveDate" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
-        </div>
-
-        <div>
-          <label class="block text-zinc-400 font-medium mb-1">Reason / Market Justification</label>
-          <textarea [(ngModel)]="reason" rows="3" placeholder="e.g. Raw material cost changes, currency fluctuations..." class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500"></textarea>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button (click)="showPriceModal.set(false)" class="px-4 py-2 text-xs font-semibold rounded-xl text-zinc-400 hover:bg-zinc-800">
-          Cancel
-        </button>
-        <button (click)="submitPriceRequest()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20">
-          Submit Proposal
-        </button>
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showPriceModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        <button (click)="submitPriceRequest()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Submit Proposal</button>
       </div>
     </div>
   </div>

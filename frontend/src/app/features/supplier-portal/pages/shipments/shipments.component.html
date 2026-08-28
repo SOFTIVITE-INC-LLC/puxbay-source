@@ -3,10 +3,10 @@
   <!-- Header & Actions -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-white tracking-tight">Shipments & ASNs</h1>
-      <p class="text-sm text-zinc-400 mt-1">Issue Advanced Shipping Notices (ASNs), log dispatch tracking, and monitor delivery progress.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Shipments & ASNs</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Issue Advanced Shipping Notices (ASNs), log dispatch tracking, and monitor delivery progress.</p>
     </div>
-    <button (click)="openCreateModal()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 transition-all inline-flex items-center gap-2">
+    <button (click)="openCreateModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all inline-flex items-center gap-1.5">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
@@ -15,45 +15,45 @@
   </div>
 
   <!-- SHIPMENTS TABLE -->
-  <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-xl">
+  <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
     @if (loading()) {
-      <div class="p-16 text-center text-zinc-500 text-sm animate-pulse">
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">
         Loading shipments...
       </div>
     } @else if (shipments().length === 0) {
-      <div class="p-16 text-center text-zinc-500 text-sm">
-        No shipments / ASNs dispatched yet.
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
+        No shipments / ASNs dispatched yet. Click "Create Shipping Notice (ASN)" to log a shipment.
       </div>
     } @else {
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-zinc-300">
-          <thead class="bg-zinc-800/40 text-xs uppercase font-semibold text-zinc-400 border-b border-zinc-800/60">
+        <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
             <tr>
-              <th class="px-6 py-4">ASN Number</th>
-              <th class="px-6 py-4">Related PO</th>
-              <th class="px-6 py-4">Carrier & Tracking</th>
-              <th class="px-6 py-4">Dispatch Date</th>
-              <th class="px-6 py-4">Expected Arrival</th>
-              <th class="px-6 py-4">Packages</th>
-              <th class="px-6 py-4">Status</th>
+              <th class="px-5 py-3.5">ASN Number</th>
+              <th class="px-5 py-3.5">Related PO</th>
+              <th class="px-5 py-3.5">Carrier & Tracking</th>
+              <th class="px-5 py-3.5">Dispatch Date</th>
+              <th class="px-5 py-3.5">Expected Arrival</th>
+              <th class="px-5 py-3.5">Packages</th>
+              <th class="px-5 py-3.5 text-right">Status</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-zinc-800/40">
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
             @for (asn of shipments(); track asn.id) {
-              <tr class="hover:bg-zinc-800/20 transition-colors">
-                <td class="px-6 py-4 font-bold text-white tracking-wide">{{ asn.asn_number }}</td>
-                <td class="px-6 py-4 text-indigo-400 font-medium">
+              <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ asn.asn_number }}</td>
+                <td class="px-5 py-3.5 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
                   {{ asn.purchase_order?.po_number || 'General Batch' }}
                 </td>
-                <td class="px-6 py-4">
-                  <div class="font-medium text-white">{{ asn.carrier }}</div>
-                  <div class="text-xs text-zinc-400 font-mono">{{ asn.tracking_number || 'No tracking #' }}</div>
+                <td class="px-5 py-3.5">
+                  <div class="font-bold text-slate-900 dark:text-white">{{ asn.carrier }}</div>
+                  <div class="text-[10px] text-slate-400 dark:text-zinc-400 font-mono">{{ asn.tracking_number || 'No tracking #' }}</div>
                 </td>
-                <td class="px-6 py-4 text-zinc-400">{{ asn.dispatch_date | date:'mediumDate' }}</td>
-                <td class="px-6 py-4 text-zinc-400">{{ asn.expected_arrival ? (asn.expected_arrival | date:'mediumDate') : 'Pending' }}</td>
-                <td class="px-6 py-4 text-zinc-300">{{ asn.package_count }} pkgs ({{ asn.total_weight_kg }} kg)</td>
-                <td class="px-6 py-4">
-                  <span class="px-2.5 py-1 text-xs font-semibold rounded-full border" [ngClass]="statusClass(asn.status)">
+                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.dispatch_date | date:'mediumDate' }}</td>
+                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.expected_arrival ? (asn.expected_arrival | date:'mediumDate') : 'Pending' }}</td>
+                <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ asn.package_count }} pkgs ({{ asn.total_weight_kg }} kg)</td>
+                <td class="px-5 py-3.5 text-right">
+                  <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(asn.status)">
                     {{ asn.status | uppercase }}
                   </span>
                 </td>
@@ -70,67 +70,67 @@
 <!-- CREATE ASN MODAL -->
 @if (showCreateModal()) {
   <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-6 space-y-5 animate-scale-in">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
-        <h3 class="font-bold text-white text-base">New Advanced Shipping Notice</h3>
-        <button (click)="showCreateModal.set(false)" class="text-zinc-400 hover:text-white">✕</button>
+    <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-3">
+        <h3 class="font-black text-slate-900 dark:text-white text-base">New Advanced Shipping Notice</h3>
+        <button (click)="showCreateModal.set(false)" class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">✕</button>
       </div>
 
       <div class="space-y-3.5 text-xs">
         <div>
-          <label class="block text-zinc-400 font-medium mb-1">Target Purchase Order</label>
-          <select [(ngModel)]="selectedPOId" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Target Purchase Order</label>
+          <select [(ngModel)]="selectedPOId" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-semibold">
             <option value="">-- Standalone Shipment --</option>
             @for (po of purchaseOrders(); track po.id) {
-              <option [value]="po.id">PO #{{ po.po_number }} ({{ po.total_amount | currency }})</option>
+              <option [value]="po.id">PO #{{ po.po_number }}</option>
             }
           </select>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Carrier / Fleet</label>
-            <input type="text" [(ngModel)]="carrier" placeholder="e.g. FedEx, Local Dispatch" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Carrier / Fleet</label>
+            <input type="text" [(ngModel)]="carrier" placeholder="e.g. FedEx, Local Dispatch" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
           </div>
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Tracking Number</label>
-            <input type="text" [(ngModel)]="trackingNumber" placeholder="TRK-1029381" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-zinc-400 font-medium mb-1">Dispatch Date</label>
-            <input type="date" [(ngModel)]="dispatchDate" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
-          </div>
-          <div>
-            <label class="block text-zinc-400 font-medium mb-1">Expected Arrival Date</label>
-            <input type="date" [(ngModel)]="expectedArrival" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Tracking Number</label>
+            <input type="text" [(ngModel)]="trackingNumber" placeholder="TRK-1029381" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Package Count</label>
-            <input type="number" [(ngModel)]="packageCount" min="1" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Dispatch Date</label>
+            <input type="date" [(ngModel)]="dispatchDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
           </div>
           <div>
-            <label class="block text-zinc-400 font-medium mb-1">Total Weight (kg)</label>
-            <input type="number" [(ngModel)]="weightKg" step="0.1" class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Expected Arrival Date</label>
+            <input type="date" [(ngModel)]="expectedArrival" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Package Count</label>
+            <input type="number" [(ngModel)]="packageCount" min="1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Total Weight (kg)</label>
+            <input type="number" [(ngModel)]="weightKg" step="0.1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
           </div>
         </div>
 
         <div>
-          <label class="block text-zinc-400 font-medium mb-1">Shipping Notes / Instructions</label>
-          <textarea [(ngModel)]="notes" rows="2" placeholder="Driver contact, pallet counts, dock instructions..." class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:outline-none focus:border-indigo-500"></textarea>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Shipping Notes / Instructions</label>
+          <textarea [(ngModel)]="notes" rows="2" placeholder="Driver contact, pallet counts, dock instructions..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white"></textarea>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button (click)="showCreateModal.set(false)" class="px-4 py-2 text-xs font-semibold rounded-xl text-zinc-400 hover:bg-zinc-800">
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showCreateModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
           Cancel
         </button>
-        <button (click)="createASN()" class="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20">
+        <button (click)="createASN()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
           Submit ASN
         </button>
       </div>
