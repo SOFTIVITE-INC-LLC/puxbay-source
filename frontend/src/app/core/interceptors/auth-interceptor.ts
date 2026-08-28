@@ -10,5 +10,18 @@ import { HttpInterceptorFn } from '@angular/common/http';
  * CSRF protection is handled by csrfInterceptor.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // Supplier Portal uses JWT Bearer token authentication
+  if (req.url.includes('/supplier-portal') && !req.url.includes('/supplier-portal/login')) {
+    if (typeof window !== 'undefined') {
+      const supplierToken = localStorage.getItem('supplier_token');
+      if (supplierToken) {
+        req = req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${supplierToken}`
+          }
+        });
+      }
+    }
+  }
   return next(req);
 };
