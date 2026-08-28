@@ -1,33 +1,37 @@
-<div class="space-y-6 max-w-7xl mx-auto">
+<div class="space-y-6 max-w-7xl mx-auto" style="font-family: 'Outfit', sans-serif;">
   
-  <!-- Header & Actions -->
+  <!-- ── Hero Header ── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Shipments, ASNs & Dock Scheduling</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Issue Advanced Shipping Notices (ASNs), reserve warehouse dock unloading slots, and log tracking.</p>
+      <div class="flex items-center gap-2.5 mb-1">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Shipments & ASNs</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">Dock Scheduling</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">Issue Advanced Shipping Notices (ASNs), reserve warehouse dock unloading slots, and log tracking.</p>
     </div>
     <div class="flex items-center gap-2">
-      <button (click)="openDockModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition-colors inline-flex items-center gap-1.5 shadow-sm">
-        <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
+      <button (click)="openDockModal()"
+              class="px-3.5 py-2 text-xs font-bold rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-white/10 transition-all shadow-sm inline-flex items-center gap-1.5 active:scale-95">
+        <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         Book Dock Slot
       </button>
-      <button (click)="openCreateModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all inline-flex items-center gap-1.5">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+      <button (click)="openCreateModal()"
+              class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 transition-all inline-flex items-center gap-1.5 active:scale-95">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Create Shipping Notice (ASN)
       </button>
     </div>
   </div>
 
   <!-- Tabs Navigation -->
-  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit">
+  <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 w-fit backdrop-blur-xl">
     <button
       (click)="activeTab.set('shipments')"
-      [class.bg-indigo-600]="activeTab() === 'shipments'"
-      [class.text-white]="activeTab() === 'shipments'"
+      [class.bg-white]="activeTab() === 'shipments'"
+      [class.dark:bg-zinc-800]="activeTab() === 'shipments'"
+      [class.text-indigo-600]="activeTab() === 'shipments'"
+      [class.dark:text-white]="activeTab() === 'shipments'"
+      [class.shadow-sm]="activeTab() === 'shipments'"
       [class.text-slate-600]="activeTab() !== 'shipments'"
       [class.dark:text-zinc-400]="activeTab() !== 'shipments'"
       class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
@@ -36,26 +40,27 @@
     </button>
     <button
       (click)="activeTab.set('dock_slots')"
-      [class.bg-indigo-600]="activeTab() === 'dock_slots'"
-      [class.text-white]="activeTab() === 'dock_slots'"
+      [class.bg-white]="activeTab() === 'dock_slots'"
+      [class.dark:bg-zinc-800]="activeTab() === 'dock_slots'"
+      [class.text-indigo-600]="activeTab() === 'dock_slots'"
+      [class.dark:text-white]="activeTab() === 'dock_slots'"
+      [class.shadow-sm]="activeTab() === 'dock_slots'"
       [class.text-slate-600]="activeTab() !== 'dock_slots'"
       [class.dark:text-zinc-400]="activeTab() !== 'dock_slots'"
       class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
     >
-      <span>Dock Receiving Appointments</span>
+      <span>Dock Appointments</span>
       @if (dockSlots().length > 0) {
-        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ dockSlots().length }}</span>
+        <span class="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black">{{ dockSlots().length }}</span>
       }
     </button>
   </div>
 
   <!-- TAB 1: SHIPMENTS TABLE -->
   @if (activeTab() === 'shipments') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+    <div class="glass-panel rounded-2xl overflow-hidden">
       @if (loading()) {
-        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">
-          Loading shipments...
-        </div>
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">Loading shipments...</div>
       } @else if (shipments().length === 0) {
         <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
           No shipments / ASNs dispatched yet. Click "Create Shipping Notice (ASN)" to log a shipment.
@@ -63,7 +68,7 @@
       } @else {
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
-            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
               <tr>
                 <th class="px-5 py-3.5">ASN Number</th>
                 <th class="px-5 py-3.5">Related PO</th>
@@ -75,10 +80,10 @@
                 <th class="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
               @for (asn of shipments(); track asn.id) {
-                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
-                  <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ asn.asn_number }}</td>
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors">
+                  <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white font-mono tracking-wide">{{ asn.asn_number }}</td>
                   <td class="px-5 py-3.5 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
                     {{ asn.purchase_order?.po_number || 'General Batch' }}
                   </td>
@@ -96,10 +101,8 @@
                   </td>
                   <td class="px-5 py-3.5 text-right">
                     <button (click)="openShippingLabel(asn)"
-                            class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 border border-indigo-200 dark:border-indigo-800/40 transition-colors inline-flex items-center gap-1">
-                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                      </svg>
+                            class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-500/30 transition-colors inline-flex items-center gap-1 active:scale-95">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                       Label
                     </button>
                   </td>
@@ -114,7 +117,7 @@
 
   <!-- TAB 2: DOCK SLOTS TABLE -->
   @if (activeTab() === 'dock_slots') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+    <div class="glass-panel rounded-2xl overflow-hidden">
       @if (dockSlots().length === 0) {
         <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
           No dock delivery windows booked yet. Click "Book Dock Slot" to reserve an unloading slot at the store warehouse.
@@ -122,7 +125,7 @@
       } @else {
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
-            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
               <tr>
                 <th class="px-5 py-3.5">Appointment Date</th>
                 <th class="px-5 py-3.5">Time Window</th>
@@ -132,9 +135,9 @@
                 <th class="px-5 py-3.5 text-right">Status</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
               @for (s of dockSlots(); track s.id) {
-                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors">
                   <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white">{{ s.slot_date | date:'fullDate' }}</td>
                   <td class="px-5 py-3.5 font-bold text-indigo-600 dark:text-indigo-400 text-xs">{{ s.time_window }}</td>
                   <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ s.dock_number }}</td>
@@ -156,19 +159,27 @@
 
 </div>
 
-<!-- CREATE ASN MODAL -->
+<!-- ── CREATE ASN MODAL ── -->
 @if (showCreateModal()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-3">
-        <h3 class="font-black text-slate-900 dark:text-white text-base">New Advanced Shipping Notice</h3>
-        <button (click)="showCreateModal.set(false)" class="text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm">✕</button>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" (click)="showCreateModal.set(false)">
+    <div class="w-full sm:max-w-lg bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]" (click)="$event.stopPropagation()">
+
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-white/[0.03] shrink-0 rounded-t-3xl">
+        <div>
+          <h3 class="font-black text-slate-900 dark:text-white text-base">New Advanced Shipping Notice</h3>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Log a new shipment dispatch and notify the warehouse</p>
+        </div>
+        <button (click)="showCreateModal.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
 
-      <div class="space-y-3.5 text-xs">
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Target Purchase Order</label>
-          <select [(ngModel)]="selectedPOId" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-semibold">
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Target Purchase Order</label>
+          <select [(ngModel)]="selectedPOId" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
             <option value="">-- Standalone Shipment --</option>
             @for (po of purchaseOrders(); track po.id) {
               <option [value]="po.id">PO #{{ po.po_number }}</option>
@@ -178,48 +189,48 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Carrier / Fleet</label>
-            <input type="text" [(ngModel)]="carrier" placeholder="e.g. FedEx, Local Dispatch" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Carrier / Fleet</label>
+            <input type="text" [(ngModel)]="carrier" placeholder="e.g. FedEx, Local Dispatch" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Tracking Number</label>
-            <input type="text" [(ngModel)]="trackingNumber" placeholder="TRK-1029381" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Dispatch Date</label>
-            <input type="date" [(ngModel)]="dispatchDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
-          </div>
-          <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Expected Arrival Date</label>
-            <input type="date" [(ngModel)]="expectedArrival" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Tracking Number</label>
+            <input type="text" [(ngModel)]="trackingNumber" placeholder="TRK-1029381" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Package Count</label>
-            <input type="number" [(ngModel)]="packageCount" min="1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Dispatch Date</label>
+            <input type="date" [(ngModel)]="dispatchDate" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Total Weight (kg)</label>
-            <input type="number" [(ngModel)]="weightKg" step="0.1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Expected Arrival</label>
+            <input type="date" [(ngModel)]="expectedArrival" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Package Count</label>
+            <input type="number" [(ngModel)]="packageCount" min="1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
+          </div>
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Total Weight (kg)</label>
+            <input type="number" [(ngModel)]="weightKg" step="0.1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Shipping Notes / Instructions</label>
-          <textarea [(ngModel)]="notes" rows="2" placeholder="Driver contact, pallet counts, dock instructions..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white"></textarea>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Shipping Notes / Instructions</label>
+          <textarea [(ngModel)]="notes" rows="2" placeholder="Driver contact, pallet counts, dock instructions..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"></textarea>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showCreateModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+      <div class="px-6 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5 shrink-0">
+        <button (click)="showCreateModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
           Cancel
         </button>
-        <button (click)="createASN()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
+        <button (click)="createASN()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">
           Submit ASN
         </button>
       </div>
@@ -227,21 +238,31 @@
   </div>
 }
 
-<!-- BOOK DOCK SLOT MODAL -->
+<!-- ── BOOK DOCK SLOT MODAL ── -->
 @if (showDockModal()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <h3 class="font-black text-slate-900 dark:text-white text-base">Schedule Warehouse Dock Slot</h3>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" (click)="showDockModal.set(false)">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl flex flex-col max-h-[92dvh]" (click)="$event.stopPropagation()">
 
-      <div class="space-y-3 text-xs">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-white/[0.03] shrink-0 rounded-t-3xl">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Appointment Date</label>
-          <input type="date" [(ngModel)]="dockDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <h3 class="font-black text-slate-900 dark:text-white text-base">Schedule Warehouse Dock Slot</h3>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Reserve a delivery window at the receiving dock</p>
+        </div>
+        <button (click)="showDockModal.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Appointment Date</label>
+          <input type="date" [(ngModel)]="dockDate" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
         </div>
 
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Unloading Time Window</label>
-          <select [(ngModel)]="dockWindow" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Unloading Time Window</label>
+          <select [(ngModel)]="dockWindow" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500 transition-colors">
             <option value="08:00 - 10:00">08:00 AM - 10:00 AM (Morning Primary)</option>
             <option value="10:00 - 12:00">10:00 AM - 12:00 PM (Midday Window)</option>
             <option value="13:00 - 15:00">01:00 PM - 03:00 PM (Afternoon Window)</option>
@@ -250,8 +271,8 @@
         </div>
 
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Preferred Dock</label>
-          <select [(ngModel)]="dockNumber" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Preferred Dock</label>
+          <select [(ngModel)]="dockNumber" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500 transition-colors">
             <option value="Dock 1">Dock Bay 1 (Heavy Freight)</option>
             <option value="Dock 2">Dock Bay 2 (Palletized Cargo)</option>
             <option value="Dock 3">Dock Bay 3 (Express Couriers)</option>
@@ -260,19 +281,19 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Vehicle License Plate</label>
-            <input type="text" [(ngModel)]="vehiclePlate" placeholder="e.g. GR-2026-X" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Vehicle License Plate</label>
+            <input type="text" [(ngModel)]="vehiclePlate" placeholder="e.g. GR-2026-X" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Driver Contact</label>
-            <input type="text" [(ngModel)]="driverPhone" placeholder="e.g. +233 24 111 2222" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Driver Contact</label>
+            <input type="text" [(ngModel)]="driverPhone" placeholder="e.g. +233 24 111 2222" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"/>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showDockModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
-        <button (click)="bookDockSlot()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Confirm Appointment</button>
+      <div class="px-6 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5 shrink-0">
+        <button (click)="showDockModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="bookDockSlot()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">Confirm Appointment</button>
       </div>
     </div>
   </div>
@@ -280,18 +301,16 @@
 
 <!-- ── PRINTABLE GS1-128 SHIPPING LABEL MODAL ── -->
 @if (showLabelModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
     
     <!-- Floating close button (hidden on print) -->
     <button (click)="showLabelModal.set(false)"
-            class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all print:hidden">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
+            class="fixed top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-lg transition-all print:hidden active:scale-90">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
 
-    <!-- Physical Carton Label Card (4x6 format) -->
-    <div class="w-full max-w-lg bg-white text-zinc-900 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-4 my-auto border-2 border-dashed border-zinc-300 print:m-0 print:p-0 print:shadow-none print:rounded-none print:border-0 print:w-full">
+    <!-- Physical Carton Label Card (4x6 format) — stays white for print -->
+    <div class="w-full max-w-lg bg-white text-zinc-900 rounded-3xl shadow-2xl shadow-black/60 p-6 sm:p-8 space-y-4 my-auto border-2 border-dashed border-zinc-300 print:m-0 print:p-0 print:shadow-none print:rounded-none print:border-0 print:w-full">
       
       @if (loadingLabel()) {
         <div class="p-12 text-center text-zinc-400 animate-pulse text-sm">Generating barcode shipping label...</div>
@@ -344,7 +363,6 @@
         <!-- Barcode Block -->
         <div class="py-4 text-center space-y-2 border-b-2 border-black">
           <div class="inline-block p-3 bg-white border border-zinc-200 rounded-xl">
-            <!-- Simulated High-Density Code 128 / GS1 Barcode -->
             <div class="flex items-center justify-center gap-[3px] h-14 px-4 bg-white">
               <span class="w-[3px] h-full bg-black"></span>
               <span class="w-[1px] h-full bg-black"></span>
@@ -378,11 +396,9 @@
 
         <!-- Footer Actions (hidden on print) -->
         <div class="flex justify-end gap-3 pt-2 print:hidden">
-          <button (click)="showLabelModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700">Close</button>
-          <button (click)="printLabel()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
+          <button (click)="showLabelModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors">Close</button>
+          <button (click)="printLabel()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             Print Shipping Label (4x6)
           </button>
         </div>
@@ -390,4 +406,3 @@
     </div>
   </div>
 }
-

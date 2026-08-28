@@ -1,13 +1,16 @@
-<div class="space-y-6 max-w-7xl mx-auto">
+<div class="space-y-6 max-w-7xl mx-auto" style="font-family: 'Outfit', sans-serif;">
   
-  <!-- Header & Actions -->
+  <!-- ── Hero Header ── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Purchase Orders</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Review merchant purchase orders, acknowledge fulfillment, and issue ASNs.</p>
+      <div class="flex items-center gap-2.5 mb-1">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Purchase Orders</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">Fulfillment</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">Review merchant purchase orders, acknowledge fulfillment, and issue ASNs.</p>
     </div>
     <div class="flex items-center gap-2.5">
-      <button (click)="exportCSV()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition-colors inline-flex items-center gap-1.5 shadow-sm">
+      <button (click)="exportCSV()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-white/10 transition-all shadow-sm inline-flex items-center gap-1.5 active:scale-95">
         <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
@@ -17,19 +20,19 @@
   </div>
 
   <!-- Filters & Search Bar -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+  <div class="glass-panel flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl">
     
     <!-- Status Tabs -->
-    <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar pb-2 md:pb-0">
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
       @for (st of ['all', 'issued', 'confirmed', 'partially_received', 'received', 'cancelled']; track st) {
         <button (click)="statusFilter.set(st)"
                 [class.bg-indigo-600]="statusFilter() === st"
                 [class.text-white]="statusFilter() === st"
                 [class.bg-slate-100]="statusFilter() !== st"
-                [class.dark:bg-zinc-800/40]="statusFilter() !== st"
+                [class.dark:bg-white/5]="statusFilter() !== st"
                 [class.text-slate-600]="statusFilter() !== st"
                 [class.dark:text-zinc-400]="statusFilter() !== st"
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize whitespace-nowrap border border-transparent hover:border-slate-300 dark:hover:border-zinc-700 transition-all">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize whitespace-nowrap transition-all active:scale-95">
           {{ st === 'all' ? 'All Orders' : st.replace('_', ' ') }}
         </button>
       }
@@ -41,7 +44,7 @@
              [ngModel]="searchQuery()" 
              (ngModelChange)="searchQuery.set($event)" 
              placeholder="Search by PO# or notes..."
-             class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors" />
+             class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors" />
       <svg class="w-4 h-4 text-slate-400 dark:text-zinc-500 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
@@ -50,7 +53,7 @@
   </div>
 
   <!-- PO TABLE -->
-  <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+  <div class="glass-panel rounded-2xl overflow-hidden">
     @if (loading()) {
       <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">
         Fetching purchase orders...
@@ -61,8 +64,8 @@
       </div>
     } @else {
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
-          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+          <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-white/[0.03] text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200/60 dark:border-white/[0.06]">
             <tr>
               <th class="px-5 py-3.5">PO Number</th>
               <th class="px-5 py-3.5">Order Date</th>
@@ -74,8 +77,8 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
-            @for (po of filteredOrders; track po.id) {
-              <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors group">
+             @for (po of filteredOrders; track po.id) {
+              <tr class="hover:bg-slate-50/60 dark:hover:bg-white/[0.02] transition-colors group">
                 <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">
                   <span>{{ po.po_number }}</span>
                 </td>
@@ -117,22 +120,22 @@
 
 <!-- DETAILS MODAL WITH CHAT & LINE ITEMS -->
 @if (selectedOrder() && !showAckModal() && !showAsnModal() && !showInvoiceModal()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full sm:max-w-3xl bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[90vh]">
       
       <!-- Modal Header -->
-      <div class="p-5 border-b border-slate-200 dark:border-zinc-800/80 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-900/60">
+      <div class="px-5 py-4 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between bg-slate-50 dark:bg-white/[0.03] shrink-0">
         <div>
           <div class="flex items-center gap-3">
-            <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">PO #{{ selectedOrder()!.po_number }}</h2>
+            <h2 class="text-base font-black text-slate-900 dark:text-white tracking-tight">PO #{{ selectedOrder()!.po_number }}</h2>
             <span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(selectedOrder()!.status)">
               {{ selectedOrder()!.status | uppercase }}
             </span>
           </div>
           <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Ordered on {{ selectedOrder()!.created_at | date:'fullDate' }}</p>
         </div>
-        <button (click)="closeOrder()" class="p-2 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button (click)="closeOrder()" class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -197,7 +200,7 @@
                   <th class="px-4 py-2.5 text-right">Subtotal</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+              <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
                 @if (selectedOrder()!.items && selectedOrder()!.items!.length > 0) {
                   @for (item of selectedOrder()!.items; track item.id) {
                     <tr>
@@ -261,7 +264,7 @@
       </div>
 
       <!-- Modal Footer Quick Actions -->
-      <div class="p-4 border-t border-slate-200 dark:border-zinc-800/80 bg-slate-50/80 dark:bg-zinc-900/60 flex flex-wrap items-center justify-between gap-3">
+      <div class="px-5 py-4 border-t border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2">
           <button (click)="printSlip()" class="px-3 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition-colors">
             Print Packing Slip
@@ -291,34 +294,37 @@
 
 <!-- ACKNOWLEDGMENT MODAL -->
 @if (showAckModal() && selectedOrder()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-5">
-      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Acknowledge PO #{{ selectedOrder()!.po_number }}</h3>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl">
+      <div class="px-5 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]">
+        <h3 class="font-black text-slate-900 dark:text-white text-base">Acknowledge PO #{{ selectedOrder()!.po_number }}</h3>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Set fulfillment status and expected delivery timeline</p>
+      </div>
       
-      <div class="space-y-4 text-xs">
+      <div class="p-5 space-y-4 text-xs">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Decision</label>
-          <select [(ngModel)]="ackStatus" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-semibold">
-            <option value="confirmed">Accept & Confirm Order</option>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Decision</label>
+          <select [(ngModel)]="ackStatus" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-500 transition-colors">
+            <option value="confirmed">Accept &amp; Confirm Order</option>
             <option value="issued">Propose Date Revision</option>
             <option value="cancelled">Decline / Cannot Fulfill</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Estimated Delivery Date</label>
-          <input type="date" [(ngModel)]="ackExpectedDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Estimated Delivery Date</label>
+          <input type="date" [(ngModel)]="ackExpectedDate" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
 
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Supplier Notes</label>
-          <textarea [(ngModel)]="ackNotes" rows="3" placeholder="Add fulfillment details or dispatch timeline..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white"></textarea>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Supplier Notes</label>
+          <textarea [(ngModel)]="ackNotes" rows="3" placeholder="Add fulfillment details or dispatch timeline..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"></textarea>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showAckModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700">Cancel</button>
-        <button (click)="submitAcknowledgment()" class="px-4 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">Confirm</button>
+      <div class="px-5 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5">
+        <button (click)="showAckModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="submitAcknowledgment()" class="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition-all active:scale-95">Confirm</button>
       </div>
     </div>
   </div>
@@ -326,34 +332,37 @@
 
 <!-- ASN DISPATCH MODAL -->
 @if (showAsnModal() && selectedOrder()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Dispatch ASN (PO #{{ selectedOrder()!.po_number }})</h3>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl">
+      <div class="px-5 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]">
+        <h3 class="font-black text-slate-900 dark:text-white text-base">Dispatch ASN (PO #{{ selectedOrder()!.po_number }})</h3>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Create an advanced shipping notice for this order</p>
+      </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="p-5 space-y-3 text-xs">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Carrier</label>
-          <input type="text" [(ngModel)]="asnCarrier" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Carrier</label>
+          <input type="text" [(ngModel)]="asnCarrier" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Tracking Number</label>
-          <input type="text" [(ngModel)]="asnTracking" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Tracking Number</label>
+          <input type="text" [(ngModel)]="asnTracking" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Packages</label>
-            <input type="number" [(ngModel)]="asnPackages" min="1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Packages</label>
+            <input type="number" [(ngModel)]="asnPackages" min="1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Weight (kg)</label>
-            <input type="number" [(ngModel)]="asnWeight" min="0.1" step="0.1" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Weight (kg)</label>
+            <input type="number" [(ngModel)]="asnWeight" min="0.1" step="0.1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showAsnModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
-        <button (click)="submitAsn()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Dispatch Shipment</button>
+      <div class="px-5 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5">
+        <button (click)="showAsnModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="submitAsn()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">Dispatch Shipment</button>
       </div>
     </div>
   </div>
@@ -361,24 +370,27 @@
 
 <!-- INVOICE FLIP MODAL -->
 @if (showInvoiceModal() && selectedOrder()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Flip PO #{{ selectedOrder()!.po_number }} to Invoice</h3>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl">
+      <div class="px-5 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03]">
+        <h3 class="font-black text-slate-900 dark:text-white text-base">Flip PO #{{ selectedOrder()!.po_number }} → Invoice</h3>
+        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Generate a supplier invoice from this fulfilled purchase order</p>
+      </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="p-5 space-y-3 text-xs">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Invoice Number</label>
-          <input type="text" [(ngModel)]="invoiceNumber" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Invoice Number</label>
+          <input type="text" [(ngModel)]="invoiceNumber" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-emerald-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Due Date</label>
-          <input type="date" [(ngModel)]="invoiceDueDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Due Date</label>
+          <input type="date" [(ngModel)]="invoiceDueDate" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors" />
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showInvoiceModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
-        <button (click)="submitInvoice()" class="px-4 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md">Generate Invoice</button>
+      <div class="px-5 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5">
+        <button (click)="showInvoiceModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="submitInvoice()" class="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition-all active:scale-95">Generate Invoice</button>
       </div>
     </div>
   </div>

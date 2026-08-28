@@ -1,68 +1,86 @@
-<div class="space-y-6 max-w-5xl mx-auto">
+<div class="space-y-6 max-w-5xl mx-auto" style="font-family: 'Outfit', sans-serif;">
   
-  <!-- Header -->
+  <!-- ── Hero Header ── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Settings, Team & Compliance</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage disbursement accounts, staff role-based access, and compliance documents.</p>
+      <div class="flex items-center gap-2.5 mb-1">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Settings & Governance</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">Enterprise</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">Manage disbursement accounts, staff role-based access, and compliance documents.</p>
     </div>
   </div>
 
   <!-- Settings Navigation Tabs -->
-  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit flex-wrap">
+  <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 backdrop-blur-xl w-fit flex-wrap">
     <button
       (click)="activeTab.set('payout')"
-      [class.bg-indigo-600]="activeTab() === 'payout'"
-      [class.text-white]="activeTab() === 'payout'"
+      [class.bg-white]="activeTab() === 'payout'"
+      [class.dark:bg-zinc-800]="activeTab() === 'payout'"
+      [class.text-indigo-600]="activeTab() === 'payout'"
+      [class.dark:text-white]="activeTab() === 'payout'"
+      [class.shadow-sm]="activeTab() === 'payout'"
       [class.text-slate-600]="activeTab() !== 'payout'"
       [class.dark:text-zinc-400]="activeTab() !== 'payout'"
-      class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
+      class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all"
     >
       Payout Accounts
     </button>
     <button
       (click)="activeTab.set('team')"
-      [class.bg-indigo-600]="activeTab() === 'team'"
-      [class.text-white]="activeTab() === 'team'"
+      [class.bg-white]="activeTab() === 'team'"
+      [class.dark:bg-zinc-800]="activeTab() === 'team'"
+      [class.text-indigo-600]="activeTab() === 'team'"
+      [class.dark:text-white]="activeTab() === 'team'"
+      [class.shadow-sm]="activeTab() === 'team'"
       [class.text-slate-600]="activeTab() !== 'team'"
       [class.dark:text-zinc-400]="activeTab() !== 'team'"
-      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+      class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
     >
       <span>Team Members & Roles</span>
       @if (teamMembers().length > 0) {
-        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ teamMembers().length }}</span>
+        <span class="px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black">{{ teamMembers().length }}</span>
       }
     </button>
     <button
       (click)="activeTab.set('documents')"
-      [class.bg-indigo-600]="activeTab() === 'documents'"
-      [class.text-white]="activeTab() === 'documents'"
+      [class.bg-white]="activeTab() === 'documents'"
+      [class.dark:bg-zinc-800]="activeTab() === 'documents'"
+      [class.text-indigo-600]="activeTab() === 'documents'"
+      [class.dark:text-white]="activeTab() === 'documents'"
+      [class.shadow-sm]="activeTab() === 'documents'"
       [class.text-slate-600]="activeTab() !== 'documents'"
       [class.dark:text-zinc-400]="activeTab() !== 'documents'"
-      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+      class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
     >
       <span>Document Vault</span>
       @if (documents().length > 0) {
-        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ documents().length }}</span>
+        <span class="px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black">{{ documents().length }}</span>
       }
     </button>
     <button
       (click)="activeTab.set('profile')"
-      [class.bg-indigo-600]="activeTab() === 'profile'"
-      [class.text-white]="activeTab() === 'profile'"
+      [class.bg-white]="activeTab() === 'profile'"
+      [class.dark:bg-zinc-800]="activeTab() === 'profile'"
+      [class.text-indigo-600]="activeTab() === 'profile'"
+      [class.dark:text-white]="activeTab() === 'profile'"
+      [class.shadow-sm]="activeTab() === 'profile'"
       [class.text-slate-600]="activeTab() !== 'profile'"
       [class.dark:text-zinc-400]="activeTab() !== 'profile'"
-      class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
+      class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all"
     >
       Company Profile
     </button>
     <button
       (click)="switchToApiTab()"
-      [class.bg-indigo-600]="activeTab() === 'api'"
-      [class.text-white]="activeTab() === 'api'"
+      [class.bg-white]="activeTab() === 'api'"
+      [class.dark:bg-zinc-800]="activeTab() === 'api'"
+      [class.text-indigo-600]="activeTab() === 'api'"
+      [class.dark:text-white]="activeTab() === 'api'"
+      [class.shadow-sm]="activeTab() === 'api'"
       [class.text-slate-600]="activeTab() !== 'api'"
       [class.dark:text-zinc-400]="activeTab() !== 'api'"
-      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+      class="px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
     >
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
       API & Webhooks
@@ -71,7 +89,7 @@
 
   <!-- TAB 1: PAYOUT ACCOUNTS -->
   @if (activeTab() === 'payout') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
+    <div class="glass-panel rounded-2xl p-6 space-y-6">
       <div>
         <h2 class="text-base font-black text-slate-900 dark:text-white">Settlement Disbursement Account</h2>
         <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Where merchant AP payments and early settlements are transferred.</p>
@@ -91,27 +109,27 @@
       @if (accountType === 'bank') {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Bank Name</label>
-            <input type="text" [(ngModel)]="bankName" placeholder="e.g. Standard Chartered Bank" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Bank Name</label>
+            <input type="text" [(ngModel)]="bankName" placeholder="e.g. Standard Chartered Bank" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Account Number / IBAN</label>
-            <input type="text" [(ngModel)]="accountNumber" placeholder="e.g. 0100234567890" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Account Number / IBAN</label>
+            <input type="text" [(ngModel)]="accountNumber" placeholder="e.g. 0100234567890" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Account Holder Name</label>
-            <input type="text" [(ngModel)]="accountName" placeholder="e.g. Acme Corp Supplies Ltd" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Account Holder Name</label>
+            <input type="text" [(ngModel)]="accountName" placeholder="e.g. Acme Corp Supplies Ltd" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Routing Code / SWIFT / Branch</label>
-            <input type="text" [(ngModel)]="routingCode" placeholder="e.g. SCBLGHAC" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Routing Code / SWIFT / Branch</label>
+            <input type="text" [(ngModel)]="routingCode" placeholder="e.g. SCBLGHAC" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
         </div>
       } @else {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Mobile Money Network</label>
-            <select [(ngModel)]="momoNetwork" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Mobile Money Network</label>
+            <select [(ngModel)]="momoNetwork" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500 transition-colors">
               <option value="MTN">MTN MoMo</option>
               <option value="Telecel">Telecel Cash</option>
               <option value="AirtelTigo">AirtelTigo Money</option>
@@ -119,14 +137,14 @@
             </select>
           </div>
           <div>
-            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Mobile Money Phone Number</label>
-            <input type="text" [(ngModel)]="momoNumber" placeholder="e.g. 0244123456" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Mobile Money Phone Number</label>
+            <input type="text" [(ngModel)]="momoNumber" placeholder="e.g. 0244123456" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
           </div>
         </div>
       }
 
       <div class="pt-2">
-        <button (click)="savePayout()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all">
+        <button (click)="savePayout()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/20 transition-all active:scale-95">
           Save Payout Settings
         </button>
       </div>
@@ -135,151 +153,289 @@
 
   <!-- TAB 2: TEAM MEMBERS & RBAC -->
   @if (activeTab() === 'team') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
+    <div class="glass-panel rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-base font-black text-slate-900 dark:text-white">Team Members & Role-Based Access</h2>
           <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Control staff access for Dispatch, Accounting, and Catalog management.</p>
         </div>
-        <button (click)="showInviteModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition-all">
+        <button (click)="showInviteModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">
           + Invite Member
         </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
-          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200 dark:border-zinc-800">
-            <tr>
-              <th class="px-4 py-3">Member Name</th>
-              <th class="px-4 py-3">Email Address</th>
-              <th class="px-4 py-3">Role</th>
-              <th class="px-4 py-3">Phone</th>
-              <th class="px-4 py-3 text-right">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
-            @if (teamMembers().length === 0) {
+      <div class="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200 dark:border-white/10">
               <tr>
-                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
-                  No staff members added yet. Click "+ Invite Member" to give your warehouse or finance team access.
-                </td>
+                <th class="px-4 py-3">Member Name</th>
+                <th class="px-4 py-3">Email Address</th>
+                <th class="px-4 py-3">Role</th>
+                <th class="px-4 py-3">Phone</th>
+                <th class="px-4 py-3 text-right">Status</th>
               </tr>
-            } @else {
-              @for (m of teamMembers(); track m.id) {
-                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20">
-                  <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ m.full_name }}</td>
-                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400 font-mono">{{ m.email }}</td>
-                  <td class="px-4 py-3">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border uppercase"
-                          [class.border-indigo-500/30]="m.role === 'admin'"
-                          [class.bg-indigo-500/10]="m.role === 'admin'"
-                          [class.text-indigo-600]="m.role === 'admin'"
-                          [class.border-emerald-500/30]="m.role === 'finance'"
-                          [class.bg-emerald-500/10]="m.role === 'finance'"
-                          [class.text-emerald-600]="m.role === 'finance'"
-                          [class.border-amber-500/30]="m.role === 'warehouse'"
-                          [class.bg-amber-500/10]="m.role === 'warehouse'"
-                          [class.text-amber-600]="m.role === 'warehouse'"
-                          [class.border-purple-500/30]="m.role === 'sales'"
-                          [class.bg-purple-500/10]="m.role === 'sales'"
-                          [class.text-purple-600]="m.role === 'sales'">
-                      {{ m.role }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ m.phone || 'N/A' }}</td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">Active</span>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+              @if (teamMembers().length === 0) {
+                <tr>
+                  <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
+                    No staff members added yet. Click "+ Invite Member" to give your warehouse or finance team access.
                   </td>
                 </tr>
+              } @else {
+                @for (m of teamMembers(); track m.id) {
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-white/[0.02]">
+                    <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ m.full_name }}</td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-zinc-400 font-mono">{{ m.email }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border uppercase"
+                            [class.border-indigo-500/30]="m.role === 'admin'"
+                            [class.bg-indigo-500/10]="m.role === 'admin'"
+                            [class.text-indigo-600]="m.role === 'admin'"
+                            [class.border-emerald-500/30]="m.role === 'finance'"
+                            [class.bg-emerald-500/10]="m.role === 'finance'"
+                            [class.text-emerald-600]="m.role === 'finance'"
+                            [class.border-amber-500/30]="m.role === 'warehouse'"
+                            [class.bg-amber-500/10]="m.role === 'warehouse'"
+                            [class.text-amber-600]="m.role === 'warehouse'"
+                            [class.border-purple-500/30]="m.role === 'sales'"
+                            [class.bg-purple-500/10]="m.role === 'sales'"
+                            [class.text-purple-600]="m.role === 'sales'">
+                        {{ m.role }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ m.phone || 'N/A' }}</td>
+                    <td class="px-4 py-3 text-right">
+                      <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">Active</span>
+                    </td>
+                  </tr>
+                }
               }
-            }
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }
 
   <!-- TAB 3: DOCUMENT COMPLIANCE VAULT -->
   @if (activeTab() === 'documents') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
+    <div class="glass-panel rounded-2xl p-6 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-base font-black text-slate-900 dark:text-white">Compliance & Legal Document Vault</h2>
           <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Upload official certificates (TIN, business registration, FDA/health compliance) verified by the merchant.</p>
         </div>
-        <button (click)="showUploadDocModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition-all">
+        <button (click)="showUploadDocModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">
           + Upload Document
         </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
-          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200 dark:border-zinc-800">
-            <tr>
-              <th class="px-4 py-3">Document Title</th>
-              <th class="px-4 py-3">Category</th>
-              <th class="px-4 py-3">Expiry Date</th>
-              <th class="px-4 py-3">File Link</th>
-              <th class="px-4 py-3 text-right">Verification</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
-            @if (documents().length === 0) {
+      <div class="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200 dark:border-white/10">
               <tr>
-                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
-                  No compliance files uploaded yet. Click "+ Upload Document" to add your business license or tax certificate.
-                </td>
+                <th class="px-4 py-3">Document Title</th>
+                <th class="px-4 py-3">Category</th>
+                <th class="px-4 py-3">Expiry Date</th>
+                <th class="px-4 py-3">File Link</th>
+                <th class="px-4 py-3 text-right">Verification</th>
               </tr>
-            } @else {
-              @for (d of documents(); track d.id) {
-                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20">
-                  <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ d.document_name }}</td>
-                  <td class="px-4 py-3 text-slate-600 dark:text-zinc-300 capitalize">{{ d.document_type.replace('_', ' ') }}</td>
-                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ d.expiry_date ? (d.expiry_date | date:'mediumDate') : 'Permanent' }}</td>
-                  <td class="px-4 py-3">
-                    <a [href]="d.file_url" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
-                      View File &rarr;
-                    </a>
-                  </td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
-                      {{ d.status.replace('_', ' ') }}
-                    </span>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+              @if (documents().length === 0) {
+                <tr>
+                  <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
+                    No compliance files uploaded yet. Click "+ Upload Document" to add your business license or tax certificate.
                   </td>
                 </tr>
+              } @else {
+                @for (d of documents(); track d.id) {
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-white/[0.02]">
+                    <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ d.document_name }}</td>
+                    <td class="px-4 py-3 text-slate-600 dark:text-zinc-300 capitalize">{{ d.document_type.replace('_', ' ') }}</td>
+                    <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ d.expiry_date ? (d.expiry_date | date:'mediumDate') : 'Permanent' }}</td>
+                    <td class="px-4 py-3">
+                      <a [href]="d.file_url" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                        View File &rarr;
+                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                        {{ d.status.replace('_', ' ') }}
+                      </span>
+                    </td>
+                  </tr>
+                }
               }
-            }
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }
 
   <!-- TAB 4: COMPANY PROFILE -->
   @if (activeTab() === 'profile') {
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
+    <div class="glass-panel rounded-2xl p-6 space-y-5">
       <div>
         <h2 class="text-base font-black text-slate-900 dark:text-white">Vendor Company Profile</h2>
         <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Official company contact and tax credentials registered with merchant.</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
           <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Vendor Name</span>
           <p class="font-bold text-slate-900 dark:text-white mt-0.5">{{ profile()?.name || 'Verified Vendor' }}</p>
         </div>
-        <div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
           <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Primary Contact</span>
           <p class="font-bold text-slate-900 dark:text-white mt-0.5">{{ profile()?.contact_person || 'N/A' }}</p>
         </div>
-        <div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
           <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Tax Number / TIN</span>
           <p class="font-bold text-slate-900 dark:text-white mt-0.5 font-mono">{{ profile()?.tax_number || 'N/A' }}</p>
         </div>
-        <div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
           <span class="text-slate-400 dark:text-zinc-400 font-bold block text-[10px] uppercase">Portal Login Email</span>
           <p class="font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 font-mono">{{ profile()?.portal_email || profile()?.email || 'N/A' }}</p>
         </div>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 5: API KEYS & WEBHOOKS -->
+  @if (activeTab() === 'api') {
+    <div class="space-y-6">
+      <!-- API Keys Section -->
+      <div class="glass-panel rounded-2xl p-6 space-y-5">
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-white">API Keys</h2>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Authenticate external ERP systems (SAP, NetSuite, QuickBooks) to this supplier account.</p>
+        </div>
+
+        <!-- New Key Plain Display -->
+        @if (newKeyPlain()) {
+          <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700/40 space-y-2">
+            <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase">⚠ Copy this key now — it will never be shown again!</p>
+            <code class="block font-mono text-sm text-emerald-800 dark:text-emerald-300 bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/40 break-all">{{ newKeyPlain() }}</code>
+            <button (click)="newKeyPlain.set(null)" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline">I've copied it, dismiss</button>
+          </div>
+        }
+
+        <!-- Create New Key Form -->
+        <div class="flex items-end gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1.5 uppercase tracking-wider text-[10px]">Key Name / Label</label>
+            <input type="text" [(ngModel)]="newKeyName" placeholder="e.g. SAP Integration Prod" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
+          </div>
+          <button (click)="createKey()" [disabled]="loadingAPI()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 disabled:opacity-60 whitespace-nowrap active:scale-95 transition-all">
+            @if (loadingAPI()) { Generating... } @else { + Generate Key }
+          </button>
+        </div>
+
+        <!-- Keys Table -->
+        @if (apiKeys().length > 0) {
+          <div class="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+            <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+              <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200 dark:border-white/10">
+                <tr>
+                  <th class="px-4 py-2.5 text-left">Name</th>
+                  <th class="px-4 py-2.5 text-left">Preview</th>
+                  <th class="px-4 py-2.5 text-left">Created</th>
+                  <th class="px-4 py-2.5 text-left">Last Used</th>
+                  <th class="px-4 py-2.5 text-center">Status</th>
+                  <th class="px-4 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                @for (key of apiKeys(); track key.id) {
+                  <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                    <td class="px-4 py-2.5 font-bold text-slate-900 dark:text-white">{{ key.name }}</td>
+                    <td class="px-4 py-2.5 font-mono text-slate-400">{{ key.key_preview }}...</td>
+                    <td class="px-4 py-2.5">{{ key.created_at | date:'mediumDate' }}</td>
+                    <td class="px-4 py-2.5 text-slate-400">{{ key.last_used_at ? (key.last_used_at | date:'mediumDate') : 'Never' }}</td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span [ngClass]="key.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-rose-500/10 text-rose-600 border-rose-500/30'"
+                            class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
+                        {{ key.is_active ? 'ACTIVE' : 'REVOKED' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-2.5 text-right">
+                      @if (key.is_active) {
+                        <button (click)="revokeKey(key.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Revoke</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No API keys generated yet.</p>
+        }
+      </div>
+
+      <!-- Webhooks Section -->
+      <div class="glass-panel rounded-2xl p-6 space-y-5">
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Webhook Endpoints</h2>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Receive real-time event notifications (PO created, invoice paid, ASN received) via HTTP POST.</p>
+        </div>
+
+        <!-- New Webhook Form -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1.5 uppercase tracking-wider text-[10px]">Endpoint URL (HTTPS)</label>
+            <input type="url" [(ngModel)]="newWebhookURL" placeholder="https://your-erp.example.com/webhook" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1.5 uppercase tracking-wider text-[10px]">Events (comma-separated)</label>
+            <input type="text" [(ngModel)]="newWebhookEvents" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button (click)="createWebhook()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition-all">+ Register Endpoint</button>
+        </div>
+
+        <!-- Webhooks Table -->
+        @if (webhooks().length > 0) {
+          <div class="rounded-2xl border border-slate-200 dark:border-white/10 overflow-hidden">
+            <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
+              <thead class="bg-slate-50 dark:bg-white/[0.03] text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-500 border-b border-slate-200 dark:border-white/10">
+                <tr>
+                  <th class="px-4 py-2.5 text-left">URL</th>
+                  <th class="px-4 py-2.5 text-left">Events</th>
+                  <th class="px-4 py-2.5 text-left">Last Triggered</th>
+                  <th class="px-4 py-2.5 text-center">Status</th>
+                  <th class="px-4 py-2.5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                @for (hook of webhooks(); track hook.id) {
+                  <tr class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                    <td class="px-4 py-2.5 font-mono text-indigo-600 dark:text-indigo-400 max-w-xs truncate">{{ hook.url }}</td>
+                    <td class="px-4 py-2.5 font-mono text-[10px] text-slate-500 dark:text-zinc-400 max-w-xs truncate">{{ hook.events }}</td>
+                    <td class="px-4 py-2.5 text-slate-400">{{ hook.last_triggered_at ? (hook.last_triggered_at | date:'medium') : 'Never' }}</td>
+                    <td class="px-4 py-2.5 text-center">
+                      <span [ngClass]="hook.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-slate-100 dark:bg-white/5 text-slate-500 border-slate-200 dark:border-white/10'"
+                            class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
+                        {{ hook.is_active ? 'ACTIVE' : 'INACTIVE' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-2.5 text-right">
+                      <button (click)="deleteWebhook(hook.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Delete</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No webhook endpoints configured yet.</p>
+        }
       </div>
     </div>
   }
@@ -288,22 +444,30 @@
 
 <!-- INVITE MEMBER MODAL -->
 @if (showInviteModal()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Invite Staff Member</h3>
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" (click)="showInviteModal.set(false)">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] rounded-t-3xl flex items-center justify-between">
+        <div>
+          <h3 class="font-black text-slate-900 dark:text-white text-base">Invite Staff Member</h3>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Add a collaborator with role-based access</p>
+        </div>
+        <button (click)="showInviteModal.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="p-6 space-y-4 text-xs">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Full Name</label>
-          <input type="text" [(ngModel)]="newMemberName" placeholder="e.g. John Doe" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Full Name</label>
+          <input type="text" [(ngModel)]="newMemberName" placeholder="e.g. John Doe" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Email Address</label>
-          <input type="email" [(ngModel)]="newMemberEmail" placeholder="e.g. john@vendor.com" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Email Address</label>
+          <input type="email" [(ngModel)]="newMemberEmail" placeholder="e.g. john@vendor.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Role / Permission</label>
-          <select [(ngModel)]="newMemberRole" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Role / Permission</label>
+          <select [(ngModel)]="newMemberRole" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500 transition-colors">
             <option value="admin">Admin (Full Access)</option>
             <option value="finance">Finance / Billing (Invoices & Payouts)</option>
             <option value="warehouse">Warehouse / Dispatch (POs & ASNs)</option>
@@ -311,14 +475,14 @@
           </select>
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Phone Number (Optional)</label>
-          <input type="text" [(ngModel)]="newMemberPhone" placeholder="e.g. +233 24 000 0000" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Phone Number (Optional)</label>
+          <input type="text" [(ngModel)]="newMemberPhone" placeholder="e.g. +233 24 000 0000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showInviteModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
-        <button (click)="inviteTeamMember()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Send Invitation</button>
+      <div class="px-6 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5">
+        <button (click)="showInviteModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="inviteTeamMember()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">Send Invitation</button>
       </div>
     </div>
   </div>
@@ -326,14 +490,22 @@
 
 <!-- UPLOAD DOCUMENT MODAL -->
 @if (showUploadDocModal()) {
-  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Upload Compliance Document</h3>
-
-      <div class="space-y-3 text-xs">
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" (click)="showUploadDocModal.set(false)">
+    <div class="w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl border border-slate-200 dark:border-white/10 shadow-2xl flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] rounded-t-3xl flex items-center justify-between">
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document Category</label>
-          <select [(ngModel)]="docType" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+          <h3 class="font-black text-slate-900 dark:text-white text-base">Upload Compliance Document</h3>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Attach certifications to the merchant vault</p>
+        </div>
+        <button (click)="showUploadDocModal.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-white/5 hover:bg-rose-100 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Document Category</label>
+          <select [(ngModel)]="docType" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:border-indigo-500 transition-colors">
             <option value="business_license">Business Registration / Certificate of Incorporation</option>
             <option value="tax_clearance">TIN Certificate / Tax Clearance</option>
             <option value="iso_certificate">Quality / ISO / FDA Certificate</option>
@@ -342,159 +514,23 @@
           </select>
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document Name / Title</label>
-          <input type="text" [(ngModel)]="docName" placeholder="e.g. 2026 Tax Clearance Certificate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Document Name / Title</label>
+          <input type="text" [(ngModel)]="docName" placeholder="e.g. 2026 Tax Clearance Certificate" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document / Cloud File URL</label>
-          <input type="text" [(ngModel)]="docURL" placeholder="https://cloud.storage.com/docs/cert.pdf" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Document / Cloud File URL</label>
+          <input type="text" [(ngModel)]="docURL" placeholder="https://cloud.storage.com/docs/cert.pdf" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
         <div>
-          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Expiry Date (If applicable)</label>
-          <input type="date" [(ngModel)]="docExpiry" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1.5 uppercase tracking-wider text-[10px]">Expiry Date (If applicable)</label>
+          <input type="date" [(ngModel)]="docExpiry" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" />
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2">
-        <button (click)="showUploadDocModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
-        <button (click)="submitDocument()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Upload to Vault</button>
+      <div class="px-6 py-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-end gap-2.5">
+        <button (click)="showUploadDocModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
+        <button (click)="submitDocument()" class="px-5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95">Upload to Vault</button>
       </div>
-    </div>
-  </div>
-}
-
-<!-- TAB: API KEYS & WEBHOOKS -->
-@if (activeTab() === 'api') {
-  <div class="space-y-6">
-    <!-- API Keys Section -->
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
-      <div class="flex items-start justify-between">
-        <div>
-          <h2 class="text-base font-black text-slate-900 dark:text-white">API Keys</h2>
-          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Authenticate external ERP systems (SAP, NetSuite, QuickBooks) to this supplier account.</p>
-        </div>
-      </div>
-
-      <!-- New Key Plain Display -->
-      @if (newKeyPlain()) {
-        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700/40 space-y-2">
-          <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase">⚠ Copy this key now — it will never be shown again!</p>
-          <code class="block font-mono text-sm text-emerald-800 dark:text-emerald-300 bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/40 break-all">{{ newKeyPlain() }}</code>
-          <button (click)="newKeyPlain.set(null)" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline">I've copied it, dismiss</button>
-        </div>
-      }
-
-      <!-- Create New Key Form -->
-      <div class="flex items-end gap-3">
-        <div class="flex-1">
-          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Key Name / Label</label>
-          <input type="text" [(ngModel)]="newKeyName" placeholder="e.g. SAP Integration Prod" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
-        </div>
-        <button (click)="createKey()" [disabled]="loadingAPI()" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md disabled:opacity-60 whitespace-nowrap">
-          @if (loadingAPI()) { Generating... } @else { + Generate Key }
-        </button>
-      </div>
-
-      <!-- Keys Table -->
-      @if (apiKeys().length > 0) {
-        <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
-          <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
-            <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400">
-              <tr>
-                <th class="px-4 py-2.5 text-left">Name</th>
-                <th class="px-4 py-2.5 text-left">Preview</th>
-                <th class="px-4 py-2.5 text-left">Created</th>
-                <th class="px-4 py-2.5 text-left">Last Used</th>
-                <th class="px-4 py-2.5 text-center">Status</th>
-                <th class="px-4 py-2.5 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
-              @for (key of apiKeys(); track key.id) {
-                <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/30">
-                  <td class="px-4 py-2.5 font-bold text-slate-900 dark:text-white">{{ key.name }}</td>
-                  <td class="px-4 py-2.5 font-mono text-slate-400">{{ key.key_preview }}...</td>
-                  <td class="px-4 py-2.5">{{ key.created_at | date:'mediumDate' }}</td>
-                  <td class="px-4 py-2.5 text-slate-400">{{ key.last_used_at ? (key.last_used_at | date:'mediumDate') : 'Never' }}</td>
-                  <td class="px-4 py-2.5 text-center">
-                    <span [ngClass]="key.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-rose-500/10 text-rose-600 border-rose-500/30'"
-                          class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
-                      {{ key.is_active ? 'ACTIVE' : 'REVOKED' }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-2.5 text-right">
-                    @if (key.is_active) {
-                      <button (click)="revokeKey(key.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Revoke</button>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No API keys generated yet.</p>
-      }
-    </div>
-
-    <!-- Webhooks Section -->
-    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
-      <div>
-        <h2 class="text-base font-black text-slate-900 dark:text-white">Webhook Endpoints</h2>
-        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Receive real-time event notifications (PO created, invoice paid, ASN received) via HTTP POST.</p>
-      </div>
-
-      <!-- New Webhook Form -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-        <div class="sm:col-span-2">
-          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Endpoint URL (HTTPS)</label>
-          <input type="url" [(ngModel)]="newWebhookURL" placeholder="https://your-erp.example.com/webhook" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 mb-1">Events (comma-separated)</label>
-          <input type="text" [(ngModel)]="newWebhookEvents" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white text-sm font-mono" />
-        </div>
-      </div>
-      <div class="flex justify-end">
-        <button (click)="createWebhook()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">+ Register Endpoint</button>
-      </div>
-
-      <!-- Webhooks Table -->
-      @if (webhooks().length > 0) {
-        <div class="rounded-2xl border border-slate-200 dark:border-zinc-700 overflow-hidden">
-          <table class="w-full text-xs text-slate-700 dark:text-zinc-300">
-            <thead class="bg-slate-50 dark:bg-zinc-800/60 text-[10px] uppercase font-bold text-slate-400">
-              <tr>
-                <th class="px-4 py-2.5 text-left">URL</th>
-                <th class="px-4 py-2.5 text-left">Events</th>
-                <th class="px-4 py-2.5 text-left">Last Triggered</th>
-                <th class="px-4 py-2.5 text-center">Status</th>
-                <th class="px-4 py-2.5 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
-              @for (hook of webhooks(); track hook.id) {
-                <tr class="hover:bg-slate-50 dark:hover:bg-zinc-800/30">
-                  <td class="px-4 py-2.5 font-mono text-indigo-600 dark:text-indigo-400 max-w-xs truncate">{{ hook.url }}</td>
-                  <td class="px-4 py-2.5 font-mono text-[10px] text-slate-500 dark:text-zinc-400 max-w-xs truncate">{{ hook.events }}</td>
-                  <td class="px-4 py-2.5 text-slate-400">{{ hook.last_triggered_at ? (hook.last_triggered_at | date:'medium') : 'Never' }}</td>
-                  <td class="px-4 py-2.5 text-center">
-                    <span [ngClass]="hook.is_active ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : 'bg-slate-100 text-slate-500 border-slate-200'"
-                          class="px-2 py-0.5 text-[10px] font-extrabold rounded-full border">
-                      {{ hook.is_active ? 'ACTIVE' : 'INACTIVE' }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-2.5 text-right">
-                    <button (click)="deleteWebhook(hook.id)" class="text-xs font-bold text-rose-500 hover:text-rose-700 dark:hover:text-rose-400">Delete</button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      } @else {
-        <p class="text-xs text-center text-slate-400 dark:text-zinc-500 py-6">No webhook endpoints configured yet.</p>
-      }
     </div>
   </div>
 }

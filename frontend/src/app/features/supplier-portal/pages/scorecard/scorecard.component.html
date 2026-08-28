@@ -1,22 +1,25 @@
-<div class="space-y-6 max-w-7xl mx-auto">
+<div class="space-y-6 max-w-7xl mx-auto" style="font-family: 'Outfit', sans-serif;">
   
-  <!-- Header -->
+  <!-- ── Hero Header ── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Vendor Scorecard & SLA Metrics</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Live quality benchmarks, on-time delivery rate (OTD), and order fulfillment accuracy.</p>
+      <div class="flex items-center gap-2.5 mb-1">
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Vendor Scorecard</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">SLA Metrics</span>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">Live quality benchmarks, on-time delivery rate (OTD), and order fulfillment accuracy.</p>
     </div>
   </div>
 
   <!-- VENDOR TIER HERO CARD -->
   @if (loadingTier()) {
-    <div class="p-8 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 text-center text-slate-400 animate-pulse text-sm">Computing vendor tier...</div>
+    <div class="glass-panel p-8 rounded-2xl text-center text-slate-400 animate-pulse text-sm">Computing vendor tier...</div>
   } @else if (scorecard()) {
-    <div class="rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-violet-200 dark:border-violet-800/40"
-         [ngClass]="{'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20': scorecard()!.tier === 'platinum',
-                     'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20': scorecard()!.tier === 'gold',
-                     'bg-gradient-to-r from-slate-50 to-gray-50 dark:from-zinc-800/60 dark:to-zinc-900/60': scorecard()!.tier === 'silver',
-                     'bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20': scorecard()!.tier === 'standard'}">
+    <div class="glass-panel rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 transition-all"
+         [class.border-l-violet-500]="scorecard()!.tier === 'platinum'"
+         [class.border-l-amber-500]="scorecard()!.tier === 'gold'"
+         [class.border-l-slate-400]="scorecard()!.tier === 'silver'"
+         [class.border-l-orange-500]="scorecard()!.tier === 'standard'">
       <div class="flex items-center gap-4">
         <span class="text-5xl">{{ tierIcon(scorecard()!.tier) }}</span>
         <div>
@@ -27,11 +30,11 @@
           <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">OTD: {{ scorecard()!.otd_rate | number:'1.1-1' }}% &nbsp;·&nbsp; Defect Rate: {{ scorecard()!.defect_rate | number:'1.2-2' }}% &nbsp;·&nbsp; {{ scorecard()!.total_pos }} POs Fulfilled</p>
         </div>
       </div>
-      <div class="space-y-1">
-        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tier Benefits</p>
+      <div class="space-y-1.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">Tier Benefits</p>
         @for (benefit of scorecard()!.benefits; track benefit) {
           <p class="text-xs text-slate-600 dark:text-zinc-300 flex items-center gap-1.5">
-            <svg class="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+            <svg class="w-3 h-3 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
             {{ benefit }}
           </p>
         }
@@ -42,7 +45,8 @@
   <!-- METRIC CARDS -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     
-    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+    <div class="glass-panel p-5 rounded-2xl group hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-all duration-300 relative overflow-hidden">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">On-Time Delivery (OTD)</span>
       <div class="mt-3 text-3xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">{{ stats().otd_score }}%</div>
       <div class="mt-1 text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1 font-bold">
@@ -50,19 +54,22 @@
       </div>
     </div>
 
-    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+    <div class="glass-panel p-5 rounded-2xl group hover:border-indigo-300 dark:hover:border-indigo-500/40 transition-all duration-300 relative overflow-hidden">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500/0 via-indigo-500 to-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Order Fill Rate</span>
       <div class="mt-3 text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">99.2%</div>
       <div class="mt-1 text-xs text-indigo-600 dark:text-indigo-400/80">Percentage of line items supplied in full</div>
     </div>
 
-    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+    <div class="glass-panel p-5 rounded-2xl group hover:border-rose-300 dark:hover:border-rose-500/40 transition-all duration-300 relative overflow-hidden">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-rose-500/0 via-rose-500 to-rose-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Quality Defect Rate</span>
       <div class="mt-3 text-3xl font-black text-slate-900 dark:text-white tracking-tight">0.3%</div>
       <div class="mt-1 text-xs text-slate-500 dark:text-zinc-500">Warehouse return & damage rate</div>
     </div>
 
-    <div class="p-5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl">
+    <div class="glass-panel p-5 rounded-2xl group hover:border-purple-300 dark:hover:border-purple-500/40 transition-all duration-300 relative overflow-hidden">
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Avg Lead Time</span>
       <div class="mt-3 text-3xl font-black text-purple-600 dark:text-purple-400 tracking-tight">3.4 days</div>
       <div class="mt-1 text-xs text-purple-600 dark:text-purple-400/80">PO issue to receiving dock</div>
@@ -73,51 +80,59 @@
   <!-- SLA BREAKDOWN & PERFORMANCE DETAILS -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     
-    <div class="p-6 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl space-y-4">
-      <h3 class="font-black text-slate-900 dark:text-white text-base">Fulfillment SLA Standards</h3>
+    <div class="glass-panel p-6 rounded-2xl space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <h3 class="font-black text-slate-900 dark:text-white text-base">Fulfillment SLA Standards</h3>
+      </div>
       
-      <div class="space-y-3.5 text-xs">
+      <div class="space-y-4 text-xs">
         <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1">
-            <span>Order Acknowledgment (< 24 hrs)</span>
+          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
+            <span>Order Acknowledgment (&lt; 24 hrs)</span>
             <span class="text-emerald-600 dark:text-emerald-400 font-black">100%</span>
           </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
-            <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
+          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style="width: 100%"></div>
           </div>
         </div>
 
         <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1">
+          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
             <span>On-Time Dispatch with ASN</span>
             <span class="text-indigo-600 dark:text-indigo-400 font-black">98.5%</span>
           </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
-            <div class="h-full bg-indigo-500 rounded-full" style="width: 98.5%"></div>
+          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full" style="width: 98.5%"></div>
           </div>
         </div>
 
         <div>
-          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1">
+          <div class="flex justify-between text-slate-700 dark:text-zinc-300 font-bold mb-1.5">
             <span>Invoice 3-Way Match Accuracy</span>
             <span class="text-purple-600 dark:text-purple-400 font-black">99.8%</span>
           </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
-            <div class="h-full bg-purple-500 rounded-full" style="width: 99.8%"></div>
+          <div class="h-2 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style="width: 99.8%"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Vendor Status Tier Card -->
-    <div class="p-6 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl space-y-4">
-      <h3 class="font-black text-slate-900 dark:text-white text-base">Supplier Status Badge</h3>
+    <div class="glass-panel p-6 rounded-2xl space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <h3 class="font-black text-slate-900 dark:text-white text-base">Supplier Status Badge</h3>
+      </div>
       
       <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-start gap-3">
         <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         </div>
         <div>
           <h4 class="font-black text-indigo-900 dark:text-indigo-300 text-sm">Tier 1 Preferred Vendor</h4>
@@ -127,11 +142,11 @@
 
       <div class="space-y-2 text-xs text-slate-600 dark:text-zinc-400">
         <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Automatic invoice approvals enabled</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Expedited receiving dock queue</span>
         </div>
       </div>

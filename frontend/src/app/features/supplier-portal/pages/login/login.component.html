@@ -1,49 +1,57 @@
-<div class="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="flex justify-center mb-6">
-      <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-        <span class="material-symbols-outlined text-white !text-[32px]">inventory_2</span>
+<div class="min-h-screen bg-slate-100 dark:bg-[#020307] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative font-outfit overflow-hidden">
+  
+  <!-- Deep Background Glows matching Admin Login -->
+  <div class="fixed inset-0 pointer-events-none"
+    style="background-image: radial-gradient(ellipse at 20% 30%, rgba(99,102,241,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(168,85,247,0.12) 0%, transparent 55%), radial-gradient(ellipse at 50% 90%, rgba(20,184,166,0.08) 0%, transparent 50%);">
+  </div>
+
+  <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+    <div class="flex justify-center mb-5">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-xl shadow-indigo-500/25">
+        <div class="w-full h-full bg-white dark:bg-[#080c16] rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-2xl">
+          P
+        </div>
       </div>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+    <h2 class="text-center text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
       Supplier Portal
     </h2>
-    <p class="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
-      Sign in to view your purchase orders
+    <p class="mt-1.5 text-center text-xs text-slate-500 dark:text-zinc-400 font-medium">
+      Sign in to manage purchase orders, ASNs &amp; settlements
     </p>
   </div>
 
-  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-white dark:bg-zinc-900 py-8 px-4 shadow-xl shadow-zinc-200/50 dark:shadow-none sm:rounded-3xl sm:px-10 border border-zinc-200 dark:border-zinc-800">
-      <form class="space-y-6" (ngSubmit)="onSubmit()">
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
+    <div class="glass-panel py-8 px-6 sm:px-10 rounded-3xl shadow-2xl">
+      <form class="space-y-5" (ngSubmit)="onSubmit()">
         <div>
-          <label for="email" class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Email address</label>
-          <div class="mt-2 relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-              <span class="material-symbols-outlined !text-[20px]">mail</span>
+          <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Email address</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
             </div>
             <input id="email" name="email" type="email" autocomplete="email" required [(ngModel)]="email"
-              class="block w-full pl-10 px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
               placeholder="supplier@example.com">
           </div>
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-bold text-zinc-700 dark:text-zinc-300">Password</label>
-          <div class="mt-2 relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-              <span class="material-symbols-outlined !text-[20px]">lock</span>
+          <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
             </div>
             <input id="password" name="password" type="password" autocomplete="current-password" required [(ngModel)]="password"
-              class="block w-full pl-10 px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
               placeholder="••••••••">
           </div>
         </div>
 
-        <div>
+        <div class="pt-2">
           <button type="submit" [disabled]="loading() || !email || !password"
-            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-indigo-500/25 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50">
-            {{ loading() ? 'Signing in...' : 'Sign in' }}
+            class="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 focus:outline-none transition-all disabled:opacity-50 active:scale-95">
+            {{ loading() ? 'Signing in...' : 'Sign in to Workspace' }}
           </button>
         </div>
       </form>
