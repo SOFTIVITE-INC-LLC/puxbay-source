@@ -46,6 +46,7 @@ export class SupplierPortalOrdersComponent implements OnInit {
   invoiceNumber = '';
   invoiceDueDate = '';
 
+  invoicedPoMap = signal<Record<string, SupplierInvoice>>({});
   showPrintSlip = signal<boolean>(false);
   loading = signal<boolean>(false);
 
@@ -65,6 +66,28 @@ export class SupplierPortalOrdersComponent implements OnInit {
         this.router.navigate(['/supplier-portal/login']);
       }
     });
+
+    this.portalService.getInvoices().subscribe({
+      next: (invoices) => {
+        const map: Record<string, SupplierInvoice> = {};
+        for (const inv of invoices || []) {
+          if (inv.purchase_order_id && inv.status !== 'rejected') {
+            map[inv.purchase_order_id] = inv;
+          }
+        }
+        this.invoicedPoMap.set(map);
+      }
+    });
+  }
+
+  isOrderInvoiced(order: PurchaseOrder | null): boolean {
+    if (!order?.id) return false;
+    return !!this.invoicedPoMap()[order.id];
+  }
+
+  getOrderInvoice(order: PurchaseOrder | null): SupplierInvoice | undefined {
+    if (!order?.id) return undefined;
+    return this.invoicedPoMap()[order.id];
   }
 
   get filteredOrders(): PurchaseOrder[] {
@@ -193,6 +216,12 @@ export class SupplierPortalOrdersComponent implements OnInit {
 
   // --- Flip to Invoice ---
   openInvoiceModal(order: PurchaseOrder) {
+    if (this.isOrderInvoiced(order)) {
+      const inv = this.getOrderInvoice(order);
+      this.toast.showInfo(`PO #${order.po_number} is already invoiced (${inv?.invoice_number}).`);
+      this.router.navigate(['/supplier-portal/invoices']);
+      return;
+    }
     this.selectedOrder.set(order);
     this.invoiceNumber = `INV-${order.po_number.replace('PO-', '')}`;
     const nextMonth = new Date();

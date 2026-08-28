@@ -368,9 +368,23 @@ func (s *SupplierService) FlipPOToInvoice(supplierID, poID, invoiceNumber string
 	supUUID, _ := uuid.Parse(supplierID)
 	poUUID, _ := uuid.Parse(poID)
 
+	// Financial integrity check: Ensure this PO has not already been flipped to an active invoice
+	var existingInvoice models.SupplierInvoice
+	if err := s.db.Where("supplier_id = ? AND purchase_order_id = ? AND status != 'rejected'", supUUID, poUUID).First(&existingInvoice).Error; err == nil {
+		return nil, fmt.Errorf("an invoice (%s) has already been generated for this purchase order", existingInvoice.InvoiceNumber)
+	}
+
 	if invoiceNumber == "" {
 		invoiceNumber = fmt.Sprintf("INV-%s", po.PONumber)
 	}
+
+	// Ensure invoice number is unique for this supplier
+	var count int64
+	s.db.Model(&models.SupplierInvoice{}).Where("supplier_id = ? AND invoice_number = ?", supUUID, invoiceNumber).Count(&count)
+	if count > 0 {
+		return nil, fmt.Errorf("invoice number '%s' is already in use", invoiceNumber)
+	}
+
 	if dueDate.IsZero() {
 		dueDate = time.Now().AddDate(0, 0, 30) // Net 30 default
 	}
