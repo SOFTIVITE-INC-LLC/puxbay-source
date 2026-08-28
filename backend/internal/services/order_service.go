@@ -18,10 +18,11 @@ import (
 type OrderService struct {
 	db         *gorm.DB
 	smsService *SMSService
+	tenantID   uuid.UUID
 }
 
-func NewOrderService(db *gorm.DB, sms *SMSService) *OrderService {
-	return &OrderService{db: db, smsService: sms}
+func NewOrderService(db *gorm.DB, sms *SMSService, tenantID uuid.UUID) *OrderService {
+	return &OrderService{db: db, smsService: sms, tenantID: tenantID}
 }
 
 type OrderListParams struct {
@@ -271,7 +272,7 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 					branchID = *order.BranchID
 				}
 				movements = append(movements, models.StockMovement{
-					TenantID:      branchID,
+					TenantID:      s.tenantID,
 					BranchID:      branchID,
 					ProductID:     product.ID,
 					VariantID:     item.VariantID,
@@ -555,7 +556,7 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 					branchID = *order.BranchID
 				}
 				movements = append(movements, models.StockMovement{
-					TenantID:      branchID,
+					TenantID:      s.tenantID,
 					BranchID:      branchID,
 					ProductID:     product.ID,
 					VariantID:     itemReq.VariantID,

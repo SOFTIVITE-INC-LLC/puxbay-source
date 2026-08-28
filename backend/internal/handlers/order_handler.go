@@ -27,7 +27,13 @@ func NewOrderHandler(db *gorm.DB, hub *websocket.Hub, sms *services.SMSService, 
 }
 
 func (h *OrderHandler) service(c *gin.Context) *services.OrderService {
-	return services.NewOrderService(getDB(c, h.db), h.smsService)
+	var tenantID uuid.UUID
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	}
+	return services.NewOrderService(getDB(c, h.db), h.smsService, tenantID)
 }
 
 func (h *OrderHandler) tenantDB(c *gin.Context) *gorm.DB {

@@ -123,7 +123,14 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 		tx = h.db
 	}
 
-	order, err := services.NewOrderService(tx, nil).CreateOrder(input)
+	var tenantID uuid.UUID
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	}
+
+	order, err := services.NewOrderService(tx, nil, tenantID).CreateOrder(input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create kiosk order: " + err.Error()})
 		return
