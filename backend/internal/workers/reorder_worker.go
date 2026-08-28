@@ -45,68 +45,72 @@ func processReorderAlerts(db *gorm.DB, notifSvc *services.NotificationService) {
 func processTenantReorderAlerts(db *gorm.DB, notifSvc *services.NotificationService, tenant models.Tenant) {
 	var alerts []TenantAlert
 
-	// 2. Run inside a transaction scoped to this tenant's schema
+	// Run inside a transaction scoped to this tenant's schema
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName)).Error; err != nil {
+		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenant.SchemaName)).Error; err != nil {
 			return err
 		}
 
-		return tx.Table("products").
+		if err := tx.Table("products").
 			Select("? as tenant_id, id as product_id, name, sku, current_stock as stock, reorder_level as reorder, branch_id", tenant.ID.String()).
 			Where("track_inventory = ? AND current_stock <= reorder_level AND current_stock >= 0 AND is_active = ?", true, true).
 			Where("reorder_level > 0").
-			Scan(&alerts).Error
+			Scan(&alerts).Error; err != nil {
+			return err
+		}
+
+		if len(alerts) == 0 {
+			return nil
+		}
+
+		// Anti-spam: Check if we already sent a reorder notification in the last 12 hours for this tenant
+		var recentCount int64
+		if err := tx.Model(&models.Notification{}).
+			Where("category = ? AND created_at > ?", "inventory", time.Now().Add(-12*time.Hour)).
+			Where("title LIKE ?", "Reorder Alert%").
+			Count(&recentCount).Error; err != nil {
+			return err
+		}
+		if recentCount > 0 {
+			return nil
+		}
+
+		// Build notification message
+		title := fmt.Sprintf("Reorder Alert: %d product(s) need restocking", len(alerts))
+		var msgBody string
+		limit := 3
+		for i, p := range alerts {
+			if i >= limit {
+				msgBody += fmt.Sprintf("...and %d more.", len(alerts)-limit)
+				break
+			}
+			msgBody += fmt.Sprintf("• %s (SKU: %s) — %.0f left (reorder at %.0f)\n", p.Name, p.SKU, p.Stock, p.Reorder)
+		}
+
+		var pushSvc *services.PushService
+		if notifSvc != nil {
+			pushSvc = notifSvc.GetPushService()
+		}
+		tenantNotifSvc := services.NewNotificationService(tx, pushSvc)
+		tenantNotifSvc.CreateAndPushToAdmins(
+			tenant.ID,
+			title,
+			msgBody,
+			"inventory",
+			"/inventory?tab=alerts",
+			"warning",
+		)
+
+		// Auto-create draft PurchaseOrders for products with a supplier set
+		autoDraftPOs(tx, tenant, alerts)
+
+		log.Printf("[ReorderWorker] Sent reorder alert for tenant %s (schema: %s) — %d products", tenant.ID, tenant.SchemaName, len(alerts))
+		return nil
 	})
 
 	if err != nil {
-		log.Printf("[ReorderWorker] Error querying low-stock products for tenant %s (schema: %s): %v", tenant.ID, tenant.SchemaName, err)
-		return
+		log.Printf("[ReorderWorker] Error processing reorder alerts for tenant %s (schema: %s): %v", tenant.ID, tenant.SchemaName, err)
 	}
-
-	if len(alerts) == 0 {
-		return
-	}
-
-	// Override TenantID from the struct with the authoritative tenant UUID
-	for i := range alerts {
-		alerts[i].TenantID = tenant.ID.String()
-	}
-
-	// Anti-spam: Check if we already sent a reorder notification in the last 12 hours for this tenant
-	var recentCount int64
-	db.Model(&models.Notification{}).
-		Where("tenant_id = ? AND category = ? AND created_at > ?", tenant.ID, "inventory", time.Now().Add(-12*time.Hour)).
-		Where("title LIKE ?", "Reorder Alert%").
-		Count(&recentCount)
-	if recentCount > 0 {
-		return
-	}
-
-	// Build notification message
-	title := fmt.Sprintf("Reorder Alert: %d product(s) need restocking", len(alerts))
-	var msgBody string
-	limit := 3
-	for i, p := range alerts {
-		if i >= limit {
-			msgBody += fmt.Sprintf("...and %d more.", len(alerts)-limit)
-			break
-		}
-		msgBody += fmt.Sprintf("• %s (SKU: %s) — %.0f left (reorder at %.0f)\n", p.Name, p.SKU, p.Stock, p.Reorder)
-	}
-
-	notifSvc.CreateAndPushToAdmins(
-		tenant.ID,
-		title,
-		msgBody,
-		"inventory",
-		"/inventory?tab=alerts",
-		"warning",
-	)
-
-	// Auto-create draft PurchaseOrders for products with a supplier set
-	autoDraftPOs(db, tenant, alerts)
-
-	log.Printf("[ReorderWorker] Sent reorder alert for tenant %s (schema: %s) — %d products", tenant.ID, tenant.SchemaName, len(alerts))
 }
 
 type TenantAlert struct {
@@ -120,7 +124,7 @@ type TenantAlert struct {
 }
 
 // autoDraftPOs groups low-stock products by supplier and creates draft POs.
-func autoDraftPOs(db *gorm.DB, tenant models.Tenant, alerts []TenantAlert) {
+func autoDraftPOs(tx *gorm.DB, tenant models.Tenant, alerts []TenantAlert) {
 	type ProductWithSupplier struct {
 		ProductID  string
 		SupplierID *string
@@ -138,15 +142,10 @@ func autoDraftPOs(db *gorm.DB, tenant models.Tenant, alerts []TenantAlert) {
 	var productsWithSuppliers []ProductWithSupplier
 
 	// Query supplier mapping within the tenant schema
-	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName)).Error; err != nil {
-			return err
-		}
-		return tx.Table("products").
-			Select("id as product_id, supplier_id, branch_id, current_stock as stock, reorder_level as reorder, cost_price").
-			Where("id IN ? AND supplier_id IS NOT NULL", productIDs).
-			Scan(&productsWithSuppliers).Error
-	})
+	err := tx.Table("products").
+		Select("id as product_id, supplier_id, branch_id, current_stock as stock, reorder_level as reorder, cost_price").
+		Where("id IN ? AND supplier_id IS NOT NULL", productIDs).
+		Scan(&productsWithSuppliers).Error
 	if err != nil {
 		log.Printf("[ReorderWorker] Error querying supplier mapping for tenant %s: %v", tenant.ID, err)
 		return
@@ -178,12 +177,12 @@ func autoDraftPOs(db *gorm.DB, tenant models.Tenant, alerts []TenantAlert) {
 
 		// Check if there's already a draft PO for this supplier in the last 7 days (within tenant schema)
 		var existingCount int64
-		_ = db.Transaction(func(tx *gorm.DB) error {
-			_ = tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName))
-			return tx.Model(&models.PurchaseOrder{}).
-				Where("supplier_id = ? AND status = ? AND created_at > ?", supplierID, "draft", time.Now().AddDate(0, 0, -7)).
-				Count(&existingCount).Error
-		})
+		if err := tx.Model(&models.PurchaseOrder{}).
+			Where("supplier_id = ? AND status = ? AND created_at > ?", supplierID, "draft", time.Now().AddDate(0, 0, -7)).
+			Count(&existingCount).Error; err != nil {
+			log.Printf("[ReorderWorker] Error checking existing draft POs for tenant %s: %v", tenant.ID, err)
+			continue
+		}
 		if existingCount > 0 {
 			continue
 		}
@@ -230,13 +229,7 @@ func autoDraftPOs(db *gorm.DB, tenant models.Tenant, alerts []TenantAlert) {
 		po.Items = poItems
 
 		// Create the PO inside the tenant schema
-		err = db.Transaction(func(tx *gorm.DB) error {
-			if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s", tenant.SchemaName)).Error; err != nil {
-				return err
-			}
-			return tx.Create(&po).Error
-		})
-		if err != nil {
+		if err := tx.Create(&po).Error; err != nil {
 			log.Printf("[ReorderWorker] Failed to create draft PO for supplier %s (tenant %s): %v", key.SupplierID, tenant.ID, err)
 		} else {
 			log.Printf("[ReorderWorker] Created draft PO %s for supplier %s (tenant %s)", po.PONumber, key.SupplierID, tenant.ID)

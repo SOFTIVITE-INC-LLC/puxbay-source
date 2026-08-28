@@ -47,8 +47,7 @@ func processAnomalyDetection(db *gorm.DB, intelligenceSvc *services.Intelligence
 			// Anti-spam: skip if we already sent an anomaly alert in the last hour
 			var recentCount int64
 			if err := tx.Model(&models.Notification{}).
-				Where("tenant_id = ? AND category = ? AND created_at > ?",
-					tenant.ID, "anomaly", time.Now().Add(-1*time.Hour)).
+				Where("category = ? AND created_at > ?", "anomaly", time.Now().Add(-1*time.Hour)).
 				Count(&recentCount).Error; err != nil {
 				return err
 			}
