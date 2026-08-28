@@ -1,0 +1,97 @@
+<div class="space-y-6 max-w-7xl mx-auto">
+  
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Returns & Defect Claims (RMA)</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage damaged/expired goods claims from store managers, dispatch zero-cost replacements, and verify credit notes.</p>
+    </div>
+  </div>
+
+  <!-- RMAS TABLE -->
+  <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+    @if (loading()) {
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">Loading RMA claims...</div>
+    } @else if (rmas().length === 0) {
+      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
+        No defect claims or returns filed by store managers. All delivered batches are verified in good condition!
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+            <tr>
+              <th class="px-5 py-3.5">RMA Number</th>
+              <th class="px-5 py-3.5">Product & SKU</th>
+              <th class="px-5 py-3.5">Claim Reason</th>
+              <th class="px-5 py-3.5">Defect Qty</th>
+              <th class="px-5 py-3.5">Credit Note</th>
+              <th class="px-5 py-3.5 text-right">Status</th>
+              <th class="px-5 py-3.5 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            @for (rma of rmas(); track rma.id) {
+              <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ rma.rma_number }}</td>
+                <td class="px-5 py-3.5">
+                  <div class="font-bold text-slate-900 dark:text-white text-xs">{{ rma.product?.name || 'Item' }}</div>
+                  <div class="text-[10px] text-slate-400 dark:text-zinc-500">{{ rma.product?.sku || 'SKU' }}</div>
+                </td>
+                <td class="px-5 py-3.5 text-slate-600 dark:text-zinc-300 text-xs capitalize">{{ rma.reason.replace('_', ' ') }}</td>
+                <td class="px-5 py-3.5 text-xs font-bold text-rose-600 dark:text-rose-400">{{ rma.quantity }} units</td>
+                <td class="px-5 py-3.5 text-xs font-mono">
+                  @if (rma.credit_note_ref) {
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ rma.credit_note_ref }} ({{ rma.credit_amount | appCurrency }})</span>
+                  } @else {
+                    <span class="text-slate-400 dark:text-zinc-500">N/A</span>
+                  }
+                </td>
+                <td class="px-5 py-3.5 text-right">
+                  <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border uppercase" [ngClass]="statusClass(rma.status)">
+                    {{ rma.status.replace('_', ' ') }}
+                  </span>
+                </td>
+                <td class="px-5 py-3.5 text-right">
+                  @if (rma.status !== 'replacement_dispatched' && rma.status !== 'refunded') {
+                    <button
+                      (click)="openReplacementModal(rma)"
+                      class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors"
+                    >
+                      Dispatch Replacement
+                    </button>
+                  } @else {
+                    <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold">Resolved</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- REPLACEMENT DISPATCH MODAL -->
+@if (showReplacementModal() && selectedRMA()) {
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight">Dispatch Zero-Cost Replacement</h3>
+      <p class="text-xs text-slate-500 dark:text-zinc-400">For RMA #{{ selectedRMA()!.rma_number }} ({{ selectedRMA()!.quantity }} units of {{ selectedRMA()!.product?.name }})</p>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Replacement Dispatch Notes</label>
+          <textarea [(ngModel)]="replacementNotes" rows="3" placeholder="Courier details, replacement batch lot number, or tracking notes..." class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showReplacementModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        <button (click)="submitReplacement()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Confirm Dispatch</button>
+      </div>
+    </div>
+  </div>
+}

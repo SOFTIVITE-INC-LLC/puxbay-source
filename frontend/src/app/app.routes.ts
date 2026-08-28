@@ -407,6 +407,10 @@ export const routes: Routes = [
             loadComponent: () => import('./features/supplier-portal/pages/rfqs/rfqs.component').then(m => m.SupplierPortalRfqsComponent)
           },
           {
+            path: 'returns',
+            loadComponent: () => import('./features/supplier-portal/pages/returns/returns.component').then(m => m.SupplierPortalReturnsComponent)
+          },
+          {
             path: 'scorecard',
             loadComponent: () => import('./features/supplier-portal/pages/scorecard/scorecard.component').then(m => m.SupplierPortalScorecardComponent)
           },

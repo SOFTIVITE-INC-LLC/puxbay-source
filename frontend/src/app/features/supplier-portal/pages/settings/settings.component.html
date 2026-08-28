@@ -3,13 +3,13 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Settings & Team Access</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage disbursement accounts, company profile, and team member roles.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Settings, Team & Compliance</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Manage disbursement accounts, staff role-based access, and compliance documents.</p>
     </div>
   </div>
 
   <!-- Settings Navigation Tabs -->
-  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit">
+  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit flex-wrap">
     <button
       (click)="activeTab.set('payout')"
       [class.bg-indigo-600]="activeTab() === 'payout'"
@@ -31,6 +31,19 @@
       <span>Team Members & Roles</span>
       @if (teamMembers().length > 0) {
         <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ teamMembers().length }}</span>
+      }
+    </button>
+    <button
+      (click)="activeTab.set('documents')"
+      [class.bg-indigo-600]="activeTab() === 'documents'"
+      [class.text-white]="activeTab() === 'documents'"
+      [class.text-slate-600]="activeTab() !== 'documents'"
+      [class.dark:text-zinc-400]="activeTab() !== 'documents'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+    >
+      <span>Document Vault</span>
+      @if (documents().length > 0) {
+        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ documents().length }}</span>
       }
     </button>
     <button
@@ -175,7 +188,63 @@
     </div>
   }
 
-  <!-- TAB 3: COMPANY PROFILE -->
+  <!-- TAB 3: DOCUMENT COMPLIANCE VAULT -->
+  @if (activeTab() === 'documents') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-slate-900 dark:text-white">Compliance & Legal Document Vault</h2>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Upload official certificates (TIN, business registration, FDA/health compliance) verified by the merchant.</p>
+        </div>
+        <button (click)="showUploadDocModal.set(true)" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md transition-all">
+          + Upload Document
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-700 dark:text-zinc-300">
+          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[10px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200 dark:border-zinc-800">
+            <tr>
+              <th class="px-4 py-3">Document Title</th>
+              <th class="px-4 py-3">Category</th>
+              <th class="px-4 py-3">Expiry Date</th>
+              <th class="px-4 py-3">File Link</th>
+              <th class="px-4 py-3 text-right">Verification</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+            @if (documents().length === 0) {
+              <tr>
+                <td colspan="5" class="p-8 text-center text-slate-400 dark:text-zinc-500">
+                  No compliance files uploaded yet. Click "+ Upload Document" to add your business license or tax certificate.
+                </td>
+              </tr>
+            } @else {
+              @for (d of documents(); track d.id) {
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20">
+                  <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">{{ d.document_name }}</td>
+                  <td class="px-4 py-3 text-slate-600 dark:text-zinc-300 capitalize">{{ d.document_type.replace('_', ' ') }}</td>
+                  <td class="px-4 py-3 text-slate-500 dark:text-zinc-400">{{ d.expiry_date ? (d.expiry_date | date:'mediumDate') : 'Permanent' }}</td>
+                  <td class="px-4 py-3">
+                    <a [href]="d.file_url" target="_blank" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                      View File &rarr;
+                    </a>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                      {{ d.status.replace('_', ' ') }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 4: COMPANY PROFILE -->
   @if (activeTab() === 'profile') {
     <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl p-6 shadow-sm dark:shadow-xl space-y-5">
       <div>
@@ -239,6 +308,45 @@
       <div class="flex items-center justify-end gap-2.5 pt-2">
         <button (click)="showInviteModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
         <button (click)="inviteTeamMember()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Send Invitation</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- UPLOAD DOCUMENT MODAL -->
+@if (showUploadDocModal()) {
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Upload Compliance Document</h3>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document Category</label>
+          <select [(ngModel)]="docType" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+            <option value="business_license">Business Registration / Certificate of Incorporation</option>
+            <option value="tax_clearance">TIN Certificate / Tax Clearance</option>
+            <option value="iso_certificate">Quality / ISO / FDA Certificate</option>
+            <option value="insurance">Goods in Transit Insurance</option>
+            <option value="contract">Vendor Service Agreement</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document Name / Title</label>
+          <input type="text" [(ngModel)]="docName" placeholder="e.g. 2026 Tax Clearance Certificate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Document / Cloud File URL</label>
+          <input type="text" [(ngModel)]="docURL" placeholder="https://cloud.storage.com/docs/cert.pdf" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+        </div>
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Expiry Date (If applicable)</label>
+          <input type="date" [(ngModel)]="docExpiry" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showUploadDocModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        <button (click)="submitDocument()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Upload to Vault</button>
       </div>
     </div>
   </div>

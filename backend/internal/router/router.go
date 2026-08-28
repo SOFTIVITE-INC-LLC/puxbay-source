@@ -196,6 +196,13 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 				portalProtected.POST("/team/invite", supplierPortalHandler.InviteTeamMember)
 				portalProtected.POST("/invoices/:id/payout", supplierPortalHandler.InitiateEarlyPayout)
 				portalProtected.POST("/receive-scan", supplierPortalHandler.ReceiveScan)
+				portalProtected.GET("/rmas", supplierPortalHandler.ListRMAs)
+				portalProtected.POST("/rmas/:id/replace", supplierPortalHandler.ResolveRMAReplacement)
+				portalProtected.GET("/dock-slots", supplierPortalHandler.ListDockSlots)
+				portalProtected.POST("/dock-slots", supplierPortalHandler.BookDockSlot)
+				portalProtected.GET("/documents", supplierPortalHandler.ListDocuments)
+				portalProtected.POST("/documents", supplierPortalHandler.UploadDocument)
+				portalProtected.GET("/announcements", supplierPortalHandler.ListAnnouncements)
 			}
 		}
 
@@ -436,6 +443,20 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			// Supplier Ledger (Accounts Payable) — full version with date
 			api.GET("/suppliers/:id/ledger", supplierHandler.ListLedger)
 			api.POST("/suppliers/:id/ledger", supplierPortalHandler.AddLedgerFull)
+			api.POST("/suppliers/invoices/:id/disburse", supplierHandler.DisburseInvoicePayout)
+
+			// Supplier Price Proposals Decisions
+			api.POST("/suppliers/price-requests/:id/approve", supplierHandler.ApprovePriceProposal)
+			api.POST("/suppliers/price-requests/:id/reject", supplierHandler.RejectPriceProposal)
+
+			// Store Manager Defect Claims (RMAs)
+			api.GET("/suppliers/rmas", supplierHandler.ListRMAs)
+			api.POST("/suppliers/rmas", supplierHandler.CreateRMA)
+			api.POST("/suppliers/rmas/:id/resolve", supplierHandler.ResolveRMA)
+
+			// Supplier Announcements & Dock Slot Monitoring
+			api.POST("/suppliers/announcements", supplierHandler.CreateAnnouncement)
+			api.GET("/suppliers/dock-slots", supplierHandler.ListBranchDockSlots)
 
 			// Webhooks
 			api.GET("/webhooks", webhookHandler.List)

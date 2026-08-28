@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount, SupplierTeamMember } from '../../services/supplier-portal.service';
+import { SupplierPortalService, SupplierProfile, SupplierPayoutAccount, SupplierTeamMember, SupplierDocument } from '../../services/supplier-portal.service';
 import { ToastService } from '../../../../core/services/toast';
 
 @Component({
@@ -16,7 +16,7 @@ export class SupplierPortalSettingsComponent implements OnInit {
 
   profile = signal<SupplierProfile | null>(null);
   
-  activeTab = signal<'payout' | 'team' | 'profile'>('payout');
+  activeTab = signal<'payout' | 'team' | 'documents' | 'profile'>('payout');
 
   // Payout state
   accountType = 'bank';
@@ -34,6 +34,14 @@ export class SupplierPortalSettingsComponent implements OnInit {
   newMemberEmail = '';
   newMemberRole: 'admin' | 'finance' | 'warehouse' | 'sales' = 'warehouse';
   newMemberPhone = '';
+
+  // Compliance Documents state
+  documents = signal<SupplierDocument[]>([]);
+  showUploadDocModal = signal<boolean>(false);
+  docType = 'business_license';
+  docName = '';
+  docURL = '';
+  docExpiry = '';
 
   loading = signal<boolean>(false);
 
@@ -57,11 +65,19 @@ export class SupplierPortalSettingsComponent implements OnInit {
     });
 
     this.loadTeam();
+    this.loadDocuments();
   }
 
   loadTeam() {
     this.portalService.getTeam().subscribe({
       next: (members) => this.teamMembers.set(members || []),
+      error: () => {}
+    });
+  }
+
+  loadDocuments() {
+    this.portalService.getDocuments().subscribe({
+      next: (docs) => this.documents.set(docs || []),
       error: () => {}
     });
   }
@@ -84,6 +100,30 @@ export class SupplierPortalSettingsComponent implements OnInit {
         this.loadTeam();
       },
       error: (err) => this.toast.showError(err.error?.error || 'Failed to invite team member')
+    });
+  }
+
+  submitDocument() {
+    if (!this.docName || !this.docURL) {
+      this.toast.showError('Please provide a document title and file link');
+      return;
+    }
+
+    this.portalService.uploadDocument({
+      document_type: this.docType,
+      document_name: this.docName,
+      file_url: this.docURL,
+      expiry_date: this.docExpiry ? new Date(this.docExpiry).toISOString() : undefined
+    }).subscribe({
+      next: (d) => {
+        this.toast.showSuccess(`Uploaded ${d.document_name} to compliance vault!`);
+        this.showUploadDocModal.set(false);
+        this.docName = '';
+        this.docURL = '';
+        this.docExpiry = '';
+        this.loadDocuments();
+      },
+      error: (err) => this.toast.showError(err.error?.error || 'Failed to upload document')
     });
   }
 

@@ -320,4 +320,92 @@ export class SupplierPortalService {
   submitQRScan(qrPayload: string): Observable<QRScanResult> {
     return this.api.post<QRScanResult>(`${this.base}/receive-scan`, { qr_payload: qrPayload });
   }
+
+  // Phase 3: RMAs & Defect Claims
+  getRMAs(): Observable<SupplierRMA[]> {
+    return this.api.get<SupplierRMA[]>(`${this.base}/rmas`, undefined, true);
+  }
+
+  dispatchRMAReplacement(rmaId: string, notes: string): Observable<SupplierRMA> {
+    return this.api.post<SupplierRMA>(`${this.base}/rmas/${rmaId}/replace`, { notes });
+  }
+
+  // Phase 3: Dock Delivery Slots
+  getDockSlots(): Observable<SupplierDeliverySlot[]> {
+    return this.api.get<SupplierDeliverySlot[]>(`${this.base}/dock-slots`);
+  }
+
+  bookDockSlot(slot: Partial<SupplierDeliverySlot>): Observable<SupplierDeliverySlot> {
+    return this.api.post<SupplierDeliverySlot>(`${this.base}/dock-slots`, slot);
+  }
+
+  // Phase 3: Compliance Documents Vault
+  getDocuments(): Observable<SupplierDocument[]> {
+    return this.api.get<SupplierDocument[]>(`${this.base}/documents`);
+  }
+
+  uploadDocument(doc: Partial<SupplierDocument>): Observable<SupplierDocument> {
+    return this.api.post<SupplierDocument>(`${this.base}/documents`, doc);
+  }
+
+  // Phase 3: Announcements
+  getAnnouncements(): Observable<SupplierAnnouncement[]> {
+    return this.api.get<SupplierAnnouncement[]>(`${this.base}/announcements`);
+  }
 }
+
+export interface SupplierRMA {
+  id: string;
+  created_at: string;
+  rma_number: string;
+  purchase_order_id?: string;
+  purchase_order?: PurchaseOrder;
+  product_id: string;
+  product?: {
+    id: string;
+    name: string;
+    sku: string;
+  };
+  quantity: number;
+  reason: string;
+  photo_url?: string;
+  status: 'pending' | 'approved' | 'replacement_dispatched' | 'refunded' | 'rejected';
+  credit_note_ref?: string;
+  credit_amount: number;
+  resolution_notes?: string;
+}
+
+export interface SupplierDeliverySlot {
+  id?: string;
+  created_at?: string;
+  asn_id?: string;
+  asn?: SupplierASN;
+  slot_date: string;
+  time_window: string;
+  dock_number: string;
+  vehicle_plate?: string;
+  driver_phone?: string;
+  status: string;
+}
+
+export interface SupplierDocument {
+  id?: string;
+  created_at?: string;
+  document_type: string;
+  document_name: string;
+  file_url: string;
+  expiry_date?: string;
+  status: 'pending_review' | 'verified' | 'expired' | 'rejected';
+  notes?: string;
+}
+
+export interface SupplierAnnouncement {
+  id: string;
+  created_at: string;
+  title: string;
+  content: string;
+  priority: 'info' | 'warning' | 'urgent';
+  expires_at?: string;
+  is_active: boolean;
+}
+

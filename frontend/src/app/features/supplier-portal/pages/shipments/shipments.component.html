@@ -3,67 +3,146 @@
   <!-- Header & Actions -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Shipments & ASNs</h1>
-      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Issue Advanced Shipping Notices (ASNs), log dispatch tracking, and monitor delivery progress.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Shipments, ASNs & Dock Scheduling</h1>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-0.5">Issue Advanced Shipping Notices (ASNs), reserve warehouse dock unloading slots, and log tracking.</p>
     </div>
-    <button (click)="openCreateModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all inline-flex items-center gap-1.5">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Create Shipping Notice (ASN)
+    <div class="flex items-center gap-2">
+      <button (click)="openDockModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition-colors inline-flex items-center gap-1.5 shadow-sm">
+        <svg class="w-4 h-4 text-slate-500 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Book Dock Slot
+      </button>
+      <button (click)="openCreateModal()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all inline-flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create Shipping Notice (ASN)
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl shadow-sm dark:shadow-xl w-fit">
+    <button
+      (click)="activeTab.set('shipments')"
+      [class.bg-indigo-600]="activeTab() === 'shipments'"
+      [class.text-white]="activeTab() === 'shipments'"
+      [class.text-slate-600]="activeTab() !== 'shipments'"
+      [class.dark:text-zinc-400]="activeTab() !== 'shipments'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all"
+    >
+      Dispatched ASNs ({{ shipments().length }})
+    </button>
+    <button
+      (click)="activeTab.set('dock_slots')"
+      [class.bg-indigo-600]="activeTab() === 'dock_slots'"
+      [class.text-white]="activeTab() === 'dock_slots'"
+      [class.text-slate-600]="activeTab() !== 'dock_slots'"
+      [class.dark:text-zinc-400]="activeTab() !== 'dock_slots'"
+      class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+    >
+      <span>Dock Receiving Appointments</span>
+      @if (dockSlots().length > 0) {
+        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ dockSlots().length }}</span>
+      }
     </button>
   </div>
 
-  <!-- SHIPMENTS TABLE -->
-  <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
-    @if (loading()) {
-      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">
-        Loading shipments...
-      </div>
-    } @else if (shipments().length === 0) {
-      <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
-        No shipments / ASNs dispatched yet. Click "Create Shipping Notice (ASN)" to log a shipment.
-      </div>
-    } @else {
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
-          <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
-            <tr>
-              <th class="px-5 py-3.5">ASN Number</th>
-              <th class="px-5 py-3.5">Related PO</th>
-              <th class="px-5 py-3.5">Carrier & Tracking</th>
-              <th class="px-5 py-3.5">Dispatch Date</th>
-              <th class="px-5 py-3.5">Expected Arrival</th>
-              <th class="px-5 py-3.5">Packages</th>
-              <th class="px-5 py-3.5 text-right">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
-            @for (asn of shipments(); track asn.id) {
-              <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
-                <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ asn.asn_number }}</td>
-                <td class="px-5 py-3.5 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
-                  {{ asn.purchase_order?.po_number || 'General Batch' }}
-                </td>
-                <td class="px-5 py-3.5">
-                  <div class="font-bold text-slate-900 dark:text-white">{{ asn.carrier }}</div>
-                  <div class="text-[10px] text-slate-400 dark:text-zinc-400 font-mono">{{ asn.tracking_number || 'No tracking #' }}</div>
-                </td>
-                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.dispatch_date | date:'mediumDate' }}</td>
-                <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.expected_arrival ? (asn.expected_arrival | date:'mediumDate') : 'Pending' }}</td>
-                <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ asn.package_count }} pkgs ({{ asn.total_weight_kg }} kg)</td>
-                <td class="px-5 py-3.5 text-right">
-                  <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(asn.status)">
-                    {{ asn.status | uppercase }}
-                  </span>
-                </td>
+  <!-- TAB 1: SHIPMENTS TABLE -->
+  @if (activeTab() === 'shipments') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+      @if (loading()) {
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm animate-pulse">
+          Loading shipments...
+        </div>
+      } @else if (shipments().length === 0) {
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
+          No shipments / ASNs dispatched yet. Click "Create Shipping Notice (ASN)" to log a shipment.
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+              <tr>
+                <th class="px-5 py-3.5">ASN Number</th>
+                <th class="px-5 py-3.5">Related PO</th>
+                <th class="px-5 py-3.5">Carrier & Tracking</th>
+                <th class="px-5 py-3.5">Dispatch Date</th>
+                <th class="px-5 py-3.5">Expected Arrival</th>
+                <th class="px-5 py-3.5">Packages</th>
+                <th class="px-5 py-3.5 text-right">Status</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
-  </div>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+              @for (asn of shipments(); track asn.id) {
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                  <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white tracking-wide">{{ asn.asn_number }}</td>
+                  <td class="px-5 py-3.5 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                    {{ asn.purchase_order?.po_number || 'General Batch' }}
+                  </td>
+                  <td class="px-5 py-3.5">
+                    <div class="font-bold text-slate-900 dark:text-white">{{ asn.carrier }}</div>
+                    <div class="text-[10px] text-slate-400 dark:text-zinc-400 font-mono">{{ asn.tracking_number || 'No tracking #' }}</div>
+                  </td>
+                  <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.dispatch_date | date:'mediumDate' }}</td>
+                  <td class="px-5 py-3.5 text-slate-500 dark:text-zinc-400 text-xs">{{ asn.expected_arrival ? (asn.expected_arrival | date:'mediumDate') : 'Pending' }}</td>
+                  <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ asn.package_count }} pkgs ({{ asn.total_weight_kg }} kg)</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border" [ngClass]="statusClass(asn.status)">
+                      {{ asn.status | uppercase }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- TAB 2: DOCK SLOTS TABLE -->
+  @if (activeTab() === 'dock_slots') {
+    <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/60 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-xl overflow-hidden shadow-sm dark:shadow-xl">
+      @if (dockSlots().length === 0) {
+        <div class="p-16 text-center text-slate-400 dark:text-zinc-500 text-sm">
+          No dock delivery windows booked yet. Click "Book Dock Slot" to reserve an unloading slot at the store warehouse.
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-700 dark:text-zinc-300">
+            <thead class="bg-slate-50 dark:bg-zinc-800/40 text-[11px] uppercase font-bold text-slate-400 dark:text-zinc-400 border-b border-slate-200/60 dark:border-zinc-800/60">
+              <tr>
+                <th class="px-5 py-3.5">Appointment Date</th>
+                <th class="px-5 py-3.5">Time Window</th>
+                <th class="px-5 py-3.5">Dock Designation</th>
+                <th class="px-5 py-3.5">Vehicle License Plate</th>
+                <th class="px-5 py-3.5">Driver Contact</th>
+                <th class="px-5 py-3.5 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/40">
+              @for (s of dockSlots(); track s.id) {
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/20 transition-colors">
+                  <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-white">{{ s.slot_date | date:'fullDate' }}</td>
+                  <td class="px-5 py-3.5 font-bold text-indigo-600 dark:text-indigo-400 text-xs">{{ s.time_window }}</td>
+                  <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-zinc-300">{{ s.dock_number }}</td>
+                  <td class="px-5 py-3.5 font-mono text-xs text-slate-900 dark:text-white">{{ s.vehicle_plate || 'Unassigned' }}</td>
+                  <td class="px-5 py-3.5 text-xs text-slate-500 dark:text-zinc-400">{{ s.driver_phone || 'N/A' }}</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border uppercase" [ngClass]="statusClass(s.status)">
+                      {{ s.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
 
 </div>
 
@@ -133,6 +212,57 @@
         <button (click)="createASN()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">
           Submit ASN
         </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- BOOK DOCK SLOT MODAL -->
+@if (showDockModal()) {
+  <div class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <h3 class="font-black text-slate-900 dark:text-white text-base">Schedule Warehouse Dock Slot</h3>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Appointment Date</label>
+          <input type="date" [(ngModel)]="dockDate" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+        </div>
+
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Unloading Time Window</label>
+          <select [(ngModel)]="dockWindow" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+            <option value="08:00 - 10:00">08:00 AM - 10:00 AM (Morning Primary)</option>
+            <option value="10:00 - 12:00">10:00 AM - 12:00 PM (Midday Window)</option>
+            <option value="13:00 - 15:00">01:00 PM - 03:00 PM (Afternoon Window)</option>
+            <option value="15:00 - 17:00">03:00 PM - 05:00 PM (Evening Closing)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Preferred Dock</label>
+          <select [(ngModel)]="dockNumber" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-bold">
+            <option value="Dock 1">Dock Bay 1 (Heavy Freight)</option>
+            <option value="Dock 2">Dock Bay 2 (Palletized Cargo)</option>
+            <option value="Dock 3">Dock Bay 3 (Express Couriers)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Vehicle License Plate</label>
+            <input type="text" [(ngModel)]="vehiclePlate" placeholder="e.g. GR-2026-X" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white font-mono" />
+          </div>
+          <div>
+            <label class="block text-slate-600 dark:text-zinc-400 font-bold mb-1">Driver Contact</label>
+            <input type="text" [(ngModel)]="driverPhone" placeholder="e.g. +233 24 111 2222" class="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-white" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button (click)="showDockModal.set(false)" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">Cancel</button>
+        <button (click)="bookDockSlot()" class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-md">Confirm Appointment</button>
       </div>
     </div>
   </div>

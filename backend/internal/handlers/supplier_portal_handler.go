@@ -541,6 +541,120 @@ func (h *SupplierPortalHandler) ReceiveScan(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// GET /api/v1/supplier-portal/rmas
+func (h *SupplierPortalHandler) ListRMAs(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	rmas, err := h.supplierService(c).ListSupplierRMAs(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch RMAs"})
+		return
+	}
+	c.JSON(http.StatusOK, rmas)
+}
+
+// POST /api/v1/supplier-portal/rmas/:id/replace
+func (h *SupplierPortalHandler) ResolveRMAReplacement(c *gin.Context) {
+	rmaID := c.Param("id")
+	var req struct {
+		Notes string `json:"notes"`
+	}
+	_ = c.ShouldBindJSON(&req)
+
+	res, err := h.supplierService(c).ResolveSupplierRMA(rmaID, "replacement_dispatched", req.Notes, 0)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+// GET /api/v1/supplier-portal/dock-slots
+func (h *SupplierPortalHandler) ListDockSlots(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	slots, err := h.supplierService(c).ListDeliverySlots(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch delivery slots"})
+		return
+	}
+	c.JSON(http.StatusOK, slots)
+}
+
+// POST /api/v1/supplier-portal/dock-slots
+func (h *SupplierPortalHandler) BookDockSlot(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierDeliverySlot
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	supUUID, _ := uuid.Parse(supplierID)
+	req.SupplierID = supUUID
+
+	slot, err := h.supplierService(c).BookDeliverySlot(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, slot)
+}
+
+// GET /api/v1/supplier-portal/documents
+func (h *SupplierPortalHandler) ListDocuments(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	docs, err := h.supplierService(c).ListSupplierDocuments(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch compliance documents"})
+		return
+	}
+	c.JSON(http.StatusOK, docs)
+}
+
+// POST /api/v1/supplier-portal/documents
+func (h *SupplierPortalHandler) UploadDocument(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierDocument
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	doc, err := h.supplierService(c).UploadSupplierDocument(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, doc)
+}
+
+// GET /api/v1/supplier-portal/announcements
+func (h *SupplierPortalHandler) ListAnnouncements(c *gin.Context) {
+	anns, err := h.supplierService(c).ListSupplierAnnouncements()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch announcements"})
+		return
+	}
+	c.JSON(http.StatusOK, anns)
+}
+
 // resolveSupplierID extracts the supplier_id from the JWT claims.
 func (h *SupplierPortalHandler) resolveSupplierID(c *gin.Context) string {
 	claims, ok := c.Get(middleware.ContextKeyClaims)

@@ -592,7 +592,11 @@ func (s *SupplierService) InviteTeamMember(supplierID string, member models.Supp
 // InitiateEarlyPayout marks an approved invoice as settled with an instant payout reference.
 func (s *SupplierService) InitiateEarlyPayout(supplierID, invoiceID string) (map[string]interface{}, error) {
 	var inv models.SupplierInvoice
-	if err := s.db.Where("id = ? AND supplier_id = ?", invoiceID, supplierID).First(&inv).Error; err != nil {
+	query := s.db.Where("id = ?", invoiceID)
+	if supplierID != "" {
+		query = query.Where("supplier_id = ?", supplierID)
+	}
+	if err := query.First(&inv).Error; err != nil {
 		return nil, errors.New("invoice not found")
 	}
 
@@ -652,4 +656,199 @@ func (s *SupplierService) ProcessQRScan(supplierID, qrPayload string) (map[strin
 		"item_count":   len(po.Items),
 		"message":      "Valid PO Carton Label Scanned",
 	}, nil
+}
+
+// --- RMA & DEFECT CLAIMS ---
+
+// CreateSupplierRMA logs a defect claim (by store manager or dock staff).
+func (s *SupplierService) CreateSupplierRMA(rma models.SupplierRMA) (*models.SupplierRMA, error) {
+	rma.RMANumber = fmt.Sprintf("RMA-%d", time.Now().UnixNano()%1000000)
+	rma.Status = "pending"
+	if err := s.db.Create(&rma).Error; err != nil {
+		return nil, err
+	}
+	return &rma, nil
+}
+
+// ListSupplierRMAs returns defect claims for a specific supplier.
+func (s *SupplierService) ListSupplierRMAs(supplierID string) ([]models.SupplierRMA, error) {
+	var rmas []models.SupplierRMA
+	err := s.db.Where("supplier_id = ?", supplierID).
+		Preload("Product").
+		Preload("PurchaseOrder").
+		Order("created_at desc").
+		Find(&rmas).Error
+	return rmas, err
+}
+
+// ListAllRMAs returns all defect claims across the tenant.
+func (s *SupplierService) ListAllRMAs(branchID *string) ([]models.SupplierRMA, error) {
+	var rmas []models.SupplierRMA
+	query := s.db.Model(&models.SupplierRMA{}).Preload("Supplier").Preload("Product").Preload("PurchaseOrder")
+	if branchID != nil && *branchID != "" {
+		query = query.Where("branch_id = ?", *branchID)
+	}
+	err := query.Order("created_at desc").Find(&rmas).Error
+	return rmas, err
+}
+
+// ResolveSupplierRMA updates the status and creates a credit note or marks replacement dispatched.
+func (s *SupplierService) ResolveSupplierRMA(rmaID string, status, resolutionNotes string, creditAmount float64) (*models.SupplierRMA, error) {
+	var rma models.SupplierRMA
+	if err := s.db.Where("id = ?", rmaID).First(&rma).Error; err != nil {
+		return nil, errors.New("RMA not found")
+	}
+
+	rma.Status = status
+	rma.ResolutionNotes = &resolutionNotes
+	if creditAmount > 0 {
+		creditRef := fmt.Sprintf("CRN-%d", time.Now().UnixNano()%1000000)
+		rma.CreditNoteRef = &creditRef
+		rma.CreditAmount = creditAmount
+
+		// Update supplier credit balance
+		var supplier models.Supplier
+		if err := s.db.Where("id = ?", rma.SupplierID).First(&supplier).Error; err == nil {
+			supplier.CreditBalance += creditAmount
+			_ = s.db.Save(&supplier).Error
+		}
+	}
+
+	if err := s.db.Save(&rma).Error; err != nil {
+		return nil, err
+	}
+	return &rma, nil
+}
+
+// --- DOCK DELIVERY SLOTS ---
+
+// BookDeliverySlot schedules a delivery appointment at a specific branch.
+func (s *SupplierService) BookDeliverySlot(slot models.SupplierDeliverySlot) (*models.SupplierDeliverySlot, error) {
+	slot.Status = "scheduled"
+	if err := s.db.Create(&slot).Error; err != nil {
+		return nil, err
+	}
+	return &slot, nil
+}
+
+// ListDeliverySlots returns dock appointments for a specific vendor.
+func (s *SupplierService) ListDeliverySlots(supplierID string) ([]models.SupplierDeliverySlot, error) {
+	var slots []models.SupplierDeliverySlot
+	err := s.db.Where("supplier_id = ?", supplierID).
+		Preload("ASN").
+		Order("slot_date desc").
+		Find(&slots).Error
+	return slots, err
+}
+
+// ListBranchDeliverySlots returns dock appointments for a branch.
+func (s *SupplierService) ListBranchDeliverySlots(branchID string, date string) ([]models.SupplierDeliverySlot, error) {
+	var slots []models.SupplierDeliverySlot
+	query := s.db.Model(&models.SupplierDeliverySlot{}).Preload("Supplier").Preload("ASN")
+	if branchID != "" {
+		query = query.Where("branch_id = ?", branchID)
+	}
+	if date != "" {
+		query = query.Where("DATE(slot_date) = ?", date)
+	}
+	err := query.Order("slot_date asc").Find(&slots).Error
+	return slots, err
+}
+
+// UpdateDeliverySlotStatus updates dock appointment status.
+func (s *SupplierService) UpdateDeliverySlotStatus(slotID string, status string) (*models.SupplierDeliverySlot, error) {
+	var slot models.SupplierDeliverySlot
+	if err := s.db.Where("id = ?", slotID).First(&slot).Error; err != nil {
+		return nil, errors.New("delivery slot not found")
+	}
+	slot.Status = status
+	if err := s.db.Save(&slot).Error; err != nil {
+		return nil, err
+	}
+	return &slot, nil
+}
+
+// --- COMPLIANCE DOCUMENT VAULT ---
+
+// UploadSupplierDocument registers a verified vendor certificate.
+func (s *SupplierService) UploadSupplierDocument(supplierID string, doc models.SupplierDocument) (*models.SupplierDocument, error) {
+	supUUID, err := uuid.Parse(supplierID)
+	if err != nil {
+		return nil, errors.New("invalid supplier ID")
+	}
+	doc.SupplierID = supUUID
+	doc.Status = "verified"
+	if err := s.db.Create(&doc).Error; err != nil {
+		return nil, err
+	}
+	return &doc, nil
+}
+
+// ListSupplierDocuments returns compliance files.
+func (s *SupplierService) ListSupplierDocuments(supplierID string) ([]models.SupplierDocument, error) {
+	var docs []models.SupplierDocument
+	err := s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Find(&docs).Error
+	return docs, err
+}
+
+// VerifySupplierDocument allows admin to approve or reject compliance files.
+func (s *SupplierService) VerifySupplierDocument(docID string, status string, notes *string) (*models.SupplierDocument, error) {
+	var doc models.SupplierDocument
+	if err := s.db.Where("id = ?", docID).First(&doc).Error; err != nil {
+		return nil, errors.New("document not found")
+	}
+	doc.Status = status
+	doc.Notes = notes
+	if err := s.db.Save(&doc).Error; err != nil {
+		return nil, err
+	}
+	return &doc, nil
+}
+
+// --- ADMIN PRICE PROPOSAL DECISIONS ---
+
+// ApprovePriceRequest accepts the vendor proposal and updates product cost price.
+func (s *SupplierService) ApprovePriceRequest(reqID string, notes string) error {
+	var req models.SupplierPriceChangeRequest
+	if err := s.db.Where("id = ?", reqID).First(&req).Error; err != nil {
+		return errors.New("price request not found")
+	}
+	req.Status = "approved"
+	req.ReviewNotes = &notes
+	if err := s.db.Save(&req).Error; err != nil {
+		return err
+	}
+
+	// Update the supplier product unit cost
+	return s.db.Model(&models.SupplierProduct{}).
+		Where("supplier_id = ? AND product_id = ?", req.SupplierID, req.ProductID).
+		Update("unit_cost", req.ProposedCost).Error
+}
+
+// RejectPriceRequest rejects the vendor proposal.
+func (s *SupplierService) RejectPriceRequest(reqID string, notes string) error {
+	var req models.SupplierPriceChangeRequest
+	if err := s.db.Where("id = ?", reqID).First(&req).Error; err != nil {
+		return errors.New("price request not found")
+	}
+	req.Status = "rejected"
+	req.ReviewNotes = &notes
+	return s.db.Save(&req).Error
+}
+
+// --- ANNOUNCEMENT BOARD ---
+
+// CreateSupplierAnnouncement publishes a merchant announcement.
+func (s *SupplierService) CreateSupplierAnnouncement(ann models.SupplierAnnouncement) (*models.SupplierAnnouncement, error) {
+	if err := s.db.Create(&ann).Error; err != nil {
+		return nil, err
+	}
+	return &ann, nil
+}
+
+// ListSupplierAnnouncements returns active notices.
+func (s *SupplierService) ListSupplierAnnouncements() ([]models.SupplierAnnouncement, error) {
+	var anns []models.SupplierAnnouncement
+	err := s.db.Where("is_active = ?", true).Order("created_at desc").Find(&anns).Error
+	return anns, err
 }

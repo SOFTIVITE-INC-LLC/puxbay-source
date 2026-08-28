@@ -192,3 +192,68 @@ type SupplierTeamMember struct {
 	// Relations
 	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
 }
+
+// SupplierRMA represents a Return Merchandise Authorization / defect claim logged by store managers.
+type SupplierRMA struct {
+	Base
+	BranchScoped
+	SupplierID      uuid.UUID  `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	PurchaseOrderID *uuid.UUID `gorm:"type:uuid;index" json:"purchase_order_id,omitempty"`
+	RMANumber       string     `gorm:"size:100;not null;index" json:"rma_number"`
+	ProductID       uuid.UUID  `gorm:"type:uuid;not null;index" json:"product_id"`
+	Quantity        float64    `gorm:"not null" json:"quantity"`
+	Reason          string     `gorm:"size:255;not null" json:"reason"` // damaged_in_transit, expired, incorrect_item, defective
+	PhotoURL        *string    `gorm:"type:text" json:"photo_url,omitempty"`
+	Status          string     `gorm:"size:50;default:'pending'" json:"status"` // pending, approved, replacement_dispatched, refunded, rejected
+	CreditNoteRef   *string    `gorm:"size:100" json:"credit_note_ref,omitempty"`
+	CreditAmount    float64    `gorm:"default:0" json:"credit_amount"`
+	ResolutionNotes *string    `gorm:"type:text" json:"resolution_notes,omitempty"`
+
+	// Relations
+	Supplier      Supplier       `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
+	PurchaseOrder *PurchaseOrder `gorm:"foreignKey:PurchaseOrderID" json:"purchase_order,omitempty"`
+	Product       Product        `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+}
+
+// SupplierDeliverySlot represents a scheduled warehouse dock delivery appointment.
+type SupplierDeliverySlot struct {
+	Base
+	BranchScoped
+	SupplierID   uuid.UUID `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	ASNID        *uuid.UUID `gorm:"type:uuid;index" json:"asn_id,omitempty"`
+	SlotDate     time.Time `json:"slot_date"`
+	TimeWindow   string    `gorm:"size:50;not null" json:"time_window"` // 08:00-10:00, 10:00-12:00, 14:00-16:00
+	DockNumber   string    `gorm:"size:50;default:'Dock 1'" json:"dock_number"`
+	VehiclePlate *string   `gorm:"size:50" json:"vehicle_plate,omitempty"`
+	DriverPhone  *string   `gorm:"size:50" json:"driver_phone,omitempty"`
+	Status       string    `gorm:"size:30;default:'scheduled'" json:"status"` // scheduled, checked_in, unloading, completed, cancelled
+
+	// Relations
+	Supplier Supplier     `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
+	ASN      *SupplierASN `gorm:"foreignKey:ASNID" json:"asn,omitempty"`
+}
+
+// SupplierDocument represents vendor compliance certificates and legal documents.
+type SupplierDocument struct {
+	Base
+	SupplierID   uuid.UUID  `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	DocumentType string     `gorm:"size:100;not null" json:"document_type"` // business_license, tax_clearance, iso_certificate, insurance, contract
+	DocumentName string     `gorm:"size:200;not null" json:"document_name"`
+	FileURL      string     `gorm:"type:text;not null" json:"file_url"`
+	ExpiryDate   *time.Time `json:"expiry_date,omitempty"`
+	Status       string     `gorm:"size:30;default:'verified'" json:"status"` // pending_review, verified, expired, rejected
+	Notes        *string    `gorm:"type:text" json:"notes,omitempty"`
+
+	// Relations
+	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
+}
+
+// SupplierAnnouncement represents merchant procurement notices broadcast to all vendors.
+type SupplierAnnouncement struct {
+	Base
+	Title     string     `gorm:"size:255;not null" json:"title"`
+	Content   string     `gorm:"type:text;not null" json:"content"`
+	Priority  string     `gorm:"size:30;default:'info'" json:"priority"` // info, warning, urgent
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	IsActive  bool       `gorm:"default:true" json:"is_active"`
+}
