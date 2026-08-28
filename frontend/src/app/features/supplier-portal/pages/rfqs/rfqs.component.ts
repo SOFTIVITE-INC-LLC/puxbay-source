@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SupplierPortalService, SupplierQuote } from '../../services/supplier-portal.service';
 import { AppCurrencyPipe } from '../../../../core/pipes/app-currency.pipe';
 import { ToastService } from '../../../../core/services/toast';
+import { SettingsService } from '../../../../core/services/settings.service';
 
 @Component({
   selector: 'app-supplier-portal-rfqs',
@@ -14,6 +15,7 @@ import { ToastService } from '../../../../core/services/toast';
 export class SupplierPortalRfqsComponent implements OnInit {
   portalService = inject(SupplierPortalService);
   private toast = inject(ToastService);
+  private settingsService = inject(SettingsService);
 
   quotes = signal<SupplierQuote[]>([]);
   loading = signal<boolean>(false);
@@ -28,6 +30,9 @@ export class SupplierPortalRfqsComponent implements OnInit {
   notes = '';
 
   ngOnInit() {
+    this.currency = this.settingsService.settings()?.currency || 
+                    (typeof window !== 'undefined' ? localStorage.getItem('currency_code') : null) || 
+                    'USD';
     this.loadQuotes();
   }
 
@@ -45,7 +50,9 @@ export class SupplierPortalRfqsComponent implements OnInit {
   openCreateModal() {
     this.quoteTitle = '';
     this.totalAmount = 0;
-    this.currency = 'USD';
+    this.currency = this.settingsService.settings()?.currency || 
+                    (typeof window !== 'undefined' ? localStorage.getItem('currency_code') : null) || 
+                    'USD';
     const date = new Date();
     date.setDate(date.getDate() + 30);
     this.validUntil = date.toISOString().split('T')[0];

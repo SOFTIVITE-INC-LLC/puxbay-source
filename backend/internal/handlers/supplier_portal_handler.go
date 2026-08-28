@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -123,12 +124,15 @@ func (h *SupplierPortalHandler) Login(c *gin.Context) {
 	// Set HttpOnly session cookie for seamless session-based auth
 	setSupplierAuthCookies(c, token, h.rootDomain)
 
+	currency := h.resolveTenantCurrency(c)
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 		"supplier": gin.H{
-			"id":   supplier.ID,
-			"name": supplier.Name,
+			"id":       supplier.ID,
+			"name":     supplier.Name,
+			"currency": currency,
 		},
+		"currency": currency,
 	})
 }
 
@@ -151,7 +155,22 @@ func (h *SupplierPortalHandler) Me(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Supplier not found"})
 		return
 	}
-	c.JSON(http.StatusOK, supplier)
+	currency := h.resolveTenantCurrency(c)
+	c.JSON(http.StatusOK, gin.H{
+		"id":              supplier.ID,
+		"name":            supplier.Name,
+		"email":           supplier.Email,
+		"phone":           supplier.Phone,
+		"address":         supplier.Address,
+		"tax_number":      supplier.TaxNumber,
+		"payment_terms":   supplier.PaymentTerms,
+		"credit_balance":  supplier.CreditBalance,
+		"credit_limit":    supplier.CreditLimit,
+		"portal_email":    supplier.PortalEmail,
+		"is_active":       supplier.IsActive,
+		"currency":        currency,
+		"tenant_currency": currency,
+	})
 }
 
 // GET /api/v1/supplier-portal/purchase-orders
@@ -183,7 +202,38 @@ func (h *SupplierPortalHandler) GetDashboard(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch dashboard stats"})
 		return
 	}
+	stats["currency"] = h.resolveTenantCurrency(c)
+	stats["tenant_currency"] = stats["currency"]
 	c.JSON(http.StatusOK, stats)
+}
+
+func (h *SupplierPortalHandler) resolveTenantCurrency(c *gin.Context) string {
+	var tenantID uuid.UUID
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	} else if tid, exists := c.Get("tenant_id"); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	}
+
+	if tenantID != uuid.Nil {
+		var tenant models.Tenant
+		if err := h.db.Table("public.tenants").Where("id = ?", tenantID).First(&tenant).Error; err == nil {
+			var metadata struct {
+				Currency string `json:"currency"`
+			}
+			if len(tenant.Metadata) > 0 {
+				_ = json.Unmarshal(tenant.Metadata, &metadata)
+			}
+			if metadata.Currency != "" {
+				return metadata.Currency
+			}
+		}
+	}
+	return "GHS"
 }
 
 // POST /api/v1/supplier-portal/purchase-orders/:id/acknowledge

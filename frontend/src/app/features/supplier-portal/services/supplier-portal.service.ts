@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 export interface SupplierProfile {
   id: string;
@@ -13,11 +14,14 @@ export interface SupplierProfile {
   tax_number?: string;
   credit_balance?: number;
   portal_email?: string;
+  currency?: string;
+  tenant_currency?: string;
 }
 
 export interface SupplierLoginResponse {
   token: string;
   supplier: SupplierProfile;
+  currency?: string;
 }
 
 export interface PurchaseOrderItem {
@@ -153,6 +157,8 @@ export interface DashboardStats {
   total_invoiced: number;
   open_quotes: number;
   otd_score: number;
+  currency?: string;
+  tenant_currency?: string;
 }
 
 export interface DemandForecast {
@@ -199,6 +205,7 @@ export interface QRScanResult {
 })
 export class SupplierPortalService {
   private api = inject(ApiService);
+  private settingsService = inject(SettingsService);
   private readonly base = '/supplier-portal';
 
   private currentSupplierSub = new BehaviorSubject<SupplierProfile | null>(null);
@@ -206,12 +213,37 @@ export class SupplierPortalService {
 
   loading = signal<boolean>(false);
 
+  private syncCurrency(currency?: string) {
+    if (currency) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('currency_code', currency);
+      }
+      this.settingsService.settings.update(s => ({
+        ...(s || {
+          timezone: 'UTC',
+          date_format: 'YYYY-MM-DD',
+          enable_email_receipts: false,
+          hardware_proxy_url: '',
+          enable_hardware_proxy: false,
+          auto_print_receipts: false,
+          enable_sms_notifications: false,
+          enable_push_notifications: false,
+          admin_notification_email: '',
+          promo_threshold: 0,
+          promo_discount_percent: 0,
+        }),
+        currency: currency
+      }));
+    }
+  }
+
   login(credentials: { email: string; password: string }): Observable<SupplierLoginResponse> {
     return this.api.post<SupplierLoginResponse>(`${this.base}/login`, credentials).pipe(
       tap(res => {
         if (res?.token) {
           localStorage.setItem('supplier_token', res.token);
           this.currentSupplierSub.next(res.supplier);
+          this.syncCurrency(res.currency || res.supplier?.currency || res.supplier?.tenant_currency);
         }
       })
     );
@@ -225,12 +257,19 @@ export class SupplierPortalService {
 
   getMe(): Observable<SupplierProfile> {
     return this.api.get<SupplierProfile>(`${this.base}/me`).pipe(
-      tap(res => this.currentSupplierSub.next(res))
+      tap(res => {
+        this.currentSupplierSub.next(res);
+        this.syncCurrency(res?.currency || res?.tenant_currency);
+      })
     );
   }
 
   getDashboard(): Observable<DashboardStats> {
-    return this.api.get<DashboardStats>(`${this.base}/dashboard`);
+    return this.api.get<DashboardStats>(`${this.base}/dashboard`).pipe(
+      tap(res => {
+        this.syncCurrency(res?.currency || res?.tenant_currency);
+      })
+    );
   }
 
   getPurchaseOrders(): Observable<PurchaseOrder[]> {
