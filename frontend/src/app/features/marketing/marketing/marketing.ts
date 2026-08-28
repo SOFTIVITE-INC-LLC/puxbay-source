@@ -71,13 +71,15 @@ export class Marketing implements OnInit {
 
     // Automatic verification when returning from Paystack redirect
     this.route.queryParams.subscribe(params => {
-      const tab = params['tab'];
+      const rawTab = params['tab'];
+      const tab = Array.isArray(rawTab) ? rawTab[0] : rawTab;
       if (tab) {
         this.setTab(tab);
       }
 
-      const ref = params['reference'] || params['trxref'];
-      if (ref && ref.startsWith('SMS-TOPUP-')) {
+      const rawRef = params['reference'] || params['trxref'];
+      const ref = Array.isArray(rawRef) ? String(rawRef[0]) : (rawRef ? String(rawRef) : '');
+      if (ref && typeof ref === 'string' && ref.startsWith('SMS-TOPUP-')) {
         this.setTab('sms');
         this.smsService.verifyTopup(ref).subscribe({
           next: (res: any) => {

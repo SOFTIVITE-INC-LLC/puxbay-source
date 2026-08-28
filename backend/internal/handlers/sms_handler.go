@@ -168,7 +168,7 @@ func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 			if len(origin) > 0 && origin[len(origin)-1] == '/' {
 				origin = origin[:len(origin)-1]
 			}
-			callbackURL := fmt.Sprintf("%s/marketing?tab=sms&reference=%s", origin, ref)
+			callbackURL := fmt.Sprintf("%s/marketing?tab=sms", origin)
 
 			psInitPayload := map[string]interface{}{
 				"email":        req.Email,
