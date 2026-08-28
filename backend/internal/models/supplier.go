@@ -178,3 +178,17 @@ type SupplierMessage struct {
 	// Relations
 	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
 }
+
+// SupplierTeamMember represents a staff user within the supplier's organization with role-based access.
+type SupplierTeamMember struct {
+	Base
+	SupplierID uuid.UUID `gorm:"type:uuid;not null;index" json:"supplier_id"`
+	FullName   string    `gorm:"size:150;not null" json:"full_name"`
+	Email      string    `gorm:"size:254;not null;index" json:"email"`
+	Role       string    `gorm:"size:50;default:'warehouse'" json:"role"` // admin, finance, warehouse, sales
+	Phone      *string   `gorm:"size:50" json:"phone,omitempty"`
+	IsActive   bool      `gorm:"default:true" json:"is_active"`
+
+	// Relations
+	Supplier Supplier `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
+}

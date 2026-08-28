@@ -448,6 +448,99 @@ func (h *SupplierPortalHandler) SendMessage(c *gin.Context) {
 	c.JSON(http.StatusCreated, msg)
 }
 
+// GET /api/v1/supplier-portal/forecasts
+func (h *SupplierPortalHandler) GetForecasts(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	forecasts, err := h.supplierService(c).GetDemandForecasts(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch forecasts"})
+		return
+	}
+	c.JSON(http.StatusOK, forecasts)
+}
+
+// GET /api/v1/supplier-portal/team
+func (h *SupplierPortalHandler) GetTeam(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+
+	members, err := h.supplierService(c).GetTeamMembers(supplierID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch team members"})
+		return
+	}
+	c.JSON(http.StatusOK, members)
+}
+
+// POST /api/v1/supplier-portal/team/invite
+func (h *SupplierPortalHandler) InviteTeamMember(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req models.SupplierTeamMember
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	member, err := h.supplierService(c).InviteTeamMember(supplierID, req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, member)
+}
+
+// POST /api/v1/supplier-portal/invoices/:id/payout
+func (h *SupplierPortalHandler) InitiateEarlyPayout(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	invoiceID := c.Param("id")
+
+	res, err := h.supplierService(c).InitiateEarlyPayout(supplierID, invoiceID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+// POST /api/v1/supplier-portal/receive-scan
+func (h *SupplierPortalHandler) ReceiveScan(c *gin.Context) {
+	supplierID := h.resolveSupplierID(c)
+	if supplierID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Supplier context required"})
+		return
+	}
+	var req struct {
+		QRPayload string `json:"qr_payload" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.supplierService(c).ProcessQRScan(supplierID, req.QRPayload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
 // resolveSupplierID extracts the supplier_id from the JWT claims.
 func (h *SupplierPortalHandler) resolveSupplierID(c *gin.Context) string {
 	claims, ok := c.Get(middleware.ContextKeyClaims)

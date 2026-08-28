@@ -1,7 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, tap, BehaviorSubject } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { ApiService } from '../../../core/services/api.service';
 
 export interface SupplierProfile {
   id: string;
@@ -156,22 +155,61 @@ export interface DashboardStats {
   otd_score: number;
 }
 
+export interface DemandForecast {
+  product_id: string;
+  product_name: string;
+  sku: string;
+  current_stock: number;
+  daily_velocity: number;
+  forecast_30d_qty: number;
+  suggested_restock: number;
+  estimated_po_value: number;
+  urgency: 'low' | 'medium' | 'high';
+}
+
+export interface SupplierTeamMember {
+  id?: string;
+  created_at?: string;
+  full_name: string;
+  email: string;
+  role: 'admin' | 'finance' | 'warehouse' | 'sales';
+  phone?: string;
+  is_active?: boolean;
+}
+
+export interface PayoutResult {
+  success: boolean;
+  invoice_number: string;
+  payout_ref: string;
+  amount_settled: number;
+  status: string;
+}
+
+export interface QRScanResult {
+  valid: boolean;
+  po_number?: string;
+  status?: string;
+  total_amount?: number;
+  item_count?: number;
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SupplierPortalService {
-  private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl + '/supplier-portal';
+  private api = inject(ApiService);
+  private readonly base = '/supplier-portal';
 
   private currentSupplierSub = new BehaviorSubject<SupplierProfile | null>(null);
   currentSupplier$ = this.currentSupplierSub.asObservable();
-  
+
   loading = signal<boolean>(false);
 
   login(credentials: { email: string; password: string }): Observable<SupplierLoginResponse> {
-    return this.http.post<SupplierLoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.api.post<SupplierLoginResponse>(`${this.base}/login`, credentials).pipe(
       tap(res => {
-        if (res && res.token) {
+        if (res?.token) {
           localStorage.setItem('supplier_token', res.token);
           this.currentSupplierSub.next(res.supplier);
         }
@@ -180,85 +218,106 @@ export class SupplierPortalService {
   }
 
   logout() {
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => {},
-      error: () => {}
-    });
+    this.api.post(`${this.base}/logout`, {}).subscribe({ next: () => {}, error: () => {} });
     localStorage.removeItem('supplier_token');
     this.currentSupplierSub.next(null);
   }
 
   getMe(): Observable<SupplierProfile> {
-    return this.http.get<SupplierProfile>(`${this.apiUrl}/me`).pipe(
+    return this.api.get<SupplierProfile>(`${this.base}/me`).pipe(
       tap(res => this.currentSupplierSub.next(res))
     );
   }
 
   getDashboard(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(`${this.apiUrl}/dashboard`);
+    return this.api.get<DashboardStats>(`${this.base}/dashboard`);
   }
 
   getPurchaseOrders(): Observable<PurchaseOrder[]> {
     this.loading.set(true);
-    return this.http.get<PurchaseOrder[]>(`${this.apiUrl}/purchase-orders`).pipe(
+    return this.api.get<PurchaseOrder[]>(`${this.base}/purchase-orders`, undefined, true).pipe(
       tap(() => this.loading.set(false))
     );
   }
 
   acknowledgePO(poId: string, payload: { status: string; expected_date?: string; notes?: string }): Observable<PurchaseOrder> {
-    return this.http.post<PurchaseOrder>(`${this.apiUrl}/purchase-orders/${poId}/acknowledge`, payload);
+    return this.api.post<PurchaseOrder>(`${this.base}/purchase-orders/${poId}/acknowledge`, payload);
   }
 
   flipPOToInvoice(poId: string, payload: { invoice_number?: string; due_date?: string }): Observable<SupplierInvoice> {
-    return this.http.post<SupplierInvoice>(`${this.apiUrl}/purchase-orders/${poId}/invoice`, payload);
+    return this.api.post<SupplierInvoice>(`${this.base}/purchase-orders/${poId}/invoice`, payload);
   }
 
   getShipments(): Observable<SupplierASN[]> {
-    return this.http.get<SupplierASN[]>(`${this.apiUrl}/shipments`);
+    return this.api.get<SupplierASN[]>(`${this.base}/shipments`);
   }
 
   createShipment(asn: Partial<SupplierASN>): Observable<SupplierASN> {
-    return this.http.post<SupplierASN>(`${this.apiUrl}/shipments`, asn);
+    return this.api.post<SupplierASN>(`${this.base}/shipments`, asn);
   }
 
   getInvoices(): Observable<SupplierInvoice[]> {
-    return this.http.get<SupplierInvoice[]>(`${this.apiUrl}/invoices`);
+    return this.api.get<SupplierInvoice[]>(`${this.base}/invoices`);
   }
 
   getCatalog(): Observable<SupplierProduct[]> {
-    return this.http.get<SupplierProduct[]>(`${this.apiUrl}/catalog`);
+    return this.api.get<SupplierProduct[]>(`${this.base}/catalog`);
   }
 
   getPriceRequests(): Observable<SupplierPriceChangeRequest[]> {
-    return this.http.get<SupplierPriceChangeRequest[]>(`${this.apiUrl}/price-requests`);
+    return this.api.get<SupplierPriceChangeRequest[]>(`${this.base}/price-requests`);
   }
 
   createPriceRequest(req: Partial<SupplierPriceChangeRequest>): Observable<SupplierPriceChangeRequest> {
-    return this.http.post<SupplierPriceChangeRequest>(`${this.apiUrl}/price-requests`, req);
+    return this.api.post<SupplierPriceChangeRequest>(`${this.base}/price-requests`, req);
   }
 
   getQuotes(): Observable<SupplierQuote[]> {
-    return this.http.get<SupplierQuote[]>(`${this.apiUrl}/quotes`);
+    return this.api.get<SupplierQuote[]>(`${this.base}/quotes`);
   }
 
   createQuote(quote: Partial<SupplierQuote>): Observable<SupplierQuote> {
-    return this.http.post<SupplierQuote>(`${this.apiUrl}/quotes`, quote);
+    return this.api.post<SupplierQuote>(`${this.base}/quotes`, quote);
   }
 
   getPayoutAccount(): Observable<SupplierPayoutAccount> {
-    return this.http.get<SupplierPayoutAccount>(`${this.apiUrl}/payout-account`);
+    return this.api.get<SupplierPayoutAccount>(`${this.base}/payout-account`);
   }
 
   savePayoutAccount(account: Partial<SupplierPayoutAccount>): Observable<SupplierPayoutAccount> {
-    return this.http.post<SupplierPayoutAccount>(`${this.apiUrl}/payout-account`, account);
+    return this.api.post<SupplierPayoutAccount>(`${this.base}/payout-account`, account);
   }
 
   getMessages(refId?: string): Observable<SupplierMessage[]> {
-    const params = refId ? `?reference_id=${encodeURIComponent(refId)}` : '';
-    return this.http.get<SupplierMessage[]>(`${this.apiUrl}/messages${params}`);
+    const params = refId ? { reference_id: refId } : undefined;
+    return this.api.get<SupplierMessage[]>(`${this.base}/messages`, params ? { params } : undefined);
   }
 
   sendMessage(msg: Partial<SupplierMessage>): Observable<SupplierMessage> {
-    return this.http.post<SupplierMessage>(`${this.apiUrl}/messages`, msg);
+    return this.api.post<SupplierMessage>(`${this.base}/messages`, msg);
+  }
+
+  // Phase 2: Demand Forecasts
+  getForecasts(): Observable<DemandForecast[]> {
+    return this.api.get<DemandForecast[]>(`${this.base}/forecasts`);
+  }
+
+  // Phase 2: Team RBAC
+  getTeam(): Observable<SupplierTeamMember[]> {
+    return this.api.get<SupplierTeamMember[]>(`${this.base}/team`, undefined, true);
+  }
+
+  inviteTeamMember(member: Partial<SupplierTeamMember>): Observable<SupplierTeamMember> {
+    return this.api.post<SupplierTeamMember>(`${this.base}/team/invite`, member);
+  }
+
+  // Phase 2: Early Payout
+  initiateEarlyPayout(invoiceId: string): Observable<PayoutResult> {
+    return this.api.post<PayoutResult>(`${this.base}/invoices/${invoiceId}/payout`, {});
+  }
+
+  // Phase 2: QR Receiving Scanner
+  submitQRScan(qrPayload: string): Observable<QRScanResult> {
+    return this.api.post<QRScanResult>(`${this.base}/receive-scan`, { qr_payload: qrPayload });
   }
 }

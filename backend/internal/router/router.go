@@ -191,6 +191,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 				portalProtected.POST("/payout-account", supplierPortalHandler.SavePayoutAccount)
 				portalProtected.GET("/messages", supplierPortalHandler.ListMessages)
 				portalProtected.POST("/messages", supplierPortalHandler.SendMessage)
+				portalProtected.GET("/forecasts", supplierPortalHandler.GetForecasts)
+				portalProtected.GET("/team", supplierPortalHandler.GetTeam)
+				portalProtected.POST("/team/invite", supplierPortalHandler.InviteTeamMember)
+				portalProtected.POST("/invoices/:id/payout", supplierPortalHandler.InitiateEarlyPayout)
+				portalProtected.POST("/receive-scan", supplierPortalHandler.ReceiveScan)
 			}
 		}
 

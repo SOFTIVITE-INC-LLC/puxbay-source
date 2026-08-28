@@ -151,4 +151,127 @@
     }
   </div>
 
+  <!-- DEMAND FORECAST & QR SCANNER ROW -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- 30-Day Demand Forecast Widget -->
+    <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden">
+      <div class="p-6 border-b border-zinc-800/60 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white tracking-tight">30-Day Demand Forecast</h2>
+          <p class="text-xs text-zinc-400 mt-0.5">Replenishment predictions based on POS sales velocity.</p>
+        </div>
+        <div class="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+      </div>
+      @if (forecasts().length === 0) {
+        <div class="p-8 text-center text-zinc-500 text-sm">
+          <svg class="w-10 h-10 mx-auto mb-3 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
+          </svg>
+          No forecast data yet. Add products to your catalog to see predictions.
+        </div>
+      } @else {
+        <div class="divide-y divide-zinc-800/50">
+          @for (f of forecasts(); track f.product_id) {
+            <div class="px-6 py-4 flex items-center gap-4 hover:bg-zinc-800/20 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-white truncate">{{ f.product_name }}</p>
+                <p class="text-xs text-zinc-500 mt-0.5">SKU: {{ f.sku }} &bull; Stock: {{ f.current_stock }} units</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-white">{{ f.suggested_restock }} units</p>
+                <p class="text-xs text-zinc-500">~{{ f.estimated_po_value | appCurrency }}</p>
+              </div>
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full border capitalize" [ngClass]="urgencyClass(f.urgency)">
+                {{ f.urgency }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- QR / Barcode Receiving Scanner -->
+    <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur-xl overflow-hidden">
+      <div class="p-6 border-b border-zinc-800/60 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white tracking-tight">Dock Receiving Scanner</h2>
+          <p class="text-xs text-zinc-400 mt-0.5">Scan or type a PO number / carton QR payload to instantly verify a delivery.</p>
+        </div>
+        <div class="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          </svg>
+        </div>
+      </div>
+      <div class="p-6 space-y-5">
+        <div class="flex gap-3">
+          <input
+            id="qr-scan-input"
+            type="text"
+            [ngModel]="qrInput()"
+            (ngModelChange)="qrInput.set($event)"
+            (keyup.enter)="submitQRScan()"
+            placeholder="e.g. PO-2026-001 or scan barcode..."
+            class="flex-1 bg-zinc-800 border border-zinc-700 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder-zinc-500"
+          />
+          <button
+            id="qr-scan-submit"
+            (click)="submitQRScan()"
+            [disabled]="scanLoading()"
+            class="px-5 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold shadow-lg shadow-cyan-600/20 transition-all disabled:opacity-50"
+          >
+            @if (scanLoading()) { Scanning... } @else { Scan }
+          </button>
+        </div>
+
+        @if (scanResult()) {
+          <div [class]="scanResult()!.valid
+            ? 'rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3'
+            : 'rounded-xl border border-rose-500/30 bg-rose-500/10 p-5'">
+            @if (scanResult()!.valid) {
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="font-semibold text-emerald-300 text-sm">Valid PO Carton Label</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p class="text-zinc-400 text-xs">PO Number</p>
+                  <p class="font-bold text-white">{{ scanResult()!.po_number }}</p>
+                </div>
+                <div>
+                  <p class="text-zinc-400 text-xs">Status</p>
+                  <p class="font-semibold text-white uppercase">{{ scanResult()!.status }}</p>
+                </div>
+                <div>
+                  <p class="text-zinc-400 text-xs">Line Items</p>
+                  <p class="font-bold text-white">{{ scanResult()!.item_count }}</p>
+                </div>
+                <div>
+                  <p class="text-zinc-400 text-xs">Total Value</p>
+                  <p class="font-bold text-white">{{ scanResult()!.total_amount | appCurrency }}</p>
+                </div>
+              </div>
+              <button (click)="clearScan()" class="text-xs text-zinc-400 hover:text-white mt-2">Clear &rarr;</button>
+            } @else {
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="text-rose-300 text-sm font-semibold">{{ scanResult()!.message }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
 </div>

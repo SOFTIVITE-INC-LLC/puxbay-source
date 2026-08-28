@@ -106,6 +106,7 @@ func MigrateTenantModels(db *gorm.DB) error {
 		&SupplierQuote{},
 		&SupplierPayoutAccount{},
 		&SupplierMessage{},
+		&SupplierTeamMember{},
 	)
 }
 

@@ -1,13 +1,14 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SupplierPortalService, DashboardStats, PurchaseOrder } from '../../services/supplier-portal.service';
+import { FormsModule } from '@angular/forms';
+import { SupplierPortalService, DashboardStats, PurchaseOrder, DemandForecast, QRScanResult } from '../../services/supplier-portal.service';
 import { AppCurrencyPipe } from '../../../../core/pipes/app-currency.pipe';
 
 @Component({
   selector: 'app-supplier-portal-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppCurrencyPipe],
+  imports: [CommonModule, RouterModule, AppCurrencyPipe, FormsModule],
   templateUrl: './dashboard.component.html'
 })
 export class SupplierPortalDashboardComponent implements OnInit {
@@ -22,7 +23,14 @@ export class SupplierPortalDashboardComponent implements OnInit {
   });
 
   recentOrders = signal<PurchaseOrder[]>([]);
+  forecasts = signal<DemandForecast[]>([]);
   loading = signal<boolean>(true);
+
+  // QR Scanner
+  showScanner = signal<boolean>(false);
+  qrInput = signal<string>('');
+  scanResult = signal<QRScanResult | null>(null);
+  scanLoading = signal<boolean>(false);
 
   ngOnInit() {
     this.loadData();
@@ -43,6 +51,34 @@ export class SupplierPortalDashboardComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     });
+
+    this.portalService.getForecasts().subscribe({
+      next: (data) => this.forecasts.set(data || []),
+      error: () => {}
+    });
+  }
+
+  submitQRScan() {
+    if (!this.qrInput()) return;
+    this.scanLoading.set(true);
+    this.portalService.submitQRScan(this.qrInput()).subscribe({
+      next: (res) => {
+        this.scanResult.set(res);
+        this.scanLoading.set(false);
+      },
+      error: () => this.scanLoading.set(false)
+    });
+  }
+
+  clearScan() {
+    this.qrInput.set('');
+    this.scanResult.set(null);
+  }
+
+  urgencyClass(urgency: string): string {
+    if (urgency === 'high') return 'text-rose-400 bg-rose-500/10 border-rose-500/30';
+    if (urgency === 'medium') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+    return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
   }
 
   statusClass(status: string = ''): string {
