@@ -78,6 +78,7 @@ type StocktakeSession struct {
 // StockMovement tracks the audit trail of inventory changes.
 type StockMovement struct {
 	TenantScoped
+	TenantID      *uuid.UUID `gorm:"type:uuid;index" json:"tenant_id,omitempty"`
 	BranchID      *uuid.UUID `gorm:"type:uuid;index" json:"branch_id,omitempty"`
 	Branch        *Branch    `gorm:"foreignKey:BranchID" json:"branch,omitempty"`
 	ProductID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"product_id"`

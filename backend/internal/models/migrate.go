@@ -4,6 +4,12 @@ import "gorm.io/gorm"
 
 // MigrateTenantModels runs AutoMigrate for all models that belong in the tenant schema.
 func MigrateTenantModels(db *gorm.DB) error {
+	// Drop legacy foreign keys and NOT NULL constraints so schema-per-tenant isolation works cleanly
+	_ = db.Exec(`ALTER TABLE stock_movements DROP CONSTRAINT IF EXISTS fk_stock_movements_tenant;`).Error
+	_ = db.Exec(`ALTER TABLE stock_movements ALTER COLUMN tenant_id DROP NOT NULL;`).Error
+	_ = db.Exec(`ALTER TABLE loyalty_transactions DROP CONSTRAINT IF EXISTS fk_loyalty_transactions_tenant;`).Error
+	_ = db.Exec(`ALTER TABLE loyalty_transactions ALTER COLUMN tenant_id DROP NOT NULL;`).Error
+
 	return db.AutoMigrate(
 		&Branch{},
 		&Device{},

@@ -49,6 +49,7 @@ type Customer struct {
 // LoyaltyTransaction tracks point changes.
 type LoyaltyTransaction struct {
 	TenantScoped
+	TenantID        *uuid.UUID `gorm:"type:uuid;index" json:"tenant_id,omitempty"`
 	CustomerID      uuid.UUID  `gorm:"type:uuid;not null;index" json:"customer_id"`
 	OrderID         *uuid.UUID `gorm:"type:uuid" json:"order_id,omitempty"`
 	Points          float64    `gorm:"type:decimal(10,2);not null" json:"points"` // Can be negative
