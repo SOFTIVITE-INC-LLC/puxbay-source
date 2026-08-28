@@ -522,7 +522,7 @@ body.sidebar-is-collapsed #sidebar-collapse-btn {
 
 @layer utilities {
   .glass-panel {
-    @apply bg-white/80 dark:bg-zinc-900/40 backdrop-blur-2xl border border-slate-200 dark:border-white/10 shadow-2xl;
+    @apply bg-white/80 dark:bg-zinc-900/40 backdrop-blur-2xl border border-slate-200 dark:border-white/10 shadow-sm;
   }
   .glass-card {
     @apply bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 hover:border-indigo-200 dark:hover:border-white/20 transition-all duration-300;
@@ -537,6 +537,22 @@ body.sidebar-is-collapsed #sidebar-collapse-btn {
     @apply bg-gradient-to-br from-slate-50 via-slate-100 to-indigo-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-indigo-950/30;
   }
 }
+
+/* ── Supplier Portal: Suppress heavy colored button/badge drop-shadows ── */
+app-supplier-portal-layout button[class*="shadow-"],
+app-supplier-portal-dashboard button[class*="shadow-"],
+app-supplier-portal-orders button[class*="shadow-"],
+app-supplier-portal-invoices button[class*="shadow-"],
+app-supplier-portal-shipments button[class*="shadow-"],
+app-supplier-portal-scorecard button[class*="shadow-"],
+app-supplier-portal-scorecard span[class*="shadow-"],
+app-supplier-portal-catalog button[class*="shadow-"],
+app-supplier-portal-rfqs button[class*="shadow-"],
+app-supplier-portal-returns button[class*="shadow-"],
+app-supplier-portal-scorecard .tier-badge {
+  box-shadow: none !important;
+}
+
 /* Custom Premium Toastr Overrides */
 #toast-container > div {
     @apply shadow-lg shadow-black/50 backdrop-blur-md bg-opacity-95 rounded-xl border border-slate-700/50 p-4 transition-all duration-300;
