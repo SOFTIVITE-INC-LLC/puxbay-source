@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -220,7 +221,8 @@ func (h *OrderHandler) Create(c *gin.Context) {
 
 	order, err := h.service(c).CreateOrder(input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order"})
+		log.Printf("❌ [OrderHandler] CreateOrder failed: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create order: " + err.Error()})
 		return
 	}
 
