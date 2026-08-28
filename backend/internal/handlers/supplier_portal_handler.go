@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,14 +14,62 @@ import (
 	"gorm.io/gorm"
 )
 
+// setSupplierAuthCookies writes the supplier JWT as an HttpOnly, domain-wide session cookie.
+func setSupplierAuthCookies(c *gin.Context, token string, rootDomain string) {
+	isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
+
+	cookieDomain := ""
+	if isProduction && rootDomain != "" {
+		domain := rootDomain
+		if idx := strings.LastIndex(domain, ":"); idx != -1 {
+			domain = domain[:idx]
+		}
+		cookieDomain = "." + domain
+	}
+
+	maxAge := 86400 // 24 hours
+
+	if isProduction {
+		c.SetSameSite(http.SameSiteNoneMode)
+	} else {
+		c.SetSameSite(http.SameSiteLaxMode)
+	}
+
+	c.SetCookie("pux_session", token, maxAge, "/", cookieDomain, isProduction, true)
+	c.SetCookie("pux_supplier_session", token, maxAge, "/", cookieDomain, isProduction, true)
+}
+
+// clearSupplierAuthCookies removes the session cookies from the browser.
+func clearSupplierAuthCookies(c *gin.Context, rootDomain string) {
+	isProduction := os.Getenv("APP_ENV") == "production" || os.Getenv("APP_ENV") == "staging"
+	cookieDomain := ""
+	if isProduction && rootDomain != "" {
+		domain := rootDomain
+		if idx := strings.LastIndex(domain, ":"); idx != -1 {
+			domain = domain[:idx]
+		}
+		cookieDomain = "." + domain
+	}
+
+	if isProduction {
+		c.SetSameSite(http.SameSiteNoneMode)
+	} else {
+		c.SetSameSite(http.SameSiteLaxMode)
+	}
+
+	c.SetCookie("pux_session", "", -1, "/", cookieDomain, isProduction, true)
+	c.SetCookie("pux_supplier_session", "", -1, "/", cookieDomain, isProduction, true)
+}
+
 // SupplierPortalHandler handles supplier-facing portal endpoints.
 type SupplierPortalHandler struct {
 	db          *gorm.DB
 	authService *services.AuthService
+	rootDomain  string
 }
 
-func NewSupplierPortalHandler(db *gorm.DB, authService *services.AuthService) *SupplierPortalHandler {
-	return &SupplierPortalHandler{db: db, authService: authService}
+func NewSupplierPortalHandler(db *gorm.DB, authService *services.AuthService, rootDomain string) *SupplierPortalHandler {
+	return &SupplierPortalHandler{db: db, authService: authService, rootDomain: rootDomain}
 }
 
 func (h *SupplierPortalHandler) supplierService(c *gin.Context) *services.SupplierService {
@@ -61,6 +111,9 @@ func (h *SupplierPortalHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// Set HttpOnly session cookie for seamless session-based auth
+	setSupplierAuthCookies(c, token, h.rootDomain)
+
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 		"supplier": gin.H{
@@ -68,6 +121,12 @@ func (h *SupplierPortalHandler) Login(c *gin.Context) {
 			"name": supplier.Name,
 		},
 	})
+}
+
+// POST /api/v1/supplier-portal/logout
+func (h *SupplierPortalHandler) Logout(c *gin.Context) {
+	clearSupplierAuthCookies(c, h.rootDomain)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
 // GET /api/v1/supplier-portal/me
@@ -403,23 +462,42 @@ func (h *SupplierPortalHandler) resolveSupplierID(c *gin.Context) string {
 }
 
 // SupplierAuthMiddleware validates that the JWT has role=supplier and supplier_id set.
+// Supports HttpOnly session cookies (pux_supplier_session / pux_session) and Authorization: Bearer fallback.
 func SupplierAuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if len(authHeader) < 8 {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		var tokenStr string
+
+		// 1. Prefer HttpOnly session cookie
+		if cookie, err := c.Cookie("pux_supplier_session"); err == nil && cookie != "" {
+			tokenStr = cookie
+		} else if cookie, err := c.Cookie("pux_session"); err == nil && cookie != "" {
+			tokenStr = cookie
+		}
+
+		// 2. Fallback to Authorization: Bearer header
+		if tokenStr == "" {
+			authHeader := c.GetHeader("Authorization")
+			if len(authHeader) >= 8 && strings.EqualFold(authHeader[:7], "bearer ") {
+				tokenStr = authHeader[7:]
+			}
+		}
+
+		if tokenStr == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authentication session required"})
 			return
 		}
-		tokenStr := authHeader[7:] // strip "Bearer "
 
 		claims, err := authService.ValidateToken(tokenStr)
 		if err != nil || claims.Role != "supplier" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired supplier token"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired supplier session"})
 			return
 		}
 
 		c.Set(middleware.ContextKeyClaims, claims)
 		c.Set(middleware.ContextKeyTenantID, claims.TenantID)
+		if claims.SupplierID != nil {
+			c.Set("supplier_id", claims.SupplierID.String())
+		}
 		c.Next()
 	}
 }

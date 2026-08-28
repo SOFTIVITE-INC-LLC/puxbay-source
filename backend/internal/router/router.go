@@ -87,7 +87,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	staffHandler := handlers.NewStaffHandler(db, authService, smsService, emailService, cfg.App.RootDomain)
 	b2bHandler := handlers.NewB2BHandler(db)
 	supplierHandler := handlers.NewSupplierHandler(db)
-	supplierPortalHandler := handlers.NewSupplierPortalHandler(db, authService)
+	supplierPortalHandler := handlers.NewSupplierPortalHandler(db, authService, cfg.App.RootDomain)
 	hrHandler := handlers.NewHRHandler(db)
 	serviceHandler := handlers.NewServiceHandler(db)
 	marketingHandler := handlers.NewMarketingHandler(db)
@@ -169,6 +169,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 		supplierPortal.Use(middleware.TenantMiddleware())
 		{
 			supplierPortal.POST("/login", supplierPortalHandler.Login)
+			supplierPortal.POST("/logout", supplierPortalHandler.Logout)
 
 			portalProtected := supplierPortal.Group("")
 			portalProtected.Use(handlers.SupplierAuthMiddleware(authService))

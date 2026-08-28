@@ -180,6 +180,10 @@ export class SupplierPortalService {
   }
 
   logout() {
+    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+      next: () => {},
+      error: () => {}
+    });
     localStorage.removeItem('supplier_token');
     this.currentSupplierSub.next(null);
   }
