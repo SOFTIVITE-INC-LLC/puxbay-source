@@ -21,6 +21,7 @@ type Supplier struct {
 	Notes        *string `gorm:"type:text" json:"notes,omitempty"`
 
 	CreditBalance float64 `gorm:"type:decimal(12,2);default:0" json:"credit_balance"`
+	CreditLimit   float64 `gorm:"type:decimal(12,2);default:0" json:"credit_limit"` // 0 = unlimited
 	IsActive      bool    `gorm:"default:true" json:"is_active"`
 
 	// Portal access — set when supplier is invited to the portal

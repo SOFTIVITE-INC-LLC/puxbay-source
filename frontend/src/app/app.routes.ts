@@ -207,6 +207,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/suppliers/suppliers/suppliers').then(m => m.Suppliers)
       },
       {
+        path: 'suppliers/:id',
+        loadComponent: () => import('./features/suppliers/supplier-details/supplier-details').then(m => m.SupplierDetailsComponent)
+      },
+      {
         path: 'billing',
         canActivate: [permissionGuard],
         data: { roles: ['admin', 'superadmin'] },

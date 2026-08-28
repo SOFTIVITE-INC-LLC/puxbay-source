@@ -429,6 +429,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/suppliers", supplierHandler.List)
 			api.POST("/suppliers", supplierHandler.Create)
 			api.GET("/suppliers/:id", supplierHandler.Get)
+			api.GET("/suppliers/:id/details", supplierHandler.GetDetails)
 			api.PUT("/suppliers/:id", supplierHandler.Update)
 			api.DELETE("/suppliers/:id", supplierHandler.Delete)
 

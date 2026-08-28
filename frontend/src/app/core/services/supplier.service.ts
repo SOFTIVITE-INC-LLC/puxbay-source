@@ -140,5 +140,9 @@ export class SupplierService {
     if (date) params.date = date;
     return this.api.get<any[]>('/suppliers/dock-slots', { params });
   }
+
+  getSupplierDetails(id: string): Observable<any> {
+    return this.api.get<any>(`/suppliers/${id}/details`);
+  }
 }
 

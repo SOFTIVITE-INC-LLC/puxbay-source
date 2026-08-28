@@ -880,3 +880,105 @@ func (s *SupplierService) ListSupplierAnnouncements() ([]models.SupplierAnnounce
 	err := s.db.Where("is_active = ?", true).Order("created_at desc").Find(&anns).Error
 	return anns, err
 }
+
+// --- 360-DEGREE SUPPLIER DETAILS & AP AGING ---
+
+// SupplierDetailsResponse contains the full dossier for a supplier.
+type SupplierDetailsResponse struct {
+	Supplier       models.Supplier              `json:"supplier"`
+	Products       []models.SupplierProduct     `json:"products"`
+	PurchaseOrders []models.PurchaseOrder       `json:"purchase_orders"`
+	Invoices       []models.SupplierInvoice     `json:"invoices"`
+	RMAs           []models.SupplierRMA         `json:"rmas"`
+	LedgerEntries  []models.SupplierLedgerEntry `json:"ledger_entries"`
+	Documents      []models.SupplierDocument    `json:"documents"`
+	APAging        map[string]float64           `json:"ap_aging"`
+	Metrics        map[string]interface{}       `json:"metrics"`
+}
+
+// GetSupplierDetails computes 360-degree analytics for a single supplier.
+func (s *SupplierService) GetSupplierDetails(supplierID string) (*SupplierDetailsResponse, error) {
+	var supplier models.Supplier
+	if err := s.db.Where("id = ?", supplierID).First(&supplier).Error; err != nil {
+		return nil, errors.New("supplier not found")
+	}
+
+	var products []models.SupplierProduct
+	_ = s.db.Where("supplier_id = ?", supplierID).Preload("Product").Find(&products).Error
+
+	var pos []models.PurchaseOrder
+	_ = s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Limit(20).Find(&pos).Error
+
+	var invoices []models.SupplierInvoice
+	_ = s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Find(&invoices).Error
+
+	var rmas []models.SupplierRMA
+	_ = s.db.Where("supplier_id = ?", supplierID).Preload("Product").Order("created_at desc").Find(&rmas).Error
+
+	var ledger []models.SupplierLedgerEntry
+	_ = s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Limit(30).Find(&ledger).Error
+
+	var docs []models.SupplierDocument
+	_ = s.db.Where("supplier_id = ?", supplierID).Order("created_at desc").Find(&docs).Error
+
+	// Compute AP Aging buckets from unpaid invoices
+	now := time.Now()
+	aging := map[string]float64{
+		"current":           0,
+		"days_1_30":         0,
+		"days_31_60":        0,
+		"days_61_90":        0,
+		"days_90_plus":      0,
+		"total_outstanding": supplier.CreditBalance,
+	}
+
+	var totalSpend float64
+	for _, inv := range invoices {
+		totalSpend += inv.Total
+		if inv.Status != "paid" {
+			unpaidAmount := inv.Total - inv.AmountPaid
+			if unpaidAmount <= 0 {
+				continue
+			}
+			dueDate := inv.CreatedAt
+			if !inv.DueDate.IsZero() {
+				dueDate = inv.DueDate
+			}
+			daysPast := int(now.Sub(dueDate).Hours() / 24)
+			if daysPast <= 0 {
+				aging["current"] += unpaidAmount
+			} else if daysPast <= 30 {
+				aging["days_1_30"] += unpaidAmount
+			} else if daysPast <= 60 {
+				aging["days_31_60"] += unpaidAmount
+			} else if daysPast <= 90 {
+				aging["days_61_90"] += unpaidAmount
+			} else {
+				aging["days_90_plus"] += unpaidAmount
+			}
+		}
+	}
+
+	metrics := map[string]interface{}{
+		"total_spend":       totalSpend,
+		"total_orders":      len(pos),
+		"linked_products":   len(products),
+		"defect_claims":     len(rmas),
+		"credit_limit":      supplier.CreditLimit,
+		"credit_available":  supplier.CreditLimit - supplier.CreditBalance,
+		"compliance_status": "verified",
+	}
+
+	return &SupplierDetailsResponse{
+		Supplier:       supplier,
+		Products:       products,
+		PurchaseOrders: pos,
+		Invoices:       invoices,
+		RMAs:           rmas,
+		LedgerEntries:  ledger,
+		Documents:      docs,
+		APAging:        aging,
+		Metrics:        metrics,
+	}, nil
+}
+

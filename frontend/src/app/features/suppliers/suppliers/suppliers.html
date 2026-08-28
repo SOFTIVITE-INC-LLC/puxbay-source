@@ -400,7 +400,9 @@
                 {{ supplierInitials(supplier.name) }}
               </div>
               <div class="min-w-0">
-                <p class="font-black text-lg text-zinc-900 dark:text-white truncate">{{ supplier.name }}</p>
+                <a [routerLink]="['/suppliers', supplier.id]" class="font-black text-lg text-zinc-900 dark:text-white truncate hover:text-teal-600 dark:hover:text-teal-400 transition-colors block">
+                  {{ supplier.name }}
+                </a>
                 <div class="flex items-center gap-2">
                   @if (supplier.is_active !== false) {
                     <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
@@ -486,7 +488,9 @@
                       {{ supplierInitials(supplier.name) }}
                     </div>
                     <div>
-                      <p class="font-bold text-zinc-900 dark:text-white">{{ supplier.name }}</p>
+                      <a [routerLink]="['/suppliers', supplier.id]" class="font-bold text-zinc-900 dark:text-white hover:text-teal-600 dark:hover:text-teal-400 transition-colors block">
+                        {{ supplier.name }}
+                      </a>
                       @if (supplier.contact_person) {
                         <p class="text-xs text-zinc-500">{{ supplier.contact_person }}</p>
                       }

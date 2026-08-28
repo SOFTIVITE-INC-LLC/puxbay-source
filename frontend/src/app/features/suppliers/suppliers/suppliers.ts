@@ -2,6 +2,7 @@ import { ToastService } from '../../../core/services/toast';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupplierService } from '../../../core/services/supplier.service';
 import { CatalogService } from '../../../core/services/catalog.service';
@@ -12,7 +13,7 @@ import { SearchableSelectComponent } from '../../../shared/components/searchable
 @Component({
   selector: 'app-suppliers',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppCurrencyPipe, DatePipe, SearchableSelectComponent],
+  imports: [CommonModule, RouterModule, FormsModule, AppCurrencyPipe, DatePipe, SearchableSelectComponent],
   templateUrl: './suppliers.html',
 })
 export class Suppliers implements OnInit {

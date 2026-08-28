@@ -245,6 +245,17 @@ func (h *SupplierHandler) ListAllInvoices(c *gin.Context) {
 	c.JSON(http.StatusOK, invoices)
 }
 
+// GET /api/v1/suppliers/:id/details (Full 360-degree supplier dossier)
+func (h *SupplierHandler) GetDetails(c *gin.Context) {
+	id := c.Param("id")
+	details, err := h.service(c).GetSupplierDetails(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, details)
+}
+
 // POST /api/v1/suppliers/price-requests/:id/approve
 func (h *SupplierHandler) ApprovePriceProposal(c *gin.Context) {
 	reqID := c.Param("id")
