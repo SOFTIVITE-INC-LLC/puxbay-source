@@ -57,6 +57,36 @@ export class Suppliers implements OnInit {
   });
   addingPayment = signal(false);
 
+  // Top-level View
+  mainView = signal<'suppliers' | 'proposals' | 'rmas' | 'dock_schedule'>('suppliers');
+
+  // Price Proposals state
+  priceProposals = signal<any[]>([]);
+  loadingProposals = signal(false);
+
+  // Defect Claims / RMAs state
+  rmas = signal<any[]>([]);
+  loadingRMAs = signal(false);
+  isRMAModalOpen = signal(false);
+  newRMA = signal<{ supplier_id: string; product_id: string; quantity: number; reason: string; photo_url: string; purchase_order_id: string }>({
+    supplier_id: '', product_id: '', quantity: 1, reason: 'damaged_in_transit', photo_url: '', purchase_order_id: ''
+  });
+  savingRMA = signal(false);
+
+  // Dock Schedule state
+  dockSlots = signal<any[]>([]);
+  loadingDockSlots = signal(false);
+
+  // Merchant Broadcast Announcement state
+  isAnnouncementModalOpen = signal(false);
+  announcementTitle = '';
+  announcementContent = '';
+  announcementPriority: 'info' | 'warning' | 'urgent' = 'info';
+  broadcastingAnnouncement = signal(false);
+
+  // Disburse Payout state
+  disbursingInvoiceId = signal<string | null>(null);
+
   // Invite modal state
   isInviteModalOpen = signal(false);
   inviteSupplier = signal<Supplier | null>(null);
@@ -66,6 +96,179 @@ export class Suppliers implements OnInit {
 
   ngOnInit() {
     this.supplierService.getSuppliers({ limit: -1 }).subscribe();
+    this.catalogService.getProducts({ limit: -1 }).subscribe(res => this.allProducts.set((res as any).data || []));
+  }
+
+  setMainView(view: 'suppliers' | 'proposals' | 'rmas' | 'dock_schedule') {
+    this.mainView.set(view);
+    if (view === 'proposals') this.loadPriceProposals();
+    if (view === 'rmas') this.loadRMAs();
+    if (view === 'dock_schedule') this.loadDockSlots();
+  }
+
+  // ── Price Proposals Hub ──
+  loadPriceProposals() {
+    this.loadingProposals.set(true);
+    this.supplierService.getAllPriceRequests().subscribe({
+      next: (res) => {
+        this.priceProposals.set(res || []);
+        this.loadingProposals.set(false);
+      },
+      error: () => this.loadingProposals.set(false)
+    });
+  }
+
+  approvePriceProposal(req: any) {
+    this.supplierService.approvePriceProposal(req.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Approved price change for ${req.product?.name}`);
+        this.loadPriceProposals();
+      },
+      error: () => this.toastService.showError('Failed to approve price change')
+    });
+  }
+
+  rejectPriceProposal(req: any) {
+    this.supplierService.rejectPriceProposal(req.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Rejected price change for ${req.product?.name}`);
+        this.loadPriceProposals();
+      },
+      error: () => this.toastService.showError('Failed to reject price change')
+    });
+  }
+
+  // ── Defect Claims & RMAs Hub ──
+  loadRMAs() {
+    this.loadingRMAs.set(true);
+    this.supplierService.getRMAs().subscribe({
+      next: (res) => {
+        this.rmas.set(res || []);
+        this.loadingRMAs.set(false);
+      },
+      error: () => this.loadingRMAs.set(false)
+    });
+  }
+
+  openCreateRMAModal() {
+    this.newRMA.set({
+      supplier_id: this.supplierService.suppliers()[0]?.id || '',
+      product_id: this.allProducts()[0]?.id || '',
+      quantity: 1,
+      reason: 'damaged_in_transit',
+      photo_url: '',
+      purchase_order_id: ''
+    });
+    this.isRMAModalOpen.set(true);
+  }
+
+  closeRMAModal() {
+    this.isRMAModalOpen.set(false);
+  }
+
+  submitRMA() {
+    const data = this.newRMA();
+    if (!data.supplier_id || !data.product_id || data.quantity <= 0) {
+      this.toastService.showError('Please select a supplier, product, and valid quantity');
+      return;
+    }
+    this.savingRMA.set(true);
+    this.supplierService.createRMA({
+      supplier_id: data.supplier_id,
+      product_id: data.product_id,
+      quantity: Number(data.quantity),
+      reason: data.reason,
+      photo_url: data.photo_url || undefined,
+      purchase_order_id: data.purchase_order_id || undefined
+    }).subscribe({
+      next: (rma) => {
+        this.savingRMA.set(false);
+        this.toastService.showSuccess(`Logged RMA #${rma.rma_number} for defect review!`);
+        this.closeRMAModal();
+        this.loadRMAs();
+      },
+      error: () => {
+        this.savingRMA.set(false);
+        this.toastService.showError('Failed to log RMA claim');
+      }
+    });
+  }
+
+  resolveRMACredit(rma: any) {
+    const amount = Number(prompt(`Enter credit note refund amount for RMA #${rma.rma_number}:`, '0')) || 0;
+    this.supplierService.resolveRMA(rma.id, {
+      status: 'refunded',
+      resolution_notes: `Credit note issued by store manager for ${rma.quantity} units`,
+      credit_amount: amount
+    }).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Issued credit note for RMA #${rma.rma_number}!`);
+        this.loadRMAs();
+      },
+      error: () => this.toastService.showError('Failed to resolve RMA')
+    });
+  }
+
+  // ── Dock Schedule Hub ──
+  loadDockSlots() {
+    this.loadingDockSlots.set(true);
+    this.supplierService.getBranchDockSlots().subscribe({
+      next: (res) => {
+        this.dockSlots.set(res || []);
+        this.loadingDockSlots.set(false);
+      },
+      error: () => this.loadingDockSlots.set(false)
+    });
+  }
+
+  // ── Merchant Broadcast Announcement ──
+  openAnnouncementModal() {
+    this.announcementTitle = '';
+    this.announcementContent = '';
+    this.announcementPriority = 'info';
+    this.isAnnouncementModalOpen.set(true);
+  }
+
+  closeAnnouncementModal() {
+    this.isAnnouncementModalOpen.set(false);
+  }
+
+  broadcastAnnouncement() {
+    if (!this.announcementTitle || !this.announcementContent) {
+      this.toastService.showError('Please provide a title and announcement message');
+      return;
+    }
+    this.broadcastingAnnouncement.set(true);
+    this.supplierService.createAnnouncement({
+      title: this.announcementTitle,
+      content: this.announcementContent,
+      priority: this.announcementPriority
+    }).subscribe({
+      next: () => {
+        this.broadcastingAnnouncement.set(false);
+        this.toastService.showSuccess('Announcement broadcasted to all supplier dashboards!');
+        this.closeAnnouncementModal();
+      },
+      error: () => {
+        this.broadcastingAnnouncement.set(false);
+        this.toastService.showError('Failed to broadcast announcement');
+      }
+    });
+  }
+
+  // ── 1-Click Invoice Disbursal ──
+  disburseInvoice(invoiceId: string) {
+    this.disbursingInvoiceId.set(invoiceId);
+    this.supplierService.disburseInvoicePayout(invoiceId).subscribe({
+      next: () => {
+        this.disbursingInvoiceId.set(null);
+        this.toastService.showSuccess('Disbursed invoice payout successfully!');
+      },
+      error: () => {
+        this.disbursingInvoiceId.set(null);
+        this.toastService.showError('Failed to disburse payout');
+      }
+    });
   }
 
   // ── KPIs ──

@@ -400,6 +400,34 @@ func (s *SupplierService) ListSupplierPriceRequests(supplierID string) ([]models
 	return requests, err
 }
 
+// ListAllPriceRequests returns all price proposals across all suppliers for admin review.
+func (s *SupplierService) ListAllPriceRequests(status string) ([]models.SupplierPriceChangeRequest, error) {
+	var requests []models.SupplierPriceChangeRequest
+	query := s.db.Model(&models.SupplierPriceChangeRequest{}).
+		Preload("Supplier").
+		Preload("Product").
+		Order("created_at desc")
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+	err := query.Find(&requests).Error
+	return requests, err
+}
+
+// ListAllInvoices returns all supplier invoices across the merchant for accounts payable management.
+func (s *SupplierService) ListAllInvoices(status string) ([]models.SupplierInvoice, error) {
+	var invoices []models.SupplierInvoice
+	query := s.db.Model(&models.SupplierInvoice{}).
+		Preload("Supplier").
+		Preload("PurchaseOrder").
+		Order("created_at desc")
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+	err := query.Find(&invoices).Error
+	return invoices, err
+}
+
 // CreateSupplierPriceRequest submits a new price change proposal.
 func (s *SupplierService) CreateSupplierPriceRequest(supplierID string, req models.SupplierPriceChangeRequest) (*models.SupplierPriceChangeRequest, error) {
 	supUUID, err := uuid.Parse(supplierID)

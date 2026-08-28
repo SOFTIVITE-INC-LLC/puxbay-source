@@ -445,9 +445,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.POST("/suppliers/:id/ledger", supplierPortalHandler.AddLedgerFull)
 			api.POST("/suppliers/invoices/:id/disburse", supplierHandler.DisburseInvoicePayout)
 
-			// Supplier Price Proposals Decisions
+			// Supplier Price Proposals Decisions & Invoices
+			api.GET("/suppliers/price-requests", supplierHandler.ListPriceProposals)
 			api.POST("/suppliers/price-requests/:id/approve", supplierHandler.ApprovePriceProposal)
 			api.POST("/suppliers/price-requests/:id/reject", supplierHandler.RejectPriceProposal)
+			api.GET("/suppliers/invoices", supplierHandler.ListAllInvoices)
 
 			// Store Manager Defect Claims (RMAs)
 			api.GET("/suppliers/rmas", supplierHandler.ListRMAs)

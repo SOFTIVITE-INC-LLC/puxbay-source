@@ -223,6 +223,28 @@ func (h *SupplierHandler) DisburseInvoicePayout(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// GET /api/v1/suppliers/price-requests (Admin queue)
+func (h *SupplierHandler) ListPriceProposals(c *gin.Context) {
+	status := c.Query("status")
+	requests, err := h.service(c).ListAllPriceRequests(status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, requests)
+}
+
+// GET /api/v1/suppliers/invoices (Admin Accounts Payable queue)
+func (h *SupplierHandler) ListAllInvoices(c *gin.Context) {
+	status := c.Query("status")
+	invoices, err := h.service(c).ListAllInvoices(status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, invoices)
+}
+
 // POST /api/v1/suppliers/price-requests/:id/approve
 func (h *SupplierHandler) ApprovePriceProposal(c *gin.Context) {
 	reqID := c.Param("id")

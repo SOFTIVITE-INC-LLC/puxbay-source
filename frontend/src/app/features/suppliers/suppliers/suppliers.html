@@ -4,95 +4,354 @@
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
       <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-teal-400 dark:to-cyan-400">
-        Suppliers
+        Supplier & Procurement Hub
       </h1>
-      <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor relationships and contact details.</p>
+      <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor directory, approve price proposals, process defect claims (RMA), and view dock appointments.</p>
     </div>
-    <button (click)="openAddModal()" class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto justify-center">
-      <span class="material-symbols-outlined !text-[18px]">add</span>
-      Add Supplier
+    <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+      <button (click)="openAnnouncementModal()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold transition-all border border-zinc-200 dark:border-zinc-700 shadow-sm">
+        <span class="material-symbols-outlined !text-[16px] text-amber-500">campaign</span>
+        Broadcast Notice
+      </button>
+      <button (click)="openCreateRMAModal()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold transition-all border border-rose-200 dark:border-rose-500/30 shadow-sm">
+        <span class="material-symbols-outlined !text-[16px]">assignment_return</span>
+        Log RMA Claim
+      </button>
+      <button (click)="openAddModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined !text-[18px]">add</span>
+        Add Supplier
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Top-Level View Switcher ── -->
+  <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm w-fit flex-wrap">
+    <button (click)="setMainView('suppliers')"
+            [class.bg-teal-500]="mainView() === 'suppliers'"
+            [class.text-white]="mainView() === 'suppliers'"
+            [class.text-zinc-600]="mainView() !== 'suppliers'"
+            [class.dark:text-zinc-400]="mainView() !== 'suppliers'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+      <span class="material-symbols-outlined !text-[16px]">business</span>
+      <span>Suppliers Directory ({{ totalSuppliers }})</span>
+    </button>
+    <button (click)="setMainView('proposals')"
+            [class.bg-indigo-600]="mainView() === 'proposals'"
+            [class.text-white]="mainView() === 'proposals'"
+            [class.text-zinc-600]="mainView() !== 'proposals'"
+            [class.dark:text-zinc-400]="mainView() !== 'proposals'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+      <span class="material-symbols-outlined !text-[16px]">price_change</span>
+      <span>Price Proposals</span>
+      @if (priceProposals().length > 0) {
+        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ priceProposals().length }}</span>
+      }
+    </button>
+    <button (click)="setMainView('rmas')"
+            [class.bg-rose-600]="mainView() === 'rmas'"
+            [class.text-white]="mainView() === 'rmas'"
+            [class.text-zinc-600]="mainView() !== 'rmas'"
+            [class.dark:text-zinc-400]="mainView() !== 'rmas'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+      <span class="material-symbols-outlined !text-[16px]">assignment_return</span>
+      <span>Defect Claims & RMAs</span>
+      @if (rmas().length > 0) {
+        <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]">{{ rmas().length }}</span>
+      }
+    </button>
+    <button (click)="setMainView('dock_schedule')"
+            [class.bg-teal-600]="mainView() === 'dock_schedule'"
+            [class.text-white]="mainView() === 'dock_schedule'"
+            [class.text-zinc-600]="mainView() !== 'dock_schedule'"
+            [class.dark:text-zinc-400]="mainView() !== 'dock_schedule'"
+            class="px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+      <span class="material-symbols-outlined !text-[16px]">local_shipping</span>
+      <span>Dock Receiving Appointments</span>
     </button>
   </div>
 
-  <!-- ── Stat Cards ── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
-      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-teal-500 shrink-0">business</span>
-        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Total</span>
+  @if (mainView() === 'suppliers') {
+    <!-- ── Stat Cards ── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-teal-100 dark:bg-teal-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-teal-500 shrink-0">business</span>
+          <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Total</span>
+        </div>
+        <p class="text-sm sm:text-base md:text-lg font-black z-10 text-zinc-900 dark:text-white truncate">{{ totalSuppliers }}</p>
       </div>
-      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-zinc-900 dark:text-white truncate">{{ totalSuppliers }}</p>
-    </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
-      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-emerald-500 shrink-0">check_circle</span>
-        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Active</span>
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-100 dark:bg-emerald-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-emerald-500 shrink-0">check_circle</span>
+          <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Active</span>
+        </div>
+        <p class="text-sm sm:text-base md:text-lg font-black z-10 text-emerald-600 dark:text-emerald-400 truncate">{{ activeSuppliers }}</p>
       </div>
-      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-emerald-600 dark:text-emerald-400 truncate">{{ activeSuppliers }}</p>
-    </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
-      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-rose-500 shrink-0">account_balance_wallet</span>
-        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Outstanding</span>
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-rose-500 shrink-0">account_balance_wallet</span>
+          <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Outstanding</span>
+        </div>
+        <p class="text-xs sm:text-sm md:text-base lg:text-lg font-black z-10 text-rose-600 dark:text-rose-400 truncate">{{ outstandingBalance | appCurrency }}</p>
       </div>
-      <p class="text-xs sm:text-sm md:text-base lg:text-lg font-black z-10 text-rose-600 dark:text-rose-400 truncate">{{ outstandingBalance | appCurrency }}</p>
-    </div>
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
-      <div class="absolute -right-4 -top-4 w-20 h-20 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
-      <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-violet-500 shrink-0">lock_open</span>
-        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Portal Access</span>
+      <div class="bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 flex flex-col gap-1.5 sm:gap-2 shadow-sm hover:shadow-md transition-all relative overflow-hidden min-w-0">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-violet-100 dark:bg-violet-900/20 rounded-full blur-xl opacity-60 pointer-events-none"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-zinc-500 mb-0.5 sm:mb-1 z-10">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px] text-violet-500 shrink-0">lock_open</span>
+          <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate">Portal Access</span>
+        </div>
+        <p class="text-sm sm:text-base md:text-lg font-black z-10 text-violet-600 dark:text-violet-400 truncate">{{ portalActiveCount }}</p>
       </div>
-      <p class="text-sm sm:text-base md:text-lg font-black z-10 text-violet-600 dark:text-violet-400 truncate">{{ portalActiveCount }}</p>
     </div>
-  </div>
 
-  <!-- ── Toolbar: Search + Filter + Sort + View Toggle ── -->
-  <div class="flex flex-col gap-2.5 sm:gap-3">
-    <!-- Search row -->
-    <div class="relative">
-      <span class="absolute inset-y-0 left-4 flex items-center text-zinc-400">
-        <span class="material-symbols-outlined !text-[20px]">search</span>
-      </span>
-      <input
-        type="text"
-        [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
-        placeholder="Search name, email, phone..."
-        class="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none shadow-sm text-sm font-medium"
-      />
-    </div>
-    <!-- Filter/Sort/Toggle row -->
-    <div class="flex gap-2 items-center">
-      <!-- Status filter -->
-      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
-        class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
-        <option value="all">All Status</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-      <!-- Sort -->
-      <select [ngModel]="sortOrder()" (ngModelChange)="sortOrder.set($event)"
-        class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
-        <option value="name">Name A→Z</option>
-        <option value="name_desc">Name Z→A</option>
-        <option value="balance">Highest Balance</option>
-        <option value="newest">Newest First</option>
-      </select>
-      <!-- View toggle -->
-      <div class="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm shrink-0">
-        <button (click)="viewMode.set('grid')" [class]="viewMode() === 'grid' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">grid_view</span>
-        </button>
-        <button (click)="viewMode.set('list')" [class]="viewMode() === 'list' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors border-l border-zinc-200 dark:border-zinc-800">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">view_list</span>
-        </button>
+    <!-- ── Toolbar: Search + Filter + Sort + View Toggle ── -->
+    <div class="flex flex-col gap-2.5 sm:gap-3">
+      <!-- Search row -->
+      <div class="relative">
+        <span class="absolute inset-y-0 left-4 flex items-center text-zinc-400">
+          <span class="material-symbols-outlined !text-[20px]">search</span>
+        </span>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search name, email, phone..."
+          class="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none shadow-sm text-sm font-medium"
+        />
+      </div>
+      <!-- Filter/Sort/Toggle row -->
+      <div class="flex gap-2 items-center">
+        <!-- Status filter -->
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+          class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <!-- Sort -->
+        <select [ngModel]="sortOrder()" (ngModelChange)="sortOrder.set($event)"
+          class="flex-1 min-w-0 px-3 py-2 sm:py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-teal-500 shadow-sm">
+          <option value="name">Name A→Z</option>
+          <option value="name_desc">Name Z→A</option>
+          <option value="balance">Highest Balance</option>
+          <option value="newest">Newest First</option>
+        </select>
+        <!-- View toggle -->
+        <div class="flex rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm shrink-0">
+          <button (click)="viewMode.set('grid')" [class]="viewMode() === 'grid' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors">
+            <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">grid_view</span>
+          </button>
+          <button (click)="viewMode.set('list')" [class]="viewMode() === 'list' ? 'bg-teal-500 text-white' : 'bg-white dark:bg-zinc-900 text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800'" class="px-3 py-2 transition-colors border-l border-zinc-200 dark:border-zinc-800">
+            <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">view_list</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  }
+
+  <!-- ── VIEW 2: PRICE PROPOSALS INBOX ── -->
+  @if (mainView() === 'proposals') {
+    <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+      <div class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-zinc-900 dark:text-white">Vendor Price Revision Proposals</h2>
+          <p class="text-xs text-zinc-500 mt-0.5">Review supplier-requested cost revisions with margin simulation before accepting.</p>
+        </div>
+        <button (click)="loadPriceProposals()" class="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+          <span class="material-symbols-outlined !text-[18px]">refresh</span>
+        </button>
+      </div>
+
+      @if (loadingProposals()) {
+        <div class="p-16 text-center text-zinc-400 text-sm animate-pulse">Loading price proposals...</div>
+      } @else if (priceProposals().length === 0) {
+        <div class="p-16 text-center text-zinc-400 text-sm">No price proposals submitted by suppliers.</div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-[10px] uppercase font-bold text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <tr>
+                <th class="px-5 py-3.5">Supplier</th>
+                <th class="px-5 py-3.5">Product</th>
+                <th class="px-5 py-3.5">Current Cost</th>
+                <th class="px-5 py-3.5">Proposed Cost</th>
+                <th class="px-5 py-3.5">Effective Date</th>
+                <th class="px-5 py-3.5">Justification</th>
+                <th class="px-5 py-3.5 text-right">Status / Decision</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+              @for (req of priceProposals(); track req.id) {
+                <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/20">
+                  <td class="px-5 py-3.5 font-bold text-zinc-900 dark:text-white">{{ req.supplier?.name || 'Supplier' }}</td>
+                  <td class="px-5 py-3.5 font-bold">{{ req.product?.name || 'Product' }}</td>
+                  <td class="px-5 py-3.5 text-zinc-500 font-mono">{{ req.current_cost | appCurrency }}</td>
+                  <td class="px-5 py-3.5 font-black text-indigo-600 dark:text-indigo-400 font-mono text-sm">{{ req.proposed_cost | appCurrency }}</td>
+                  <td class="px-5 py-3.5 text-zinc-500">{{ req.effective_date | date:'mediumDate' }}</td>
+                  <td class="px-5 py-3.5 text-zinc-600 dark:text-zinc-300 max-w-xs truncate">{{ req.reason }}</td>
+                  <td class="px-5 py-3.5 text-right">
+                    @if (req.status === 'pending') {
+                      <div class="flex items-center justify-end gap-1.5">
+                        <button (click)="approvePriceProposal(req)" class="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 font-bold hover:bg-emerald-500/20 border border-emerald-500/30">
+                          Approve
+                        </button>
+                        <button (click)="rejectPriceProposal(req)" class="px-3 py-1 rounded-lg bg-rose-500/10 text-rose-600 font-bold hover:bg-rose-500/20 border border-rose-500/30">
+                          Reject
+                        </button>
+                      </div>
+                    } @else {
+                      <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full border uppercase"
+                            [class.border-emerald-500/30]="req.status === 'approved'"
+                            [class.bg-emerald-500/10]="req.status === 'approved'"
+                            [class.text-emerald-600]="req.status === 'approved'"
+                            [class.border-rose-500/30]="req.status === 'rejected'"
+                            [class.bg-rose-500/10]="req.status === 'rejected'"
+                            [class.text-rose-600]="req.status === 'rejected'">
+                        {{ req.status }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── VIEW 3: DEFECT CLAIMS & RMAS ── -->
+  @if (mainView() === 'rmas') {
+    <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+      <div class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-zinc-900 dark:text-white">Store Defect Claims & Returns (RMA)</h2>
+          <p class="text-xs text-zinc-500 mt-0.5">Claims logged by dock receiving managers for damaged, expired, or defective inventory.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="openCreateRMAModal()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition-all flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[16px]">add</span>
+            Log New Claim
+          </button>
+          <button (click)="loadRMAs()" class="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+            <span class="material-symbols-outlined !text-[18px]">refresh</span>
+          </button>
+        </div>
+      </div>
+
+      @if (loadingRMAs()) {
+        <div class="p-16 text-center text-zinc-400 text-sm animate-pulse">Loading defect claims...</div>
+      } @else if (rmas().length === 0) {
+        <div class="p-16 text-center text-zinc-400 text-sm">No defect claims logged. All incoming shipments verified intact.</div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-[10px] uppercase font-bold text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <tr>
+                <th class="px-5 py-3.5">RMA Number</th>
+                <th class="px-5 py-3.5">Supplier</th>
+                <th class="px-5 py-3.5">Defective Item</th>
+                <th class="px-5 py-3.5">Quantity</th>
+                <th class="px-5 py-3.5">Reason</th>
+                <th class="px-5 py-3.5">Credit Reference</th>
+                <th class="px-5 py-3.5 text-right">Status / Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+              @for (rma of rmas(); track rma.id) {
+                <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/20">
+                  <td class="px-5 py-3.5 font-bold font-mono text-zinc-900 dark:text-white">{{ rma.rma_number }}</td>
+                  <td class="px-5 py-3.5 font-bold">{{ rma.supplier?.name || 'Vendor' }}</td>
+                  <td class="px-5 py-3.5">
+                    <div class="font-bold">{{ rma.product?.name }}</div>
+                    <div class="text-[10px] text-zinc-400">{{ rma.product?.sku }}</div>
+                  </td>
+                  <td class="px-5 py-3.5 font-bold text-rose-600 dark:text-rose-400">{{ rma.quantity }} units</td>
+                  <td class="px-5 py-3.5 capitalize">{{ rma.reason?.replace('_', ' ') }}</td>
+                  <td class="px-5 py-3.5 font-mono">
+                    @if (rma.credit_note_ref) {
+                      <span class="text-emerald-600 font-bold">{{ rma.credit_note_ref }} ({{ rma.credit_amount | appCurrency }})</span>
+                    } @else {
+                      <span class="text-zinc-400">N/A</span>
+                    }
+                  </td>
+                  <td class="px-5 py-3.5 text-right">
+                    @if (rma.status === 'pending' || rma.status === 'approved') {
+                      <button (click)="resolveRMACredit(rma)" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border border-emerald-500/30">
+                        Issue Credit Note
+                      </button>
+                    } @else {
+                      <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 uppercase">
+                        {{ rma.status?.replace('_', ' ') }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── VIEW 4: DOCK RECEIVING SCHEDULE ── -->
+  @if (mainView() === 'dock_schedule') {
+    <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+      <div class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-black text-zinc-900 dark:text-white">Warehouse Dock Receiving Appointments</h2>
+          <p class="text-xs text-zinc-500 mt-0.5">Scheduled vendor delivery trucks arriving at store warehouse docks.</p>
+        </div>
+        <button (click)="loadDockSlots()" class="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+          <span class="material-symbols-outlined !text-[18px]">refresh</span>
+        </button>
+      </div>
+
+      @if (loadingDockSlots()) {
+        <div class="p-16 text-center text-zinc-400 text-sm animate-pulse">Loading dock schedule...</div>
+      } @else if (dockSlots().length === 0) {
+        <div class="p-16 text-center text-zinc-400 text-sm">No dock appointments scheduled.</div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-zinc-700 dark:text-zinc-300">
+            <thead class="bg-zinc-50 dark:bg-zinc-800/50 text-[10px] uppercase font-bold text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
+              <tr>
+                <th class="px-5 py-3.5">Appointment Date</th>
+                <th class="px-5 py-3.5">Time Window</th>
+                <th class="px-5 py-3.5">Supplier</th>
+                <th class="px-5 py-3.5">Dock Designation</th>
+                <th class="px-5 py-3.5">Vehicle License Plate</th>
+                <th class="px-5 py-3.5">Driver Contact</th>
+                <th class="px-5 py-3.5 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/50">
+              @for (slot of dockSlots(); track slot.id) {
+                <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/20">
+                  <td class="px-5 py-3.5 font-bold text-zinc-900 dark:text-white">{{ slot.slot_date | date:'fullDate' }}</td>
+                  <td class="px-5 py-3.5 font-black text-teal-600 dark:text-teal-400">{{ slot.time_window }}</td>
+                  <td class="px-5 py-3.5 font-bold">{{ slot.supplier?.name || 'Vendor' }}</td>
+                  <td class="px-5 py-3.5">{{ slot.dock_number }}</td>
+                  <td class="px-5 py-3.5 font-mono text-zinc-900 dark:text-white">{{ slot.vehicle_plate || 'Unassigned' }}</td>
+                  <td class="px-5 py-3.5 text-zinc-500">{{ slot.driver_phone || 'N/A' }}</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <span class="px-2.5 py-1 text-[10px] font-extrabold rounded-full bg-teal-500/10 text-teal-600 border border-teal-500/30 uppercase">
+                      {{ slot.status }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
 
   <!-- ── Loading ── -->
   @if (supplierService.loading()) {
@@ -555,3 +814,115 @@
     </div>
   </div>
 }
+
+<!-- ── Log RMA Claim Modal ── -->
+@if (isRMAModalOpen()) {
+  <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-0 sm:p-4" (click)="closeRMAModal()">
+    <div class="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[20px] text-rose-600">assignment_return</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-zinc-900 dark:text-white">Log Defect Claim (RMA)</h3>
+            <p class="text-xs text-zinc-500">Record damaged or expired items received from supplier</p>
+          </div>
+        </div>
+        <button (click)="closeRMAModal()" class="text-zinc-400 hover:text-zinc-600">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-4 sm:p-6 space-y-3.5 text-xs">
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Target Supplier *</label>
+          <select [(ngModel)]="newRMA().supplier_id" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold">
+            @for (s of supplierService.suppliers(); track s.id) {
+              <option [value]="s.id">{{ s.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Defective Product *</label>
+          <select [(ngModel)]="newRMA().product_id" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold">
+            @for (p of allProducts(); track p.id) {
+              <option [value]="p.id">{{ p.name }} (SKU: {{ p.sku }})</option>
+            }
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Defect Quantity *</label>
+            <input type="number" [(ngModel)]="newRMA().quantity" min="1" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold" />
+          </div>
+          <div>
+            <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Claim Reason</label>
+            <select [(ngModel)]="newRMA().reason" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold">
+              <option value="damaged_in_transit">Damaged in Transit</option>
+              <option value="expired">Expired Stock</option>
+              <option value="defective">Defective / Faulty</option>
+              <option value="incorrect_item">Incorrect Item Shipped</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Photo Evidence Link (Cloud URL)</label>
+          <input type="text" [(ngModel)]="newRMA().photo_url" placeholder="https://storage.com/photos/damaged_box.jpg" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-mono" />
+        </div>
+      </div>
+      <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+        <button (click)="closeRMAModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 rounded-xl">Cancel</button>
+        <button (click)="submitRMA()" [disabled]="savingRMA()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+          {{ savingRMA() ? 'Submitting...' : 'Submit RMA Claim' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Broadcast Merchant Announcement Modal ── -->
+@if (isAnnouncementModalOpen()) {
+  <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-sm p-0 sm:p-4" (click)="closeAnnouncementModal()">
+    <div class="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[20px] text-amber-600">campaign</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-zinc-900 dark:text-white">Broadcast Merchant Notice</h3>
+            <p class="text-xs text-zinc-500">Post announcements to all connected vendor portal dashboards</p>
+          </div>
+        </div>
+        <button (click)="closeAnnouncementModal()" class="text-zinc-400 hover:text-zinc-600">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+      <div class="p-4 sm:p-6 space-y-3.5 text-xs">
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Notice Priority</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" (click)="announcementPriority = 'info'" [class.bg-indigo-600]="announcementPriority === 'info'" [class.text-white]="announcementPriority === 'info'" class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-center">Info</button>
+            <button type="button" (click)="announcementPriority = 'warning'" [class.bg-amber-600]="announcementPriority === 'warning'" [class.text-white]="announcementPriority === 'warning'" class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-center">Warning</button>
+            <button type="button" (click)="announcementPriority = 'urgent'" [class.bg-rose-600]="announcementPriority === 'urgent'" [class.text-white]="announcementPriority === 'urgent'" class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 font-bold text-center">Urgent</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Announcement Title *</label>
+          <input type="text" [(ngModel)]="announcementTitle" placeholder="e.g. Warehouse Holiday Schedule or Receiving Policy Update" class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white font-bold" />
+        </div>
+        <div>
+          <label class="block text-zinc-600 dark:text-zinc-400 font-bold mb-1">Message Content *</label>
+          <textarea [(ngModel)]="announcementContent" rows="4" placeholder="Detail receiving cutoff hours, pallet packing standards, or invoice cutoffs..." class="w-full p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white"></textarea>
+        </div>
+      </div>
+      <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+        <button (click)="closeAnnouncementModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 rounded-xl">Cancel</button>
+        <button (click)="broadcastAnnouncement()" [disabled]="broadcastingAnnouncement()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+          {{ broadcastingAnnouncement() ? 'Broadcasting...' : 'Publish Notice' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

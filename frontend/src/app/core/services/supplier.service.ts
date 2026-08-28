@@ -91,6 +91,16 @@ export class SupplierService {
     return this.api.post<any>(`/suppliers/invoices/${invoiceId}/disburse`, {});
   }
 
+  getAllPriceRequests(status?: string): Observable<any[]> {
+    const params = status ? { status } : undefined;
+    return this.api.get<any[]>('/suppliers/price-requests', params ? { params } : undefined);
+  }
+
+  getAllSupplierInvoices(status?: string): Observable<any[]> {
+    const params = status ? { status } : undefined;
+    return this.api.get<any[]>('/suppliers/invoices', params ? { params } : undefined);
+  }
+
   approvePriceProposal(requestId: string, notes?: string): Observable<any> {
     return this.api.post<any>(`/suppliers/price-requests/${requestId}/approve`, { notes: notes || '' });
   }
