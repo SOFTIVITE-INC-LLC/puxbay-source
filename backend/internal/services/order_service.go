@@ -266,16 +266,13 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 				}
 
 				// Queue stock movement for history
+				branchID := uuid.Nil
+				if order.BranchID != nil {
+					branchID = *order.BranchID
+				}
 				movements = append(movements, models.StockMovement{
-					TenantID: func() uuid.UUID { var t models.Tenant; tx.First(&t); return t.ID }(),
-					BranchID: func() uuid.UUID {
-						if order.BranchID != nil {
-							return *order.BranchID
-						}
-						var t models.Tenant
-						tx.First(&t)
-						return t.ID
-					}(),
+					TenantID:      branchID,
+					BranchID:      branchID,
 					ProductID:     product.ID,
 					VariantID:     item.VariantID,
 					Quantity:      -item.Quantity,
@@ -553,16 +550,13 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 				}
 
 				// Queue stock movement for history
+				branchID := uuid.Nil
+				if order.BranchID != nil {
+					branchID = *order.BranchID
+				}
 				movements = append(movements, models.StockMovement{
-					TenantID: func() uuid.UUID { var t models.Tenant; tx.First(&t); return t.ID }(),
-					BranchID: func() uuid.UUID {
-						if order.BranchID != nil {
-							return *order.BranchID
-						}
-						var t models.Tenant
-						tx.First(&t)
-						return t.ID
-					}(),
+					TenantID:      branchID,
+					BranchID:      branchID,
 					ProductID:     product.ID,
 					VariantID:     itemReq.VariantID,
 					Quantity:      -itemReq.Quantity,
