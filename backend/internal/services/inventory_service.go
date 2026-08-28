@@ -107,7 +107,12 @@ func (s *InventoryService) ListPOs(tenantID uuid.UUID, limit, offset int, branch
 	}
 	query.Count(&total)
 
-	if err := query.Order("created_at desc").Offset(offset).Limit(limit).Find(&pos).Error; err != nil {
+	if err := query.Order("created_at desc").
+		Offset(offset).Limit(limit).
+		Preload("Supplier").
+		Preload("Items").
+		Preload("Items.Product").
+		Find(&pos).Error; err != nil {
 		return nil, 0, err
 	}
 	return pos, total, nil

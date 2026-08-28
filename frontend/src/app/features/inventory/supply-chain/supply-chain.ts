@@ -230,17 +230,43 @@ export class SupplyChain implements OnInit {
   }
 
   quickReceivePO(po: any) {
-    if (!po.items) {
-      this.toastr.showError('No items to receive');
-      return;
-    }
-    const input = {
-      items: po.items.map((i: any) => ({ item_id: i.id, quantity_received: i.quantity_ordered - i.quantity_received }))
+    if (!po?.id) return;
+
+    const executeReceive = (items: any[]) => {
+      const pendingItems = (items || []).filter((i: any) => (i.quantity_ordered - (i.quantity_received || 0)) > 0);
+      if (pendingItems.length === 0) {
+        this.toastr.showInfo('All items on this purchase order have already been received.');
+        return;
+      }
+
+      const input = {
+        items: pendingItems.map((i: any) => ({
+          item_id: i.id,
+          quantity_received: i.quantity_ordered - (i.quantity_received || 0)
+        }))
+      };
+
+      this.inventoryService.receivePO(po.id, input).subscribe({
+        next: () => {
+          po.status = 'received';
+          this.toastr.showSuccess(`Purchase Order #${po.po_number} received into inventory!`);
+          this.loadCurrentTab();
+        },
+        error: (err) => this.toastr.showError(err?.error?.error || 'Failed to receive PO')
+      });
     };
-    this.inventoryService.receivePO(po.id, input).subscribe({
-      next: () => { po.status = 'received'; this.toastr.showSuccess('PO Received'); },
-      error: () => this.toastr.showError('Failed to receive PO')
-    });
+
+    if (po.items && po.items.length > 0) {
+      executeReceive(po.items);
+    } else {
+      this.inventoryService.getPO(po.id).subscribe({
+        next: (fullPO: any) => {
+          po.items = fullPO.items;
+          executeReceive(fullPO.items || []);
+        },
+        error: () => this.toastr.showError('Failed to load line items for this purchase order')
+      });
+    }
   }
 
   finalizeStocktake(s: any) {
