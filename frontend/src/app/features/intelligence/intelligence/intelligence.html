@@ -2,7 +2,7 @@
 
   <!-- ── Hero Header ── -->
   <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-zinc-950 text-white shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-teal-900/40 to-zinc-950 animated-gradient"></div>
+    <div class="absolute inset-0 bg-emerald-900/60 animated-gradient"></div>
     <!-- Decorative blobs -->
     <div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-16 left-10 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -108,9 +108,9 @@
             <!-- Status glow accent -->
             <div class="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
                  [ngClass]="{
-                   'bg-gradient-to-r from-rose-500 to-red-500': f.status === 'critical',
-                   'bg-gradient-to-r from-amber-500 to-yellow-400': f.status === 'warning',
-                   'bg-gradient-to-r from-emerald-500 to-teal-400': f.status === 'healthy'
+                   'bg-rose-500': f.status === 'critical',
+                   'bg-amber-500': f.status === 'warning',
+                   'bg-emerald-500': f.status === 'healthy'
                  }"></div>
 
             <div class="flex justify-between items-start mb-4 mt-1">
@@ -140,9 +140,9 @@
                 <div class="h-full rounded-full velocity-bar"
                      [style.width.%]="Math.min(100, (f.product.current_stock / (f.product.reorder_level * 3 || 1)) * 100)"
                      [ngClass]="{
-                       'bg-gradient-to-r from-rose-500 to-red-400': f.status === 'critical',
-                       'bg-gradient-to-r from-amber-500 to-yellow-400': f.status === 'warning',
-                       'bg-gradient-to-r from-emerald-500 to-teal-400': f.status === 'healthy'
+                       'bg-rose-500': f.status === 'critical',
+                       'bg-amber-500': f.status === 'warning',
+                       'bg-emerald-500': f.status === 'healthy'
                      }"></div>
               </div>
             </div>
@@ -215,9 +215,9 @@
               <!-- Rank Badge -->
               <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl font-black shrink-0 shadow-inner"
                    [ngClass]="{
-                     'bg-gradient-to-br from-amber-400 to-yellow-500 text-white': i === 0,
-                     'bg-gradient-to-br from-zinc-300 to-zinc-400 text-white': i === 1,
-                     'bg-gradient-to-br from-orange-400 to-orange-500 text-white': i === 2,
+                     'bg-amber-400 text-white': i === 0,
+                     'bg-zinc-300 text-white': i === 1,
+                     'bg-orange-400 text-white': i === 2,
                      'bg-zinc-100 dark:bg-zinc-800 text-zinc-500': i > 2
                    }">
                 @if (i === 0) { 🥇 }
@@ -236,7 +236,7 @@
                   </div>
                 </div>
                 <div class="h-2 sm:h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r from-emerald-500 to-teal-400"
+                  <div class="h-full rounded-full transition-all duration-1000 bg-emerald-500"
                        [style.width.%]="(entry.total_sales / maxSales()) * 100"></div>
                 </div>
               </div>
@@ -267,8 +267,8 @@
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
           @for (seg of segmentEntries(); track seg.label) {
             <div class="glass rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden group hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl cursor-default">
-              <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300" [ngClass]="'bg-gradient-to-br ' + seg.color"></div>
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform"
+              <div class="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300" [ngClass]="' ' + seg.color"></div>
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform"
                    [ngClass]="seg.color">
                 <span class="material-symbols-outlined !text-[28px]">{{ seg.icon }}</span>
               </div>
@@ -410,7 +410,7 @@
         <button
           (click)="applyBulkPricing()"
           [disabled]="filteredPricingSuggestions().length === 0 || bulkApplying()"
-          class="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:pointer-events-none transition-all">
+          class="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:from-emerald-600 hover: text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:pointer-events-none transition-all">
           <span class="material-symbols-outlined !text-[18px]">
             {{ bulkApplying() ? 'sync' : 'done_all' }}
           </span>

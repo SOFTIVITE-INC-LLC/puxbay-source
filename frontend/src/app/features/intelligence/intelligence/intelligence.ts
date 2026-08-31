@@ -20,24 +20,17 @@ import { ToastService } from '../../../core/services/toast';
       70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+
     .shimmer-bar {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background: #005b96;
       background-size: 1000px 100%;
       animation: shimmer 1.5s infinite;
     }
     .dark .shimmer-bar {
-      background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+      background: #005b96;
       background-size: 1000px 100%;
     }
-    .animated-gradient {
-      background-size: 300% 300%;
-      animation: gradientShift 8s ease infinite;
-    }
+    .animated-gradient { background-color: #011f4b; }
     .glass {
       background: rgba(255,255,255,0.65);
       backdrop-filter: blur(18px);
@@ -101,11 +94,11 @@ export class Intelligence implements OnInit {
     const s = this.svc.segments();
     if (!s) return [];
     return [
-      { label: 'VIP', count: s['VIP']?.count ?? 0, color: 'from-amber-500 to-yellow-400', icon: 'workspace_premium', desc: 'High spend, frequent buyers' },
-      { label: 'Loyal', count: s['Loyal']?.count ?? 0, color: 'from-emerald-500 to-teal-400', icon: 'favorite', desc: 'Regular, committed customers' },
-      { label: 'Recent', count: s['Recent']?.count ?? 0, color: 'from-blue-500 to-indigo-400', icon: 'person_add', desc: 'New or recent buyers' },
-      { label: 'At Risk', count: (s as any)['At Risk']?.count ?? 0, color: 'from-orange-500 to-amber-400', icon: 'warning', desc: 'Haven\'t bought in 30–90 days' },
-      { label: 'Lost', count: s['Lost']?.count ?? 0, color: 'from-rose-500 to-red-400', icon: 'person_off', desc: 'Inactive over 90 days' },
+      { label: 'VIP', count: s['VIP']?.count ?? 0, color: 'from-amber-500 ', icon: 'workspace_premium', desc: 'High spend, frequent buyers' },
+      { label: 'Loyal', count: s['Loyal']?.count ?? 0, color: 'from-emerald-500 ', icon: 'favorite', desc: 'Regular, committed customers' },
+      { label: 'Recent', count: s['Recent']?.count ?? 0, color: 'from-blue-500 ', icon: 'person_add', desc: 'New or recent buyers' },
+      { label: 'At Risk', count: (s as any)['At Risk']?.count ?? 0, color: 'from-orange-500 ', icon: 'warning', desc: 'Haven\'t bought in 30–90 days' },
+      { label: 'Lost', count: s['Lost']?.count ?? 0, color: 'from-rose-500 ', icon: 'person_off', desc: 'Inactive over 90 days' },
     ];
   });
 

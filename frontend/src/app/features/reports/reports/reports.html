@@ -7,7 +7,7 @@
   <!-- ── Header ───────────────────────────────────────────────── -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-primary-600 dark:text-primary-400">
         Reports &amp; Analytics
       </h1>
       <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1.5 text-xs sm:text-base">
@@ -17,13 +17,13 @@
 
     @if (activeTab() === 'builder' && customReport()?.rows?.length) {
       <button (click)="exportCustomCSV()"
-        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
+        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-teal-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
         <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
         Export Custom Report
       </button>
     } @else {
       <button (click)="exportTopProductsCSV()"
-        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
+        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-teal-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
         <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
         Export Top Products
       </button>
@@ -37,7 +37,7 @@
       @for (p of periods; track p.id) {
         <button (click)="setPeriod(p.id)"
           class="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap"
-          [class.bg-gradient-to-r]="activePeriod() === p.id"
+          [class.]="activePeriod() === p.id"
           [class.from-teal-600]="activePeriod() === p.id"
           [class.to-cyan-600]="activePeriod() === p.id"
           [class.text-white]="activePeriod() === p.id"
@@ -67,7 +67,7 @@
     @for (tab of tabs; track tab.id) {
       <button (click)="setActiveTab(tab.id)"
         class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 whitespace-nowrap"
-        [class.bg-gradient-to-r]="activeTab() === tab.id"
+        [class.]="activeTab() === tab.id"
         [class.from-teal-600]="activeTab() === tab.id"
         [class.to-cyan-600]="activeTab() === tab.id"
         [class.text-white]="activeTab() === tab.id"
@@ -121,7 +121,7 @@
       }
 
       <!-- AI Insights -->
-      <div class="lg:col-span-2 bg-gradient-to-r from-sky-500/10 to-teal-500/10 dark:from-sky-500/5 dark:to-teal-500/5 rounded-2xl border border-sky-500/20 p-4 sm:p-5 shadow-sm">
+      <div class="lg:col-span-2 bg-sky-500/10 dark:from-sky-500/5 dark: rounded-2xl border border-sky-500/20 p-4 sm:p-5 shadow-sm">
         <div class="flex gap-2 sm:gap-3 mb-2 sm:mb-3">
           <span class="material-symbols-outlined text-teal-500 animate-pulse !text-[18px] sm:!text-[22px]">auto_awesome</span>
           <h3 class="font-bold text-xs sm:text-sm">AI Insights</h3>
@@ -219,7 +219,7 @@
                 {{ day.date | date:'MMM d' }}<br>
                 {{ day.revenue | appCurrency }}
               </div>
-              <div class="w-full rounded-t-md bg-gradient-to-t from-teal-600 to-cyan-400 transition-all hover:from-teal-500 hover:to-cyan-300"
+              <div class="w-full rounded-t-md bg-teal-600 transition-all hover:from-teal-500 hover:"
                 [style.height.%]="barHeight(day.revenue)"></div>
             </div>
           }
@@ -251,7 +251,7 @@
           @for (p of (topProducts().by_revenue || []) | slice:0:10; track p.product_id; let i = $index) {
             <div class="flex items-center gap-4 group">
               <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0"
-                [class.bg-gradient-to-br]="i < 3"
+                [class.]="i < 3"
                 [class.from-amber-400]="i === 0"
                 [class.to-orange-500]="i === 0"
                 [class.from-slate-300]="i === 1"
@@ -270,7 +270,7 @@
                   <span class="text-sm font-black text-teal-600 dark:text-teal-400 ml-2 shrink-0">{{ p.revenue | appCurrency }}</span>
                 </div>
                 <div class="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-cyan-400 transition-all"
+                  <div class="h-full rounded-full bg-teal-500 transition-all"
                     [style.width.%]="(p.revenue / ((topProducts().by_revenue || [])[0]?.revenue || 1)) * 100"></div>
                 </div>
                 <p class="text-xs text-zinc-400 mt-1">{{ p.quantity | number }} units sold</p>
@@ -415,7 +415,7 @@
                   </div>
                 </div>
                 <div class="h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
+                  <div class="h-full rounded-full bg-indigo-500 transition-all"
                     [style.width.%]="pct"></div>
                 </div>
                 <p class="text-xs text-zinc-400 mt-1">{{ pct | number:'1.1-1' }}% of total</p>
@@ -529,7 +529,7 @@
         </div>
 
         <button (click)="generateCustomReport()" [disabled]="isBuildingReport()"
-          class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-zinc-800 to-zinc-700 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50">
+          class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50">
           <span class="material-symbols-outlined !text-[18px]">play_arrow</span>
           {{ isBuildingReport() ? 'Running Query...' : 'Run Report' }}
         </button>
@@ -640,7 +640,7 @@
                 <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-zinc-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover/cf:opacity-100 transition-opacity pointer-events-none z-10">
                   {{ row.date | date:'MMM d' }}<br>Cumulative: {{ row.cumulative | appCurrency }}
                 </div>
-                <div class="w-full rounded-t-sm bg-gradient-to-t from-teal-700 to-teal-400 opacity-80"
+                <div class="w-full rounded-t-sm bg-teal-700 opacity-80"
                   [style.height.%]="(row.cumulative / cashflowMax) * 100"></div>
               </div>
             }
@@ -722,7 +722,7 @@
             <span class="material-symbols-outlined !text-[16px]">refresh</span> Refresh
           </button>
           <button (click)="exportDebtorCSV()"
-            class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 text-white text-sm font-semibold shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
+            class="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 text-white text-sm font-semibold shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
             <span class="material-symbols-outlined !text-[16px]">download</span> Export CSV
           </button>
         </div>
@@ -739,7 +739,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
           <!-- Total Outstanding Debt -->
-          <div class="bg-gradient-to-br from-rose-600 to-pink-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-rose-500/20 relative overflow-hidden">
+          <div class="bg-rose-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-rose-500/20 relative overflow-hidden">
             <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
             <div class="flex items-center gap-2 mb-2">
               <span class="material-symbols-outlined !text-[18px]">account_balance_wallet</span>
@@ -833,7 +833,7 @@
                     <tr class="border-b border-zinc-50 dark:border-zinc-800/50 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors group">
                       <td class="px-4 sm:px-6 py-3.5">
                         <div class="flex items-center gap-3">
-                          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-xs font-black shrink-0">
+                          <div class="w-8 h-8 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-black shrink-0">
                             {{ (customer.name || '?').charAt(0).toUpperCase() }}
                           </div>
                           <div>

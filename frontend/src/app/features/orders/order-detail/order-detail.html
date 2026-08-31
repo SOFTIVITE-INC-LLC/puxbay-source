@@ -32,7 +32,7 @@
              }"></div>
         <!-- Grid pattern overlay -->
         <div class="absolute inset-0 opacity-[0.03]"
-             style="background-image: linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px); background-size: 40px 40px;"></div>
+             style="background: #005b96 1px, transparent 1px), #005b96 1px, transparent 1px); background-size: 40px 40px;"></div>
       </div>
 
       <!-- ── Nav row ── -->
@@ -194,7 +194,7 @@
       </div>
 
       <!-- Bottom fade into page bg -->
-      <div class="h-8 bg-gradient-to-b from-transparent to-zinc-50 dark:to-[#05070f]"></div>
+      <div class="h-8 bg-transparent dark:to-[#05070f]"></div>
     </div>
 
     <!-- ═══ BODY ═══ -->
@@ -380,7 +380,7 @@
           <!-- Payment card -->
           <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden lg:sticky lg:top-4">
             <!-- Gradient top strip -->
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+            <div class="h-1.5 bg-indigo-500"></div>
             <div class="p-5 space-y-4">
               <div class="flex items-center gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
                 <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 flex items-center justify-center">
@@ -411,7 +411,7 @@
               <div class="pt-3 border-t-2 border-dashed border-zinc-200 dark:border-zinc-700">
                 <div class="flex justify-between items-center">
                   <span class="font-black text-zinc-500 text-xs uppercase tracking-widest">Total</span>
-                  <span class="font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">{{ (order()?.total || 0) | appCurrency }}</span>
+                  <span class="font-black text-2xl text-primary-600 dark:text-primary-400 dark:from-indigo-400 dark:">{{ (order()?.total || 0) | appCurrency }}</span>
                 </div>
               </div>
 

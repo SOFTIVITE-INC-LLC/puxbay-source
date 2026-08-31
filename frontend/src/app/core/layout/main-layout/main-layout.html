@@ -4,7 +4,7 @@
   <div class="min-h-[100dvh] print:h-auto w-full flex print:block md:p-3 print:p-0 gap-2 md:gap-3 relative z-10">
     <!-- Deep background noise/texture layer -->
     <div class="fixed inset-0 pointer-events-none hidden dark:block"
-      style="background-image: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.05) 0%, transparent 55%), radial-gradient(ellipse at 60% 85%, rgba(20,184,166,0.04) 0%, transparent 50%);">
+      style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
     </div>
 
     <!-- ── Overlay for mobile sidebar ── -->
@@ -44,7 +44,7 @@
 
       <!-- ── Content ── -->
       <main
-        class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white dark:bg-gradient-to-br dark:from-[#05070f]/90 dark:to-[#030408]/90">
+        class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white dark: dark:from-[#05070f]/90 dark:to-[#030408]/90">
         <div class="w-full min-h-full print:min-h-0">
           <router-outlet></router-outlet>
         </div>

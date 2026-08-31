@@ -28,7 +28,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <!-- MRR Card (Premium styling) -->
-      <div class="bg-gradient-to-br from-indigo-900 to-[#0B0F19] rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-indigo-500/20 group">
+      <div class="bg-indigo-900 to-[#0B0F19] rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-indigo-500/20 group">
         <div class="absolute -right-6 -top-6 text-white/5 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
           <span class="material-symbols-outlined text-[140px] leading-none">payments</span>
         </div>
@@ -46,7 +46,7 @@
       </div>
 
       <!-- Revenue This Month -->
-      <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-emerald-500/20 group">
+      <div class="bg-emerald-900 rounded-2xl p-6 shadow-xl relative overflow-hidden text-white border border-emerald-500/20 group">
         <div class="absolute -right-6 -top-6 text-white/5 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
           <span class="material-symbols-outlined text-[140px] leading-none">account_balance_wallet</span>
         </div>
@@ -78,8 +78,8 @@
           <span class="material-symbols-outlined text-[16px]">{{ (stats()?.failed_payments_count || 0) === 0 ? 'check_circle' : 'warning' }}</span> 
           {{ (stats()?.failed_payments_count || 0) === 0 ? 'All clear' : 'Needs attention' }}
         </div>
-        <div class="absolute right-6 top-6 h-12 w-12 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform ring-1 ring-slate-100"
-             [ngClass]="{'from-rose-50 to-rose-100/50 text-rose-600 ring-rose-100': (stats()?.failed_payments_count || 0) > 0}">
+        <div class="absolute right-6 top-6 h-12 w-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform ring-1 ring-slate-100"
+             [ngClass]="{'from-rose-50  text-rose-600 ring-rose-100': (stats()?.failed_payments_count || 0) > 0}">
           <span class="material-symbols-outlined text-[24px]">credit_card_off</span>
         </div>
       </div>
@@ -95,7 +95,7 @@
         <div class="text-sm text-slate-400 font-medium flex items-center gap-1">
           Currently in 7-day trial
         </div>
-        <div class="absolute right-6 top-6 h-12 w-12 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform ring-1 ring-blue-100">
+        <div class="absolute right-6 top-6 h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform ring-1 ring-blue-100">
           <span class="material-symbols-outlined text-[24px]">hourglass_top</span>
         </div>
       </div>
@@ -115,8 +115,8 @@
           <span class="material-symbols-outlined text-[16px]">{{ (stats()?.trial_conversion_rate || 0) >= 20 ? 'check_circle' : 'warning' }}</span> 
           {{ (stats()?.trial_conversion_rate || 0) >= 20 ? 'Healthy conversion' : 'Needs improvement' }}
         </div>
-        <div class="absolute right-6 top-6 h-12 w-12 bg-gradient-to-br rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ring-1"
-             [ngClass]="(stats()?.trial_conversion_rate || 0) >= 20 ? 'from-emerald-50 to-emerald-100/50 text-emerald-600 ring-emerald-100' : 'from-rose-50 to-rose-100/50 text-rose-600 ring-rose-100'">
+        <div class="absolute right-6 top-6 h-12 w-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ring-1"
+             [ngClass]="(stats()?.trial_conversion_rate || 0) >= 20 ? 'from-emerald-50  text-emerald-600 ring-emerald-100' : 'from-rose-50  text-rose-600 ring-rose-100'">
           <span class="material-symbols-outlined text-[24px]">rocket_launch</span>
         </div>
       </div>
@@ -136,8 +136,8 @@
           <span class="material-symbols-outlined text-[16px]">{{ (stats()?.churn_rate || 0) <= 10 ? 'thumb_up' : 'trending_down' }}</span> 
           {{ (stats()?.churn_rate || 0) <= 10 ? 'Healthy retention' : 'High churn risk' }}
         </div>
-        <div class="absolute right-6 top-6 h-12 w-12 bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform ring-1 ring-slate-100"
-             [ngClass]="{'from-rose-50 to-rose-100/50 text-rose-600 ring-rose-100': (stats()?.churn_rate || 0) > 10}">
+        <div class="absolute right-6 top-6 h-12 w-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-500 group-hover:scale-110 transition-transform ring-1 ring-slate-100"
+             [ngClass]="{'from-rose-50  text-rose-600 ring-rose-100': (stats()?.churn_rate || 0) > 10}">
           <span class="material-symbols-outlined text-[24px]">heart_broken</span>
         </div>
       </div>

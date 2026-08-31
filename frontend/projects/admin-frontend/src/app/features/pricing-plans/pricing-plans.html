@@ -3,7 +3,7 @@
   <!-- Header Section -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
     <div>
-      <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">
+      <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white text-primary-600 dark:text-primary-400 dark:from-white dark:">
         Pricing Plans
       </h1>
       <p class="text-slate-500 dark:text-slate-400 mt-2 text-lg">Manage marketing tiers and subscription features.</p>
@@ -26,7 +26,7 @@
          [ngClass]="plan.is_popular ? 'border-indigo-500 dark:border-indigo-400 ring-2 ring-indigo-500 dark:ring-indigo-400 shadow-xl shadow-indigo-500/10' : 'border-slate-200 dark:border-slate-700/60 shadow-lg shadow-slate-200/50 dark:shadow-none'">
       
       <!-- Popular Highlight Bar -->
-      <div *ngIf="plan.is_popular" class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+      <div *ngIf="plan.is_popular" class="absolute top-0 inset-x-0 h-1.5 bg-indigo-500"></div>
       
       <!-- Popular Badge -->
       <div *ngIf="plan.is_popular" class="absolute top-5 right-5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">

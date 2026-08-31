@@ -2,7 +2,7 @@
 
   <!-- ── Deep Background Glows ── -->
   <div class="fixed inset-0 pointer-events-none hidden dark:block"
-    style="background-image: radial-gradient(ellipse at 25% 20%, rgba(147,51,234,0.08) 0%, transparent 55%), radial-gradient(ellipse at 85% 60%, rgba(79,70,229,0.06) 0%, transparent 50%), radial-gradient(ellipse at 50% 90%, rgba(16,185,129,0.04) 0%, transparent 50%);">
+    style="background: transparent 0%, transparent 55%), none 0%, transparent 50%), none 0%, transparent 50%);">
   </div>
 
   <!-- ── Header ── -->
@@ -26,7 +26,7 @@
 
     <!-- Quick Action -->
     <div class="flex items-center gap-3 w-full sm:w-auto">
-      <button (click)="openStaffModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95">
+      <button (click)="openStaffModal()" class="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-purple-600 hover:from-purple-500 hover: text-white font-bold transition-all shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95">
         <span class="material-symbols-outlined !text-[18px]">person_add</span>
         <span>Add Staff Member</span>
       </button>
@@ -37,7 +37,7 @@
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative z-10">
     <!-- Card 1: Total Staff -->
     <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-purple-500/40 transition-all duration-300">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total Staff</span>
         <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -52,7 +52,7 @@
 
     <!-- Card 2: Active & Operational -->
     <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Active &amp; Operational</span>
         <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -68,7 +68,7 @@
 
     <!-- Card 3: Store Leadership -->
     <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Store Leadership</span>
         <div class="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -81,7 +81,7 @@
 
     <!-- Card 4: POS Cashiers -->
     <div class="glass-panel p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div class="flex items-center justify-between">
         <span class="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">POS Cashiers</span>
         <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -269,14 +269,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           @for (member of filteredStaff(); track member.id) {
             <div class="glass-panel rounded-3xl p-5 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative group overflow-hidden">
-              <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div class="absolute inset-x-0 top-0 h-0.5 bg-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
               <!-- Card Top Header -->
               <div>
                 <div class="flex items-start justify-between gap-3">
                   <!-- Avatar with Role Ring -->
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white flex items-center justify-center font-black text-base shadow-md shadow-purple-500/20 shrink-0">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500 text-white flex items-center justify-center font-black text-base shadow-md shadow-purple-500/20 shrink-0">
                       {{ (member.user?.first_name || member.user?.username || 'U')[0] | uppercase }}{{ (member.user?.last_name || '')[0] | uppercase }}
                     </div>
                     <div>
@@ -361,7 +361,7 @@
                   <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors">
                     <td class="px-5 py-3.5">
                       <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                        <div class="w-9 h-9 rounded-xl bg-purple-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                           {{ (member.user?.first_name || 'U')[0] | uppercase }}{{ (member.user?.last_name || '')[0] | uppercase }}
                         </div>
                         <div>
@@ -490,7 +490,7 @@
       <!-- Security Status Bar -->
       <div class="glass-panel p-5 rounded-3xl border-l-4 border-l-purple-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div class="flex items-center gap-3.5">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+          <div class="w-11 h-11 rounded-2xl bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
             <span class="material-symbols-outlined !text-[22px]">security</span>
           </div>
           <div>
@@ -514,7 +514,7 @@
         
         <!-- Policy 1: Quick PIN -->
         <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-purple-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           
           <div class="space-y-3">
             <div class="flex items-start justify-between gap-3">
@@ -569,7 +569,7 @@
 
         <!-- Policy 2: Session Timeout -->
         <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-blue-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           
           <div class="space-y-3">
             <div class="flex items-start justify-between gap-3">
@@ -623,7 +623,7 @@
 
         <!-- Policy 3: Audit Logging -->
         <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-teal-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-teal-500/0 via-teal-500 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           
           <div class="space-y-3">
             <div class="flex items-start justify-between gap-3">
@@ -678,7 +678,7 @@
 
         <!-- Policy 4: Branch Isolation -->
         <div class="glass-panel p-6 rounded-3xl space-y-4 group hover:border-amber-500/40 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
-          <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="absolute inset-x-0 top-0 h-0.5 bg-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           
           <div class="space-y-3">
             <div class="flex items-start justify-between gap-3">
@@ -827,7 +827,7 @@
           </div>
 
           <!-- Submit Button -->
-          <button (click)="saveStaff()" [disabled]="isSaving()" class="w-full mt-3 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-black text-sm hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-purple-500/30 disabled:opacity-50 flex items-center justify-center gap-2">
+          <button (click)="saveStaff()" [disabled]="isSaving()" class="w-full mt-3 py-3 rounded-2xl bg-purple-600 text-white font-black text-sm hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-purple-500/30 disabled:opacity-50 flex items-center justify-center gap-2">
             @if (isSaving()) {
               <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span> Saving...
             } @else {

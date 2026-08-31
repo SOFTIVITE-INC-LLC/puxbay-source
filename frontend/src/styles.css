@@ -14,7 +14,11 @@ html, body {
 }
 
 :root {
-    --brand-primary: #4f46e5;
+    --brand-primary: #005b96;
+    --brand-navy: #011f4b;
+    --brand-deep: #03396c;
+    --brand-steel: #6497b1;
+    --brand-ice: #b3cde0;
 }
 
 body {
@@ -104,7 +108,7 @@ body {
 }
 
 .toast.info {
-    background: #3b82f6;
+    background: #005b96;
     color: white;
 }
 
@@ -191,8 +195,8 @@ select {
 select:focus {
     outline: 2px solid transparent;
     outline-offset: 2px;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgb(59, 130, 246);
+    border-color: #005b96;
+    box-shadow: 0 0 0 3px rgba(0, 91, 150, 0.25);
 }
 
 html.dark input[type="text"],
@@ -226,9 +230,9 @@ html.dark input::placeholder {
 }
 
 .sidebar-obsidian {
-    background: #080c16;
-    /* Premium Deep Dark */
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: #011f4b;
+    /* Premium Deep Dark Navy */
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
     width: var(--sidebar-width);
     transition: var(--sidebar-transition);
     z-index: 50;
@@ -334,12 +338,12 @@ body.sidebar-is-collapsed .nav-label {
 
 /* VS Code active item — left 2px bar + subtle tint + brighter text */
 .nav-link-active {
-    background-color: rgba(99, 102, 241, 0.13) !important;
-    color: #4338ca !important;
+    background-color: rgba(0, 91, 150, 0.14) !important;
+    color: #005b96 !important;
 }
 
 :root.dark .nav-link-active {
-    color: #c7d2fe !important;
+    color: #b3cde0 !important;
 }
 
 .nav-link-active::before {
@@ -349,7 +353,7 @@ body.sidebar-is-collapsed .nav-label {
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #6366f1;
+    background: #005b96;
     border-radius: 0 2px 2px 0;
 }
 
@@ -358,25 +362,25 @@ body.sidebar-is-collapsed .nav-link-active::before {
 }
 
 body.sidebar-is-collapsed .nav-link-active {
-    background-color: rgba(99, 102, 241, 0.2) !important;
+    background-color: rgba(0, 91, 150, 0.22) !important;
 }
 
 .nav-link-active .material-symbols-outlined {
-    color: #4f46e5 !important;
+    color: #005b96 !important;
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20 !important;
 }
 
 :root.dark .nav-link-active .material-symbols-outlined {
-    color: #818cf8 !important;
+    color: #6497b1 !important;
 }
 
 .nav-link-active .nav-label {
-    color: #4338ca !important;
+    color: #005b96 !important;
     font-weight: 600 !important;
 }
 
 :root.dark .nav-link-active .nav-label {
-    color: #e0e7ff !important;
+    color: #b3cde0 !important;
 }
 
 /* Section labels — VS Code uses small uppercase headers with spacing */
@@ -408,15 +412,15 @@ body.sidebar-is-collapsed .section-label-premium {
 }
 
 .sidebar-header-glass {
-    background: #0f172a !important;
-    /* Solid Slate 900 */
+    background: #011f4b !important;
+    /* Solid Dark Navy */
     padding: 2rem 1.5rem !important;
     width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     transition: var(--sidebar-transition);
-    border-bottom: 1px solid #1e293b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .logo-glass-pane {
@@ -508,11 +512,11 @@ body.sidebar-is-collapsed #sidebar-collapse-btn {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99,102,241,0.3);
+  background: rgba(0, 91, 150, 0.35);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99,102,241,0.5);
+  background: rgba(0, 91, 150, 0.6);
 }
 
 /* Font Outfit global */
@@ -525,16 +529,16 @@ body.sidebar-is-collapsed #sidebar-collapse-btn {
     @apply bg-white/80 dark:bg-zinc-900/40 backdrop-blur-2xl border border-slate-200 dark:border-white/10 shadow-sm;
   }
   .glass-card {
-    @apply bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 hover:border-indigo-200 dark:hover:border-white/20 transition-all duration-300;
+    @apply bg-white/60 dark:bg-zinc-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 hover:border-primary-300 dark:hover:border-primary-500/40 transition-all duration-300;
   }
   .glass-header {
     @apply bg-white/80 dark:bg-zinc-950/70 backdrop-blur-2xl border-b border-slate-200 dark:border-white/10;
   }
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
+    @apply text-primary-600 dark:text-primary-400;
   }
   .bg-gradient-premium {
-    @apply bg-gradient-to-br from-slate-50 via-slate-100 to-indigo-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-indigo-950/30;
+    @apply bg-slate-50 dark:bg-zinc-950;
   }
 }
 

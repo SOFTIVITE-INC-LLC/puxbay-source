@@ -16,21 +16,8 @@ import { SettingsService } from '../../../core/services/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
   styles: `
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .animated-gradient-bg {
-      background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #f59e0b);
-      background-size: 300% 300%;
-      animation: gradientShift 8s ease infinite;
-    }
-    .branch-gradient-bg {
-      background: linear-gradient(135deg, #0ea5e9, #6366f1, #8b5cf6);
-      background-size: 300% 300%;
-      animation: gradientShift 8s ease infinite;
-    }
+    .animated-gradient-bg { background-color: #005b96; }
+    .branch-gradient-bg { background-color: #005b96; }
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-6px); }
@@ -51,12 +38,12 @@ export class Dashboard implements OnInit {
   get tenantQuickActions() {
     const role = this.authService.currentUser()?.role?.toLowerCase();
     const actions = [
-      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 to-purple-600', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Branches', icon: 'store', route: '/branches', color: 'from-sky-500 to-blue-600', roles: ['admin', 'manager'] },
-      { label: 'Staff', icon: 'badge', route: '/staff', color: 'from-emerald-500 to-teal-600', roles: ['admin', 'manager'] },
-      { label: 'Financial', icon: 'account_balance', route: '/financial', color: 'from-orange-500 to-amber-600', roles: ['admin'] },
-      { label: 'Reports', icon: 'analytics', route: '/reports', color: 'from-pink-500 to-rose-600', roles: ['admin', 'manager'] },
-      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-violet-500 to-purple-600', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 ', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Branches', icon: 'store', route: '/branches', color: 'from-sky-500 ', roles: ['admin', 'manager'] },
+      { label: 'Staff', icon: 'badge', route: '/staff', color: 'from-emerald-500 ', roles: ['admin', 'manager'] },
+      { label: 'Financial', icon: 'account_balance', route: '/financial', color: 'from-orange-500 ', roles: ['admin'] },
+      { label: 'Reports', icon: 'analytics', route: '/reports', color: 'from-pink-500 ', roles: ['admin', 'manager'] },
+      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-violet-500 ', roles: ['admin', 'manager', 'cashier'] },
     ];
     return actions.filter(a => a.roles.includes(role || ''));
   }
@@ -64,12 +51,12 @@ export class Dashboard implements OnInit {
   get branchQuickActions() {
     const role = this.authService.currentUser()?.role?.toLowerCase();
     const actions = [
-      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 to-purple-600', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Orders', icon: 'receipt_long', route: '/orders', color: 'from-sky-500 to-blue-600', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Products', icon: 'inventory_2', route: '/inventory', color: 'from-emerald-500 to-teal-600', roles: ['admin', 'manager'] },
-      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-pink-500 to-rose-600', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Purchase Orders', icon: 'contract', route: '/purchase-orders', color: 'from-orange-500 to-amber-600', roles: ['admin', 'manager'] },
-      { label: 'Reports', icon: 'insert_chart', route: '/reports', color: 'from-violet-500 to-purple-600', roles: ['admin', 'manager'] },
+      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 ', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Orders', icon: 'receipt_long', route: '/orders', color: 'from-sky-500 ', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Products', icon: 'inventory_2', route: '/inventory', color: 'from-emerald-500 ', roles: ['admin', 'manager'] },
+      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-pink-500 ', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Purchase Orders', icon: 'contract', route: '/purchase-orders', color: 'from-orange-500 ', roles: ['admin', 'manager'] },
+      { label: 'Reports', icon: 'insert_chart', route: '/reports', color: 'from-violet-500 ', roles: ['admin', 'manager'] },
     ];
     return actions.filter(a => a.roles.includes(role || ''));
   }

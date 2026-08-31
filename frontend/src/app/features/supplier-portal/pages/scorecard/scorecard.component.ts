@@ -50,10 +50,10 @@ export class SupplierPortalScorecardComponent implements OnInit {
 
   tierBadgeClass(tier: string = ''): string {
     const t = tier.toLowerCase();
-    if (t === 'platinum') return 'bg-gradient-to-r from-violet-600 to-purple-700 text-white border border-violet-400/40';
-    if (t === 'gold') return 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white border border-amber-300/40';
-    if (t === 'silver') return 'bg-gradient-to-r from-slate-400 to-slate-500 text-white border border-slate-300/40';
-    return 'bg-gradient-to-r from-amber-700 to-orange-700 text-white border border-amber-600/40';
+    if (t === 'platinum') return 'bg-violet-600 text-white border border-violet-400/40';
+    if (t === 'gold') return 'bg-amber-400 text-white border border-amber-300/40';
+    if (t === 'silver') return 'bg-slate-400 text-white border border-slate-300/40';
+    return 'bg-amber-700 text-white border border-amber-600/40';
   }
 
   tierIcon(tier: string = ''): string {

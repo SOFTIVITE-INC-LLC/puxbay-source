@@ -13,16 +13,7 @@ import { SettingsService } from '../../../core/services/settings.service';
   imports: [CommonModule, FormsModule, AppCurrencyPipe],
   templateUrl: './wallet.html',
   styles: `
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .card-gradient {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed, #2563eb);
-      background-size: 300% 300%;
-      animation: gradientShift 8s ease infinite;
-    }
+    .card-gradient { background-color: #011f4b; }
     .glass {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(20px);

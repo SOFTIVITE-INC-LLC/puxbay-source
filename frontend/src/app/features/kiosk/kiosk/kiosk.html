@@ -3,9 +3,9 @@
 
   <!-- ── Dynamic Animated Background ── -->
   <div class="absolute inset-0 z-0 bg-[#0a0a14] overflow-hidden">
-    <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-indigo-600/30 to-purple-800/20 blur-[120px] animate-blob"></div>
-    <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-pink-600/20 to-rose-800/15 blur-[120px] animate-blob animation-delay-2000"></div>
-    <div class="absolute top-[30%] right-[20%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-br from-violet-600/20 to-cyan-800/10 blur-[100px] animate-blob animation-delay-4000"></div>
+    <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-indigo-600/30 blur-[120px] animate-blob"></div>
+    <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-pink-600/20 blur-[120px] animate-blob animation-delay-2000"></div>
+    <div class="absolute top-[30%] right-[20%] w-[40vw] h-[40vw] rounded-full bg-violet-600/20 blur-[100px] animate-blob animation-delay-4000"></div>
   </div>
 
   <style>
@@ -35,12 +35,12 @@
   @if (isIdle()) {
     <div class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xl animate-fade-in cursor-pointer p-6 text-center" (click)="startSession()">
       <div class="relative mb-8 md:mb-12">
-        <div class="w-32 h-32 md:w-52 md:h-52 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-500/50 flex items-center justify-center animate-pulse">
+        <div class="w-32 h-32 md:w-52 md:h-52 rounded-full bg-indigo-500 shadow-2xl shadow-indigo-500/50 flex items-center justify-center animate-pulse">
           <span class="material-symbols-outlined !text-[48px] md:!text-[90px] text-white">touch_app</span>
         </div>
-        <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500/30 to-pink-500/30 blur-xl md:blur-2xl scale-125"></div>
+        <div class="absolute inset-0 rounded-full bg-indigo-500/30 blur-xl md:blur-2xl scale-125"></div>
       </div>
-      <h1 class="text-4xl md:text-7xl font-black mb-3 md:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Tap to Start</h1>
+      <h1 class="text-4xl md:text-7xl font-black mb-3 md:mb-4 text-primary-600 dark:text-primary-400">Tap to Start</h1>
       <p class="text-lg md:text-2xl text-white/50 font-medium">Touch the screen to place your order</p>
     </div>
   }
@@ -51,7 +51,7 @@
       <div class="w-full max-w-lg bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-10 shadow-2xl animate-slide-up text-center">
         
         <!-- Avatar / Icon -->
-        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center mx-auto mb-4 md:mb-6">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center mx-auto mb-4 md:mb-6">
           <span class="material-symbols-outlined !text-[28px] md:!text-[36px] text-white">person</span>
         </div>
 
@@ -81,7 +81,7 @@
             Skip
           </button>
           <button (click)="registerCustomer()" [disabled]="!customerName.trim() || isRegisteringCustomer()"
-                  class="flex-1 py-3 md:py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-base md:text-lg shadow-xl shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-40">
+                  class="flex-1 py-3 md:py-4 rounded-2xl bg-indigo-600 hover:from-indigo-500 hover: text-white font-black text-base md:text-lg shadow-xl shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-40">
             @if (isRegisteringCustomer()) {
               <div class="flex items-center justify-center gap-2">
                 <div class="w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
@@ -98,7 +98,7 @@
 
   <!-- ── Order Success Screen ── -->
   @if (orderPlaced()) {
-    <div class="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in" style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%)">
+    <div class="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center animate-fade-in" style="background: #005b96">
       <div class="relative mb-6 md:mb-8">
         <div class="w-24 h-24 md:w-36 md:h-36 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
           <span class="material-symbols-outlined !text-[48px] md:!text-[72px] text-white">check_circle</span>
@@ -154,7 +154,7 @@
 
         <!-- Add to Cart Button -->
         <button (click)="confirmAddToCart(selectedProduct()!, modalQty); modalQty = 1"
-                class="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg md:text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover:to-purple-500 transition-all active:scale-[0.98]">
+                class="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-indigo-600 text-white text-lg md:text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover: transition-all active:scale-[0.98]">
           Add to Order — {{ (selectedProduct()!.selling_price * modalQty) | appCurrency }}
         </button>
       </div>
@@ -175,7 +175,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
           <!-- Card Payment -->
           <button (click)="processPayment('card')" [disabled]="isProcessing()"
-                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-indigo-600/80 to-indigo-900/80 border border-indigo-500/40 rounded-2xl md:rounded-3xl hover:from-indigo-500/80 hover:to-indigo-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-indigo-500/20">
+                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-indigo-600/80 border border-indigo-500/40 rounded-2xl md:rounded-3xl hover:from-indigo-500/80 hover: transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-indigo-500/20">
             <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">contactless</span>
             <div class="text-center">
               <p class="text-lg md:text-xl font-black">Tap / Card</p>
@@ -185,7 +185,7 @@
 
           <!-- Cash Payment -->
           <button (click)="processPayment('cash')" [disabled]="isProcessing()"
-                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-emerald-600/80 to-emerald-900/80 border border-emerald-500/40 rounded-2xl md:rounded-3xl hover:from-emerald-500/80 hover:to-emerald-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-emerald-500/20">
+                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-emerald-600/80 border border-emerald-500/40 rounded-2xl md:rounded-3xl hover:from-emerald-500/80 hover: transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-emerald-500/20">
             <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">payments</span>
             <div class="text-center">
               <p class="text-lg md:text-xl font-black">Cash</p>
@@ -195,7 +195,7 @@
 
           <!-- Mobile Money / QR Payment -->
           <button (click)="processPayment('mobile_money')" [disabled]="isProcessing()"
-                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-gradient-to-b from-violet-600/80 to-violet-900/80 border border-violet-500/40 rounded-2xl md:rounded-3xl hover:from-violet-500/80 hover:to-violet-800/80 transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-violet-500/20">
+                  class="flex flex-col items-center gap-3 md:gap-4 p-6 md:p-8 bg-violet-600/80 border border-violet-500/40 rounded-2xl md:rounded-3xl hover:from-violet-500/80 hover: transition-all active:scale-[0.97] disabled:opacity-50 shadow-xl shadow-violet-500/20">
             <span class="material-symbols-outlined !text-[36px] md:!text-[52px]">qr_code_scanner</span>
             <div class="text-center">
               <p class="text-lg md:text-xl font-black">Mobile Money</p>
@@ -217,7 +217,7 @@
   <!-- ── Kiosk Header ── -->
   <header class="relative z-10 h-16 md:h-22 bg-black/30 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4 md:px-10 shrink-0">
     <div class="flex items-center gap-3 md:gap-4">
-      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
         <span class="material-symbols-outlined !text-[18px] md:!text-[22px]">restaurant</span>
       </div>
       <h1 class="text-lg md:text-3xl font-black tracking-tight line-clamp-1">{{ $any(storefrontService.settings())?.store_name || 'Self-Service Kiosk' }}</h1>
@@ -394,7 +394,7 @@
           <span class="text-2xl md:text-4xl font-black">{{ cartTotal() | appCurrency }}</span>
         </div>
         <button [disabled]="cart().length === 0 || isProcessing()" (click)="openPaymentModal()"
-                class="w-full py-3 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg md:text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover:to-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">
+                class="w-full py-3 md:py-5 rounded-xl md:rounded-2xl bg-indigo-600 text-white text-lg md:text-2xl font-black shadow-xl shadow-indigo-500/30 hover:from-indigo-500 hover: transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98]">
           @if (isProcessing()) {
             <div class="flex items-center justify-center gap-2 md:gap-3">
               <div class="w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>

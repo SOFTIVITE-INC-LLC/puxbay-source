@@ -35,7 +35,7 @@ interface OnboardingStatus {
         </div>
         
         <div class="w-full h-2 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden mb-8">
-          <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700 ease-out" [style.width.%]="status()?.progress_percent"></div>
+          <div class="h-full bg-indigo-500 rounded-full transition-all duration-700 ease-out" [style.width.%]="status()?.progress_percent"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

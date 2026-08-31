@@ -79,7 +79,7 @@ import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
           
           <div class="flex-1 p-6 relative overflow-hidden flex flex-col justify-end">
             <!-- Mock Ad / Promo Area -->
-            <div class="w-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
+            <div class="w-full bg-indigo-500 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
               <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               <div class="relative z-10">
                 <h3 class="text-3xl font-black mb-2">Join Our Rewards!</h3>

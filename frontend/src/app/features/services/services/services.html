@@ -5,7 +5,7 @@
   <div class="px-4 sm:px-6 pt-4 sm:pt-6 pb-0 flex-shrink-0">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-3 sm:mb-6">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-primary-600 dark:text-primary-400 dark:from-indigo-400 dark:">
           Services &amp; Appointments
         </h1>
         <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1 font-medium text-xs sm:text-sm">Manage bookings, services, and staff schedules.</p>
@@ -138,7 +138,7 @@
         <!-- Sidebar: Upcoming Appointments -->
         <div class="w-full lg:w-72 flex-shrink-0 flex flex-col gap-3 sm:gap-4">
           <!-- Today's summary -->
-          <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-indigo-500/20">
+          <div class="bg-indigo-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-indigo-500/20">
             <p class="text-indigo-200 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Today's Schedule</p>
             <div class="text-2xl sm:text-4xl font-black">{{ todaysAppointments().length }}</div>
             <p class="text-indigo-200 text-xs sm:text-sm font-medium mt-0.5">Appointments</p>
@@ -264,7 +264,7 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeBookingModal()"></div>
     <div class="relative bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-2xl border border-zinc-200/50 dark:border-white/10 overflow-hidden max-h-[92vh] sm:max-h-[90vh] flex flex-col">
       <!-- Modal header gradient -->
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-5 sm:px-8 py-4 sm:py-6 shrink-0">
+      <div class="bg-indigo-600 px-5 sm:px-8 py-4 sm:py-6 shrink-0">
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-lg sm:text-xl font-black text-white">New Booking</h2>

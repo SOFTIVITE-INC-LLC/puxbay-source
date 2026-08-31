@@ -20,8 +20,8 @@
   } @else if (products().length > 0) {
     <div class="relative group">
       <!-- Gradient masks for smooth scrolling edges -->
-      <div class="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none"></div>
-      <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50 dark:from-zinc-950 to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute left-0 top-0 bottom-0 w-16 bg-slate-50 dark:from-zinc-950 z-10 pointer-events-none"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-16 bg-slate-50 dark:from-zinc-950 z-10 pointer-events-none"></div>
 
       <div class="flex gap-4 overflow-x-auto hide-scrollbar snap-x pb-4">
         @for (product of products(); track product.id) {

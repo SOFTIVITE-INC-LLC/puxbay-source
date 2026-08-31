@@ -7,16 +7,16 @@ import { Category } from '../../../core/models/product.models';
 // Curated swatch palette
 export const COLOR_SWATCHES = [
   '#ef4444', // red
-  '#f97316', // orange
+  '#03396c', // orange
   '#f59e0b', // amber
-  '#84cc16', // lime
+  '#6497b1', // lime
   '#22c55e', // green
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
-  '#3b82f6', // blue
-  '#6366f1', // indigo
-  '#8b5cf6', // violet
-  '#ec4899', // pink
+  '#005b96', // teal
+  '#6497b1', // cyan
+  '#005b96', // blue
+  '#005b96', // indigo
+  '#005b96', // violet
+  '#005b96', // pink
   '#64748b', // slate
 ];
 
@@ -34,7 +34,7 @@ export class Categories implements OnInit {
   saving = signal(false);
 
   editingId = signal<string | null>(null);
-  categoryForm = signal<CategoryCreateInput>({ name: '', description: '', color: '#6366f1' });
+  categoryForm = signal<CategoryCreateInput>({ name: '', description: '', color: '#005b96' });
   categoryToDelete = signal<Category | null>(null);
 
   searchQuery = signal('');
@@ -56,13 +56,13 @@ export class Categories implements OnInit {
 
   openCreateDrawer() {
     this.editingId.set(null);
-    this.categoryForm.set({ name: '', description: '', color: '#6366f1' });
+    this.categoryForm.set({ name: '', description: '', color: '#005b96' });
     this.isDrawerOpen.set(true);
   }
 
   openEditDrawer(cat: any) {
     this.editingId.set(cat.id);
-    this.categoryForm.set({ name: cat.name, description: cat.description || '', color: cat.color || '#6366f1' });
+    this.categoryForm.set({ name: cat.name, description: cat.description || '', color: cat.color || '#005b96' });
     this.isDrawerOpen.set(true);
   }
 

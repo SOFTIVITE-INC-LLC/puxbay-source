@@ -6,13 +6,13 @@
     position: relative; z-index: 10;
   }
   .hero-pill {
-    font-size: 10px; font-weight: 800; color: #6366f1; letter-spacing: 0.15em; text-transform: uppercase;
+    font-size: 10px; font-weight: 800; color: #005b96; letter-spacing: 0.15em; text-transform: uppercase;
     margin-bottom: 24px; display: inline-block;
   }
   .hero-title {
     font-size: clamp(3rem, 6vw, 4.5rem); font-weight: 900; color: #0f172a;
     letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 24px;
-    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    background: #005b96;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .hero-desc {
@@ -50,28 +50,28 @@
     outline: none; transition: border-color 0.2s, box-shadow 0.2s;
   }
   .form-input::placeholder { color: #94a3b8; }
-  .form-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .form-input:focus { border-color: #005b96; box-shadow: 0 0 0 3px rgba(0,91,150,0.15); }
   
   .btn-submit {
-    width: 100%; padding: 18px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color:#fff; border: none;
+    width: 100%; padding: 18px; background: #005b96; color:#fff; border: none;
     border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 10px 20px rgba(99,102,241,0.2);
+    box-shadow: 0 10px 20px rgba(0,91,150,0.25);
   }
-  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(99,102,241,0.3); }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(0,91,150,0.35); }
 
   /* Info Blocks */
   .info-blocks { display: flex; flex-direction: column; gap: 24px; }
   
   .hq-card {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 24px; padding: 40px; color:#fff; position: relative; overflow: hidden;
-    box-shadow: 0 20px 40px rgba(15,23,42,0.1);
+    background: #005b96; border-radius: 24px; padding: 40px; color:#fff; position: relative; overflow: hidden;
+    box-shadow: 0 20px 40px rgba(1,31,75,0.15);
   }
   .hq-title { font-size: 20px; font-weight: 900; margin-bottom: 16px; color: #fff; }
-  .hq-text { font-size: 15px; font-weight: 500; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+  .hq-text { font-size: 15px; font-weight: 500; color: #b3cde0; line-height: 1.6; margin-bottom: 24px; }
   .hq-contact { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color:#e2e8f0; margin-bottom: 12px; transition: color 0.2s; }
   .hq-contact:hover { color: #fff; }
-  .hq-contact svg { width: 18px; height: 18px; color: #818cf8; }
+  .hq-contact svg { width: 18px; height: 18px; color: #6497b1; }
   .hq-icon-bg { position: absolute; right: -20px; top: -20px; width: 160px; height: 160px; color:rgba(255,255,255,0.03); }
 
   .support-card {
@@ -121,11 +121,11 @@
   .special-card:hover { transform: translateY(-4px); }
   .special-icon {
     width: 64px; height: 64px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    color: #6366f1; margin: 0 auto 24px;
+    color: #005b96; margin: 0 auto 24px;
   }
   .special-title { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
   .special-desc { font-size: 13px; font-weight: 500; color: #64748b; line-height: 1.6; margin-bottom: 24px; min-height: 40px; }
-  .special-link { font-size: 12px; font-weight: 800; color: #6366f1; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .special-link { font-size: 12px; font-weight: 800; color: #005b96; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
 
 </style>
 
@@ -133,8 +133,8 @@
 <main class="flex-grow w-full relative">
 
   <!-- Ambient glowing orbs -->
-  <div style="position:absolute; top: -10%; left: -5%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
-  <div style="position:absolute; top: 20%; right: -10%; width: 40vw; height: 40vw; background: radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+  <div style="position:absolute; top: -10%; left: -5%; width: 50vw; height: 50vw; background: transparent 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
+  <div style="position:absolute; top: 20%; right: -10%; width: 40vw; height: 40vw; background: transparent 0%, transparent 70%); border-radius: 50%; pointer-events: none; z-index: 0;"></div>
   
   <div style="max-width:800px; margin: 32px auto 0; padding:0 24px;">
       

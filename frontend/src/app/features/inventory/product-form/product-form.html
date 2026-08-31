@@ -761,13 +761,13 @@
 .pf-badge-red   { @apply bg-rose-100/50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20; }
 .pf-progress-track { @apply w-full h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden; }
 .pf-progress-fill { @apply h-full rounded-full transition-all duration-500; }
-.pf-fill-green { @apply bg-gradient-to-r from-emerald-500 to-emerald-400; }
-.pf-fill-red   { @apply bg-gradient-to-r from-rose-500 to-rose-400; }
+.pf-fill-green { @apply bg-emerald-500; }
+.pf-fill-red   { @apply bg-rose-500; }
 .pf-stock-hint { @apply text-[11px] text-slate-500 dark:text-slate-400 mt-2; }
 .pf-divider-line { @apply h-px bg-slate-200 dark:bg-white/5; }
 
 /* BUTTONS */
-.pf-btn-primary { @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-extrabold text-white bg-gradient-to-br from-indigo-600 to-purple-600 border-none cursor-pointer shadow-lg shadow-indigo-600/30 transition-all whitespace-nowrap; font-family: inherit; }
+.pf-btn-primary { @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[13.5px] font-extrabold text-white bg-indigo-600 border-none cursor-pointer shadow-lg shadow-indigo-600/30 transition-all whitespace-nowrap; font-family: inherit; }
 .pf-btn-primary:hover:not(:disabled) { @apply -translate-y-px brightness-110; }
 .pf-btn-primary:active:not(:disabled){ @apply scale-95; }
 .pf-btn-primary:disabled { @apply opacity-50 cursor-not-allowed; }
@@ -801,7 +801,7 @@
 .pf-switch-knob { @apply absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ease-out; }
 
 /* PREVIEW CARD */
-.pf-preview-card { @apply rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/10 border border-indigo-100 dark:border-indigo-500/20 p-4 shadow-sm; }
+.pf-preview-card { @apply rounded-2xl bg-primary-50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-500/20 p-4 shadow-sm; }
 .pf-preview-header { @apply flex items-center justify-between mb-3.5; }
 .pf-live-dot { @apply w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]; animation: pfPulse 2s infinite; }
 .pf-preview-product-name { @apply text-[15px] font-extrabold text-slate-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis; }
@@ -823,7 +823,7 @@
 /* BARCODE SCANNER */
 #pf-barcode-scanner-reader { width: 100%; border-radius: 12px; overflow: hidden; }
 #pf-barcode-scanner-reader video { border-radius: 12px; }
-#pf-barcode-scanner-reader button { background: #6366f1 !important; border-radius: 8px !important; border: none !important; color: white !important; font-weight: bold !important; padding: 8px 16px !important; }
+#pf-barcode-scanner-reader button { background: #005b96 !important; border-radius: 8px !important; border: none !important; color: white !important; font-weight: bold !important; padding: 8px 16px !important; }
 #pf-barcode-scanner-reader select { border-radius: 8px !important; padding: 6px 10px !important; }
 .pf-scanner-aim-line { animation: pf-scanner-scan 2s linear infinite; }
 @keyframes pf-scanner-scan { 0% { top: 10%; opacity: 1; } 50% { top: 85%; opacity: 0.6; } 100% { top: 10%; opacity: 1; } }
@@ -867,7 +867,7 @@
         } @else {
           <div class="relative rounded-2xl overflow-hidden bg-slate-950">
             <!-- Animated scan line -->
-            <div class="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-indigo-500 to-transparent z-10 pf-scanner-aim-line pointer-events-none"></div>
+            <div class="absolute left-4 right-4 h-0.5 bg-transparent z-10 pf-scanner-aim-line pointer-events-none"></div>
             <!-- Corner marks -->
             <div class="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-indigo-400 rounded-tl-lg z-10 pointer-events-none"></div>
             <div class="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-indigo-400 rounded-tr-lg z-10 pointer-events-none"></div>

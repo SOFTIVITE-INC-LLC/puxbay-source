@@ -10,7 +10,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
       class="flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-zinc-900 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-sm"
     >
       <div
-        class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-4"
+        class="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary-500/10 text-primary-500 flex items-center justify-center mb-4"
       >
         <span class="material-symbols-outlined !text-[32px]">{{ icon }}</span>
       </div>
@@ -20,7 +20,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
       @if (actionLabel) {
         <button
           (click)="action.emit()"
-          class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+          class="px-5 py-2.5 rounded-xl bg-primary-600 text-white font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/20"
         >
           {{ actionLabel }}
         </button>

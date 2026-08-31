@@ -31,13 +31,13 @@ export class BlogEditComponent implements OnInit {
   });
 
   categoryColors = [
-    { value: 'cyan', label: 'Cyan', bg: '#06b6d4' },
-    { value: 'purple', label: 'Purple', bg: '#a855f7' },
+    { value: 'cyan', label: 'Cyan', bg: '#6497b1' },
+    { value: 'purple', label: 'Purple', bg: '#005b96' },
     { value: 'green', label: 'Green', bg: '#22c55e' },
     { value: 'slate', label: 'Slate', bg: '#64748b' },
     { value: 'rose', label: 'Rose', bg: '#f43f5e' },
-    { value: 'orange', label: 'Orange', bg: '#f97316' },
-    { value: 'indigo', label: 'Indigo', bg: '#6366f1' },
+    { value: 'orange', label: 'Orange', bg: '#03396c' },
+    { value: 'indigo', label: 'Indigo', bg: '#005b96' },
     { value: 'amber', label: 'Amber', bg: '#f59e0b' },
   ];
 

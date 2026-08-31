@@ -2,7 +2,7 @@
 
   <!-- ── Hero Header ── -->
   <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-zinc-950 text-white shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-br from-violet-900/60 via-indigo-900/40 to-zinc-950"></div>
+    <div class="absolute inset-0 bg-violet-900/60"></div>
     <div class="absolute -top-20 -right-20 w-72 h-72 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-16 left-10 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
@@ -74,7 +74,7 @@
             <button (click)="selectCustomer(c.id)"
                     class="text-left p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 hover:border-violet-400/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-indigo-600 text-white flex items-center justify-center font-black text-sm">
+                <div class="w-10 h-10 rounded-full bg-violet-400 text-white flex items-center justify-center font-black text-sm">
                   {{ c.name[0] || '?' }}
                 </div>
                 <div class="flex-1 min-w-0">
@@ -291,7 +291,7 @@
         />
         <button (click)="lookupCustomer()"
                 [disabled]="walletSvc.lookupLoading()"
-                class="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-50">
+                class="px-6 py-3 rounded-xl bg-violet-500 text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-50">
           @if (walletSvc.lookupLoading()) {
             <span class="material-symbols-outlined !text-[18px] animate-spin">refresh</span>
           } @else {
@@ -333,7 +333,7 @@
           <input type="text" [ngModel]="loyaltyAdjust().note" (ngModelChange)="loyaltyAdjust.update(v => ({...v, note: $event}))"
                  class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 focus:ring-2 focus:ring-amber-500/50 outline-none text-slate-800 dark:text-white text-sm" placeholder="e.g. Birthday bonus">
         </div>
-        <button (click)="adjustLoyalty()" class="w-full py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-amber-500/30">
+        <button (click)="adjustLoyalty()" class="w-full py-3 sm:py-3.5 rounded-2xl bg-amber-500 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-amber-500/30">
           Apply Adjustment
         </button>
       </div>
@@ -367,7 +367,7 @@
           <input type="text" [ngModel]="creditAdjust().note" (ngModelChange)="creditAdjust.update(v => ({...v, note: $event}))"
                  class="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-black/20 focus:ring-2 focus:ring-emerald-500/50 outline-none text-slate-800 dark:text-white text-sm" placeholder="e.g. Return credit">
         </div>
-        <button (click)="adjustCredit()" class="w-full py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-500/30">
+        <button (click)="adjustCredit()" class="w-full py-3 sm:py-3.5 rounded-2xl bg-emerald-500 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-500/30">
           Apply Adjustment
         </button>
       </div>
@@ -404,7 +404,7 @@
           </div>
         </div>
         <button (click)="issueGiftCard()" [disabled]="giftCardAmount() <= 0"
-                class="w-full py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-40">
+                class="w-full py-3 sm:py-3.5 rounded-2xl bg-violet-500 text-white font-black text-xs sm:text-sm hover:opacity-90 transition-all shadow-lg shadow-violet-500/30 disabled:opacity-40">
           Issue Gift Card for {{ giftCardAmount() | appCurrency }}
         </button>
       </div>

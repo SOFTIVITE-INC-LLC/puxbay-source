@@ -29,11 +29,7 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     }
     
-    @keyframes pulse-gradient {
-      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-      70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-    }
+    @keyframes pulse-gradient { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
     .btn-checkout-active {
       animation: pulse-gradient 2s infinite;
     }
@@ -77,7 +73,7 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
     }
     /* Override html5-qrcode default button styles */
     #pos-camera-scanner-reader button {
-      background: #6366f1 !important;
+      background: #005b96 !important;
       border-radius: 8px !important;
       border: none !important;
       color: white !important;

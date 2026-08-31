@@ -6,7 +6,7 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
     <div>
-      <h1 class="text-3xl lg:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-orange-600 dark:from-rose-400 dark:to-orange-400">
+      <h1 class="text-3xl lg:text-4xl font-black tracking-tight text-primary-600 dark:text-primary-400 dark:from-rose-400 dark:">
         Helpdesk Tickets
       </h1>
       <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm lg:text-base">
@@ -14,7 +14,7 @@
       </p>
     </div>
     <div class="flex items-center gap-3">
-      <button (click)="openTicketModal()" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-xl shadow-[0_4px_16px_rgba(244,63,94,0.3)] hover:shadow-[0_8px_24px_rgba(244,63,94,0.4)] hover:scale-[1.02] transition-all duration-300 font-bold">
+      <button (click)="openTicketModal()" class="flex items-center gap-2 px-5 py-2.5 bg-rose-500 text-white rounded-xl shadow-[0_4px_16px_rgba(244,63,94,0.3)] hover:shadow-[0_8px_24px_rgba(244,63,94,0.4)] hover:scale-[1.02] transition-all duration-300 font-bold">
         <span class="material-symbols-outlined !text-[18px]">add_circle</span>
         New Ticket
       </button>
@@ -84,7 +84,7 @@
           @for (msg of ticketMessages(); track msg.id) {
             <div class="flex gap-4 max-w-[80%]" [ngClass]="{'ml-auto flex-row-reverse': msg.is_staff}">
               <div class="w-10 h-10 rounded-full flex items-center justify-center font-black flex-shrink-0 text-white shadow-md"
-                   [ngClass]="msg.is_staff ? 'bg-gradient-to-br from-rose-400 to-orange-500' : 'bg-slate-200 dark:bg-zinc-800 text-slate-700'">
+                   [ngClass]="msg.is_staff ? 'bg-rose-400' : 'bg-slate-200 dark:bg-zinc-800 text-slate-700'">
                 {{ msg.is_staff ? 'S' : (activeTicket().customer?.name?.charAt(0) || 'A').toUpperCase() }}
               </div>
               <div class="p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 text-sm"
@@ -101,7 +101,7 @@
           <div class="relative">
             <textarea [(ngModel)]="replyText" rows="3" placeholder="Type your reply..."
                       class="w-full pl-4 pr-16 py-3 rounded-2xl bg-white dark:bg-black/40 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none text-sm"></textarea>
-            <button (click)="sendReply()" class="absolute right-3 bottom-3 w-10 h-10 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+            <button (click)="sendReply()" class="absolute right-3 bottom-3 w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
               <span class="material-symbols-outlined !text-[20px]">send</span>
             </button>
           </div>
@@ -157,7 +157,7 @@
           <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-2">Description</label>
           <textarea [ngModel]="newTicket().description" (ngModelChange)="newTicket.update(t => ({...t, description: $event}))" rows="4" class="w-full p-4 rounded-2xl bg-white dark:bg-black/40 border border-slate-200 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none"></textarea>
         </div>
-        <button (click)="saveTicket()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 text-white font-black hover:opacity-90 transition-all shadow-xl shadow-rose-500/30">
+        <button (click)="saveTicket()" class="w-full py-4 rounded-2xl bg-rose-500 text-white font-black hover:opacity-90 transition-all shadow-xl shadow-rose-500/30">
           Create Ticket
         </button>
       </div>

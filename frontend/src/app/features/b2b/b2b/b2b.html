@@ -3,13 +3,13 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 sm:px-6 pt-4 sm:pt-6">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-700 dark:from-indigo-400 dark:to-violet-500">
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-primary-600 dark:text-primary-400 dark:from-indigo-400 dark:">
         B2B &amp; Wholesale
       </h1>
       <p class="text-zinc-500 dark:text-zinc-400 mt-1 text-xs sm:text-sm">Generate quotes, approve proposals, and convert to orders seamlessly.</p>
     </div>
     <button (click)="isQuoteModalOpen.set(true)"
-      class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2 self-start sm:self-auto text-sm sm:text-base">
+      class="px-5 py-2.5 bg-indigo-600 text-white rounded-2xl shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all font-bold flex items-center gap-2 self-start sm:self-auto text-sm sm:text-base">
       <span class="material-symbols-outlined text-[20px]">add</span> New Quote
     </button>
   </div>
@@ -235,7 +235,7 @@
         </div>
 
         <button (click)="createQuote()"
-          class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black text-lg hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-xl shadow-indigo-500/30">
+          class="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black text-lg hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-xl shadow-indigo-500/30">
           Create Quotation
         </button>
       </div>
@@ -293,7 +293,7 @@
           @if (selectedQuote().status === 'approved') {
             <button (click)="convertToOrder(selectedQuote().id)"
               [disabled]="isConverting()"
-              class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50">
+              class="w-full py-3.5 bg-indigo-600 text-white rounded-2xl font-black hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-50">
               @if (isConverting()) { Converting… } @else { → Convert to Sales Order }
             </button>
           }

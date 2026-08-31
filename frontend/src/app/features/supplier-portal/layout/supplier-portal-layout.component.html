@@ -4,7 +4,7 @@
   <div class="min-h-[100dvh] print:h-auto w-full flex print:block md:p-3 print:p-0 gap-2 md:gap-3 relative z-10">
     <!-- Deep background radial gradients -->
     <div class="fixed inset-0 pointer-events-none hidden dark:block"
-      style="background-image: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.06) 0%, transparent 55%), radial-gradient(ellipse at 60% 85%, rgba(20,184,166,0.05) 0%, transparent 50%);">
+      style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
     </div>
 
     <!-- ── Mobile Overlay ── -->
@@ -23,7 +23,7 @@
     >
       <!-- Brand / Logo Header -->
       <div class="h-16 flex items-center px-5 border-b border-slate-200/60 dark:border-white/10 relative overflow-hidden flex-shrink-0 bg-white/40 dark:bg-white/5 backdrop-blur-md">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px] shadow-lg shadow-indigo-500/20 flex-shrink-0 flex items-center justify-center overflow-hidden" [class.mx-auto]="isSidebarCollapsed">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500 p-[2px] shadow-lg shadow-indigo-500/20 flex-shrink-0 flex items-center justify-center overflow-hidden" [class.mx-auto]="isSidebarCollapsed">
           <div class="w-full h-full bg-white dark:bg-[#080c16] rounded-[10px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-base">
             P
           </div>
@@ -144,7 +144,7 @@
               <p class="text-[12px] font-black text-slate-900 dark:text-white leading-tight truncate max-w-[130px]">{{ currentSupplier()?.contact_person || currentSupplier()?.name || 'Vendor' }}</p>
               <p class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Supplier</p>
             </div>
-            <div class="h-9 w-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-[2px] shadow-md shadow-indigo-500/20">
+            <div class="h-9 w-9 bg-indigo-500 rounded-xl p-[2px] shadow-md shadow-indigo-500/20">
               <div class="h-full w-full bg-white dark:bg-[#080c16] rounded-[9px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs">
                 {{ (currentSupplier()?.name || 'S').charAt(0).toUpperCase() }}
               </div>
@@ -154,7 +154,7 @@
       </header>
 
       <!-- ── Content Panel (Floating Card with Light/Dark Background) ── -->
-      <main class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white/90 dark:bg-gradient-to-br dark:from-[#05070f]/90 dark:to-[#030408]/90 p-4 md:p-6 transition-all">
+      <main class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white/90 dark: dark:from-[#05070f]/90 dark:to-[#030408]/90 p-4 md:p-6 transition-all">
         <router-outlet></router-outlet>
       </main>
 

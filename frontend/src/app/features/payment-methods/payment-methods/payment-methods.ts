@@ -166,7 +166,7 @@ export class PaymentMethods implements OnInit {
       name: 'POS Card Reader',
       category: 'in_person',
       icon: 'credit_card',
-      description: 'Chip & PIN, tap-to-pay Visa and Mastercard payments.',
+      description: 'Chip & PIN, tap- Visa and Mastercard payments.',
       color: 'text-indigo-500',
       bg: 'bg-indigo-500/10 border-indigo-500/20',
       badge: 'Card / Terminal'

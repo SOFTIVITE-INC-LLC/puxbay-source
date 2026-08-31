@@ -113,12 +113,12 @@ nav {
 }
 
 .nav-link-active .nav-icon {
-    color: #4f46e5 !important;
+    color: #005b96 !important;
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
 }
 
 :root.dark .nav-link-active .nav-icon {
-    color: #818cf8 !important;
+    color: #6497b1 !important;
 }
 
 .nav-icon-wrapper .material-symbols-outlined {
@@ -144,39 +144,39 @@ nav {
 }
 
 .nav-link-premium.nav-link-active {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(168, 85, 247, 0.2)) !important;
+    background: rgba(0, 91, 150, 0.15) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    color: #4f46e5 !important;
-    border-color: rgba(79, 70, 229, 0.4) !important;
-    box-shadow: 0 8px 24px -8px rgba(79, 70, 229, 0.3) !important;
+    color: #005b96 !important;
+    border-color: rgba(0, 91, 150, 0.4) !important;
+    box-shadow: 0 8px 24px -8px rgba(0, 91, 150, 0.3) !important;
 }
 
 :root.dark .nav-link-premium.nav-link-active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.15)) !important;
-    color: #a5b4fc !important;
-    border-color: rgba(99, 102, 241, 0.3) !important;
-    box-shadow: 0 8px 24px -8px rgba(99, 102, 241, 0.3) !important;
+    background: rgba(0, 91, 150, 0.15) !important;
+    color: #b3cde0 !important;
+    border-color: rgba(0, 91, 150, 0.35) !important;
+    box-shadow: 0 8px 24px -8px rgba(0, 91, 150, 0.3) !important;
 }
 
 .nav-link-premium.nav-link-active:hover {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(168, 85, 247, 0.25)) !important;
-    color: #3730a3 !important;
+    background: rgba(0, 91, 150, 0.15) !important;
+    color: #03396c !important;
 }
 
 :root.dark .nav-link-premium.nav-link-active:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.2)) !important;
-    color: #c7d2fe !important;
+    background: rgba(0, 91, 150, 0.15) !important;
+    color: #ffffff !important;
 }
 
 .nav-link-active .nav-icon-wrapper {
-    background-color: rgba(79, 70, 229, 0.15) !important;
-    color: #4f46e5 !important;
+    background-color: rgba(0, 91, 150, 0.15) !important;
+    color: #005b96 !important;
 }
 
 :root.dark .nav-link-active .nav-icon-wrapper {
-    background-color: rgba(99, 102, 241, 0.2) !important;
-    color: #818cf8 !important;
+    background-color: rgba(0, 91, 150, 0.25) !important;
+    color: #6497b1 !important;
 }
 
 .nav-link-active .nav-icon-wrapper .material-symbols-outlined {
@@ -222,7 +222,7 @@ nav {
     right: -0.75rem;
     width: 1.5rem;
     height: 1.5rem;
-    background: #4f46e5;
+    background: #005b96;
     color: white;
     border-radius: 50%;
     display: flex;

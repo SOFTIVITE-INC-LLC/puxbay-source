@@ -1,9 +1,9 @@
 @if (copilot.isOpen()) {
   <!-- Floating Copilot Panel -->
-  <div class="fixed bottom-6 right-6 z-[90] flex flex-col w-[380px] max-h-[580px] bg-white/90 dark:bg-[#080c16]/90 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_0_60px_-12px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/10 overflow-hidden font-outfit animate-slide-up">
+  <div class="fixed bottom-6 right-6 z-[90] flex flex-col w-[380px] max-h-[580px] bg-white/90 dark:bg-[#011f4b]/95 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_0_60px_-12px_rgba(0,0,0,0.4)] border border-slate-200/50 dark:border-white/10 overflow-hidden font-outfit animate-slide-up">
 
     <!-- Header -->
-    <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 border-b border-white/10">
+    <div class="flex items-center justify-between px-5 py-4 from-[#011f4b] via-[#03396c] to-[#005b96] border-b border-white/10">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
           <span class="material-symbols-outlined !text-[20px]">psychology</span>
@@ -12,7 +12,7 @@
           <p class="text-sm font-black text-white leading-none">Puxbay Copilot</p>
           <div class="flex items-center gap-1.5 mt-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <p class="text-[10px] font-bold text-indigo-200">AI Assistant · Online</p>
+            <p class="text-[10px] font-bold text-blue-100">AI Assistant · Online</p>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
         <div class="flex gap-3" [class.flex-row-reverse]="msg.role === 'user'">
           <!-- Avatar -->
           @if (msg.role === 'assistant') {
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+            <div class="w-8 h-8 rounded-xl from-[#005b96] to-[#03396c] flex items-center justify-center text-white flex-shrink-0 shadow-lg">
               <span class="material-symbols-outlined !text-[16px]">psychology</span>
             </div>
           } @else {
@@ -47,13 +47,12 @@
                [class.dark:bg-opacity-5]="msg.role === 'assistant'"
                [class.text-slate-800]="msg.role === 'assistant'"
                [class.dark:text-slate-200]="msg.role === 'assistant'"
-               [class.bg-gradient-to-br]="msg.role === 'user'"
-               [class.from-indigo-500]="msg.role === 'user'"
-               [class.to-purple-600]="msg.role === 'user'"
+               [class.]="msg.role === 'user'"
+               [class.from-[#005b96]]="msg.role === 'user'"
+               [class.to-[#03396c]]="msg.role === 'user'"
                [class.text-white]="msg.role === 'user'"
                [class.shadow-lg]="msg.role === 'user'"
-               [class.shadow-indigo-500]="msg.role === 'user'"
-               [class.shadow-opacity-25]="msg.role === 'user'"
+               [class.shadow-blue-500/20]="msg.role === 'user'"
                [innerHTML]="formatContent(msg.content)">
           </div>
         </div>
@@ -62,7 +61,7 @@
       <!-- Typing indicator -->
       @if (copilot.isTyping()) {
         <div class="flex gap-3">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+          <div class="w-8 h-8 rounded-xl from-[#005b96] to-[#03396c] flex items-center justify-center text-white flex-shrink-0 shadow-lg">
             <span class="material-symbols-outlined !text-[16px]">psychology</span>
           </div>
           <div class="bg-slate-100 dark:bg-white/5 rounded-2xl px-4 py-3 flex items-center gap-1.5">
@@ -78,7 +77,7 @@
     @if (copilot.messages().length <= 1) {
       <div class="px-4 pb-2 flex flex-wrap gap-2">
         @for (prompt of ['📦 Inventory status', '🏆 Staff leaderboard', '💰 Financial overview', '🔄 Purchase orders']; track prompt) {
-          <button (click)="inputText = prompt.slice(2).trim(); sendMessage()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 border border-indigo-100 dark:border-indigo-500/20 transition-colors">
+          <button (click)="inputText = prompt.slice(2).trim(); sendMessage()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-500/20 border border-primary-100 dark:border-primary-500/20 transition-colors">
             {{ prompt }}
           </button>
         }
@@ -93,12 +92,12 @@
           (keydown)="handleKeydown($event)"
           placeholder="Ask Copilot anything..."
           rows="1"
-          class="flex-1 resize-none bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all max-h-24"
+          class="flex-1 resize-none bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all max-h-24"
         ></textarea>
         <button
           (click)="sendMessage()"
           [disabled]="!inputText.trim() || copilot.isTyping()"
-          class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 hover:scale-105 transition-all disabled:opacity-40 disabled:scale-100 flex-shrink-0"
+          class="w-10 h-10 rounded-xl from-[#005b96] to-[#03396c] flex items-center justify-center text-white shadow-lg shadow-primary-500/30 hover:scale-105 transition-all disabled:opacity-40 disabled:scale-100 flex-shrink-0"
         >
           <span class="material-symbols-outlined !text-[18px]">send</span>
         </button>
@@ -113,7 +112,7 @@
 @if (!copilot.isOpen()) {
   <button
     (click)="copilot.open()"
-    class="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-[0_8px_24px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_32px_rgba(99,102,241,0.5)] hover:scale-110 transition-all duration-300 animate-fade-in"
+    class="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-2xl from-[#005b96] to-[#03396c] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,91,150,0.4)] hover:shadow-[0_12px_32px_rgba(0,91,150,0.5)] hover:scale-110 transition-all duration-300 animate-fade-in"
     title="Open Puxbay Copilot"
   >
     <span class="material-symbols-outlined !text-[26px]">psychology</span>

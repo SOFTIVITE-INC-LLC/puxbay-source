@@ -21,11 +21,7 @@ import { ToastService } from '../../core/services/toast';
       background: rgba(24, 24, 27, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .gradient-text {
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    .gradient-text { color: #005b96; }
   `,
 })
 export class PublicFeedback implements OnInit {

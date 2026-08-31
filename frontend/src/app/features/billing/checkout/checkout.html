@@ -1,7 +1,7 @@
 <div class="min-h-[calc(100vh-4rem)] flex flex-col p-4 md:p-8 space-y-8 max-w-5xl mx-auto animate-fade-in relative z-10 text-zinc-900 dark:text-white">
   
   <div class="flex flex-col mb-2 text-center md:text-left">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 mb-2">
+    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-primary-600 dark:text-primary-400 dark:from-blue-400 dark: mb-2">
       Complete Your Upgrade
     </h1>
     <p class="text-zinc-500 dark:text-zinc-400 text-lg">
@@ -20,7 +20,7 @@
       <!-- Order Summary Card -->
       <div class="lg:col-span-3 space-y-6">
         <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 shadow-2xl shadow-blue-900/5 border border-zinc-200/50 dark:border-zinc-800/50 relative overflow-hidden group">
-          <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+          <div class="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
           
           <div class="flex items-start justify-between mb-8">
             <div>
@@ -75,7 +75,7 @@
 
             <div class="flex justify-between items-end pt-4">
               <span class="text-xl font-bold text-zinc-900 dark:text-white">Total due today</span>
-              <span class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+              <span class="text-4xl font-black text-primary-600 dark:text-primary-400 dark:from-blue-400 dark:">
                 {{ finalTotal() | appCurrency }}
               </span>
             </div>
@@ -142,14 +142,14 @@
 
         <!-- Checkout Action -->
         <div class="relative group">
-          <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500 group-hover:duration-200"></div>
+          <div class="absolute -inset-1 bg-blue-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-500 group-hover:duration-200"></div>
           <button 
             (click)="processPayment()"
             [disabled]="isProcessing()"
-            class="relative w-full px-8 py-5 bg-gradient-to-r from-blue-600 hover:from-blue-700 to-indigo-600 hover:to-indigo-700 text-white font-black text-xl rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-3 overflow-hidden"
+            class="relative w-full px-8 py-5 bg-blue-600 hover:from-blue-700 hover: text-white font-black text-xl rounded-2xl shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none flex justify-center items-center gap-3 overflow-hidden"
           >
             <!-- Shine effect -->
-            <div class="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] group-hover:animate-shine"></div>
+            <div class="absolute top-0 -left-[100%] w-1/2 h-full bg-transparent skew-x-[-20deg] group-hover:animate-shine"></div>
             
             @if (isProcessing()) {
               <div class="animate-spin rounded-full h-6 w-6 border-3 border-white/30 border-t-white"></div>

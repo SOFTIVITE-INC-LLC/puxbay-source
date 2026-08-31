@@ -2,12 +2,12 @@
   
   <!-- Deep Background Glows matching Admin Login -->
   <div class="fixed inset-0 pointer-events-none"
-    style="background-image: radial-gradient(ellipse at 20% 30%, rgba(99,102,241,0.15) 0%, transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(168,85,247,0.12) 0%, transparent 55%), radial-gradient(ellipse at 50% 90%, rgba(20,184,166,0.08) 0%, transparent 50%);">
+    style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
   </div>
 
   <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
     <div class="flex justify-center mb-5">
-      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-xl shadow-indigo-500/25">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-500 p-[2px] shadow-xl shadow-indigo-500/25">
         <div class="w-full h-full bg-white dark:bg-[#080c16] rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-2xl">
           P
         </div>
@@ -50,7 +50,7 @@
 
         <div class="pt-2">
           <button type="submit" [disabled]="loading() || !email || !password"
-            class="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 focus:outline-none transition-all disabled:opacity-50 active:scale-95">
+            class="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 text-xs font-bold text-white bg-indigo-600 hover:opacity-95 focus:outline-none transition-all disabled:opacity-50 active:scale-95">
             {{ loading() ? 'Signing in...' : 'Sign in to Workspace' }}
           </button>
         </div>

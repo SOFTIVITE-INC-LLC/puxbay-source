@@ -3,7 +3,7 @@
   <!-- ── Header ── -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-600 dark:from-teal-400 dark:to-cyan-400">
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-primary-600 dark:text-primary-400 dark:from-teal-400 dark:">
         Supplier & Procurement Hub
       </h1>
       <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage vendor directory, approve price proposals, process defect claims (RMA), and view dock appointments.</p>
@@ -17,7 +17,7 @@
         <span class="material-symbols-outlined !text-[16px]">assignment_return</span>
         Log RMA Claim
       </button>
-      <button (click)="openAddModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 active:scale-95 transition-all">
+      <button (click)="openAddModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/25 hover:opacity-90 active:scale-95 transition-all">
         <span class="material-symbols-outlined !text-[18px]">add</span>
         Add Supplier
       </button>
@@ -396,7 +396,7 @@
 
             <!-- Avatar + Name -->
             <div class="flex items-center gap-4 pr-16">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
+              <div class="w-14 h-14 rounded-2xl bg-teal-400 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
                 {{ supplierInitials(supplier.name) }}
               </div>
               <div class="min-w-0">
@@ -484,7 +484,7 @@
               <tr class="border-b border-zinc-50 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors" [class.opacity-50]="deletingId() === supplier.id">
                 <td class="px-5 py-3.5">
                   <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-white font-black text-sm shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-teal-400 flex items-center justify-center text-white font-black text-sm shrink-0">
                       {{ supplierInitials(supplier.name) }}
                     </div>
                     <div>
@@ -767,7 +767,7 @@
           Close
         </button>
         @if (activeTab() === 'details' || !isEditing()) {
-          <button (click)="saveSupplier()" [disabled]="!currentSupplier().name || saving()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-teal-500 to-cyan-600 rounded-xl shadow-lg shadow-teal-500/25 hover:opacity-90 transition-all disabled:opacity-50">
+          <button (click)="saveSupplier()" [disabled]="!currentSupplier().name || saving()" class="px-6 py-2.5 text-sm font-bold text-white bg-teal-500 rounded-xl shadow-lg shadow-teal-500/25 hover:opacity-90 transition-all disabled:opacity-50">
             {{ saving() ? 'Saving...' : 'Save Details' }}
           </button>
         }
@@ -811,7 +811,7 @@
       </div>
       <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
         <button (click)="closeInviteModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-all">Cancel</button>
-        <button (click)="sendInvite()" [disabled]="!inviteEmail || !invitePassword || sendingInvite()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+        <button (click)="sendInvite()" [disabled]="!inviteEmail || !invitePassword || sendingInvite()" class="px-6 py-2.5 text-sm font-bold text-white bg-indigo-500 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
           {{ sendingInvite() ? 'Saving...' : 'Grant Access' }}
         </button>
       </div>
@@ -876,7 +876,7 @@
       </div>
       <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
         <button (click)="closeRMAModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 rounded-xl">Cancel</button>
-        <button (click)="submitRMA()" [disabled]="savingRMA()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+        <button (click)="submitRMA()" [disabled]="savingRMA()" class="px-6 py-2.5 text-sm font-bold text-white bg-rose-500 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
           {{ savingRMA() ? 'Submitting...' : 'Submit RMA Claim' }}
         </button>
       </div>
@@ -922,7 +922,7 @@
       </div>
       <div class="p-4 sm:p-6 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
         <button (click)="closeAnnouncementModal()" class="px-5 py-2.5 text-sm font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 rounded-xl">Cancel</button>
-        <button (click)="broadcastAnnouncement()" [disabled]="broadcastingAnnouncement()" class="px-6 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
+        <button (click)="broadcastAnnouncement()" [disabled]="broadcastingAnnouncement()" class="px-6 py-2.5 text-sm font-bold text-white bg-amber-500 rounded-xl shadow-lg hover:opacity-90 transition-all disabled:opacity-50">
           {{ broadcastingAnnouncement() ? 'Broadcasting...' : 'Publish Notice' }}
         </button>
       </div>

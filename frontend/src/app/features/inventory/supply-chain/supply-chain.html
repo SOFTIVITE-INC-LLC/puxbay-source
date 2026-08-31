@@ -4,14 +4,14 @@
     <!-- ── Header ── -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+        <h1 class="text-3xl font-extrabold tracking-tight text-primary-600 dark:text-primary-400">
           Supply Chain
         </h1>
         <p class="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage stock transfers, purchase orders, stocktakes, and low-stock alerts.</p>
       </div>
       @if (activeView() !== 'low-stock') {
         <button (click)="openCreateDrawer()"
-          class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all text-sm">
+          class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all text-sm">
           <span class="material-symbols-outlined !text-[18px]">add</span>
           New {{ activeView() === 'transfers' ? 'Transfer' : activeView() === 'purchase-orders' ? 'Purchase Order' : 'Stocktake' }}
         </button>
@@ -360,7 +360,7 @@
                 </div>
                 @if (group.supplier) {
                   <button (click)="generatePOFromLowStock(group)"
-                    class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
+                    class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
                     <span class="material-symbols-outlined !text-[14px]">add_shopping_cart</span>
                     1-Click Generate PO
                   </button>
@@ -387,7 +387,7 @@
                         <span>Reorder at {{ p.reorder_level }}</span>
                       </div>
                       <div class="h-2 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-rose-500 to-orange-400 rounded-full transition-all"
+                        <div class="h-full bg-rose-500 rounded-full transition-all"
                           [style.width.%]="p.reorder_level > 0 ? Math.min(100, ((p.current_stock || 0) / p.reorder_level) * 100) : 0">
                         </div>
                       </div>
@@ -420,9 +420,9 @@
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl flex items-center justify-center"
           [ngClass]="{
-            'bg-gradient-to-br from-indigo-500 to-purple-600': activeView() === 'transfers',
-            'bg-gradient-to-br from-purple-500 to-pink-600': activeView() === 'purchase-orders',
-            'bg-gradient-to-br from-sky-500 to-indigo-600': activeView() === 'stocktakes'
+            'bg-indigo-500': activeView() === 'transfers',
+            'bg-purple-500': activeView() === 'purchase-orders',
+            'bg-sky-500': activeView() === 'stocktakes'
           }">
           <span class="material-symbols-outlined !text-[18px] text-white">
             {{ activeView() === 'transfers' ? 'sync_alt' : activeView() === 'purchase-orders' ? 'receipt_long' : 'inventory' }}
@@ -550,7 +550,7 @@
           </div>
         </div>
         <button (click)="createTransfer()"
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all">
+          class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all">
           <span class="material-symbols-outlined !text-[16px] align-middle mr-1">sync_alt</span>
           Create Transfer
         </button>
@@ -664,7 +664,7 @@
           <span class="font-black text-lg text-purple-600 dark:text-purple-400">{{ poTotal() | appCurrency }}</span>
         </div>
         <button (click)="createPO()"
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold shadow-lg shadow-purple-500/20 hover:-translate-y-0.5 transition-all">
+          class="w-full py-3 rounded-xl bg-purple-600 text-white font-bold shadow-lg shadow-purple-500/20 hover:-translate-y-0.5 transition-all">
           <span class="material-symbols-outlined !text-[16px] align-middle mr-1">receipt_long</span>
           Create Purchase Order
         </button>
@@ -683,7 +683,7 @@
             class="w-full p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.03] text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-sky-500/30 transition-all resize-none"></textarea>
         </div>
         <button (click)="createStocktake()"
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-bold shadow-lg shadow-sky-500/20 hover:-translate-y-0.5 transition-all">
+          class="w-full py-3 rounded-xl bg-sky-600 text-white font-bold shadow-lg shadow-sky-500/20 hover:-translate-y-0.5 transition-all">
           <span class="material-symbols-outlined !text-[16px] align-middle mr-1">inventory</span>
           Start Stocktake Session
         </button>

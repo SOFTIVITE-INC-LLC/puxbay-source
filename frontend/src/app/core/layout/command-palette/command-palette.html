@@ -33,13 +33,13 @@
                 @for (cmd of commandsByCategory(category); track cmd.name) {
                   <button
                     (click)="executeCommand(cmd.route)"
-                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-indigo-50/80 dark:hover:bg-white/5 transition-colors group text-left border border-transparent hover:border-indigo-100/50 dark:hover:border-white/10"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50/80 dark:hover:bg-white/5 transition-colors group text-left border border-transparent hover:border-primary-100/50 dark:hover:border-white/10"
                   >
-                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#080c16] border border-slate-200/50 dark:border-white/5 flex items-center justify-center text-slate-500 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex-shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#011f4b] border border-slate-200/50 dark:border-white/5 flex items-center justify-center text-slate-500 group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0">
                       <span class="material-symbols-outlined !text-[18px]">{{ cmd.icon }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
-                      <div class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-white transition-colors">{{ cmd.name }}</div>
+                      <div class="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-primary-700 dark:group-hover:text-white transition-colors">{{ cmd.name }}</div>
                       <div class="text-xs text-slate-400 dark:text-slate-500 truncate">{{ cmd.description }}</div>
                     </div>
                     <span class="material-symbols-outlined text-slate-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity !text-[16px] flex-shrink-0">keyboard_return</span>

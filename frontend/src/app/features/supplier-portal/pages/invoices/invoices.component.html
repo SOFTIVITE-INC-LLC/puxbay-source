@@ -14,21 +14,21 @@
   <!-- SUMMARY CARDS -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="glass-panel p-5 rounded-2xl group hover:border-slate-300 dark:hover:border-white/20 transition-all relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500/0 via-indigo-500 to-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-indigo-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Total Invoices</span>
       <div class="mt-2 text-2xl font-black text-slate-900 dark:text-white">{{ invoices().length }}</div>
       <span class="text-xs text-slate-500 dark:text-zinc-500 mt-0.5 block">Submitted billing documents</span>
     </div>
 
     <div class="glass-panel p-5 rounded-2xl group hover:border-amber-300 dark:hover:border-amber-500/40 transition-all relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Total Outstanding</span>
       <div class="mt-2 text-2xl font-black text-amber-500 dark:text-amber-400">{{ totalOutstanding | appCurrency }}</div>
       <span class="text-xs text-amber-600 dark:text-amber-500/80 mt-0.5 block">Awaiting merchant settlement</span>
     </div>
 
     <div class="glass-panel p-5 rounded-2xl group hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-all relative overflow-hidden">
-      <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="absolute inset-x-0 top-0 h-0.5 bg-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <span class="text-[11px] font-extrabold text-slate-400 dark:text-zinc-400 uppercase tracking-wider">Settled &amp; Paid</span>
       <div class="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ totalPaid | appCurrency }}</div>
       <span class="text-xs text-emerald-600 dark:text-emerald-500/80 mt-0.5 block">Disbursed to payout account</span>

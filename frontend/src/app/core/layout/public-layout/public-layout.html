@@ -3,7 +3,7 @@
   <!-- NAVBAR -->
   <header class="fixed top-4 left-4 right-4 lg:left-10 lg:right-10 z-50 transition-all duration-300">
     <!-- Gradient border wrapper -->
-    <div class="p-px rounded-2xl bg-gradient-to-r from-indigo-500/40 via-slate-700/60 to-violet-500/30 shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+    <div class="p-px rounded-2xl bg-indigo-500/40 shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
       <div class="bg-slate-950/95 backdrop-blur-2xl rounded-[15px] px-5 lg:px-7">
         <div class="flex items-center justify-between h-[62px]">
 
@@ -13,7 +13,7 @@
               <img src="/logo.png" alt="Puxbay Logo" class="w-full h-full object-cover rounded-[11px]" />
             </div>
             <span class="text-[22px] font-black text-white tracking-tight leading-none">
-              Puxbay<span class="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">.</span>
+              Puxbay<span class="bg-indigo-400 bg-clip-text text-transparent">.</span>
             </span>
           </a>
 
@@ -31,7 +31,7 @@
 
               <!-- Products mega dropdown -->
               <div class="absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 w-[500px] opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
-                <div class="p-px rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800/50">
+                <div class="p-px rounded-2xl bg-slate-700">
                   <div class="bg-slate-950 rounded-[15px] p-3 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
                     <!-- Header -->
                     <p class="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 px-3 pt-1 pb-2">Platform</p>
@@ -96,7 +96,7 @@
               </button>
 
               <div class="absolute top-[calc(100%+4px)] left-1/2 -translate-x-1/2 w-52 opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 ease-out z-50">
-                <div class="p-px rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800/50">
+                <div class="p-px rounded-2xl bg-slate-700">
                   <div class="bg-slate-950 rounded-[15px] p-2 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
                     <a routerLink="/about" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-sm font-semibold text-slate-400 hover:text-white transition-colors">
                       <span class="material-icons-round text-[16px] text-slate-600">info</span> About Us
@@ -121,8 +121,8 @@
           <div class="flex items-center gap-2 shrink-0">
             @if (authService.isAuthenticated()) {
               <a [href]="getDashboardUrl()" class="hidden md:flex relative items-center gap-1.5 text-sm font-bold text-white px-5 py-2.5 rounded-xl overflow-hidden group/cta transition-all duration-200 hover:-translate-y-px">
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-200"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
+                <div class="absolute inset-0 bg-indigo-600 transition-all duration-200"></div>
+                <div class="absolute inset-0 bg-indigo-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
                 <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
                 <span class="relative z-10 whitespace-nowrap">Dashboard</span>
                 <span class="material-icons-round text-[15px] relative z-10 group-hover/cta:translate-x-0.5 transition-transform duration-200">dashboard</span>
@@ -133,8 +133,8 @@
                 Login
               </a>
               <a routerLink="/login" class="hidden md:flex relative items-center gap-1.5 text-sm font-bold text-white px-5 py-2.5 rounded-xl overflow-hidden group/cta transition-all duration-200 hover:-translate-y-px">
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-200"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
+                <div class="absolute inset-0 bg-indigo-600 transition-all duration-200"></div>
+                <div class="absolute inset-0 bg-indigo-500 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-200"></div>
                 <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
                 <span class="relative z-10 whitespace-nowrap">Start Free Trial</span>
                 <span class="material-icons-round text-[15px] relative z-10 group-hover/cta:translate-x-0.5 transition-transform duration-200">arrow_forward</span>
@@ -222,7 +222,7 @@
                   <span class="material-icons-round text-[16px]">login</span> Login
                 </a>
                 <a routerLink="/login" (click)="closeMobileMenu()" class="relative flex items-center justify-center gap-2 py-3 rounded-xl overflow-hidden text-sm font-bold text-white">
-                  <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600"></div>
+                  <div class="absolute inset-0 bg-indigo-600"></div>
                   <div class="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"></div>
                   <span class="relative z-10">Start Free Trial</span>
                   <span class="material-icons-round text-[15px] relative z-10">arrow_forward</span>

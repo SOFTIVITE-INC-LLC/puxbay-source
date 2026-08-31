@@ -25,15 +25,7 @@ export interface RolePermissionRow {
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './staff.html',
   styles: `
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .animated-gradient-text {
-      background-size: 300% 300%;
-      animation: gradientShift 6s ease infinite;
-    }
+    .animated-gradient-text { color: #005b96; }
     .glass-panel {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(16px);

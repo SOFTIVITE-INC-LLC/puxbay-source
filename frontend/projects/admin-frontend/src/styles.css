@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-primary: #005b96;
+  --brand-navy: #011f4b;
+  --brand-deep: #03396c;
+  --brand-steel: #6497b1;
+  --brand-ice: #b3cde0;
+}
+
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
@@ -12,9 +20,9 @@
 }
 
 /* Dark Mode Overrides for Admin Theme */
-.dark .bg-white { background-color: #0f172a !important; } /* slate-900 */
-.dark .bg-slate-50 { background-color: #1e293b !important; } /* slate-800 */
-.dark .bg-slate-100 { background-color: #020617 !important; } /* slate-950 (deepest background) */
+.dark .bg-white { background-color: #011f4b !important; } /* deepest navy */
+.dark .bg-slate-50 { background-color: #03396c !important; } /* deep ocean */
+.dark .bg-slate-100 { background-color: #001330 !important; } /* darkest background */
 .dark .bg-slate-900 { background-color: #f8fafc !important; } /* white -> slate-50 */
 .dark .text-slate-900 { color: #f8fafc !important; } /* slate-50 */
 .dark .text-slate-800 { color: #f1f5f9 !important; } /* slate-100 */

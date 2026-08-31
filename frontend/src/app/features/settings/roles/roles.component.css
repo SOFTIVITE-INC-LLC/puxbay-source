@@ -1,13 +1,13 @@
 :host {
   --surface-color: #ffffff;
-  --border-color: #f4f4f5; /* zinc-100 */
+  --border-color: #f0f6fa; /* zinc-100 */
   --text-color: #18181b; /* zinc-900 */
   --text-secondary: #71717a; /* zinc-500 */
-  --text-muted: #a1a1aa; /* zinc-400 */
-  --bg-secondary: #f4f4f5; /* zinc-100 */
-  --bg-hover: #f4f4f5; /* zinc-100 */
+  --text-muted: #6497b1; /* zinc-400 */
+  --bg-secondary: #f0f6fa; /* zinc-100 */
+  --bg-hover: #f0f6fa; /* zinc-100 */
   --bg-info: #e0f2fe;
-  --text-info: #0284c7;
+  --text-info: #005b96;
   --bg-success: #dcfce7;
   --text-success: #16a34a;
   --bg-danger: #fee2e2;
@@ -18,14 +18,14 @@
   --surface-color: rgba(39, 39, 42, 0.4); /* zinc-800 translucent */
   --border-color: rgba(255, 255, 255, 0.1);
   --text-color: #ffffff;
-  --text-secondary: #a1a1aa; /* zinc-400 */
+  --text-secondary: #6497b1; /* zinc-400 */
   --text-muted: #52525b; /* zinc-600 */
   --bg-secondary: rgba(255, 255, 255, 0.05);
   --bg-hover: rgba(255, 255, 255, 0.1);
   --bg-info: rgba(56, 189, 248, 0.1); /* sky-400 translucent */
-  --text-info: #38bdf8; /* sky-400 */
+  --text-info: #6497b1; /* sky-400 */
   --bg-success: rgba(74, 222, 128, 0.1); /* green-400 translucent */
-  --text-success: #4ade80; /* green-400 */
+  --text-success: #005b96; /* green-400 */
   --bg-danger: rgba(239, 68, 68, 0.1); /* red-500 translucent */
   --text-danger: #ef4444; /* red-500 */
 }
@@ -102,7 +102,7 @@
 
 .badge.system {
   background: var(--bg-info, #e0f2fe);
-  color: var(--text-info, #0284c7);
+  color: var(--text-info, #005b96);
 }
 
 .badge.custom {
@@ -125,7 +125,7 @@
 }
 
 .btn-icon:hover {
-  background: var(--bg-hover, #f3f4f6);
+  background: var(--bg-hover, #f0f6fa);
   color: var(--text-color);
 }
 
@@ -149,7 +149,7 @@
 
 .perm-tag {
   font-size: 0.75rem;
-  background: var(--bg-secondary, #f3f4f6);
+  background: var(--bg-secondary, #f0f6fa);
   color: var(--text-secondary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -317,12 +317,12 @@
 }
 
 .btn-primary {
-  background: var(--primary-color, #4f46e5);
+  background: var(--primary-color, #005b96);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover, #4338ca);
+  background: var(--primary-hover, #03396c);
 }
 
 .btn-primary:disabled {
@@ -336,6 +336,6 @@
 }
 
 .btn-text:hover {
-  background: var(--bg-hover, #f3f4f6);
+  background: var(--bg-hover, #f0f6fa);
   color: var(--text-color);
 }

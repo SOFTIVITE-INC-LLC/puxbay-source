@@ -11,7 +11,7 @@
       </button>
       <div>
         <div class="flex items-center gap-3">
-          <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500">
+          <h1 class="text-4xl font-extrabold tracking-tight text-primary-600 dark:text-primary-400">
             Stocktake Session
           </h1>
           <div class="relative">
@@ -19,7 +19,7 @@
             
             <div *ngIf="session() && session()?.status !== 'completed'" class="relative flex items-center">
               <span class="animate-ping absolute -left-1 inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30"></span>
-              <span class="px-3.5 py-1.5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center gap-2">
+              <span class="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 In Progress
               </span>
@@ -34,7 +34,7 @@
     </div>
     
     <div class="flex gap-3" *ngIf="session() && session()?.status !== 'completed'">
-      <button (click)="finalizeSession()" class="group relative px-6 py-3 bg-gradient-to-r from-zinc-900 to-zinc-800 dark:from-white dark:to-zinc-200 text-white dark:text-zinc-900 font-bold rounded-2xl shadow-xl shadow-zinc-900/20 hover:shadow-zinc-900/40 dark:shadow-white/10 dark:hover:shadow-white/20 hover:-translate-y-0.5 active:scale-95 transition-all overflow-hidden">
+      <button (click)="finalizeSession()" class="group relative px-6 py-3 bg-zinc-900 dark:from-white dark: text-white dark:text-zinc-900 font-bold rounded-2xl shadow-xl shadow-zinc-900/20 hover:shadow-zinc-900/40 dark:shadow-white/10 dark:hover:shadow-white/20 hover:-translate-y-0.5 active:scale-95 transition-all overflow-hidden">
         <div class="absolute inset-0 bg-white/20 dark:bg-black/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
         <div class="relative flex items-center gap-2">
           <span class="material-symbols-outlined !text-[20px]">done_all</span>
@@ -60,10 +60,10 @@
     <div class="lg:col-span-1 space-y-6">
       <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-emerald-500/5 border border-white/50 dark:border-zinc-800/50 p-8 flex flex-col items-center text-center relative overflow-hidden group">
         <!-- Card background effects -->
-        <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div class="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 blur-3xl rounded-full"></div>
         
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-transform">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-transform">
           <span class="material-symbols-outlined !text-3xl">qr_code_scanner</span>
         </div>
         
@@ -73,7 +73,7 @@
         </p>
         
         <!-- QR Code Display -->
-        <div class="relative p-1 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-3xl mb-8 shadow-2xl shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
+        <div class="relative p-1 bg-emerald-400 rounded-3xl mb-8 shadow-2xl shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">
           <div class="bg-white p-5 rounded-[22px]">
             <img [src]="qrUrl()" alt="Portal QR Code" class="w-48 h-48 mix-blend-multiply">
           </div>
@@ -97,7 +97,7 @@
     <div class="lg:col-span-2">
       <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-zinc-900/5 border border-white/50 dark:border-zinc-800/50 overflow-hidden flex flex-col h-full">
         
-        <div class="p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-zinc-50/50 to-transparent dark:from-zinc-800/30">
+        <div class="p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-50/50 dark:from-zinc-800/30">
           <div>
             <h2 class="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-3">
               Live Counts

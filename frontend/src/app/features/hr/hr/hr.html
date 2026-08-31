@@ -3,14 +3,14 @@
   <!-- ── Header ── -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-rose-500 animated-gradient-text">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-primary-600 dark:text-primary-400 animated-gradient-text">
         Team & Workspace
       </h1>
       <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1 font-medium text-xs sm:text-base md:text-lg">Manage staff, track attendance, and process payroll gracefully.</p>
     </div>
     <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
       @if (activeTab() === 'staff') {
-        <button (click)="openStaffModal()" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30 flex items-center gap-2 text-xs sm:text-sm">
+        <button (click)="openStaffModal()" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-orange-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30 flex items-center gap-2 text-xs sm:text-sm">
           <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">person_add</span>
           Add Team Member
         </button>
@@ -22,7 +22,7 @@
         </button>
       }
       @if (activeTab() === 'payroll') {
-        <button (click)="isPayrollPeriodModalOpen.set(true)" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30 flex items-center gap-2 text-xs sm:text-sm">
+        <button (click)="isPayrollPeriodModalOpen.set(true)" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-emerald-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30 flex items-center gap-2 text-xs sm:text-sm">
           <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">add_task</span>
           New Payroll Period
         </button>
@@ -83,7 +83,7 @@
 
   <!-- ── Gamification: Top Performers ── -->
   @if (intelligence.leaderboard().length > 0) {
-    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border border-amber-500/20 shadow-lg">
+    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 bg-amber-500/10 border border-amber-500/20 shadow-lg">
       <div class="absolute -right-20 -top-20 w-64 h-64 bg-amber-400/20 rounded-full blur-[80px]"></div>
       
       <div class="relative z-10 flex flex-col md:flex-row items-center justify-between mb-4 sm:mb-6">
@@ -181,11 +181,11 @@
           <div class="glass-panel rounded-3xl p-1 relative overflow-hidden group cursor-pointer hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10"
                (click)="openStaffModal(s)">
             <!-- Top Banner -->
-            <div class="h-24 w-full rounded-t-[22px] bg-gradient-to-r from-orange-400 via-pink-500 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+            <div class="h-24 w-full rounded-t-[22px] bg-orange-400 opacity-80 group-hover:opacity-100 transition-opacity"></div>
             
             <div class="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
               <!-- Avatar -->
-              <div class="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl flex items-center justify-center text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-500 to-rose-500 -mt-10 mb-4 border-[4px] border-white dark:border-[#1a1a1a]">
+              <div class="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl flex items-center justify-center text-2xl font-black text-primary-600 dark:text-primary-400 -mt-10 mb-4 border-[4px] border-white dark:border-[#1a1a1a]">
                 {{ s.first_name?.[0] || '' }}{{ s.last_name?.[0] || '' }}
               </div>
               
@@ -294,7 +294,7 @@
                 <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors group">
                   <td class="px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center gap-2.5 sm:gap-4">
-                      <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/40 dark:to-purple-900/40 flex items-center justify-center text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-400 shadow-inner group-hover:scale-110 transition-transform shrink-0">
+                      <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:from-indigo-900/40 dark: flex items-center justify-center text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-400 shadow-inner group-hover:scale-110 transition-transform shrink-0">
                         {{ staffInitials(a.staff_id) }}
                       </div>
                       <span class="font-bold text-zinc-900 dark:text-white truncate text-xs sm:text-sm">{{ staffName(a.staff_id) }}</span>
@@ -450,7 +450,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (p of payrollPeriods(); track p.id) {
         <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
-          <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 pointer-events-none"></div>
+          <div class="absolute inset-0 bg-white/40 dark:from-white/5 pointer-events-none"></div>
           
           <div class="flex justify-between items-start mb-8 relative z-10">
             <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-inner">
@@ -499,7 +499,7 @@
     <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
       <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
         <h2 class="text-xl font-black">Staff Roster & Scheduling</h2>
-        <button (click)="isShiftModalOpen.set(true)" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold shadow-lg hover:opacity-90">Schedule Shift</button>
+        <button (click)="isShiftModalOpen.set(true)" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:opacity-90">Schedule Shift</button>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left">
@@ -593,7 +593,7 @@
                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg accent-orange-500 cursor-pointer">
           <label for="active" class="text-xs sm:text-sm font-black cursor-pointer">Employee Account is Active</label>
         </div>
-        <button (click)="saveStaff()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-rose-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30">
+        <button (click)="saveStaff()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-orange-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30">
           Save Profile
         </button>
       </div>
@@ -677,7 +677,7 @@
                    class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
           </div>
         </div>
-        <button (click)="createPayrollPeriod()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
+        <button (click)="createPayrollPeriod()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-emerald-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
           Create Cycle
         </button>
       </div>
@@ -722,7 +722,7 @@
           <input [ngModel]="shiftForm().role" (ngModelChange)="shiftForm.update(s => ({...s, role: $event}))"
                  placeholder="e.g. Closing Manager" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
         </div>
-        <button (click)="saveShift()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
+        <button (click)="saveShift()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-emerald-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
           Save Shift
         </button>
       </div>
