@@ -47,12 +47,10 @@
                [class.dark:bg-opacity-5]="msg.role === 'assistant'"
                [class.text-slate-800]="msg.role === 'assistant'"
                [class.dark:text-slate-200]="msg.role === 'assistant'"
-               [class.]="msg.role === 'user'"
-               [class.from-[#005b96]]="msg.role === 'user'"
-               [class.to-[#03396c]]="msg.role === 'user'"
+               [class.bg-primary-600]="msg.role === 'user'"
                [class.text-white]="msg.role === 'user'"
                [class.shadow-lg]="msg.role === 'user'"
-               [class.shadow-blue-500/20]="msg.role === 'user'"
+               [class.shadow-primary-500/20]="msg.role === 'user'"
                [innerHTML]="formatContent(msg.content)">
           </div>
         </div>

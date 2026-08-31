@@ -33,15 +33,14 @@
         ]; track tab.id) {
           <button
             (click)="activeTab.set($any(tab.id))"
-            [class.]="activeTab() === tab.id"
-            [class.from-indigo-500/10]="activeTab() === tab.id"
-            [class.to-purple-500/10]="activeTab() === tab.id"
+            [class.bg-primary-50]="activeTab() === tab.id"
+            [class.dark:bg-primary-500/10]="activeTab() === tab.id"
             [class.shadow-sm]="activeTab() === tab.id"
-            [class.text-indigo-600]="activeTab() === tab.id"
-            [class.dark:text-indigo-400]="activeTab() === tab.id"
+            [class.text-primary-600]="activeTab() === tab.id"
+            [class.dark:text-primary-400]="activeTab() === tab.id"
             [class.font-bold]="activeTab() === tab.id"
             [class.border-l-4]="activeTab() === tab.id"
-            [class.border-indigo-500]="activeTab() === tab.id"
+            [class.border-primary-500]="activeTab() === tab.id"
             class="px-4 py-3 rounded-r-xl flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-all text-left w-full border-l-4 border-transparent"
           >
             <span class="material-symbols-outlined !text-[20px]">{{ tab.icon }}</span>
