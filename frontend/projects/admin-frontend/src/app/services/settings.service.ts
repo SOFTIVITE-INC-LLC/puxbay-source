@@ -24,7 +24,7 @@ export interface PlatformContactSettings {
   providedIn: 'root'
 })
 export class SettingsService {
-  
+
   private flags: FeatureFlags = {
     enable_new_dashboard: true,
     enable_pos_beta: false,
@@ -35,8 +35,8 @@ export class SettingsService {
   private defaultContact: PlatformContactSettings = {
     company_name: 'Puxbay / Softivite',
     headquarters_address: 'No. 12 Independence Avenue, Ridge, Accra, Ghana',
-    contact_phone: '+233 (0) 30 123 4567',
-    support_phone: '+233 (0) 50 123 4567',
+    contact_phone: '+233 (0) 246136978',
+    support_phone: '+233 (0) 598001682',
     contact_email: 'support@puxbay.com',
     sales_email: 'sales@puxbay.com',
     support_email: 'support@puxbay.com',
@@ -44,11 +44,11 @@ export class SettingsService {
   };
 
   getFeatureFlags(): Observable<FeatureFlags> {
-    return of({...this.flags}).pipe(delay(500));
+    return of({ ...this.flags }).pipe(delay(500));
   }
 
   updateFeatureFlags(flags: FeatureFlags): Observable<any> {
-    this.flags = {...flags};
+    this.flags = { ...flags };
     return of({ status: 'updated' }).pipe(delay(800));
   }
 
@@ -58,14 +58,14 @@ export class SettingsService {
       if (saved) {
         return of({ ...this.defaultContact, ...JSON.parse(saved) }).pipe(delay(300));
       }
-    } catch (_) {}
+    } catch (_) { }
     return of({ ...this.defaultContact }).pipe(delay(300));
   }
 
   updateContactSettings(contact: PlatformContactSettings): Observable<any> {
     try {
       localStorage.setItem('puxbay_platform_contact', JSON.stringify(contact));
-    } catch (_) {}
+    } catch (_) { }
     return of({ status: 'updated', data: contact }).pipe(delay(500));
   }
 }
