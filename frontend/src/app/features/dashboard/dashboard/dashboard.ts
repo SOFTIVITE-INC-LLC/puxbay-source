@@ -38,12 +38,12 @@ export class Dashboard implements OnInit {
   get tenantQuickActions() {
     const role = this.authService.currentUser()?.role?.toLowerCase();
     const actions = [
-      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 ', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Branches', icon: 'store', route: '/branches', color: 'from-sky-500 ', roles: ['admin', 'manager'] },
-      { label: 'Staff', icon: 'badge', route: '/staff', color: 'from-emerald-500 ', roles: ['admin', 'manager'] },
-      { label: 'Financial', icon: 'account_balance', route: '/financial', color: 'from-orange-500 ', roles: ['admin'] },
-      { label: 'Reports', icon: 'analytics', route: '/reports', color: 'from-pink-500 ', roles: ['admin', 'manager'] },
-      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-violet-500 ', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'bg-primary-600', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Branches', icon: 'store', route: '/branches', color: 'bg-primary-700', roles: ['admin', 'manager'] },
+      { label: 'Staff', icon: 'badge', route: '/staff', color: 'bg-puxbay-deep', roles: ['admin', 'manager'] },
+      { label: 'Financial', icon: 'account_balance', route: '/financial', color: 'bg-puxbay-navy', roles: ['admin'] },
+      { label: 'Reports', icon: 'analytics', route: '/reports', color: 'bg-primary-500', roles: ['admin', 'manager'] },
+      { label: 'Customers', icon: 'group', route: '/customers', color: 'bg-primary-600', roles: ['admin', 'manager', 'cashier'] },
     ];
     return actions.filter(a => a.roles.includes(role || ''));
   }
@@ -51,12 +51,12 @@ export class Dashboard implements OnInit {
   get branchQuickActions() {
     const role = this.authService.currentUser()?.role?.toLowerCase();
     const actions = [
-      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'from-indigo-500 ', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Orders', icon: 'receipt_long', route: '/orders', color: 'from-sky-500 ', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Products', icon: 'inventory_2', route: '/inventory', color: 'from-emerald-500 ', roles: ['admin', 'manager'] },
-      { label: 'Customers', icon: 'group', route: '/customers', color: 'from-pink-500 ', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Purchase Orders', icon: 'contract', route: '/purchase-orders', color: 'from-orange-500 ', roles: ['admin', 'manager'] },
-      { label: 'Reports', icon: 'insert_chart', route: '/reports', color: 'from-violet-500 ', roles: ['admin', 'manager'] },
+      { label: 'New Sale', icon: 'point_of_sale', route: '/pos', color: 'bg-primary-600', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Orders', icon: 'receipt_long', route: '/orders', color: 'bg-primary-700', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Products', icon: 'inventory_2', route: '/inventory', color: 'bg-puxbay-deep', roles: ['admin', 'manager'] },
+      { label: 'Customers', icon: 'group', route: '/customers', color: 'bg-primary-500', roles: ['admin', 'manager', 'cashier'] },
+      { label: 'Purchase Orders', icon: 'contract', route: '/purchase-orders', color: 'bg-puxbay-navy', roles: ['admin', 'manager'] },
+      { label: 'Reports', icon: 'insert_chart', route: '/reports', color: 'bg-primary-600', roles: ['admin', 'manager'] },
     ];
     return actions.filter(a => a.roles.includes(role || ''));
   }

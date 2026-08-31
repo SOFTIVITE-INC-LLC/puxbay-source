@@ -15,7 +15,7 @@ export class CopilotService {
 	messages = signal<CopilotMessage[]>([
 		{
 			role: 'assistant',
-			content: "Hi! I'm **Puxbay Copilot** 🤖\n\nI can help you navigate the platform, understand your data, and give business insights. Try asking:\n- *\"How's my inventory looking?\"*\n- *\"Show me the top selling products\"*\n- *\"What should I reorder today?\"*",
+			content: "Hi! I'm **Puxbay Copilot**\n\nI can help you navigate the platform, understand your data, and give business insights. Try asking:\n- *\"How's my inventory looking?\"*\n- *\"Show me the top selling products\"*\n- *\"What should I reorder today?\"*",
 			timestamp: new Date()
 		}
 	]);

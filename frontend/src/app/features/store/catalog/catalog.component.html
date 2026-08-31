@@ -247,7 +247,7 @@
           <p class="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mb-3">{{ product.description || '' }}</p>
           <div class="mb-3">
             <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold border border-amber-500/20">
-              💎 Earn {{ calculatePoints(product.selling_price) }} Points
+              <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Points
             </span>
           </div>
           <div class="mt-auto flex items-center justify-between gap-2">
@@ -291,7 +291,7 @@
       <p class="text-sm text-slate-400 dark:text-zinc-500 line-clamp-1 mt-0.5">{{ product.description || '' }}</p>
       <div class="mt-2">
         <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold border border-amber-500/20">
-          💎 Earn {{ calculatePoints(product.selling_price) }} Points
+          <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Points
         </span>
       </div>
       <p class="text-lg font-black text-indigo-400 mt-1">{{ product.selling_price | appCurrency }}</p>
@@ -464,7 +464,7 @@
         <div class="flex items-center gap-4 mb-6">
           <p class="text-3xl font-black text-indigo-400">{{ quickViewProduct()!.selling_price | appCurrency }}</p>
           <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/20">
-            💎 Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
+            <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
           </span>
         </div>
 

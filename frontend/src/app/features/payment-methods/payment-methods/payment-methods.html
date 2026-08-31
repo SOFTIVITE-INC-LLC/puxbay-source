@@ -413,7 +413,7 @@
                     [class.text-white]="wizard().step > 1"
                     [class.border-emerald-500]="wizard().step > 1"
                     [class.border-slate-300]="wizard().step < 1">
-                {{ wizard().step > 1 ? '✓' : '1' }}
+                @if (wizard().step > 1) { <span class="material-symbols-outlined !text-[14px]">check</span> } @else { 1 }
               </span>
               <span class="hidden sm:inline">Country</span>
             </button>
@@ -433,7 +433,7 @@
                     [class.text-white]="wizard().step > 2"
                     [class.border-emerald-500]="wizard().step > 2"
                     [class.border-slate-300]="wizard().step < 2">
-                {{ wizard().step > 2 ? '✓' : '2' }}
+                @if (wizard().step > 2) { <span class="material-symbols-outlined !text-[14px]">check</span> } @else { 2 }
               </span>
               <span class="hidden sm:inline">Bank</span>
             </button>
@@ -453,7 +453,7 @@
                     [class.text-white]="wizard().step > 3"
                     [class.border-emerald-500]="wizard().step > 3"
                     [class.border-slate-300]="wizard().step < 3">
-                {{ wizard().step > 3 ? '✓' : '3' }}
+                @if (wizard().step > 3) { <span class="material-symbols-outlined !text-[14px]">check</span> } @else { 3 }
               </span>
               <span class="hidden sm:inline">Account #</span>
             </button>
@@ -473,7 +473,7 @@
                     [class.text-white]="wizard().step > 4"
                     [class.border-emerald-500]="wizard().step > 4"
                     [class.border-slate-300]="wizard().step < 4">
-                {{ wizard().step > 4 ? '✓' : '4' }}
+                @if (wizard().step > 4) { <span class="material-symbols-outlined !text-[14px]">check</span> } @else { 4 }
               </span>
               <span class="hidden sm:inline">Verify Name</span>
             </button>
@@ -850,7 +850,7 @@
             <div class="relative">
               <select [(ngModel)]="formData.provider" name="provider"
                       class="w-full appearance-none px-4 py-3 pr-10 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer transition">
-                <option value="paystack_subaccount">⚡ Paystack Subaccount (Split Payouts & MoMo/Cards)</option>
+                <option value="paystack_subaccount">Paystack Subaccount (Split Payouts & MoMo/Cards)</option>
                 <option value="paystack">Paystack Standard Gateway</option>
                 <option value="cash">Cash — In-person / POS / Delivery</option>
                 <option value="mobile">Mobile Money — MTN, Telecel, AirtelTigo</option>

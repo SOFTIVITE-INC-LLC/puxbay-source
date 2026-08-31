@@ -71,7 +71,7 @@
       <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-100 dark:bg-rose-900/20 rounded-full blur-xl opacity-60"></div>
       <div class="flex items-center gap-2 text-zinc-500 mb-1 z-10">
         <span class="material-symbols-outlined !text-[18px] text-rose-500">sentiment_dissatisfied</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest">Negative (1-2★)</span>
+        <span class="text-[10px] font-bold uppercase tracking-widest">Negative (1-2 Stars)</span>
       </div>
       <p class="text-3xl font-black z-10 text-rose-600 dark:text-rose-400">{{ negativeCount }}</p>
       <div class="flex items-center gap-1 z-10 mt-1">
@@ -87,7 +87,7 @@
     <div class="space-y-3">
       @for (star of [5, 4, 3, 2, 1]; track star) {
         <button (click)="selectedRating.set(selectedRating() === star ? 0 : star); onFilterChange()" class="w-full flex items-center gap-3 group">
-          <span class="text-sm font-bold w-6 text-right shrink-0" [class]="selectedRating() === star ? 'text-amber-500' : 'text-zinc-400'">{{ star }}★</span>
+          <span class="text-sm font-bold w-6 text-right shrink-0" [class]="selectedRating() === star ? 'text-amber-500' : 'text-zinc-400'">{{ star }} <span class="material-symbols-outlined !text-[14px] inline-block align-middle">star</span></span>
           <div class="flex-1 h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div class="h-full rounded-full transition-all duration-500"
                  [class]="star >= 4 ? 'bg-emerald-400' : (star === 3 ? 'bg-amber-400' : 'bg-rose-400')"
@@ -111,7 +111,7 @@
             : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium'"
           class="px-4 py-2 rounded-xl text-sm transition-all whitespace-nowrap">
           @if (star === 0) { All }
-          @else { <span class="text-amber-400 font-black">{{ star }}★</span> }
+          @else { <span class="text-amber-400 font-black">{{ star }} <span class="material-symbols-outlined !text-[14px] inline-block align-middle">star</span></span> }
         </button>
       }
     </div>

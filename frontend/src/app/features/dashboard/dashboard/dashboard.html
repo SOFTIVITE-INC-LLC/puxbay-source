@@ -166,9 +166,9 @@
             <p class="text-[9px] sm:text-[10px] font-extrabold text-blue-100 uppercase tracking-wider sm:tracking-[0.25em] mb-0.5 sm:mb-1">Branch AI Insight · {{ branch.name }}</p>
             <p class="text-sm sm:text-base font-bold text-white leading-snug">
               @if (lowStockProducts.length > 0) {
-                ⚠️ {{ lowStockProducts.length }} item(s) are below the reorder threshold. Create a Purchase Order now.
+                <span class="material-symbols-outlined !text-[16px] text-amber-500 inline-block align-middle mr-1">warning</span> {{ lowStockProducts.length }} item(s) are below the reorder threshold. Create a Purchase Order now.
               } @else {
-                ✅ {{ branch.name }} inventory is healthy. Sales momentum looks strong today!
+                <span class="material-symbols-outlined !text-[16px] text-emerald-500 inline-block align-middle mr-1">check_circle</span> {{ branch.name }} inventory is healthy. Sales momentum looks strong today!
               }
             </p>
           </div>
@@ -417,9 +417,9 @@
             <p class="text-[9px] sm:text-[10px] font-extrabold text-indigo-100 uppercase tracking-wider sm:tracking-[0.25em] mb-0.5 sm:mb-1">Puxbay AI Insight · Network Wide</p>
             <p class="text-sm sm:text-base font-bold text-white leading-snug">
               @if (dashboardService.metrics()?.low_stock_items) {
-                ⚠️ Stock depletion detected across {{ dashboardService.metrics()?.low_stock_items }} items. Select a branch to create a Purchase Order.
+                <span class="material-symbols-outlined !text-[16px] text-amber-500 inline-block align-middle mr-1">warning</span> Stock depletion detected across {{ dashboardService.metrics()?.low_stock_items }} items. Select a branch to create a Purchase Order.
               } @else {
-                ✅ All branches are stocked and running well. Network performance looks great!
+                <span class="material-symbols-outlined !text-[16px] text-emerald-500 inline-block align-middle mr-1">check_circle</span> All branches are stocked and running well. Network performance looks great!
               }
             </p>
           </div>

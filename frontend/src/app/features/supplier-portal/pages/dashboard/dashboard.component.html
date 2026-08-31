@@ -60,7 +60,7 @@
                   [class.dark:text-amber-300]="ann.priority === 'warning'"
                   [class.text-rose-700]="ann.priority === 'urgent'"
                   [class.dark:text-rose-300]="ann.priority === 'urgent'">
-              {{ ann.priority === 'urgent' ? '🔴 Urgent Notice' : ann.priority === 'warning' ? '⚠️ Advisory' : '📢 Announcement' }}
+              {{ ann.priority === 'urgent' ? 'Urgent Notice' : ann.priority === 'warning' ? 'Advisory' : 'Announcement' }}
             </span>
             <p class="text-xs font-bold text-slate-900 dark:text-white mt-0.5">{{ ann.title }}</p>
             <p class="text-xs text-slate-600 dark:text-zinc-300 mt-0.5 line-clamp-2">{{ ann.content }}</p>

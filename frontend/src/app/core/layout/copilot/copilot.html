@@ -74,7 +74,7 @@
     <!-- Quick Prompts (shown when no messages beyond greeting) -->
     @if (copilot.messages().length <= 1) {
       <div class="px-4 pb-2 flex flex-wrap gap-2">
-        @for (prompt of ['📦 Inventory status', '🏆 Staff leaderboard', '💰 Financial overview', '🔄 Purchase orders']; track prompt) {
+        @for (prompt of ['Inventory status', 'Staff leaderboard', 'Financial overview', 'Purchase orders']; track prompt) {
           <button (click)="inputText = prompt.slice(2).trim(); sendMessage()" class="text-xs font-bold px-3 py-1.5 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-500/20 border border-primary-100 dark:border-primary-500/20 transition-colors">
             {{ prompt }}
           </button>

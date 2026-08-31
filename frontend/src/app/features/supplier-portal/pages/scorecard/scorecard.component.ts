@@ -58,10 +58,10 @@ export class SupplierPortalScorecardComponent implements OnInit {
 
   tierIcon(tier: string = ''): string {
     const t = tier.toLowerCase();
-    if (t === 'platinum') return '🏆';
-    if (t === 'gold') return '🥇';
-    if (t === 'silver') return '🥈';
-    return '🥉';
+    if (t === 'platinum') return 'emoji_events';
+    if (t === 'gold') return 'workspace_premium';
+    if (t === 'silver') return 'military_tech';
+    return 'military_tech';
   }
 
   statusScoreClass(status: string = ''): string {

@@ -283,11 +283,11 @@
           @if (selectedQuote().status === 'pending') {
             <button (click)="approveQuote(selectedQuote().id); isViewModalOpen.set(false)"
               class="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black transition-colors">
-              ✓ Approve Quote
+              <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">check</span> Approve Quote
             </button>
             <button (click)="rejectQuote(selectedQuote().id); isViewModalOpen.set(false)"
               class="flex-1 py-3.5 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black transition-colors">
-              ✕ Reject
+              <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">close</span> Reject
             </button>
           }
           @if (selectedQuote().status === 'approved') {

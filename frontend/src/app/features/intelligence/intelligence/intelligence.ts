@@ -94,11 +94,11 @@ export class Intelligence implements OnInit {
     const s = this.svc.segments();
     if (!s) return [];
     return [
-      { label: 'VIP', count: s['VIP']?.count ?? 0, color: 'from-amber-500 ', icon: 'workspace_premium', desc: 'High spend, frequent buyers' },
-      { label: 'Loyal', count: s['Loyal']?.count ?? 0, color: 'from-emerald-500 ', icon: 'favorite', desc: 'Regular, committed customers' },
-      { label: 'Recent', count: s['Recent']?.count ?? 0, color: 'from-blue-500 ', icon: 'person_add', desc: 'New or recent buyers' },
-      { label: 'At Risk', count: (s as any)['At Risk']?.count ?? 0, color: 'from-orange-500 ', icon: 'warning', desc: 'Haven\'t bought in 30–90 days' },
-      { label: 'Lost', count: s['Lost']?.count ?? 0, color: 'from-rose-500 ', icon: 'person_off', desc: 'Inactive over 90 days' },
+      { label: 'VIP', count: s['VIP']?.count ?? 0, color: 'bg-primary-600', icon: 'workspace_premium', desc: 'High spend, frequent buyers' },
+      { label: 'Loyal', count: s['Loyal']?.count ?? 0, color: 'bg-primary-700', icon: 'favorite', desc: 'Regular, committed customers' },
+      { label: 'Recent', count: s['Recent']?.count ?? 0, color: 'bg-primary-500', icon: 'person_add', desc: 'New or recent buyers' },
+      { label: 'At Risk', count: (s as any)['At Risk']?.count ?? 0, color: 'bg-puxbay-deep', icon: 'warning', desc: 'Haven\'t bought in 30–90 days' },
+      { label: 'Lost', count: (s as any)['Lost']?.count ?? 0, color: 'bg-puxbay-navy', icon: 'person_off', desc: 'Inactive for >90 days' },
     ];
   });
 

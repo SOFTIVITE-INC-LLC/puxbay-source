@@ -161,7 +161,7 @@
           <p class="text-base sm:text-xl lg:text-2xl font-black text-rose-600 dark:text-rose-400 z-10 truncate">{{ (pnlData()?.total_accounts_receivable || 0) | appCurrency }}</p>
           <span class="text-[10px] text-rose-500 z-10 font-bold">
             @if ((pnlData()?.overdue_receivables || 0) > 0) {
-              ⚠️ {{ (pnlData()?.overdue_receivables || 0) | appCurrency }} Overdue
+              <span class="material-symbols-outlined !text-[16px] text-amber-500 inline-block align-middle mr-1">warning</span> {{ (pnlData()?.overdue_receivables || 0) | appCurrency }} Overdue
             } @else {
               Unpaid balances
             }

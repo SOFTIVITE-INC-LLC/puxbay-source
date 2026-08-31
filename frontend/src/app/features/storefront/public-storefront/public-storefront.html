@@ -279,7 +279,7 @@
         }
         <h2 class="text-lg sm:text-xl font-black">Checkout</h2>
       </div>
-      <button (click)="isCheckoutOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-zinc-500">✕</button>
+      <button (click)="isCheckoutOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-zinc-500"><span class="material-symbols-outlined !text-[18px]">close</span></button>
     </div>
     <div class="p-6 sm:p-8 overflow-y-auto">
       @if (checkoutError()) {

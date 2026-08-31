@@ -402,7 +402,7 @@
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-1.5">Subject Line</label>
           <input type="text" [ngModel]="$any(currentCampaign()).subject" (ngModelChange)="currentCampaign.update(c => ({...c, subject: $event}))"
-            placeholder="e.g. 🔥 Exclusive Deal Inside!"
+            placeholder="e.g. Exclusive Deal Inside!"
             class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-fuchsia-500/50 outline-none transition-all" />
         </div>
         <div class="grid grid-cols-2 gap-4">
@@ -744,7 +744,7 @@
               </div>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-              ✓ Verified
+              <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-emerald-500">check_circle</span> Verified
             </span>
           </div>
 
@@ -759,7 +759,7 @@
                       [class.text-zinc-600]="previewTemplate() !== 'receipt'"
                       [class.dark:text-zinc-300]="previewTemplate() !== 'receipt'"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap cursor-pointer">
-                🧾 Receipt
+                <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">receipt</span> Receipt
               </button>
               <button (click)="previewTemplate.set('delivery')"
                       [class.bg-purple-600]="previewTemplate() === 'delivery'"
@@ -769,7 +769,7 @@
                       [class.text-zinc-600]="previewTemplate() !== 'delivery'"
                       [class.dark:text-zinc-300]="previewTemplate() !== 'delivery'"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap cursor-pointer">
-                🚚 Delivery
+                <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">local_shipping</span> Delivery
               </button>
               <button (click)="previewTemplate.set('promo')"
                       [class.bg-purple-600]="previewTemplate() === 'promo'"
@@ -779,7 +779,7 @@
                       [class.text-zinc-600]="previewTemplate() !== 'promo'"
                       [class.dark:text-zinc-300]="previewTemplate() !== 'promo'"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap cursor-pointer">
-                🔥 Promo
+                <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">local_fire_department</span> Promo
               </button>
               <button (click)="previewTemplate.set('cart')"
                       [class.bg-purple-600]="previewTemplate() === 'cart'"
@@ -789,7 +789,7 @@
                       [class.text-zinc-600]="previewTemplate() !== 'cart'"
                       [class.dark:text-zinc-300]="previewTemplate() !== 'cart'"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap cursor-pointer">
-                🛒 Cart
+                <span class="material-symbols-outlined !text-[16px] inline-block align-middle mr-1">shopping_cart</span> Cart
               </button>
             </div>
 
@@ -1127,7 +1127,7 @@
               </span>
             </div>
             <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-sans">
-              "Hi Alex! Your order #PB-4821 of GHS 180.00 at {{ newSenderID() || 'Your Store' }} has been confirmed. Thank you for shopping with us! 🛍️"
+              "Hi Alex! Your order #PB-4821 of GHS 180.00 at {{ newSenderID() || 'Your Store' }} has been confirmed. Thank you for shopping with us! "
             </p>
           </div>
         </div>
@@ -1294,7 +1294,7 @@
               </span>
             </div>
             <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-sans">
-              "Hi Alex! Your order #PB-4821 of GHS 180.00 at {{ newSenderID() || 'Your Store' }} has been confirmed. Thank you for shopping with us! 🛍️"
+              "Hi Alex! Your order #PB-4821 of GHS 180.00 at {{ newSenderID() || 'Your Store' }} has been confirmed. Thank you for shopping with us! "
             </p>
           </div>
         </div>

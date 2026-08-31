@@ -319,7 +319,7 @@
         <!-- New Key Plain Display -->
         @if (newKeyPlain()) {
           <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-300 dark:border-emerald-700/40 space-y-2">
-            <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase">⚠ Copy this key now — it will never be shown again!</p>
+            <p class="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase"><span class="material-symbols-outlined !text-[14px] align-text-bottom mr-1">warning</span> Copy this key now — it will never be shown again!</p>
             <code class="block font-mono text-sm text-emerald-800 dark:text-emerald-300 bg-white dark:bg-zinc-900 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/40 break-all">{{ newKeyPlain() }}</code>
             <button (click)="newKeyPlain.set(null)" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline">I've copied it, dismiss</button>
           </div>
