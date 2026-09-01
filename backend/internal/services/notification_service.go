@@ -200,10 +200,18 @@ func (s *NotificationService) CreateAndPushToAdmins(tenantID uuid.UUID, title, m
 		UserID uuid.UUID
 	}
 	s.db.Table("public.user_profiles").
-		Joins("JOIN public.roles ON public.roles.id = public.user_profiles.role_id").
-		Where("public.user_profiles.tenant_id = ? AND public.roles.name IN ('admin', 'manager', 'branch_manager')", tenantID).
+		Joins("LEFT JOIN public.roles ON public.roles.id = public.user_profiles.role_id").
+		Where("public.user_profiles.tenant_id = ? AND (LOWER(public.roles.name) IN ('admin', 'superadmin', 'manager', 'branch_manager', 'owner', 'cashier', 'staff') OR public.user_profiles.role_id IS NULL)", tenantID).
 		Select("public.user_profiles.user_id").
 		Scan(&profiles)
+
+	// Fallback: If no profiles matched by role, fetch all profiles for this tenant so the admin always gets it
+	if len(profiles) == 0 {
+		s.db.Table("public.user_profiles").
+			Where("public.user_profiles.tenant_id = ?", tenantID).
+			Select("public.user_profiles.user_id").
+			Scan(&profiles)
+	}
 
 	for _, p := range profiles {
 		_ = s.CreateAndPush(tenantID, p.UserID, title, message, category, link, notifType)

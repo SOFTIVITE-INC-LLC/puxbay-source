@@ -768,6 +768,7 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 
 	// 2. Process Order
 	var orderNumber string
+	var createdOrder models.Order
 	err := getDB(c, h.db).Transaction(func(tx *gorm.DB) error {
 		var customerID *uuid.UUID
 		if req.CustomerID != "" {
@@ -891,7 +892,6 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 			notes += "Notes: " + req.OrderNotes
 		}
 
-		var createdOrder models.Order
 		createdOrder = models.Order{
 			BranchScoped:    models.BranchScoped{BranchID: branchID},
 			OrderNumber:     generateOrderNumber(),
@@ -956,21 +956,21 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 		return
 	}
 
-	// Broadcast Real-time Push & Sound to Admins/Cashiers
-	if h.pushService != nil && tenantID != uuid.Nil {
+	// Broadcast Real-time Push & Create Persistent Notifications for Admins/Staff
+	if tenantID != uuid.Nil {
 		custName := req.CustomerName
 		if custName == "" {
 			custName = "Online Customer"
 		}
-		h.pushService.SendToTenantAdminsWithSound(
-			tenantID,
-			fmt.Sprintf("New Online Order #%s", orderNumber),
-			fmt.Sprintf("New online order from %s (%s). Total: GH₵%.2f", custName, req.DeliveryMethod, req.Total),
-			"online_order",
-			"/orders",
-			"online_order",
-			"online_order",
-		)
+		title := fmt.Sprintf("New Online Order #%s", orderNumber)
+		message := fmt.Sprintf("New online order from %s (%s). Total: GH₵%.2f", custName, req.DeliveryMethod, req.Total)
+		link := fmt.Sprintf("/orders/%s", createdOrder.ID.String())
+		if createdOrder.ID == uuid.Nil {
+			link = "/orders"
+		}
+
+		notifSvc := services.NewNotificationService(getDB(c, h.db), h.pushService)
+		notifSvc.CreateAndPushToAdmins(tenantID, title, message, "sales", link, "online_order")
 	}
 
 	c.JSON(201, gin.H{
