@@ -546,115 +546,158 @@
 @defer (when quickViewProduct()) {
   @if (quickViewProduct()) {
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-sm animate-fade-in"
+    class="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in"
     (click)="closeQuickView()">
+    
     <div
-      class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row shadow-2xl relative"
+      class="relative w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#0f1422] border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-2xl shadow-black/60 overflow-hidden flex flex-col"
       (click)="$event.stopPropagation()">
+      
       <!-- Close Button -->
       <button (click)="closeQuickView()"
-        class="absolute top-4 right-4 z-10 w-10 h-10 bg-slate-50 dark:bg-zinc-950/50 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800 transition-colors">
-        <span class="material-symbols-outlined">close</span>
+        class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/80 hover:bg-white dark:bg-white/10 dark:hover:bg-white/20 backdrop-blur-md border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-md cursor-pointer">
+        <span class="material-symbols-outlined !text-[20px]">close</span>
       </button>
 
-      <!-- Image -->
-      <div class="w-full md:w-1/2 bg-slate-100 dark:bg-zinc-800/30 flex items-center justify-center p-8 min-h-[300px]">
-        @if (quickViewProduct()!.image_url) {
-        <img [src]="quickViewProduct()!.image_url" [alt]="quickViewProduct()!.name" class="w-full h-full object-contain">
-        } @else {
-        <span class="material-symbols-outlined !text-[80px] text-zinc-700">inventory_2</span>
-        }
-      </div>
+      <!-- Scrollable Main Container -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- 2-Column Product Showcase -->
+        <div class="grid grid-cols-1 md:grid-cols-2">
+          
+          <!-- Left: Product Image -->
+          <div class="relative bg-slate-50 dark:bg-zinc-900/60 p-6 sm:p-10 flex items-center justify-center min-h-[300px] sm:min-h-[380px] border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/[0.06]">
+            <!-- Category Badge -->
+            @if (quickViewProduct()!.category) {
+              <span class="absolute top-4 left-4 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-wider">
+                {{ quickViewProduct()!.category!.name }}
+              </span>
+            }
 
-      <!-- Details -->
-      <div class="w-full md:w-1/2 p-8 md:p-10 flex flex-col overflow-y-auto">
-        @if (quickViewProduct()!.category) {
-        <span
-          class="inline-flex px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg text-xs font-bold uppercase mb-4 self-start">
-          {{ quickViewProduct()!.category!.name }}
-        </span>
-        }
-        <h2 class="text-2xl font-black text-slate-900 dark:text-white mb-2">{{ quickViewProduct()!.name }}</h2>
-        <div class="flex items-center gap-4 mb-6">
-          <p class="text-3xl font-black text-indigo-400">{{ quickViewProduct()!.selling_price | appCurrency }}</p>
-          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/20">
-            <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
-          </span>
-        </div>
+            @if (quickViewProduct()!.image_url) {
+              <img [src]="quickViewProduct()!.image_url" [alt]="quickViewProduct()!.name" class="max-h-[280px] sm:max-h-[340px] w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300">
+            } @else {
+              <div class="flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
+                <span class="material-symbols-outlined !text-[80px]">inventory_2</span>
+                <span class="text-xs font-semibold">No Image Available</span>
+              </div>
+            }
+          </div>
 
-        <div class="prose prose-invert prose-sm mb-8">
-          <p class="text-slate-500 dark:text-zinc-400">{{ quickViewProduct()!.description || 'No description available.' }}</p>
-        </div>
+          <!-- Right: Details & Action Controls -->
+          <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6">
+            <div class="space-y-4">
+              <!-- Title -->
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                {{ quickViewProduct()!.name }}
+              </h2>
 
-        <div class="mt-auto pt-6 border-t border-slate-200 dark:border-zinc-800/60 flex flex-col gap-3">
-          @if (quickViewProduct()!.stock_quantity > 0) {
-          @if (quickViewProduct()!.stock_quantity <= 5) { <div
-            class="flex items-center gap-2 mb-2 bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl">
-            <span class="material-symbols-outlined text-rose-400 !text-[20px] animate-pulse">local_fire_department</span>
-            <p class="text-sm font-bold text-rose-400">High demand! Only {{ quickViewProduct()!.stock_quantity }} left in
-              stock.</p>
-        </div>
-        }
+              <!-- Price & Points -->
+              <div class="flex items-center gap-3 flex-wrap">
+                <p class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                  {{ quickViewProduct()!.selling_price | appCurrency }}
+                </p>
+                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-500/20">
+                  <span class="material-symbols-outlined !text-[14px] text-amber-500">toll</span>
+                  Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
+                </span>
+              </div>
 
-        <button (click)="quickAddToCart(quickViewProduct()!, $event); closeQuickView()"
-          class="w-full py-4 rounded-xl font-bold text-slate-900 dark:text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-          [ngClass]="addingProductId() === quickViewProduct()!.id ? 'bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-700'">
-          <span class="material-symbols-outlined !text-[20px]">{{ addingProductId() === quickViewProduct()!.id ? 'check'
-            : 'shopping_cart' }}</span>
-          {{ addingProductId() === quickViewProduct()!.id ? 'Added to Cart' : 'Add to Cart' }}
-        </button>
-        } @else {
-        <div class="bg-slate-100 dark:bg-zinc-800/50 border border-slate-300 dark:border-zinc-700/50 p-4 rounded-xl flex flex-col gap-3">
-          <h4 class="text-sm font-bold text-slate-900 dark:text-white">Currently out of stock</h4>
-          <p class="text-xs text-slate-500 dark:text-zinc-400">Sign up to get an email when this is available again.</p>
-          <div class="flex gap-2">
-            <input type="email" [ngModel]="notifyEmail()" (ngModelChange)="notifyEmail.set($event)"
-              placeholder="Enter your email"
-              class="flex-1 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-slate-900 dark:text-white outline-none focus:border-indigo-500">
-            <button (click)="submitNotify()"
-              class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-lg font-bold text-sm transition-colors whitespace-nowrap">
-              Notify Me
-            </button>
+              <!-- Description -->
+              <div class="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-h-32 overflow-y-auto">
+                <p>{{ quickViewProduct()!.description || 'Premium quality product curated for your satisfaction. Explore full specifications in details.' }}</p>
+              </div>
+            </div>
+
+            <!-- Stock & Actions -->
+            <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-white/[0.06]">
+              @if (quickViewProduct()!.stock_quantity > 0) {
+                @if (quickViewProduct()!.stock_quantity <= 5) {
+                  <div class="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                    <span class="material-symbols-outlined text-rose-500 !text-[18px] animate-pulse">local_fire_department</span>
+                    <p class="text-xs font-bold text-rose-600 dark:text-rose-400">
+                      High demand! Only {{ quickViewProduct()!.stock_quantity }} items left in stock.
+                    </p>
+                  </div>
+                }
+
+                <!-- Add to Cart Button -->
+                <button (click)="quickAddToCart(quickViewProduct()!, $event); closeQuickView()"
+                  class="w-full py-3.5 px-6 rounded-2xl font-black text-white flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+                  [ngClass]="addingProductId() === quickViewProduct()!.id 
+                    ? 'bg-emerald-500 shadow-emerald-500/30' 
+                    : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]'">
+                  <span class="material-symbols-outlined !text-[20px]">
+                    {{ addingProductId() === quickViewProduct()!.id ? 'check' : 'shopping_cart' }}
+                  </span>
+                  <span>{{ addingProductId() === quickViewProduct()!.id ? 'Added to Cart!' : 'Add to Cart' }}</span>
+                </button>
+              } @else {
+                <!-- Out of Stock Notification Form -->
+                <div class="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-4 rounded-2xl space-y-2.5">
+                  <div class="flex items-center gap-2 text-rose-500">
+                    <span class="material-symbols-outlined !text-[18px]">inventory</span>
+                    <h4 class="text-xs font-black uppercase tracking-wider">Currently Out of Stock</h4>
+                  </div>
+                  <p class="text-xs text-slate-500 dark:text-zinc-400">Get notified the moment this item is restocked:</p>
+                  <div class="flex gap-2">
+                    <input type="email" [ngModel]="notifyEmail()" (ngModelChange)="notifyEmail.set($event)"
+                      placeholder="Enter your email"
+                      class="flex-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500">
+                    <button (click)="submitNotify()"
+                      class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-colors whitespace-nowrap cursor-pointer">
+                      Notify Me
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- View Full Details Link -->
+              <a [routerLink]="['/store/product', quickViewProduct()!.id]" (click)="closeQuickView()"
+                class="w-full py-3 rounded-2xl font-bold text-xs text-slate-700 dark:text-zinc-300 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center gap-1.5 transition-all">
+                <span>View Full Product Details</span>
+                <span class="material-symbols-outlined !text-[16px]">arrow_forward</span>
+              </a>
+            </div>
+
           </div>
         </div>
-        }
 
-        <a [routerLink]="['/store/product', quickViewProduct()!.id]" (click)="closeQuickView()"
-          class="w-full py-4 rounded-xl font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-all">
-          View Full Details
-        </a>
-      </div>
-      </div>
-
-      <!-- Related Products Overlay / Attached inside Modal Wrapper -->
-      @if (relatedProducts().length > 0) {
-      <div class="mt-6 pt-6 border-t border-slate-200 dark:border-zinc-800/60">
-        <h3 class="text-sm font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-4">You Might Also Like</h3>
-        <div class="flex gap-4 overflow-x-auto pb-2 snap-x hide-scrollbar">
-          @for (rp of relatedProducts(); track rp.id) {
-          <div
-            class="min-w-[140px] shrink-0 bg-white dark:bg-zinc-900/50 rounded-xl p-2 border border-slate-200 dark:border-zinc-800/60 cursor-pointer hover:border-indigo-500/40 transition-all snap-start relative group"
-            (click)="openQuickView(rp, $event)">
-            <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
-              class="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-md border border-slate-200 dark:border-white/5 flex items-center justify-center hover:scale-110 transition-transform z-10"
-              [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'">
-              <span class="material-symbols-outlined !text-[14px]"
-                [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
-            </button>
-            <div class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-              @if (rp.image_url) {
-              <img [src]="rp.image_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-              } @else {
-              <span class="material-symbols-outlined text-zinc-700">inventory_2</span>
+        <!-- Bottom: Related Products Carousel -->
+        @if (relatedProducts().length > 0) {
+          <div class="border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/70 dark:bg-white/[0.02] p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3.5">
+              <h3 class="text-xs font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                <span class="material-symbols-outlined !text-[16px] text-indigo-500">auto_awesome</span>
+                You Might Also Like
+              </h3>
+            </div>
+            <div class="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
+              @for (rp of relatedProducts(); track rp.id) {
+                <div
+                  class="min-w-[140px] sm:min-w-[160px] max-w-[160px] shrink-0 bg-white dark:bg-zinc-900/80 rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06] hover:border-indigo-500/40 transition-all snap-start relative group cursor-pointer shadow-sm hover:shadow-md"
+                  (click)="openQuickView(rp, $event)">
+                  <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
+                    class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 dark:bg-zinc-950/80 backdrop-blur-md border border-slate-200 dark:border-white/10 flex items-center justify-center hover:scale-110 transition-transform z-10"
+                    [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-400 hover:text-slate-700 dark:hover:text-white'">
+                    <span class="material-symbols-outlined !text-[14px]"
+                      [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
+                  </button>
+                  <div class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-2 flex items-center justify-center overflow-hidden p-2">
+                    @if (rp.image_url) {
+                      <img [src]="rp.image_url" [alt]="rp.name" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300">
+                    } @else {
+                      <span class="material-symbols-outlined text-zinc-600 !text-[28px]">inventory_2</span>
+                    }
+                  </div>
+                  <h4 class="font-bold text-xs text-slate-900 dark:text-white leading-tight mb-1 truncate">{{ rp.name }}</h4>
+                  <p class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
+                </div>
               }
             </div>
-            <h4 class="font-bold text-xs text-slate-900 dark:text-white leading-tight mb-0.5 truncate">{{ rp.name }}</h4>
-            <p class="text-xs font-black text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
           </div>
-          }
-        </div>
+        }
       </div>
-      }
+
     </div>
   </div>
   }
