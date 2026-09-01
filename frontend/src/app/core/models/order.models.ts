@@ -4,6 +4,8 @@ export interface Order {
   order_number?: string;
   customer_id?: string;
   customer_name?: string;
+  customer_phone?: string;
+  delivery_address?: string;
   item_count?: number;
   total?: number;
   status?: string;
@@ -16,6 +18,8 @@ export interface Order {
   tax?: number;
   discount?: number;
   amount_paid?: number;
+  payment_status?: string;
+  is_otp_verified?: boolean;
 }
 export interface Return { 
   id: string; 

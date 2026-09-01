@@ -1,21 +1,25 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/middleware"
+	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/services"
 	"gorm.io/gorm"
 )
 
 type KioskHandler struct {
-	db *gorm.DB
+	db         *gorm.DB
+	smsService *services.SMSService
 }
 
-func NewKioskHandler(db *gorm.DB) *KioskHandler {
-	return &KioskHandler{db: db}
+func NewKioskHandler(db *gorm.DB, sms *services.SMSService) *KioskHandler {
+	return &KioskHandler{db: db, smsService: sms}
 }
 
 // GetConfig returns the kiosk configuration for a given branch
@@ -51,6 +55,8 @@ type KioskOrderItemParam struct {
 type KioskOrderRequest struct {
 	BranchID      string                `json:"branch_id"`
 	CustomerID    string                `json:"customer_id"`
+	CustomerName  string                `json:"customer_name"`
+	CustomerPhone string                `json:"customer_phone"`
 	Subtotal      float64               `json:"subtotal"`
 	Tax           float64               `json:"tax"`
 	Discount      float64               `json:"discount"`
@@ -66,6 +72,37 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 	var req KioskOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	// Use the tenant-scoped DB from context (set by TenantMiddleware)
+	db, _ := c.Get("db")
+	tx, _ := db.(*gorm.DB)
+	if tx == nil {
+		tx = h.db
+	}
+
+	var customerID *uuid.UUID
+	customerName := strings.TrimSpace(req.CustomerName)
+	customerPhone := strings.TrimSpace(req.CustomerPhone)
+
+	if req.CustomerID != "" {
+		if parsed, err := uuid.Parse(req.CustomerID); err == nil {
+			customerID = &parsed
+			var cust models.Customer
+			if tx.First(&cust, "id = ?", parsed).Error == nil {
+				if customerName == "" {
+					customerName = cust.Name
+				}
+				if customerPhone == "" && cust.Phone != nil {
+					customerPhone = *cust.Phone
+				}
+			}
+		}
+	}
+
+	if customerPhone == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Customer contact phone number is compulsory for kiosk orders"})
 		return
 	}
 
@@ -96,31 +133,19 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 		{Method: req.PaymentMethod, Amount: req.AmountPaid},
 	}
 
-	var customerID *uuid.UUID
-	if req.CustomerID != "" {
-		if parsed, err := uuid.Parse(req.CustomerID); err == nil {
-			customerID = &parsed
-		}
-	}
-
 	input := services.OrderCreateInput{
-		BranchID:   branchID,
-		CustomerID: customerID,
-		Subtotal:   req.Subtotal,
-		Tax:        req.Tax,
-		Discount:   req.Discount,
-		Total:      req.Total,
-		AmountPaid: req.AmountPaid,
-		Payments:   payments,
-		OrderType:  "kiosk",
-		Items:      items,
-	}
-
-	// Use the tenant-scoped DB from context (set by TenantMiddleware)
-	db, _ := c.Get("db")
-	tx, _ := db.(*gorm.DB)
-	if tx == nil {
-		tx = h.db
+		BranchID:      branchID,
+		CustomerID:    customerID,
+		CustomerName:  customerName,
+		CustomerPhone: customerPhone,
+		Subtotal:      req.Subtotal,
+		Tax:           req.Tax,
+		Discount:      req.Discount,
+		Total:         req.Total,
+		AmountPaid:    req.AmountPaid,
+		Payments:      payments,
+		OrderType:     "kiosk",
+		Items:         items,
 	}
 
 	var tenantID uuid.UUID
@@ -130,10 +155,16 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 		}
 	}
 
-	order, err := services.NewOrderService(tx, nil, tenantID).CreateOrder(input)
+	order, err := services.NewOrderService(tx, h.smsService, tenantID).CreateOrder(input)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create kiosk order: " + err.Error()})
 		return
+	}
+
+	// Dispatch SMS to customer with tracking code
+	if h.smsService != nil && customerPhone != "" {
+		msg := fmt.Sprintf("Thank you for your order! Your Kiosk Order #%s has been placed. Please present this code when called.", order.OrderNumber)
+		_ = h.smsService.SendTenantSMS(tx, []string{customerPhone}, msg, "Kiosk Order SMS: #"+order.OrderNumber)
 	}
 
 	c.JSON(http.StatusCreated, order)
@@ -141,7 +172,7 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 
 type KioskCustomerRequest struct {
 	Name  string `json:"name" binding:"required"`
-	Phone string `json:"phone"`
+	Phone string `json:"phone" binding:"required"`
 }
 
 // RegisterCustomer finds or creates a customer by phone for the kiosk flow.
@@ -149,7 +180,7 @@ type KioskCustomerRequest struct {
 func (h *KioskHandler) RegisterCustomer(c *gin.Context) {
 	var req KioskCustomerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Both customer name and phone number are compulsory"})
 		return
 	}
 
@@ -164,7 +195,7 @@ func (h *KioskHandler) RegisterCustomer(c *gin.Context) {
 		Phone: req.Phone,
 	})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register customer"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register customer: " + err.Error()})
 		return
 	}
 

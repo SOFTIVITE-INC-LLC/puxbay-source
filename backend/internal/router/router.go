@@ -37,10 +37,6 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 		redisClient = redis.NewClient(opt)
 	}
 
-	// Initialize handlers
-	offlineHandler := handlers.NewOfflineHandler(db)
-	kioskHandler := handlers.NewKioskHandler(db)
-
 	// Global middleware
 	r.Use(otelgin.Middleware("puxbay")) // OpenTelemetry distributed tracing
 	r.Use(middleware.PrometheusMetrics()) // Prometheus metrics collection
@@ -72,6 +68,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	smsService := services.NewSMSService(cfg.SMS)
 
 	// Initialize handlers
+	offlineHandler := handlers.NewOfflineHandler(db)
+	kioskHandler := handlers.NewKioskHandler(db, smsService)
 	authHandler := handlers.NewAuthHandler(db, authService, cfg.SMTP, cfg.App.RootDomain, cfg.JWT)
 	healthHandler := handlers.NewHealthHandler(db, redisClient)
 	branchHandler := handlers.NewBranchHandler(db)
@@ -294,6 +292,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/orders/:id", orderHandler.Get)
 			api.POST("/orders/:id/void", middleware.RequirePermissionOrOverride(db, "orders:void"), orderHandler.VoidOrder)
 			api.POST("/orders/:id/complete", middleware.RequirePermission("orders:update"), orderHandler.CompleteOrder)
+			api.POST("/orders/:id/send-pickup-otp", middleware.RequirePermission("orders:update"), orderHandler.SendPickupOTP)
+			api.POST("/orders/:id/verify-pickup-otp", middleware.RequirePermission("orders:update"), orderHandler.VerifyPickupOTP)
 			api.GET("/orders/:id/receipt", orderHandler.GetReceipt)
 
 			// Barcodes (protected — Gap #6)

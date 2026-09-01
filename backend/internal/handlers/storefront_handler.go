@@ -717,6 +717,11 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 		return
 	}
 
+	if strings.TrimSpace(req.CustomerPhone) == "" {
+		c.JSON(400, gin.H{"error": "Customer phone number is required for order verification and updates"})
+		return
+	}
+
 	sessionID := c.GetHeader("X-Session-ID")
 
 	if req.PaymentMethod != "pickup" && req.PaymentMethod != "cash" {
@@ -880,19 +885,23 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 
 		var createdOrder models.Order
 		createdOrder = models.Order{
-			BranchScoped:  models.BranchScoped{BranchID: branchID},
-			OrderNumber:   generateOrderNumber(),
-			CustomerID:    customerID,
-			Subtotal:      calculatedTotal,
-			Total:         calculatedTotal,
-			AmountPaid:    amountPaid,
-			Status:        "pending",
-			PaymentStatus: paymentStatus,
-			PaymentMethod: paymentMethod,
-			OrderType:     "online",
-			Notes:         &notes,
-			ReceiptToken:  generateReceiptToken(),
-			Items:         orderItems,
+			BranchScoped:    models.BranchScoped{BranchID: branchID},
+			OrderNumber:     generateOrderNumber(),
+			CustomerID:      customerID,
+			CustomerName:    &req.CustomerName,
+			CustomerPhone:   &req.CustomerPhone,
+			DeliveryAddress: &req.DeliveryAddress,
+			Subtotal:        calculatedTotal,
+			Total:           calculatedTotal,
+			AmountPaid:      amountPaid,
+			Status:          "pending",
+			PaymentStatus:   paymentStatus,
+			PaymentMethod:   paymentMethod,
+			OrderType:       "online",
+			Notes:           &notes,
+			ReceiptToken:    generateReceiptToken(),
+			IsOTPVerified:   false,
+			Items:           orderItems,
 		}
 		if err := tx.Create(&createdOrder).Error; err != nil {
 			return err

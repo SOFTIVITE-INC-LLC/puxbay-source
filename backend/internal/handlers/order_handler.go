@@ -319,13 +319,68 @@ func (h *OrderHandler) VoidOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "voided"})
 }
 
+type CompleteOrderReq struct {
+	OverridePin string `json:"override_pin"`
+}
+
 func (h *OrderHandler) CompleteOrder(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.service(c).CompleteOrder(id); err != nil {
+	var req CompleteOrderReq
+	_ = c.ShouldBindJSON(&req)
+
+	if err := h.service(c).CompleteOrder(id, req.OverridePin); err != nil {
+		if strings.Contains(err.Error(), "Manager override") {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "completed"})
+}
+
+func (h *OrderHandler) SendPickupOTP(c *gin.Context) {
+	id := c.Param("id")
+	phone, err := h.service(c).SendPickupOTP(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	maskedPhone := phone
+	if len(phone) > 6 {
+		maskedPhone = phone[:3] + strings.Repeat("*", len(phone)-6) + phone[len(phone)-3:]
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "otp_sent",
+		"phone":   phone,
+		"masked":  maskedPhone,
+		"message": fmt.Sprintf("Verification code dispatched to %s via SMS", maskedPhone),
+	})
+}
+
+type VerifyPickupOTPReq struct {
+	OTP string `json:"otp" binding:"required"`
+}
+
+func (h *OrderHandler) VerifyPickupOTP(c *gin.Context) {
+	id := c.Param("id")
+	var req VerifyPickupOTPReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification code (OTP) is required"})
+		return
+	}
+
+	if err := h.service(c).VerifyPickupOTP(id, req.OTP); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "verified",
+		"message": "Customer identity and phone verified successfully",
+	})
 }
 
 func (h *OrderHandler) GetReceipt(c *gin.Context) {

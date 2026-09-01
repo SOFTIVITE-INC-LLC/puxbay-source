@@ -81,6 +81,18 @@ export class OrderService {
     }
     return this.api.post<any>(`/orders/${id}/void`, {}, { headers }); 
   }
-  completeOrder(id: string): Observable<any> { return this.api.post<any>(`/orders/${id}/complete`, {}); }
+
+  completeOrder(id: string, overridePin?: string): Observable<any> {
+    return this.api.post<any>(`/orders/${id}/complete`, { override_pin: overridePin });
+  }
+
+  sendPickupOTP(id: string): Observable<{ status: string; phone: string; masked: string; message: string }> {
+    return this.api.post<{ status: string; phone: string; masked: string; message: string }>(`/orders/${id}/send-pickup-otp`, {});
+  }
+
+  verifyPickupOTP(id: string, otp: string): Observable<{ status: string; message: string }> {
+    return this.api.post<{ status: string; message: string }>(`/orders/${id}/verify-pickup-otp`, { otp });
+  }
+
   getReceipt(id: string): Observable<any> { return this.api.get<any>(`/orders/${id}/receipt`); }
 }

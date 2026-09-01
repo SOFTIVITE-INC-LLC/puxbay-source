@@ -64,9 +64,15 @@
                 }
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Phone (optional)</label>
-                <input type="tel" formControlName="phone"
-                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <label class="block text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">
+                  Phone Number <span class="text-rose-500">*</span>
+                </label>
+                <input type="tel" formControlName="phone" placeholder="e.g. 0241234567"
+                       [ngClass]="isFieldInvalid('phone') ? 'border-rose-500/50 ring-rose-500/20' : 'border-slate-300 dark:border-zinc-700/50 focus:ring-indigo-500'"
+                       class="w-full bg-slate-100 dark:bg-zinc-800/80 border rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 transition-all">
+                @if (isFieldInvalid('phone')) {
+                  <p class="text-xs text-rose-400 mt-1">Valid phone number is required for SMS tracking & verification</p>
+                }
               </div>
             </div>
           </div>

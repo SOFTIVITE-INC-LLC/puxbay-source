@@ -165,14 +165,13 @@ export class Kiosk implements OnInit, OnDestroy {
   }
 
   registerCustomer() {
-    if (!this.customerName.trim()) {
-      this.isCustomerStep.set(false);
+    if (!this.customerName.trim() || !this.customerPhone.trim()) {
       return;
     }
     this.isRegisteringCustomer.set(true);
     this.api.post<any>('/kiosk/customers', {
       name: this.customerName.trim(),
-      phone: this.customerPhone.trim() || undefined
+      phone: this.customerPhone.trim()
     }).subscribe({
       next: (customer) => {
         this.kioskCustomer.set(customer);
@@ -182,7 +181,6 @@ export class Kiosk implements OnInit, OnDestroy {
       },
       error: () => {
         this.isRegisteringCustomer.set(false);
-        this.isCustomerStep.set(false);
         this.resetIdleTimer();
       }
     });
@@ -346,6 +344,8 @@ export class Kiosk implements OnInit, OnDestroy {
     const body = {
       branch_id: this.branchId !== 'default' ? this.branchId : undefined,
       customer_id: this.kioskCustomer()?.id ?? undefined,
+      customer_name: this.kioskCustomer()?.name || this.customerName.trim() || 'Kiosk Customer',
+      customer_phone: this.kioskCustomer()?.phone || this.customerPhone.trim() || undefined,
       subtotal: total,
       tax: 0,
       discount: 0,

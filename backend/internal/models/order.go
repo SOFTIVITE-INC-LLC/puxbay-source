@@ -28,6 +28,14 @@ type Order struct {
 	Notes        *string `gorm:"type:text" json:"notes,omitempty"`
 	ReceiptToken string  `gorm:"size:64;uniqueIndex" json:"receipt_token"` // For public receipt URL
 
+	// Contact & Pickup Verification (Online/Kiosk orders)
+	CustomerName       *string    `gorm:"size:255" json:"customer_name,omitempty"`
+	CustomerPhone      *string    `gorm:"size:50" json:"customer_phone,omitempty"`
+	DeliveryAddress    *string    `gorm:"type:text" json:"delivery_address,omitempty"`
+	PickupOTP          *string    `gorm:"size:20" json:"pickup_otp,omitempty"`
+	PickupOTPExpiresAt *time.Time `json:"pickup_otp_expires_at,omitempty"`
+	IsOTPVerified      bool       `gorm:"default:false" json:"is_otp_verified"`
+
 	// Relations
 	Customer *Customer   `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	Items    []OrderItem `gorm:"foreignKey:OrderID" json:"items,omitempty"`

@@ -191,25 +191,28 @@ type OrderPaymentInput struct {
 }
 
 type OrderCreateInput struct {
-	BranchID     *uuid.UUID
-	CustomerID   *uuid.UUID
-	CashierID    *uuid.UUID
-	Subtotal     float64
-	Tax          float64
-	Discount     float64
-	Total        float64
-	AmountPaid   float64
-	RedeemPoints float64
-	Payments     []OrderPaymentInput
-	OrderType    string
-	Notes        string
-	Items        []OrderItemInput
+	BranchID        *uuid.UUID
+	CustomerID      *uuid.UUID
+	CashierID       *uuid.UUID
+	CustomerName    string
+	CustomerPhone   string
+	DeliveryAddress string
+	Subtotal        float64
+	Tax             float64
+	Discount        float64
+	Total           float64
+	AmountPaid      float64
+	RedeemPoints    float64
+	Payments        []OrderPaymentInput
+	OrderType       string
+	Notes           string
+	Items           []OrderItemInput
 }
 
 // CreateOrder creates an order and deducts inventory for tracked products (Gap #17).
 func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error) {
 	status := "completed"
-	if input.OrderType == "kiosk" {
+	if input.OrderType == "kiosk" || input.OrderType == "online" || input.OrderType == "delivery" {
 		status = "pending"
 	}
 
@@ -227,8 +230,18 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 		Status:        status,
 		PaymentStatus: "paid",
 		ReceiptToken:  generateReceiptToken(),
+		IsOTPVerified: false,
 	}
 
+	if input.CustomerName != "" {
+		order.CustomerName = &input.CustomerName
+	}
+	if input.CustomerPhone != "" {
+		order.CustomerPhone = &input.CustomerPhone
+	}
+	if input.DeliveryAddress != "" {
+		order.DeliveryAddress = &input.DeliveryAddress
+	}
 	if input.Notes != "" {
 		order.Notes = &input.Notes
 	}
@@ -737,8 +750,93 @@ func (s *OrderService) VoidOrder(id string) error {
 	})
 }
 
-func (s *OrderService) CompleteOrder(id string) error {
-	return s.db.Model(&models.Order{}).Where("id = ?", id).Update("status", "completed").Error
+func (s *OrderService) CompleteOrder(id string, overridePin string) error {
+	var order models.Order
+	if err := s.db.Where("id = ?", id).First(&order).Error; err != nil {
+		return errors.New("order not found")
+	}
+
+	// For online/kiosk/storefront/delivery orders: verify OTP or allow manager override PIN
+	isOnlineOrKiosk := order.OrderType == "online" || order.OrderType == "kiosk" || order.OrderType == "delivery" || order.OrderType == "storefront" || order.OrderType == "pickup"
+	if isOnlineOrKiosk && !order.IsOTPVerified {
+		if strings.TrimSpace(overridePin) == "" {
+			return errors.New("Manager override or customer OTP verification required before completing this order")
+		}
+	}
+
+	return s.db.Model(&models.Order{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"status":          "completed",
+		"is_otp_verified": true,
+	}).Error
+}
+
+func (s *OrderService) SendPickupOTP(orderID string) (string, error) {
+	var order models.Order
+	if err := s.db.Preload("Customer").Where("id = ?", orderID).First(&order).Error; err != nil {
+		return "", errors.New("order not found")
+	}
+
+	phone := ""
+	if order.CustomerPhone != nil && strings.TrimSpace(*order.CustomerPhone) != "" {
+		phone = strings.TrimSpace(*order.CustomerPhone)
+	} else if order.Customer != nil && order.Customer.Phone != nil && strings.TrimSpace(*order.Customer.Phone) != "" {
+		phone = strings.TrimSpace(*order.Customer.Phone)
+	}
+
+	if phone == "" {
+		return "", errors.New("no customer contact phone number found on this order")
+	}
+
+	// Generate 6-digit numeric OTP
+	n, err := rand.Int(rand.Reader, big.NewInt(900000))
+	if err != nil {
+		return "", errors.New("failed to generate secure OTP")
+	}
+	otp := fmt.Sprintf("%06d", n.Int64()+100000)
+
+	expiresAt := time.Now().Add(15 * time.Minute)
+	order.PickupOTP = &otp
+	order.PickupOTPExpiresAt = &expiresAt
+	order.IsOTPVerified = false
+
+	if err := s.db.Save(&order).Error; err != nil {
+		return "", errors.New("failed to save pickup OTP")
+	}
+
+	// Send SMS to customer's phone
+	if s.smsService != nil {
+		msg := fmt.Sprintf("Your pickup verification code for Order #%s is: %s. Share this code with store staff to collect your order.", order.OrderNumber, otp)
+		desc := fmt.Sprintf("Order Pickup OTP: #%s", order.OrderNumber)
+		_ = s.smsService.SendTenantSMS(s.db, []string{phone}, msg, desc)
+	}
+
+	return phone, nil
+}
+
+func (s *OrderService) VerifyPickupOTP(orderID string, code string) error {
+	var order models.Order
+	if err := s.db.Where("id = ?", orderID).First(&order).Error; err != nil {
+		return errors.New("order not found")
+	}
+
+	cleanCode := strings.TrimSpace(code)
+	if cleanCode == "" {
+		return errors.New("verification code is required")
+	}
+
+	if order.PickupOTP == nil || *order.PickupOTP == "" {
+		return errors.New("no OTP generated yet. Please send a verification code first")
+	}
+
+	if order.PickupOTPExpiresAt != nil && time.Now().After(*order.PickupOTPExpiresAt) {
+		return errors.New("verification code has expired. Please send a new code")
+	}
+
+	if strings.TrimSpace(*order.PickupOTP) != cleanCode {
+		return errors.New("invalid verification code. Please check and try again")
+	}
+
+	return s.db.Model(&order).Update("is_otp_verified", true).Error
 }
 
 func (s *OrderService) GetReceipt(id string) (*models.Order, error) {
