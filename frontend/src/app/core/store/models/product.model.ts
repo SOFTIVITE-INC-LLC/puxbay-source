@@ -13,8 +13,10 @@ export interface Product {
   barcode?: string;
   cost_price: number;
   selling_price: number;
-  stock_quantity: number;
-  low_stock_threshold: number;
+  stock_quantity?: number;
+  current_stock?: number;
+  track_inventory?: boolean;
+  low_stock_threshold?: number;
   category_id?: string;
   supplier_id?: string;
   branch_id?: string;

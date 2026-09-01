@@ -40,7 +40,7 @@ export class FeaturedRibbonComponent implements OnInit {
   quickAddToCart(product: Product, event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    if (product.stock_quantity <= 0 || this.addingProductId()) return;
+    if (this.isOutOfStock(product) || this.addingProductId()) return;
 
     this.addingProductId.set(product.id);
     this.cartService.addToCart({ product_id: product.id, quantity: 1 }).subscribe({
@@ -49,5 +49,10 @@ export class FeaturedRibbonComponent implements OnInit {
       },
       error: () => this.addingProductId.set(null)
     });
+  }
+  isOutOfStock(product: Product): boolean {
+    if (product.track_inventory === false) return false;
+    const qty = product.stock_quantity ?? product.current_stock ?? 0;
+    return qty <= 0;
   }
 }

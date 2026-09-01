@@ -257,6 +257,17 @@ export class CatalogComponent implements OnInit, OnDestroy {
     return Math.floor(price * 10);
   }
 
+  isOutOfStock(product: Product): boolean {
+    if (product.track_inventory === false) return false;
+    const qty = product.stock_quantity ?? product.current_stock ?? 0;
+    return qty <= 0;
+  }
+
+  getStockQty(product: Product): number {
+    if (product.track_inventory === false) return 999;
+    return product.stock_quantity ?? product.current_stock ?? 0;
+  }
+
   onSearch(query: string) {
     this.searchQuery.set(query);
     this.currentPage.set(1);

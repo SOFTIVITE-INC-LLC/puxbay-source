@@ -45,9 +45,9 @@
             } @else {
               <img [src]="'' | imageUrl" [alt]="product()!.name" class="w-full h-full object-contain opacity-70">
             }
-            @if (product()!.stock_quantity <= 0) {
+            @if (isOutOfStock(product())) {
               <div class="absolute top-4 left-4">
-                <span class="px-3 py-1 bg-rose-500/90 text-slate-900 dark:text-white text-xs font-bold rounded-full">Out of Stock</span>
+                <span class="px-3 py-1 bg-rose-500/90 text-white text-xs font-bold rounded-full">Out of Stock</span>
               </div>
             }
             <!-- Fullscreen Indicator Badge -->
@@ -109,12 +109,12 @@
 
           <!-- Stock info -->
           <div class="flex items-center gap-2 mb-6">
-            @if (product()!.stock_quantity > 10) {
+            @if (product()!.track_inventory === false || getStockQuantity(product()) > 10) {
               <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span class="text-sm text-emerald-400 font-medium">In Stock</span>
-            } @else if (product()!.stock_quantity > 0) {
+            } @else if (getStockQuantity(product()) > 0) {
               <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-              <span class="text-sm text-amber-400 font-medium">Only {{ product()!.stock_quantity }} left</span>
+              <span class="text-sm text-amber-400 font-medium">Only {{ getStockQuantity(product()) }} left</span>
             } @else {
               <span class="w-2 h-2 rounded-full bg-rose-400"></span>
               <span class="text-sm text-rose-400 font-medium">Out of Stock</span>
@@ -132,7 +132,7 @@
 
           <!-- Add to Cart -->
           <button (click)="addToCart()"
-                  [disabled]="product()!.stock_quantity <= 0 || isAdding()"
+                  [disabled]="isOutOfStock(product()) || isAdding()"
                   class="w-full py-5 mb-8 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-[1.5rem] font-bold text-xl tracking-wide shadow-2xl shadow-indigo-600/30 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3 border border-indigo-500">
             @if (isAdding()) {
               <span class="material-symbols-outlined animate-spin !text-[20px]">refresh</span>
@@ -426,7 +426,7 @@
         </div>
       </div>
 
-      <button (click)="addToCart()" [disabled]="isAdding() || product()!.stock_quantity <= 0"
+      <button (click)="addToCart()" [disabled]="isAdding() || isOutOfStock(product())"
               class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 shrink-0 disabled:opacity-50">
         @if (isAdding()) {
           <span class="material-symbols-outlined animate-spin !text-[16px]">refresh</span>

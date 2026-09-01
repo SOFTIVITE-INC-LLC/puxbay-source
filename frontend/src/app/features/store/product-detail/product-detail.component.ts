@@ -173,6 +173,19 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
+  isOutOfStock(p: Product | null): boolean {
+    if (!p) return false;
+    if (p.track_inventory === false) return false;
+    const qty = p.stock_quantity ?? p.current_stock ?? 0;
+    return qty <= 0;
+  }
+
+  getStockQuantity(p: Product | null): number {
+    if (!p) return 0;
+    if (p.track_inventory === false) return 999;
+    return p.stock_quantity ?? p.current_stock ?? 0;
+  }
+
   increment() { this.quantity.update(q => q + 1); }
   decrement() { this.quantity.update(q => q > 1 ? q - 1 : 1); }
 

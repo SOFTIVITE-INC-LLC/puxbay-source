@@ -32,4 +32,10 @@ export class WishlistComponent implements OnInit {
       error: () => this.toastService.show('Failed to add to cart', 'error')
     });
   }
+
+  isOutOfStock(product: Product): boolean {
+    if (product.track_inventory === false) return false;
+    const qty = product.stock_quantity ?? product.current_stock ?? 0;
+    return qty <= 0;
+  }
 }

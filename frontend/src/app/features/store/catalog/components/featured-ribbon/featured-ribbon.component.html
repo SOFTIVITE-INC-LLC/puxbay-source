@@ -53,7 +53,7 @@
               <p class="text-base font-black text-indigo-300">{{ product.selling_price | appCurrency }}</p>
               
               <button (click)="quickAddToCart(product, $event)"
-                      [disabled]="product.stock_quantity <= 0"
+                      [disabled]="isOutOfStock(product)"
                       class="w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 border border-slate-200 dark:border-white/5"
                       [ngClass]="addingProductId() === product.id ? 'bg-emerald-500 text-slate-900 dark:text-white shadow-emerald-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-indigo-400 hover:bg-indigo-600 hover:text-slate-900 dark:text-white shadow-indigo-500/10'">
                 <span class="material-symbols-outlined !text-[16px]">

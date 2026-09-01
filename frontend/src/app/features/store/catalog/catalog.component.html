@@ -339,19 +339,19 @@
               class="absolute inset-0 bg-slate-50 dark:from-slate-50/80 dark:from-zinc-950/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
             </div>
 
-            @if (product.stock_quantity <= 0) { <div
+            @if (isOutOfStock(product)) { <div
               class="absolute inset-0 bg-slate-50 dark:bg-zinc-950/70 flex items-center justify-center backdrop-blur-sm">
               <span
-                class="px-3 py-1 bg-rose-500/90 text-slate-900 dark:text-white text-xs font-bold rounded-full border border-rose-400/30 shadow-lg">Out
+                class="px-3 py-1 bg-rose-500/90 text-white text-xs font-bold rounded-full border border-rose-400/30 shadow-lg">Out
                 of Stock</span>
           </div>
           }
         </div>
         <div class="flex-1 flex flex-col relative z-10">
-          @if (product.stock_quantity > 0 && product.stock_quantity <= 5) { <div
+          @if (getStockQty(product) > 0 && getStockQty(product) <= 5) { <div
             class="mb-1 flex items-center gap-1.5 animate-pulse">
             <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-            <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ product.stock_quantity }}
+            <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }}
               left in stock!</span>
         </div>
         }
@@ -366,7 +366,7 @@
           </div>
           <div class="mt-auto flex items-center justify-between gap-2">
           <p class="text-lg font-black text-indigo-300">{{ product.selling_price | appCurrency }}</p>
-          <button (click)="quickAddToCart(product, $event)" [disabled]="product.stock_quantity <= 0"
+          <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
             class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-200 dark:border-white/5 shadow-lg shadow-indigo-500/10"
             [ngClass]="addingProductId() === product.id
                           ? 'bg-emerald-500 text-slate-900 dark:text-white scale-110 border-emerald-400 shadow-emerald-500/20'
@@ -393,10 +393,10 @@
         }
       </div>
       <div class="flex-1 min-w-0">
-        @if (product.stock_quantity > 0 && product.stock_quantity <= 5) { <div
+        @if (getStockQty(product) > 0 && getStockQty(product) <= 5) { <div
           class="mb-1 flex items-center gap-1.5 animate-pulse">
           <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-          <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ product.stock_quantity }}
+          <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }}
             left!</span>
       </div>
       }
@@ -425,7 +425,7 @@
           'favorite_border' }}</span>
       </button>
 
-      <button (click)="quickAddToCart(product, $event)" [disabled]="product.stock_quantity <= 0"
+      <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
         class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-30"
         [ngClass]="addingProductId() === product.id
                         ? 'bg-emerald-500 text-slate-900 dark:text-white'
@@ -610,12 +610,12 @@
 
             <!-- Stock & Actions -->
             <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-white/[0.06]">
-              @if (quickViewProduct()!.stock_quantity > 0) {
-                @if (quickViewProduct()!.stock_quantity <= 5) {
+              @if (!isOutOfStock(quickViewProduct()!)) {
+                @if (getStockQty(quickViewProduct()!) <= 5) {
                   <div class="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
                     <span class="material-symbols-outlined text-rose-500 !text-[18px] animate-pulse">local_fire_department</span>
                     <p class="text-xs font-bold text-rose-600 dark:text-rose-400">
-                      High demand! Only {{ quickViewProduct()!.stock_quantity }} items left in stock.
+                      High demand! Only {{ getStockQty(quickViewProduct()!) }} items left in stock.
                     </p>
                   </div>
                 }
@@ -739,7 +739,7 @@
                   </div>
                   <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight mb-2">{{ p.name }}</h3>
                   <p class="text-2xl font-black text-indigo-400">{{ p.selling_price | appCurrency }}</p>
-                  <button (click)="quickAddToCart(p, $event)" [disabled]="p.stock_quantity <= 0"
+                  <button (click)="quickAddToCart(p, $event)" [disabled]="isOutOfStock(p)"
                     class="mt-4 w-full py-2.5 rounded-lg font-bold text-slate-900 dark:text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                     [ngClass]="addingProductId() === p.id ? 'bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-700'">
                     <span class="material-symbols-outlined !text-[18px]">{{ addingProductId() === p.id ? 'check' : 'add_shopping_cart' }}</span>
@@ -754,9 +754,9 @@
                 <td class="p-4 border-b border-slate-200 dark:border-zinc-800 font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Availability</td>
                 @for (p of compareProducts(); track p.id) {
                 <td class="p-4 border-b border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white">
-                  @if (p.stock_quantity > 0) {
+                  @if (!isOutOfStock(p)) {
                   <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> In Stock ({{ p.stock_quantity }})
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> In Stock ({{ getStockQty(p) }})
                   </span>
                   } @else {
                   <span class="inline-flex items-center gap-1.5 text-rose-400 font-medium">

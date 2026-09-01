@@ -52,6 +52,7 @@ type Product struct {
 
 	TrackInventory bool    `gorm:"default:true" json:"track_inventory"`
 	CurrentStock   float64 `gorm:"type:decimal(10,4);default:0" json:"current_stock"`
+	StockQuantity  float64 `gorm:"-" json:"stock_quantity"`
 	ReorderLevel   float64 `gorm:"type:decimal(10,4);default:0" json:"reorder_level"`
 	StockUnit      string  `gorm:"size:50;default:'pcs'" json:"stock_unit"`
 
@@ -89,6 +90,11 @@ func (p *Product) AfterFind(tx *gorm.DB) (err error) {
 	}
 	prependCDN(p.Image)
 	prependCDN(p.ImageURL)
+	if !p.TrackInventory {
+		p.StockQuantity = 9999
+	} else {
+		p.StockQuantity = p.CurrentStock
+	}
 	return
 }
 
