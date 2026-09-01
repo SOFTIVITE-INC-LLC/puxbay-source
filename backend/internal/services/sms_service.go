@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/softivite/puxbay/internal/config"
@@ -225,6 +226,47 @@ func (s *SMSService) SendStorefrontOrderSMS(db *gorm.DB, phone, customerName, tr
 	}
 	msg := fmt.Sprintf("Hi %s! Your order of GHS %.2f at %s has been received. Your 8-character tracking code is: %s. Track your order anytime: %s 📦", customerName, total, storeName, trackingCode, trackURL)
 	desc := fmt.Sprintf("Storefront Order Tracking SMS: %s", trackingCode)
+	go func() {
+		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
+	}()
+}
+
+// SendOrderStatusUpdateSMS notifies the customer whenever their order fulfillment status changes.
+func (s *SMSService) SendOrderStatusUpdateSMS(db *gorm.DB, phone, customerName, orderNumber, status, storeName, trackURL string) {
+	if phone == "" {
+		return
+	}
+	if storeName == "" {
+		storeName = "Store"
+	}
+	if customerName == "" {
+		customerName = "Valued Customer"
+	}
+
+	var statusText string
+	switch strings.ToLower(status) {
+	case "preparing", "processing", "packaging":
+		statusText = "is now being prepared and packed"
+	case "ready_for_pickup", "ready":
+		statusText = "is READY FOR PICKUP at the store counter! "
+	case "out_for_delivery", "shipped", "dispatched":
+		statusText = "is OUT FOR DELIVERY to your destination!"
+	case "delivered", "completed":
+		statusText = "has been DELIVERED & COMPLETED. Thank you for shopping with us!"
+	case "cancelled", "voided":
+		statusText = "has been CANCELLED. Please contact support if you need assistance."
+	default:
+		statusText = fmt.Sprintf("status has been updated to %s", strings.ToUpper(status))
+	}
+
+	var msg string
+	if trackURL != "" {
+		msg = fmt.Sprintf("Hi %s! Your order #%s at %s %s. Track live: %s", customerName, orderNumber, storeName, statusText, trackURL)
+	} else {
+		msg = fmt.Sprintf("Hi %s! Your order #%s at %s %s.", customerName, orderNumber, storeName, statusText)
+	}
+
+	desc := fmt.Sprintf("Order Status SMS (#%s -> %s)", orderNumber, status)
 	go func() {
 		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
 	}()

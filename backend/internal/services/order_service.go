@@ -988,7 +988,44 @@ func (s *OrderService) UpdateOrderStatus(id string, status string, notes string)
 		updates["notes"] = &updatedNotes
 	}
 
-	return s.db.Model(&order).Updates(updates).Error
+	if err := s.db.Model(&order).Updates(updates).Error; err != nil {
+		return err
+	}
+
+	// Dispatch SMS to customer regarding the status update
+	if s.smsService != nil {
+		targetPhone := ""
+		if order.CustomerPhone != nil && *order.CustomerPhone != "" {
+			targetPhone = *order.CustomerPhone
+		}
+		targetName := ""
+		if order.CustomerName != nil && *order.CustomerName != "" {
+			targetName = *order.CustomerName
+		}
+		if (targetPhone == "" || targetName == "") && order.CustomerID != nil {
+			var cust models.Customer
+			if err := s.db.Where("id = ?", *order.CustomerID).First(&cust).Error; err == nil {
+				if targetPhone == "" && cust.Phone != nil {
+					targetPhone = *cust.Phone
+				}
+				if targetName == "" && cust.Name != "" {
+					targetName = cust.Name
+				}
+			}
+		}
+
+		if targetPhone != "" {
+			storeName := "Store"
+			var tenant models.Tenant
+			if s.db.First(&tenant).Error == nil && tenant.Name != "" {
+				storeName = tenant.Name
+			}
+			trackURL := fmt.Sprintf("/store/track-order?code=%s", order.OrderNumber)
+			s.smsService.SendOrderStatusUpdateSMS(s.db, targetPhone, targetName, order.OrderNumber, status, storeName, trackURL)
+		}
+	}
+
+	return nil
 }
 
 func determinePrimaryPaymentMethod(payments []OrderPaymentInput) string {
