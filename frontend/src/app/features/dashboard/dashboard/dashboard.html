@@ -197,7 +197,7 @@
             </div>
           }
           @for (tx of dashboardService.branchMetrics()?.recent_transactions; track tx.id) {
-            <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group">
+            <a [routerLink]="['/orders', tx.id]" class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group no-underline">
               <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-50 dark:bg-sky-500/15 border border-sky-100 dark:border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400 font-black text-xs group-hover:scale-105 transition-transform shrink-0">
                   {{ tx.initials }}
@@ -211,7 +211,7 @@
                 <p class="font-black text-xs" [ngClass]="tx.type === 'positive' ? 'text-emerald-500' : 'text-rose-500'">{{ branch.currency_symbol }}{{ tx.amount }}</p>
                 <p class="text-[10px] font-medium text-slate-500">{{ tx.time }}</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
@@ -235,16 +235,16 @@
             </div>
           }
           @for (p of lowStockProducts; track p.id) {
-            <div class="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+            <a [routerLink]="['/inventory/products', p.id, 'edit']" class="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer no-underline group">
               <div class="flex-1 min-w-0 mr-3">
-                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ p.name }}</p>
                 <p class="text-[10px] font-mono text-slate-500 truncate">{{ p.sku }}</p>
               </div>
               <div class="text-right flex-shrink-0">
                 <p class="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400">{{ p.current_stock }}</p>
                 <p class="text-[10px] text-slate-500">/ {{ p.reorder_level }} min</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
@@ -268,17 +268,17 @@
             </div>
           }
           @for (p of topProducts; track p.id; let i = $index) {
-            <div class="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+            <a [routerLink]="['/inventory/products', p.id, 'edit']" class="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer no-underline group">
               <span class="w-5 text-center text-[10px] sm:text-[11px] font-black text-slate-400 dark:text-slate-600 shrink-0">#{{ i + 1 }}</span>
               <div class="flex-1 min-w-0">
-                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ p.name }}</p>
                 <p class="text-[10px] text-slate-500 truncate">{{ p.stock_unit }}</p>
               </div>
               <div class="text-right flex-shrink-0">
                 <p class="text-xs sm:text-sm font-black text-indigo-600 dark:text-indigo-400">{{ p.selling_price | appCurrency: branch.currency_code }}</p>
                 <p class="text-[10px] text-slate-500">{{ p.current_stock }} in stock</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
@@ -480,7 +480,7 @@
             </div>
           }
           @for (tx of dashboardService.metrics()?.recent_transactions; track tx.id) {
-            <div class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group">
+            <a [routerLink]="['/orders', tx.id]" class="flex items-center justify-between p-2.5 sm:p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.06] transition-all cursor-pointer group no-underline">
               <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xs group-hover:scale-105 transition-transform shrink-0">
                   {{ tx.initials }}
@@ -494,7 +494,7 @@
                 <p class="font-black text-xs" [ngClass]="tx.type === 'positive' ? 'text-emerald-500' : 'text-rose-500'">{{ tx.amount }}</p>
                 <p class="text-[10px] font-medium text-slate-500">{{ tx.time }}</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
@@ -522,16 +522,16 @@
             </div>
           }
           @for (p of lowStockProducts; track p.id) {
-            <div class="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+            <a [routerLink]="['/inventory/products', p.id, 'edit']" class="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer no-underline group">
               <div class="flex-1 min-w-0 mr-3">
-                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ p.name }}</p>
                 <p class="text-[10px] font-mono text-slate-500 truncate">{{ p.sku }}</p>
               </div>
               <div class="text-right flex-shrink-0">
                 <p class="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400">{{ p.current_stock }}</p>
                 <p class="text-[10px] text-slate-500">/ {{ p.reorder_level }} min</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
@@ -555,17 +555,17 @@
             </div>
           }
           @for (p of topProducts; track p.id; let i = $index) {
-            <div class="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors">
+            <a [routerLink]="['/inventory/products', p.id, 'edit']" class="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 sm:py-3 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer no-underline group">
               <span class="w-5 text-center text-[10px] sm:text-[11px] font-black text-slate-400 dark:text-slate-600 shrink-0">#{{ i + 1 }}</span>
               <div class="flex-1 min-w-0">
-                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{{ p.name }}</p>
+                <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{{ p.name }}</p>
                 <p class="text-[10px] text-slate-500 truncate">{{ p.stock_unit }}</p>
               </div>
               <div class="text-right flex-shrink-0">
                 <p class="text-xs sm:text-sm font-black text-indigo-600 dark:text-indigo-400">{{ p.selling_price | appCurrency }}</p>
                 <p class="text-[10px] text-slate-500">{{ p.current_stock }} in stock</p>
               </div>
-            </div>
+            </a>
           }
         </div>
       </div>
