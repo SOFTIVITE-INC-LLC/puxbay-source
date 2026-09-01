@@ -396,7 +396,12 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 				}
 
 				if customer.Phone != nil && *customer.Phone != "" && s.smsService != nil {
-					msg := fmt.Sprintf("Thank you for your order at Puxbay! Order #%s for %.2f has been completed.", order.OrderNumber, order.Total)
+					storeName := s.getStoreName(tx)
+					custName := customer.Name
+					if custName == "" {
+						custName = "Valued Customer"
+					}
+					msg := fmt.Sprintf("Thank you for your purchase at %s! Order #%s for GHS %.2f has been completed.", storeName, order.OrderNumber, order.Total)
 					desc := fmt.Sprintf("Order Receipt SMS: Order #%s", order.OrderNumber)
 					_ = s.smsService.SendTenantSMS(tx, []string{*customer.Phone}, msg, desc)
 				}
@@ -487,7 +492,8 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 			if s.smsService != nil {
 				var cust models.Customer
 				if err := tx.Where("id = ?", *input.CustomerID).First(&cust).Error; err == nil && cust.Phone != nil && *cust.Phone != "" {
-					msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f on Store Credit/BNPL (Order #%s) is recorded. Total balance owed: GHS %.2f. Due: %s.", cust.Name, creditAmount, order.OrderNumber, newBalance, dueDate.Format("02 Jan 2006"))
+					storeName := s.getStoreName(tx)
+					msg := fmt.Sprintf("Dear %s, your purchase of GHS %.2f at %s on Store Credit/BNPL (Order #%s) is recorded. Total balance owed: GHS %.2f. Due: %s.", cust.Name, creditAmount, storeName, order.OrderNumber, newBalance, dueDate.Format("02 Jan 2006"))
 					desc := fmt.Sprintf("BNPL Sale SMS: Order #%s", order.OrderNumber)
 					_ = s.smsService.SendTenantSMS(tx, []string{*cust.Phone}, msg, desc)
 				}
@@ -889,7 +895,8 @@ func (s *OrderService) SendPickupOTP(orderID string) (string, error) {
 
 	// Send SMS to customer's phone
 	if s.smsService != nil {
-		msg := fmt.Sprintf("Your pickup verification code for Order #%s is: %s. Share this code with store staff to collect your order.", order.OrderNumber, otp)
+		storeName := s.getStoreName(s.db)
+		msg := fmt.Sprintf("Your pickup verification code for %s (Order #%s) is: %s. Share this code with store staff to collect your order.", storeName, order.OrderNumber, otp)
 		desc := fmt.Sprintf("Order Pickup OTP: #%s", order.OrderNumber)
 		_ = s.smsService.SendTenantSMS(s.db, []string{phone}, msg, desc)
 	}
@@ -1041,6 +1048,18 @@ func determinePrimaryPaymentMethod(payments []OrderPaymentInput) string {
 	return primary.Method
 }
 
+func (s *OrderService) getStoreName(tx *gorm.DB) string {
+	if tx == nil {
+		tx = s.db
+	}
+	var tenant models.Tenant
+	if tx.First(&tenant).Error == nil && tenant.Name != "" {
+		return tenant.Name
+	}
+	return "Store"
+}
+
 // Ensure clause import is used (for wallet/transfer row locking pattern reference)
 var _ = clause.Locking{}
+
 

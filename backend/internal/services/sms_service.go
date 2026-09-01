@@ -180,7 +180,7 @@ func (s *SMSService) SendOrderConfirmation(db *gorm.DB, phone, customerName, ord
 		return
 	}
 	if storeName == "" {
-		storeName = "Puxbay Store"
+		storeName = "Store"
 	}
 	msg := fmt.Sprintf("Hi %s! Your order #%s of GHS %.2f at %s has been confirmed. Thank you for shopping with us! 🛍️", customerName, orderNumber, total, storeName)
 	desc := fmt.Sprintf("Order Confirmation SMS: Order #%s", orderNumber)
@@ -219,7 +219,7 @@ func (s *SMSService) SendStorefrontOrderSMS(db *gorm.DB, phone, customerName, tr
 		return
 	}
 	if storeName == "" {
-		storeName = "Puxbay Store"
+		storeName = "Store"
 	}
 	if customerName == "" {
 		customerName = "Valued Customer"
