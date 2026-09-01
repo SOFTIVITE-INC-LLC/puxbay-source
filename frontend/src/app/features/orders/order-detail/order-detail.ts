@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
 import { Order } from '../../../core/models/order.models';
-import { ReceiptComponent } from '../../../shared/components/receipt/receipt.component';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { PosOverrideModalComponent } from '../../../shared/components/pos-override-modal/pos-override-modal';
 import { AlertService } from '../../../core/services/alert.service';
@@ -20,7 +19,7 @@ export interface SplitPaymentRow {
 @Component({
   selector: 'app-order-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReceiptComponent, AppCurrencyPipe, PosOverrideModalComponent],
+  imports: [CommonModule, FormsModule, AppCurrencyPipe, PosOverrideModalComponent],
   templateUrl: './order-detail.html'
 })
 export class OrderDetail implements OnInit, OnDestroy {
