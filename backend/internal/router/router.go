@@ -299,6 +299,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 				api.POST("/orders", orderHandler.Create)
 			}
 			api.GET("/orders/:id", orderHandler.Get)
+			api.PUT("/orders/:id/status", middleware.RequirePermission("orders:update"), orderHandler.UpdateStatus)
+			api.PATCH("/orders/:id/status", middleware.RequirePermission("orders:update"), orderHandler.UpdateStatus)
 			api.POST("/orders/:id/void", middleware.RequirePermissionOrOverride(db, "orders:void"), orderHandler.VoidOrder)
 			api.POST("/orders/:id/complete", middleware.RequirePermission("orders:update"), orderHandler.CompleteOrder)
 			api.POST("/orders/:id/send-pickup-otp", middleware.RequirePermission("orders:update"), orderHandler.SendPickupOTP)

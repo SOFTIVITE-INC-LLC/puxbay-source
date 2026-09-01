@@ -962,6 +962,35 @@ func (s *OrderService) RefundOrder(id string, amount float64) error {
 	})
 }
 
+func (s *OrderService) UpdateOrderStatus(id string, status string, notes string) error {
+	orderID, err := uuid.Parse(id)
+	if err != nil {
+		return errors.New("invalid order ID")
+	}
+
+	var order models.Order
+	if err := s.db.Where("id = ?", orderID).First(&order).Error; err != nil {
+		return errors.New("order not found")
+	}
+
+	status = strings.ToLower(strings.TrimSpace(status))
+	updates := map[string]interface{}{
+		"status":     status,
+		"updated_at": time.Now(),
+	}
+
+	if notes != "" {
+		existingNotes := ""
+		if order.Notes != nil {
+			existingNotes = *order.Notes
+		}
+		updatedNotes := fmt.Sprintf("%s\n[%s] Status: %s - %s", existingNotes, time.Now().Format("02 Jan 15:04"), strings.ToUpper(status), notes)
+		updates["notes"] = &updatedNotes
+	}
+
+	return s.db.Model(&order).Updates(updates).Error
+}
+
 func determinePrimaryPaymentMethod(payments []OrderPaymentInput) string {
 	if len(payments) == 0 {
 		return "unknown"
@@ -977,3 +1006,4 @@ func determinePrimaryPaymentMethod(payments []OrderPaymentInput) string {
 
 // Ensure clause import is used (for wallet/transfer row locking pattern reference)
 var _ = clause.Locking{}
+

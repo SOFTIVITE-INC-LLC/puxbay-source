@@ -353,6 +353,26 @@ func (h *OrderHandler) CompleteOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "completed"})
 }
 
+type UpdateOrderStatusReq struct {
+	Status string `json:"status" binding:"required"`
+	Notes  string `json:"notes"`
+}
+
+func (h *OrderHandler) UpdateStatus(c *gin.Context) {
+	id := c.Param("id")
+	var req UpdateOrderStatusReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	if err := h.service(c).UpdateOrderStatus(id, req.Status, req.Notes); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": req.Status})
+}
+
 func (h *OrderHandler) SendPickupOTP(c *gin.Context) {
 	id := c.Param("id")
 	phone, err := h.service(c).SendPickupOTP(id)

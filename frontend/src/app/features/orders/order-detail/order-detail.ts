@@ -435,4 +435,59 @@ export class OrderDetail implements OnInit, OnDestroy {
   printReceipt() {
     window.print();
   }
+
+  // ═══ Fulfillment & Live Tracking Helpers ═══
+  updatingStatus = signal(false);
+
+  getTrackingStepIndex(status: string | undefined): number {
+    const s = (status || '').toLowerCase().trim();
+    if (s === 'cancelled' || s === 'voided' || s === 'failed') return -1;
+    if (s === 'pending' || s === 'placed' || s === 'confirmed' || s === 'new' || s === 'unpaid') return 0;
+    if (s === 'processing' || s === 'preparing' || s === 'packaging' || s === 'in_progress') return 1;
+    if (s === 'shipped' || s === 'ready' || s === 'ready_for_pickup' || s === 'out_for_delivery' || s === 'dispatched' || s === 'en_route') return 2;
+    if (s === 'delivered' || s === 'completed' || s === 'fulfilled') return 3;
+    return 0;
+  }
+
+  getTrackingUrl(order: Order | null): string {
+    if (!order) return '';
+    const code = order.order_number;
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/store/track-order?code=${code}`;
+    }
+    return `/store/track-order?code=${code}`;
+  }
+
+  updateStatus(newStatus: string, notes?: string) {
+    const o = this.order();
+    if (!o?.id) return;
+    this.updatingStatus.set(true);
+    this.orderService.updateOrderStatus(o.id, newStatus, notes).subscribe({
+      next: () => {
+        this.updatingStatus.set(false);
+        const formatted = newStatus.toUpperCase().replace(/_/g, ' ');
+        this.alertService.alert(`Order status updated to "${formatted}". The customer's tracking timeline has been updated.`, 'Status Updated', 'success');
+        this.loadOrder(o.id!);
+      },
+      error: (err) => {
+        this.updatingStatus.set(false);
+        this.alertService.alert(err.error?.error || 'Failed to update order status', 'Update Error', 'danger');
+      }
+    });
+  }
+
+  shareCustomerTracking(order: Order | null) {
+    if (!order) return;
+    const phone = this.getCustomerPhone(order);
+    const code = order.order_number;
+    const url = this.getTrackingUrl(order);
+    const name = this.getCustomerName(order);
+    const text = `Hello ${name}, your order #${code} update:\nTrack live progress here:\n${url}`;
+    if (phone) {
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  }
 }

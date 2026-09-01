@@ -96,4 +96,8 @@ export class OrderService {
   }
 
   getReceipt(id: string): Observable<any> { return this.api.get<any>(`/orders/${id}/receipt`); }
+
+  updateOrderStatus(id: string, status: string, notes?: string): Observable<any> {
+    return this.api.put<any>(`/orders/${id}/status`, { status, notes });
+  }
 }

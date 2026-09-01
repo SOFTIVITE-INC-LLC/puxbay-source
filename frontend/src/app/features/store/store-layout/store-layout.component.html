@@ -33,6 +33,10 @@
            class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
           Trending
         </a>
+        <a routerLink="/store/track-order" routerLinkActive="bg-white/10 text-slate-900 dark:text-white shadow-sm"
+           class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all">
+          Track Order
+        </a>
         @if (authService.currentUser()) {
           <a routerLink="/store/account" routerLinkActive="bg-white/10 text-slate-900 dark:text-white shadow-sm"
              class="px-4 py-1.5 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white rounded-full transition-all flex items-center gap-2">
@@ -140,6 +144,11 @@
          class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
         <span class="material-symbols-outlined !text-[20px] text-rose-400">favorite</span>
         Wishlist ({{ wishlistService.wishlistIds().length }})
+      </a>
+      <a routerLink="/store/track-order" (click)="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all">
+        <span class="material-symbols-outlined !text-[20px] text-sky-400">local_shipping</span>
+        Track Order
       </a>
       <button (click)="miniCartOpen = true; mobileMenuOpen = false"
          class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:text-white hover:bg-white/5 transition-all outline-none">

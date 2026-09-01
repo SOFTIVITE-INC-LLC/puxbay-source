@@ -202,6 +202,181 @@
         </div>
       }
 
+      <!-- ═══ LIVE FULFILLMENT & CUSTOMER TRACKING WORKFLOW ═══ -->
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 shadow-xl relative overflow-hidden">
+        
+        <!-- Header & Tracking Sharing -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-100 dark:border-zinc-800/80">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              <p class="text-[10px] font-black uppercase tracking-widest text-indigo-500">Live Customer Tracking</p>
+            </div>
+            <h3 class="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-indigo-500 !text-[22px]">local_shipping</span>
+              Fulfillment & Tracking Timeline
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Tracking Code & Copy -->
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/50 text-xs font-mono font-bold text-slate-700 dark:text-zinc-300">
+              <span class="text-slate-400 dark:text-zinc-500">CODE:</span>
+              <span class="text-indigo-600 dark:text-indigo-400">{{ order()!.order_number }}</span>
+              <button (click)="copyText(getTrackingUrl(order()), 'tracking_url')" 
+                      class="ml-1 p-1 hover:bg-slate-200 dark:hover:bg-zinc-700 rounded text-slate-500 hover:text-indigo-500 transition-colors"
+                      title="Copy Public Tracking URL">
+                <span class="material-symbols-outlined !text-[15px]">{{ copiedField() === 'tracking_url' ? 'done' : 'content_copy' }}</span>
+              </button>
+            </div>
+
+            <!-- WhatsApp Share Button -->
+            <button (click)="shareCustomerTracking(order())"
+                    class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold transition-all shadow-sm">
+              <span class="material-symbols-outlined !text-[15px]">chat</span>
+              <span>Send Link to Customer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4-Stage Interactive Stepper -->
+        <div class="py-8">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-2 relative">
+            
+            <!-- Step 1: Placed -->
+            <div class="flex sm:flex-col items-center text-left sm:text-center gap-4 sm:gap-3 relative z-10 cursor-pointer group"
+                 (click)="updateStatus('pending')">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all shadow-md shrink-0"
+                   [ngClass]="getTrackingStepIndex(order()!.status) >= 0 ? 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">receipt_long</span>
+              </div>
+              <div>
+                <div class="flex sm:justify-center items-center gap-1.5">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white">1. Placed</h4>
+                  @if (getTrackingStepIndex(order()!.status) >= 0) {
+                    <span class="material-symbols-outlined !text-[14px] text-emerald-500">check_circle</span>
+                  }
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Order logged & confirmed</p>
+              </div>
+            </div>
+
+            <!-- Step 2: Preparing -->
+            <div class="flex sm:flex-col items-center text-left sm:text-center gap-4 sm:gap-3 relative z-10 cursor-pointer group"
+                 (click)="updateStatus('preparing')">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all shadow-md shrink-0"
+                   [ngClass]="getTrackingStepIndex(order()!.status) >= 1 ? 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">inventory_2</span>
+              </div>
+              <div>
+                <div class="flex sm:justify-center items-center gap-1.5">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white"
+                      [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 1}">2. Preparing</h4>
+                  @if (getTrackingStepIndex(order()!.status) >= 1) {
+                    <span class="material-symbols-outlined !text-[14px] text-emerald-500">check_circle</span>
+                  }
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5"
+                   [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 1}">Packing & assembling</p>
+              </div>
+            </div>
+
+            <!-- Step 3: Out for Delivery / Ready for Pickup -->
+            <div class="flex sm:flex-col items-center text-left sm:text-center gap-4 sm:gap-3 relative z-10 cursor-pointer group"
+                 (click)="updateStatus(order()!.order_type === 'pickup' ? 'ready_for_pickup' : 'out_for_delivery')">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all shadow-md shrink-0"
+                   [ngClass]="getTrackingStepIndex(order()!.status) >= 2 ? 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">{{ order()!.order_type === 'pickup' ? 'storefront' : 'local_shipping' }}</span>
+              </div>
+              <div>
+                <div class="flex sm:justify-center items-center gap-1.5">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white"
+                      [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 2}">
+                    {{ order()!.order_type === 'pickup' ? '3. Ready for Pickup' : '3. En Route' }}
+                  </h4>
+                  @if (getTrackingStepIndex(order()!.status) >= 2) {
+                    <span class="material-symbols-outlined !text-[14px] text-emerald-500">check_circle</span>
+                  }
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5"
+                   [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 2}">
+                  {{ order()!.order_type === 'pickup' ? 'Waiting at counter' : 'Dispatched to customer' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Step 4: Completed -->
+            <div class="flex sm:flex-col items-center text-left sm:text-center gap-4 sm:gap-3 relative z-10 cursor-pointer group"
+                 (click)="updateStatus('completed')">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all shadow-md shrink-0"
+                   [ngClass]="getTrackingStepIndex(order()!.status) >= 3 ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-500/20' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">check_circle</span>
+              </div>
+              <div>
+                <div class="flex sm:justify-center items-center gap-1.5">
+                  <h4 class="text-xs font-black uppercase tracking-wider text-zinc-900 dark:text-white"
+                      [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 3}">4. Completed</h4>
+                  @if (getTrackingStepIndex(order()!.status) >= 3) {
+                    <span class="material-symbols-outlined !text-[14px] text-emerald-500">done_all</span>
+                  }
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5"
+                   [ngClass]="{'opacity-40': getTrackingStepIndex(order()!.status) < 3}">Fulfilled & delivered</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Quick Progression & Manual Override Controls -->
+        <div class="pt-5 border-t border-zinc-100 dark:border-zinc-800/80 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          
+          <!-- One-click advance CTA -->
+          <div class="flex items-center gap-2 flex-wrap">
+            @if (getTrackingStepIndex(order()!.status) === 0) {
+              <button (click)="updateStatus('preparing')" [disabled]="updatingStatus()"
+                      class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all cursor-pointer disabled:opacity-50">
+                <span class="material-symbols-outlined !text-[16px]">inventory_2</span>
+                <span>{{ updatingStatus() ? 'Updating...' : 'Advance to: Preparing & Packaging' }}</span>
+              </button>
+            } @else if (getTrackingStepIndex(order()!.status) === 1) {
+              <button (click)="updateStatus(order()!.order_type === 'pickup' ? 'ready_for_pickup' : 'out_for_delivery')" [disabled]="updatingStatus()"
+                      class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all cursor-pointer disabled:opacity-50">
+                <span class="material-symbols-outlined !text-[16px]">{{ order()!.order_type === 'pickup' ? 'storefront' : 'local_shipping' }}</span>
+                <span>{{ updatingStatus() ? 'Updating...' : (order()!.order_type === 'pickup' ? 'Mark Ready for Pickup' : 'Dispatch: Out for Delivery') }}</span>
+              </button>
+            } @else if (getTrackingStepIndex(order()!.status) === 2) {
+              <button (click)="updateStatus('completed')" [disabled]="updatingStatus()"
+                      class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50">
+                <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+                <span>{{ updatingStatus() ? 'Updating...' : 'Mark Delivered & Completed' }}</span>
+              </button>
+            } @else {
+              <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 py-1">
+                <span class="material-symbols-outlined !text-[18px]">verified</span>
+                Order is fully fulfilled and completed!
+              </span>
+            }
+          </div>
+
+          <!-- Direct Status Selector Override -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-zinc-400 whitespace-nowrap">Status:</span>
+            <select [ngModel]="order()!.status" (ngModelChange)="updateStatus($event)" [disabled]="updatingStatus()"
+                    class="bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-bold text-zinc-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              <option value="pending">Pending / Placed</option>
+              <option value="preparing">Preparing & Packaging</option>
+              <option value="ready_for_pickup">Ready for Pickup</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="completed">Delivered & Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
       <!-- ── Fulfillment + Customer Details Row ── -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 

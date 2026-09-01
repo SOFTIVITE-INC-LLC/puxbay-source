@@ -58,16 +58,21 @@ export class TrackOrderComponent implements OnInit {
   }
 
   getStepStatus(status: string, step: number): string {
-    const s = (status || '').toLowerCase();
-    if (s === 'cancelled' || s === 'voided') {
+    const s = (status || '').toLowerCase().trim();
+    if (s === 'cancelled' || s === 'voided' || s === 'failed') {
       return step === 0 ? 'cancelled' : 'pending';
     }
 
     let currentIndex = 0;
-    if (s === 'pending') currentIndex = 0;
-    else if (s === 'processing' || s === 'preparing') currentIndex = 1;
-    else if (s === 'shipped' || s === 'ready' || s === 'out_for_delivery') currentIndex = 2;
-    else if (s === 'delivered' || s === 'completed') currentIndex = 3;
+    if (s === 'pending' || s === 'placed' || s === 'confirmed' || s === 'new' || s === 'unpaid') {
+      currentIndex = 0;
+    } else if (s === 'processing' || s === 'preparing' || s === 'packaging' || s === 'in_progress') {
+      currentIndex = 1;
+    } else if (s === 'shipped' || s === 'ready' || s === 'ready_for_pickup' || s === 'out_for_delivery' || s === 'dispatched' || s === 'en_route') {
+      currentIndex = 2;
+    } else if (s === 'delivered' || s === 'completed' || s === 'fulfilled') {
+      currentIndex = 3;
+    }
 
     if (step < currentIndex) return 'completed';
     if (step === currentIndex) return 'active';
