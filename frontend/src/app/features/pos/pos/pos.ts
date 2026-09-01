@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../core/models/models';
@@ -15,7 +16,7 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
 @Component({
   selector: 'app-pos',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, QRCodeComponent, ReceiptComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, ImageUrlPipe, QRCodeComponent, ReceiptComponent],
   templateUrl: './pos.html',
   styles: `
     .glass-panel {

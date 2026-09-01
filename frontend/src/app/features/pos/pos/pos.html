@@ -120,7 +120,7 @@
       <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
         <div *ngFor="let product of facade.recommendations()" (click)="facade.addToCart(product)" class="group bg-white dark:bg-slate-800 rounded-xl p-2 border border-amber-200/50 dark:border-amber-500/20 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-amber-400/50 transition-all cursor-pointer flex items-center gap-3 w-[200px] shrink-0">
           <div class="w-10 h-10 rounded-lg bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0">
-            <img [src]="product.image_url || '/images/default-product.png'" class="w-full h-full object-cover">
+            <img [src]="product.image_url | imageUrl" class="w-full h-full object-cover">
           </div>
           <div class="flex flex-col flex-1 min-w-0">
             <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs truncate">{{ product.name }}</h3>
@@ -144,7 +144,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-max">
         <div *ngFor="let product of facade.filteredProducts()" (click)="facade.addToCart(product)" class="group relative bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-all cursor-pointer overflow-hidden flex flex-col h-[220px]">
           <div class="w-full aspect-square rounded-xl bg-slate-50 dark:bg-slate-900 overflow-hidden mb-3 relative">
-            <img [src]="product.image_url || '/images/default-product.png'" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110">
+            <img [src]="product.image_url | imageUrl" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110">
             <div [ngClass]="(product.current_stock || 0) <= 5 ? 'bg-red-500 text-white' : 'bg-slate-800 text-white dark:bg-white dark:text-slate-800'" class="absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">{{ product.current_stock || 0 }} in stock</div>
           </div>
           <div class="flex flex-col flex-1">
@@ -244,7 +244,7 @@
         </div>
         
         <div class="w-16 h-16 rounded-xl bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700">
-          <img [src]="item.product.image_url || '/images/default-product.png'" class="w-full h-full object-cover">
+          <img [src]="item.product.image_url | imageUrl" class="w-full h-full object-cover">
         </div>
         
         <div class="flex-1 flex flex-col justify-between z-20">
@@ -391,12 +391,12 @@
         <!-- Amount to Tender (Split Payment Input) -->
         <div class="mb-5">
           <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Amount to Tender</label>
-          <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{{ settingsService.currencySymbol() }}</span>
+          <div class="relative flex items-center">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-base select-none pointer-events-none">{{ settingsService.currencySymbol() }}</span>
             <input type="number"
                    [ngModel]="facade.paymentAmountInput() === null ? facade.remainingBalance() : facade.paymentAmountInput()"
                    (ngModelChange)="facade.paymentAmountInput.set($event)"
-                   class="w-full pl-8 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-black text-xl outline-none focus:border-indigo-500 transition-colors"
+                   class="w-full pl-16 pr-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-black text-xl outline-none focus:border-indigo-500 transition-colors"
                    [placeholder]="facade.remainingBalance().toString()" />
           </div>
           <p class="text-xs text-slate-400 mt-2">Enter amount before selecting method for split payments.</p>
@@ -613,9 +613,9 @@
         </div>
         <div class="mb-6">
           <label class="block text-sm font-bold text-slate-600 dark:text-slate-300 mb-2">Price</label>
-          <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black">{{ settingsService.currencySymbol() }}</span>
-            <input type="number" #customPrice placeholder="0.00" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-4 py-3 text-slate-800 dark:text-white font-black outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-xl">
+          <div class="relative flex items-center">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black pointer-events-none select-none">{{ settingsService.currencySymbol() }}</span>
+            <input type="number" #customPrice placeholder="0.00" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-16 pr-4 py-3 text-slate-800 dark:text-white font-black outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-xl">
           </div>
         </div>
         <button (click)="facade.addCustomItem(customName.value, +customPrice.value)" class="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-200 dark:shadow-indigo-900/40 transition-transform active:scale-[0.98] flex items-center justify-center gap-2">

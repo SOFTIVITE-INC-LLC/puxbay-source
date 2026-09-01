@@ -356,10 +356,10 @@
       <div class="p-5 sm:p-6 space-y-4">
         <div>
           <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Amount (+ to add, - to deduct)</label>
-          <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-emerald-600 dark:text-emerald-400">{{ settingsService.currencySymbol() }}</span>
+          <div class="relative flex items-center">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-emerald-600 dark:text-emerald-400 pointer-events-none select-none">{{ settingsService.currencySymbol() }}</span>
             <input type="number" [ngModel]="creditAdjust().amount" (ngModelChange)="creditAdjust.update(v => ({...v, amount: +$event}))"
-                   class="w-full pl-8 pr-4 py-2.5 sm:py-3 rounded-xl border border-emerald-200/60 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-500/5 focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono text-emerald-700 dark:text-emerald-400 text-base sm:text-lg font-black" placeholder="0.00">
+                   class="w-full pl-14 pr-4 py-2.5 sm:py-3 rounded-xl border border-emerald-200/60 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-500/5 focus:ring-2 focus:ring-emerald-500/50 outline-none font-mono text-emerald-700 dark:text-emerald-400 text-base sm:text-lg font-black" placeholder="0.00">
           </div>
         </div>
         <div>
@@ -390,10 +390,10 @@
       <div class="p-5 sm:p-6 space-y-4">
         <div>
           <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-1.5">Gift Card Amount</label>
-          <div class="relative">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-violet-600 dark:text-violet-400">{{ settingsService.currencySymbol() }}</span>
+          <div class="relative flex items-center">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-violet-600 dark:text-violet-400 pointer-events-none select-none">{{ settingsService.currencySymbol() }}</span>
             <input type="number" [ngModel]="giftCardAmount()" (ngModelChange)="giftCardAmount.set(+$event)"
-                   class="w-full pl-8 pr-4 py-2.5 sm:py-3 rounded-xl border border-violet-200/60 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-500/5 focus:ring-2 focus:ring-violet-500/50 outline-none font-mono text-violet-700 dark:text-violet-400 text-base sm:text-lg font-black" placeholder="0.00">
+                   class="w-full pl-14 pr-4 py-2.5 sm:py-3 rounded-xl border border-violet-200/60 dark:border-violet-500/20 bg-violet-50/50 dark:bg-violet-500/5 focus:ring-2 focus:ring-violet-500/50 outline-none font-mono text-violet-700 dark:text-violet-400 text-base sm:text-lg font-black" placeholder="0.00">
           </div>
           <div class="flex gap-2 mt-2">
             @for (amt of [25, 50, 100, 200]; track amt) {

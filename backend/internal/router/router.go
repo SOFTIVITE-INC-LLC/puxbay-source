@@ -277,6 +277,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.PUT("/products/:id", middleware.RequirePermission("products:update"), productHandler.Update)
 			api.DELETE("/products/:id", middleware.RequirePermission("products:delete"), productHandler.Delete)
 			api.GET("/products/:id/barcode", barcodeHandler.GenerateProductBarcode) // alias for frontend
+			// Product gallery images (up to 5, max 2 MB each)
+			api.GET("/products/:id/images", productHandler.GetImages)
+			api.POST("/products/:id/images", middleware.RequirePermission("products:update"), productHandler.AddImage)
+			api.DELETE("/products/:id/images/:imgId", middleware.RequirePermission("products:update"), productHandler.DeleteImage)
 
 			// Categories
 			api.GET("/categories", categoryHandler.List)

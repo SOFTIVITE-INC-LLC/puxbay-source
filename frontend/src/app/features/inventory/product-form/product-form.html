@@ -101,7 +101,7 @@
                       <span style="font-size:10px;font-weight:700;">Uploading…</span>
                     </div>
                   } @else if (currentImage) {
-                    <img [src]="currentImage" alt="Product" style="width:100%;height:100%;object-fit:contain;padding:6px;" />
+                    <img [src]="currentImage | imageUrl" alt="Product" style="width:100%;height:100%;object-fit:contain;padding:6px;" />
                     <button type="button" (click)="removeProductImage()" title="Remove image"
                             style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;"
                             onmouseenter="this.style.background='rgba(220,38,38,0.85)'" onmouseleave="this.style.background='rgba(0,0,0,0.55)'">
@@ -131,6 +131,42 @@
                   </p>
                 </div>
               </div>
+            <!-- ── Storefront Gallery Images (Up to 5) ── -->
+            <div class="pf-field-group">
+              <div class="flex items-center justify-between">
+                <label class="pf-label">Storefront Gallery ({{ galleryImages().length }}/{{ MAX_GALLERY }})</label>
+                <span class="text-[11px] text-slate-400">Additional photos for storefront product details</span>
+              </div>
+
+              <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-1">
+                <!-- Gallery Image Cards -->
+                @for (gImg of galleryImages(); track gImg.id) {
+                  <div class="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-center">
+                    <img [src]="gImg.image_url | imageUrl" alt="Gallery photo" class="w-full h-full object-contain p-1" />
+                    <button type="button" (click)="removeGalleryImage(gImg.id)" title="Remove photo"
+                            class="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                      <span class="material-symbols-outlined !text-[14px]">close</span>
+                    </button>
+                  </div>
+                }
+
+                <!-- Upload Slot if < 5 -->
+                @if (galleryImages().length < MAX_GALLERY) {
+                  <div class="aspect-square rounded-xl border-2 border-dashed border-slate-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/50 dark:bg-zinc-800/30 flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors p-2 text-center"
+                       (click)="galleryInput.click()">
+                    <input type="file" #galleryInput (change)="onGalleryFileSelected($event)" multiple
+                           accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" />
+                    @if (isUploadingGallery()) {
+                      <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400 animate-spin !text-[22px]">sync</span>
+                      <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Uploading…</span>
+                    } @else {
+                      <span class="material-symbols-outlined text-slate-400 group-hover:text-indigo-600 !text-[24px]">add_photo_alternate</span>
+                      <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">+ Add</span>
+                    }
+                  </div>
+                }
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Upload up to 5 additional gallery photos (max 2 MB each). Displayed in customer storefront carousel.</p>
             </div>
 
             <!-- Category + Brand -->
@@ -659,7 +695,7 @@
           <!-- Image thumbnail in preview -->
           @if (currentImage) {
             <div style="width:100%;height:120px;overflow:hidden;border-radius:10px;margin-bottom:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;" class="dark:bg-zinc-800">
-              <img [src]="currentImage" alt="Product preview" style="max-height:100%;max-width:100%;object-fit:contain;" />
+              <img [src]="currentImage | imageUrl" alt="Product preview" style="max-height:100%;max-width:100%;object-fit:contain;" />
             </div>
           } @else {
             <div style="width:100%;height:80px;border-radius:10px;margin-bottom:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border:2px dashed #e2e8f0;" class="dark:bg-zinc-800 dark:border-zinc-700">
@@ -776,7 +812,7 @@
 .pf-input-prefix { @apply absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-500 dark:text-slate-400 pointer-events-none; }
 .pf-prefix-emerald { @apply text-emerald-600 dark:text-emerald-400; }
 .pf-prefix-amber   { @apply text-amber-600 dark:text-amber-400; }
-.pf-input-has-prefix { @apply pl-8; }
+.pf-input-has-prefix { @apply pl-14; }
 
 .pf-input-suffix-wrap { @apply relative; }
 .pf-input-suffix { @apply absolute right-3.5 top-1/2 -translate-y-1/2 text-[12px] font-bold text-slate-500 dark:text-slate-400 pointer-events-none; }
@@ -886,51 +922,60 @@
 
 <!-- ═══ BARCODE SCANNER MODAL ═══ -->
 @if (showBarcodeScanner()) {
-  <div class="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+  <div style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;"
        (click)="closeBarcodeScanner()">
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-    <div class="relative w-full sm:max-w-md bg-white dark:bg-zinc-900 sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col"
+    <!-- Backdrop -->
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);"></div>
+
+    <!-- Modal Panel -->
+    <div style="position:relative;width:100%;max-width:440px;background:var(--pf-modal-bg,#18181b);border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,0.55);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 32px);"
+         class="dark:bg-zinc-900 bg-white"
          (click)="$event.stopPropagation()">
 
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 pt-5 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;border-radius:14px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;color:#6366f1;flex-shrink:0;">
             <span class="material-symbols-outlined" style="font-size:20px">qr_code_scanner</span>
           </div>
           <div>
-            <h2 class="font-black text-slate-900 dark:text-white text-base m-0">Scan Product Barcode</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Point camera at barcode to fill in the field</p>
+            <h2 style="font-weight:900;font-size:15px;margin:0;" class="text-slate-900 dark:text-white">Scan Product Barcode</h2>
+            <p style="font-size:11px;margin:0;margin-top:2px;" class="text-slate-500 dark:text-slate-400">Point camera at barcode to fill in the field</p>
           </div>
         </div>
-        <button (click)="closeBarcodeScanner()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+        <button (click)="closeBarcodeScanner()"
+                style="width:36px;height:36px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;"
+                class="bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
           <span class="material-symbols-outlined" style="font-size:20px">close</span>
         </button>
       </div>
 
       <!-- Body -->
-      <div class="px-5 pb-5">
+      <div style="padding:0 20px 20px;overflow-y:auto;">
         @if (barcodeError()) {
-          <div class="flex flex-col items-center justify-center gap-3 py-10 text-center">
-            <div class="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-              <span class="material-symbols-outlined text-rose-600 dark:text-rose-400" style="font-size:32px">camera_off</span>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 0;text-align:center;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,0.12);display:flex;align-items:center;justify-content:center;">
+              <span class="material-symbols-outlined" style="font-size:32px;color:#ef4444">camera_off</span>
             </div>
-            <p class="font-bold text-slate-900 dark:text-white">Camera Unavailable</p>
-            <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xs">{{ barcodeError() }}</p>
-            <button (click)="closeBarcodeScanner()" class="px-5 py-2 bg-rose-600 text-white font-bold rounded-xl text-sm hover:bg-rose-700 transition-colors">Close</button>
+            <p style="font-weight:800;font-size:14px;margin:0;" class="text-slate-900 dark:text-white">Camera Unavailable</p>
+            <p style="font-size:12px;max-width:260px;margin:0;" class="text-slate-500 dark:text-slate-400">{{ barcodeError() }}</p>
+            <button (click)="closeBarcodeScanner()"
+                    style="padding:8px 20px;background:#ef4444;color:#fff;font-weight:700;border-radius:10px;font-size:13px;border:none;cursor:pointer;">
+              Close
+            </button>
           </div>
         } @else {
-          <div class="relative rounded-2xl overflow-hidden bg-slate-950">
+          <div style="position:relative;border-radius:16px;overflow:hidden;background:#0a0a0a;">
             <!-- Animated scan line -->
-            <div class="absolute left-4 right-4 h-0.5 bg-transparent z-10 pf-scanner-aim-line pointer-events-none"></div>
+            <div style="position:absolute;left:16px;right:16px;height:2px;background:transparent;z-index:10;pointer-events:none;" class="pf-scanner-aim-line"></div>
             <!-- Corner marks -->
-            <div class="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-indigo-400 rounded-tl-lg z-10 pointer-events-none"></div>
-            <div class="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-indigo-400 rounded-tr-lg z-10 pointer-events-none"></div>
-            <div class="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-indigo-400 rounded-bl-lg z-10 pointer-events-none"></div>
-            <div class="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-indigo-400 rounded-br-lg z-10 pointer-events-none"></div>
+            <div style="position:absolute;top:12px;left:12px;width:20px;height:20px;border-top:2.5px solid #818cf8;border-left:2.5px solid #818cf8;border-radius:4px 0 0 0;z-index:10;pointer-events:none;"></div>
+            <div style="position:absolute;top:12px;right:12px;width:20px;height:20px;border-top:2.5px solid #818cf8;border-right:2.5px solid #818cf8;border-radius:0 4px 0 0;z-index:10;pointer-events:none;"></div>
+            <div style="position:absolute;bottom:12px;left:12px;width:20px;height:20px;border-bottom:2.5px solid #818cf8;border-left:2.5px solid #818cf8;border-radius:0 0 0 4px;z-index:10;pointer-events:none;"></div>
+            <div style="position:absolute;bottom:12px;right:12px;width:20px;height:20px;border-bottom:2.5px solid #818cf8;border-right:2.5px solid #818cf8;border-radius:0 0 4px 0;z-index:10;pointer-events:none;"></div>
             <div id="pf-barcode-scanner-reader"></div>
           </div>
-          <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-3 flex items-center justify-center gap-1.5">
+          <p style="text-align:center;font-size:11px;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:6px;" class="text-slate-500 dark:text-slate-400">
             <span class="material-symbols-outlined" style="font-size:14px">info</span>
             Scanned barcode will auto-fill the Barcode field
           </p>

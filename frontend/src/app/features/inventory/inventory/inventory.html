@@ -199,7 +199,7 @@
           <div class="flex items-start gap-4">
             <div class="w-14 h-14 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0 overflow-hidden">
               @if (product.image_url) {
-                <img [src]="product.image_url" class="w-full h-full object-cover" />
+                <img [src]="product.image_url | imageUrl" class="w-full h-full object-cover" />
               } @else {
                 <span class="material-symbols-outlined text-zinc-400 !text-[26px]">inventory_2</span>
               }
@@ -296,7 +296,7 @@
                   <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       @if (product.image_url) {
-                        <img [src]="product.image_url" class="w-full h-full object-cover" />
+                        <img [src]="product.image_url | imageUrl" class="w-full h-full object-cover" />
                       } @else {
                         <span class="material-symbols-outlined text-zinc-400 !text-[24px]">inventory_2</span>
                       }
@@ -434,7 +434,7 @@
           <!-- Image -->
           <div class="aspect-[4/3] bg-zinc-50 dark:bg-zinc-800/50 relative overflow-hidden flex items-center justify-center">
             @if (product.image_url) {
-              <img [src]="product.image_url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <img [src]="product.image_url | imageUrl" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             } @else {
               <span class="material-symbols-outlined text-zinc-200 dark:text-zinc-700 !text-[64px]">inventory_2</span>
             }

@@ -4,8 +4,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GiftCardService, GiftCardCreateInput } from '../../../core/services/gift-card.service';
 import { WalletService } from '../../../core/services/wallet.service';
-import { CustomerService } from '../../../core/services/customer.service';
+import { SettingsService } from '../../../core/services/settings.service';
 import { ToastrService } from 'ngx-toastr';
+import { CustomerService } from '../../../core/services/customer.service';
 
 @Component({
   selector: 'app-gift-cards',
@@ -14,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './gift-cards.html',
 })
 export class GiftCards implements OnInit {
+  settingsService = inject(SettingsService);
   giftCardService = inject(GiftCardService);
   walletService = inject(WalletService);
   customerService = inject(CustomerService);

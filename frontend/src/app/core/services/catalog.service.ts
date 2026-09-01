@@ -167,4 +167,19 @@ export class CatalogService {
   getExpiringBatches(days = 30): Observable<{ data: any[]; total: number }> {
     return this.api.get(`/inventory/expiring-batches?days=${days}`);
   }
+
+  // --- Product Gallery Images ---
+  getProductImages(productId: string): Observable<{ data: { id: string; image_url: string; order: number }[] }> {
+    return this.api.get(`/products/${productId}/images`);
+  }
+
+  addProductImage(productId: string, file: File): Observable<{ id: string; image_url: string; order: number }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.api.post(`/products/${productId}/images`, formData);
+  }
+
+  deleteProductImage(productId: string, imageId: string): Observable<any> {
+    return this.api.delete(`/products/${productId}/images/${imageId}`);
+  }
 }

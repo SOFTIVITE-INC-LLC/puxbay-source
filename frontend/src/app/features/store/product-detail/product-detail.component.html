@@ -36,17 +36,25 @@
         <!-- Image Gallery -->
         <div class="flex flex-col gap-4">
           <!-- Main Image -->
-          <div class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/5 shadow-inner flex items-center justify-center p-8 relative group">
+          <div (click)="openLightbox()"
+               class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/5 shadow-inner flex items-center justify-center p-8 relative group cursor-zoom-in">
             @if (activeImage()) {
-              <img [src]="activeImage()" [alt]="product()!.name" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+              <img [src]="activeImage() | imageUrl" [alt]="product()!.name" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+            } @else if (product()!.image_url) {
+              <img [src]="product()!.image_url | imageUrl" [alt]="product()!.name" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
             } @else {
-              <span class="material-symbols-outlined !text-[80px] text-zinc-700">inventory_2</span>
+              <img [src]="'' | imageUrl" [alt]="product()!.name" class="w-full h-full object-contain opacity-70">
             }
             @if (product()!.stock_quantity <= 0) {
               <div class="absolute top-4 left-4">
                 <span class="px-3 py-1 bg-rose-500/90 text-slate-900 dark:text-white text-xs font-bold rounded-full">Out of Stock</span>
               </div>
             }
+            <!-- Fullscreen Indicator Badge -->
+            <button type="button" (click)="openLightbox(); $event.stopPropagation()" title="View full screen"
+                    class="absolute top-4 right-4 w-10 h-10 rounded-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-slate-200/60 dark:border-white/10 text-slate-600 dark:text-slate-300 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-sm">
+              <span class="material-symbols-outlined !text-[20px]">fullscreen</span>
+            </button>
           </div>
 
           <!-- Thumbnails -->
@@ -57,7 +65,7 @@
                 <button (click)="activeImage.set(product()!.image_url || '')" 
                         class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-[1.25rem] bg-slate-50 dark:bg-zinc-950/50 border overflow-hidden flex items-center justify-center transition-all snap-start p-2"
                         [ngClass]="activeImage() === product()!.image_url ? 'border-indigo-500 shadow-lg shadow-indigo-500/20 opacity-100' : 'border-slate-200 dark:border-white/5 opacity-60 hover:opacity-100 hover:border-white/20'">
-                  <img [src]="product()!.image_url" class="w-full h-full object-contain">
+                  <img [src]="product()!.image_url | imageUrl" class="w-full h-full object-contain">
                 </button>
               }
 
@@ -66,7 +74,7 @@
                 <button (click)="activeImage.set(img.image_url)" 
                         class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-[1.25rem] bg-slate-50 dark:bg-zinc-950/50 border overflow-hidden flex items-center justify-center transition-all snap-start p-2"
                         [ngClass]="activeImage() === img.image_url ? 'border-indigo-500 shadow-lg shadow-indigo-500/20 opacity-100' : 'border-slate-200 dark:border-white/5 opacity-60 hover:opacity-100 hover:border-white/20'">
-                  <img [src]="img.image_url" class="w-full h-full object-contain">
+                  <img [src]="img.image_url | imageUrl" class="w-full h-full object-contain">
                 </button>
               }
             </div>
@@ -269,22 +277,14 @@
           <div class="flex flex-col md:flex-row items-center gap-6">
             <!-- Current Product -->
             <div class="w-24 h-24 sm:w-32 sm:h-32 shrink-0 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl border border-slate-200 dark:border-white/5 p-2 flex items-center justify-center">
-              @if (product()!.image_url) {
-                <img [src]="product()!.image_url" class="w-full h-full object-contain">
-              } @else {
-                <span class="material-symbols-outlined !text-[40px] text-zinc-700">inventory_2</span>
-              }
+              <img [src]="product()!.image_url | imageUrl" class="w-full h-full object-contain">
             </div>
             
             <span class="material-symbols-outlined !text-[32px] text-zinc-600 rotate-90 md:rotate-0">add</span>
             
             <!-- First Related Product -->
             <div class="w-24 h-24 sm:w-32 sm:h-32 shrink-0 bg-slate-50 dark:bg-zinc-950/50 rounded-2xl border border-slate-200 dark:border-white/5 p-2 flex items-center justify-center cursor-pointer group hover:border-indigo-500/50 transition-colors" (click)="navigateToProduct(relatedProducts()[0].id)">
-              @if (relatedProducts()[0].image_url) {
-                <img [src]="relatedProducts()[0].image_url" class="w-full h-full object-contain group-hover:scale-110 transition-transform">
-              } @else {
-                <span class="material-symbols-outlined !text-[40px] text-zinc-700">inventory_2</span>
-              }
+              <img [src]="relatedProducts()[0].image_url | imageUrl" class="w-full h-full object-contain group-hover:scale-110 transition-transform">
             </div>
             
             <div class="flex-1 flex flex-col md:items-end text-center md:text-right mt-4 md:mt-0">
@@ -317,11 +317,7 @@
           @for (p of relatedProducts(); track p.id) {
             <a [routerLink]="['/store/product', p.id]" class="group bg-white dark:bg-zinc-900/80 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-zinc-800/60 hover:border-indigo-500/40 transition-all flex flex-col">
               <div class="w-full aspect-square bg-slate-100 dark:bg-zinc-800/50 rounded-xl mb-3 overflow-hidden flex items-center justify-center">
-                @if (p.image_url) {
-                  <img [src]="p.image_url" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
-                } @else {
-                  <span class="material-symbols-outlined !text-[36px] text-zinc-700">inventory_2</span>
-                }
+                <img [src]="p.image_url | imageUrl" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
               </div>
               <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight mb-1">{{ p.name }}</h4>
               <p class="text-sm font-black text-indigo-400 mt-auto">{{ p.selling_price | appCurrency }}</p>
@@ -343,11 +339,7 @@
             @if (p.id !== product()?.id) {
               <a [routerLink]="['/store/product', p.id]" class="snap-start flex-shrink-0 w-40 sm:w-48 group bg-white dark:bg-zinc-900/80 rounded-2xl p-3 border border-slate-200 dark:border-zinc-800/60 hover:border-indigo-500/40 transition-all flex flex-col">
                 <div class="w-full aspect-square bg-slate-100 dark:bg-zinc-800/50 rounded-xl mb-3 overflow-hidden flex items-center justify-center">
-                  @if (p.image_url) {
-                    <img [src]="p.image_url" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
-                  } @else {
-                    <span class="material-symbols-outlined !text-[36px] text-zinc-700">inventory_2</span>
-                  }
+                  <img [src]="p.image_url | imageUrl" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
                 </div>
                 <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight mb-1">{{ p.name }}</h4>
                 <p class="text-sm font-black text-indigo-400 mt-auto">{{ p.selling_price | appCurrency }}</p>
@@ -447,3 +439,95 @@
     </div>
   </div>
 }
+
+<!-- ═══ FULLSCREEN IMAGE LIGHTBOX MODAL ═══ -->
+@if (isLightboxOpen() && allImages().length > 0) {
+  <div style="position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;background:rgba(5,7,15,0.96);backdrop-filter:blur(14px);touch-action:none;"
+       (click)="closeLightbox()">
+
+    <!-- Top Toolbar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-b:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.4);z-index:10;"
+         (click)="$event.stopPropagation()">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <span style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#818cf8;background:rgba(99,102,241,0.15);padding:4px 10px;border-radius:20px;border:1px solid rgba(99,102,241,0.3);">
+          {{ lightboxIndex() + 1 }} / {{ allImages().length }}
+        </span>
+        <h3 style="font-size:14px;font-weight:700;color:#fff;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" class="hidden sm:block">
+          {{ product()?.name }}
+        </h3>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <!-- Zoom Toggle -->
+        <button (click)="toggleZoom($event)"
+                style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;"
+                [title]="lightboxZoom() === 1 ? 'Zoom in' : 'Zoom out'">
+          <span class="material-symbols-outlined" style="font-size:20px">
+            {{ lightboxZoom() === 1 ? 'zoom_in' : 'zoom_out' }}
+          </span>
+        </button>
+
+        <!-- Close Button -->
+        <button (click)="closeLightbox()"
+                style="width:40px;height:40px;border-radius:12px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;"
+                title="Close (Esc)">
+          <span class="material-symbols-outlined" style="font-size:22px">close</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Center Stage (Main Large Image) -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:20px;"
+         (click)="closeLightbox()">
+
+      <!-- Prev Button -->
+      @if (allImages().length > 1) {
+        <button (click)="prevLightbox($event)"
+                style="position:absolute;left:20px;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;transition:all .2s;"
+                title="Previous Image (←)">
+          <span class="material-symbols-outlined" style="font-size:28px">chevron_left</span>
+        </button>
+      }
+
+      <!-- Main Fullscreen Image -->
+      <div style="max-width:90vw;max-height:72vh;display:flex;align-items:center;justify-content:center;transition:transform .3s ease;"
+           [style.transform]="'scale(' + lightboxZoom() + ')'"
+           (click)="$event.stopPropagation()">
+        <img [src]="allImages()[lightboxIndex()] | imageUrl"
+             [alt]="product()?.name"
+             (dblclick)="toggleZoom($event)"
+             style="max-width:90vw;max-height:72vh;object-fit:contain;user-select:none;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,0.8);" />
+      </div>
+
+      <!-- Next Button -->
+      @if (allImages().length > 1) {
+        <button (click)="nextLightbox($event)"
+                style="position:absolute;right:20px;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;transition:all .2s;"
+                title="Next Image (→)">
+          <span class="material-symbols-outlined" style="font-size:28px">chevron_right</span>
+        </button>
+      }
+    </div>
+
+    <!-- Bottom Thumbnail Strip -->
+    @if (allImages().length > 1) {
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;background:rgba(0,0,0,0.4);border-t:1px solid rgba(255,255,255,0.08);overflow-x:auto;z-index:10;"
+           (click)="$event.stopPropagation()">
+        @for (imgUrl of allImages(); track imgUrl; let idx = $index) {
+          <button (click)="setLightboxIndex(idx, $event)"
+                  style="width:56px;height:56px;border-radius:12px;overflow:hidden;padding:3px;background:rgba(255,255,255,0.05);border:2px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;"
+                  [style.borderColor]="lightboxIndex() === idx ? '#818cf8' : 'rgba(255,255,255,0.12)'"
+                  [style.opacity]="lightboxIndex() === idx ? '1' : '0.55'">
+            <img [src]="imgUrl | imageUrl" alt="thumbnail" style="width:100%;height:100%;object-fit:contain;" />
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Keyboard Hint on Desktop -->
+    <div style="text-align:center;padding:6px;font-size:11px;color:rgba(255,255,255,0.4);background:rgba(0,0,0,0.6);" class="hidden sm:block">
+      Press <kbd style="background:rgba(255,255,255,0.15);padding:1px 6px;border-radius:4px;color:#fff;">ESC</kbd> to close &bull; Use <kbd style="background:rgba(255,255,255,0.15);padding:1px 6px;border-radius:4px;color:#fff;">&larr;</kbd> <kbd style="background:rgba(255,255,255,0.15);padding:1px 6px;border-radius:4px;color:#fff;">&rarr;</kbd> to navigate &bull; Double click to zoom
+    </div>
+  </div>
+}
+

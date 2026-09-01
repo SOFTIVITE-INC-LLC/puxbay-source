@@ -103,7 +103,7 @@
             <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col sm:flex-row gap-6">
               <div class="w-full sm:w-40 h-40 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center overflow-hidden flex-shrink-0">
                 @if (product()!.image_url) {
-                  <img [src]="product()!.image_url" class="w-full h-full object-cover" [alt]="product()!.name">
+                  <img [src]="product()!.image_url | imageUrl" class="w-full h-full object-cover" [alt]="product()!.name">
                 } @else {
                   <span class="material-symbols-outlined !text-[56px] text-zinc-300 dark:text-zinc-700">inventory_2</span>
                 }

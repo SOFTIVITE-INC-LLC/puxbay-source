@@ -2,6 +2,7 @@ import { ToastService } from '../../../core/services/toast';
 import { ExportService } from '../../../core/services/export.service';
 import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -15,7 +16,7 @@ import { debounceTime } from 'rxjs/operators';
 @Component({
   selector: 'app-inventory',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, A11yModule, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, RouterModule, A11yModule, AppCurrencyPipe, ImageUrlPipe],
   templateUrl: './inventory.html',
   styles: `
     .glass-panel {

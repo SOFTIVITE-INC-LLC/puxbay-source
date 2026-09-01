@@ -1,6 +1,7 @@
 import { ToastService } from '../../../core/services/toast';
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -15,7 +16,7 @@ const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 @Component({
   selector: 'app-product-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, ImageUrlPipe],
   templateUrl: './product-form.html',
 })
 export class ProductForm implements OnInit, OnDestroy {
@@ -31,8 +32,13 @@ export class ProductForm implements OnInit, OnDestroy {
   isEditing = signal(false);
   isSaving = signal(false);
   isUploadingImage = signal(false);
+  isUploadingGallery = signal(false);
   productId = signal<string | null>(null);
   activeTab: 'basic' | 'pricing' | 'inventory' | 'details' = 'basic';
+
+  // Gallery images (up to 5 extra images)
+  galleryImages = signal<{ id: string; image_url: string; order: number }[]>([]);
+  readonly MAX_GALLERY = 5;
 
   // ── Barcode Camera Scanner ────────────────────────────────────
   showBarcodeScanner = signal(false);
@@ -77,6 +83,10 @@ export class ProductForm implements OnInit, OnDestroy {
       this.productId.set(id);
       this.catalogService.getProduct(id).subscribe(product => {
         this.form.set({ ...product });
+      });
+      // Load gallery images
+      this.catalogService.getProductImages(id).subscribe(res => {
+        this.galleryImages.set(res.data || []);
       });
     }
   }
@@ -126,6 +136,55 @@ export class ProductForm implements OnInit, OnDestroy {
         const msg = err?.error?.error || 'Failed to upload image';
         this.alertService.alert(msg, 'Upload Error', 'danger');
       }
+    });
+  }
+
+  onGalleryFileSelected(event: any) {
+    const files: FileList = event.target?.files;
+    if (!files || files.length === 0) return;
+    const id = this.productId();
+    if (!id) {
+      this.toastService.showError('Save the product first before adding gallery images.');
+      event.target.value = '';
+      return;
+    }
+    const remaining = this.MAX_GALLERY - this.galleryImages().length;
+    const toUpload = Array.from(files).slice(0, remaining);
+
+    toUpload.forEach(file => {
+      if (file.size > MAX_IMAGE_BYTES) {
+        this.alertService.alert(
+          `"${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)} MB). Max 2 MB.`,
+          'File Too Large', 'danger'
+        );
+        return;
+      }
+      this.isUploadingGallery.set(true);
+      this.catalogService.addProductImage(id, file).subscribe({
+        next: (img) => {
+          this.galleryImages.update(imgs => [...imgs, img]);
+          this.isUploadingGallery.set(false);
+          this.toastService.showSuccess('Gallery image added!');
+        },
+        error: (err) => {
+          this.isUploadingGallery.set(false);
+          const msg = err?.error?.error || 'Failed to upload gallery image';
+          this.alertService.alert(msg, 'Upload Error', 'danger');
+        }
+      });
+    });
+    event.target.value = '';
+  }
+
+  removeGalleryImage(imageId: string) {
+    const id = this.productId();
+    if (!id) return;
+    this.catalogService.deleteProductImage(id, imageId).subscribe({
+      next: () => {
+        this.galleryImages.update(imgs => imgs.filter(i => i.id !== imageId));
+        this.toastService.showInfo('Gallery image removed.');
+      },
+      error: () => this.toastService.showError('Failed to remove image.')
     });
   }
 

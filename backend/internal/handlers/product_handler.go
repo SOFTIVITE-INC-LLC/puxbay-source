@@ -1,11 +1,18 @@
 package handlers
 
 import (
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/softivite/puxbay/internal/middleware"
+	"github.com/softivite/puxbay/internal/models"
 	"github.com/softivite/puxbay/internal/services"
 	"github.com/softivite/puxbay/internal/utils"
 	"gorm.io/gorm"
@@ -266,4 +273,136 @@ func (h *ProductHandler) ImportExcel(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Products imported successfully", "count": count})
+}
+
+// ─── Gallery Images ────────────────────────────────────────────────────────
+
+const maxGalleryImages = 5
+
+// GetImages returns the gallery images for a product.
+func (h *ProductHandler) GetImages(c *gin.Context) {
+	id := c.Param("id")
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+	db := getDB(c, h.db)
+	var images []models.ProductImageGallery
+	if err := db.Where("product_id = ?", productID).Order("\"order\" asc, created_at asc").Find(&images).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch images"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": images})
+}
+
+// AddImage uploads a new gallery image for a product (max 5, max 2 MB each).
+func (h *ProductHandler) AddImage(c *gin.Context) {
+	id := c.Param("id")
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+	db := getDB(c, h.db)
+
+	// Enforce gallery limit
+	var count int64
+	db.Model(&models.ProductImageGallery{}).Where("product_id = ?", productID).Count(&count)
+	if count >= int64(maxGalleryImages) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Maximum of %d gallery images allowed per product", maxGalleryImages)})
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded (field 'file' required)"})
+		return
+	}
+
+	// Enforce 2 MB limit
+	if file.Size > maxUploadSize {
+		c.JSON(http.StatusRequestEntityTooLarge, gin.H{
+			"error": fmt.Sprintf("File too large (%.2f MB). Maximum is 2 MB", float64(file.Size)/1024/1024),
+		})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp" && ext != ".svg" && ext != ".gif" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid format. Allowed: JPG, PNG, WEBP, SVG, GIF"})
+		return
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+		return
+	}
+	defer src.Close()
+
+	folder := "uploads/products"
+	_ = os.MkdirAll(folder, os.ModePerm)
+	filename := fmt.Sprintf("%d-%s%s", time.Now().UnixNano(), uuid.New().String()[:8], ext)
+	dstPath := filepath.Join(folder, filename)
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+	defer dst.Close()
+	if _, err := io.Copy(dst, src); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write file"})
+		return
+	}
+
+	imageURL := "/" + filepath.ToSlash(dstPath)
+	gallery := models.ProductImageGallery{
+		ProductID: productID,
+		ImageURL:  imageURL,
+		Order:     uint(count),
+	}
+	if err := db.Create(&gallery).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image record"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gallery)
+}
+
+// DeleteImage removes a gallery image from a product.
+func (h *ProductHandler) DeleteImage(c *gin.Context) {
+	id := c.Param("id")
+	imgID := c.Param("imgId")
+
+	productID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+	imageID, err := uuid.Parse(imgID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image ID"})
+		return
+	}
+
+	db := getDB(c, h.db)
+	var img models.ProductImageGallery
+	if err := db.Where("id = ? AND product_id = ?", imageID, productID).First(&img).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
+		return
+	}
+
+	// Remove file from disk
+	if img.ImageURL != "" {
+		diskPath := strings.TrimPrefix(img.ImageURL, "/")
+		_ = os.Remove(diskPath)
+	}
+
+	if err := db.Delete(&img).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete image"})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
 }

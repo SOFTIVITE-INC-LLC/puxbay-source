@@ -7,11 +7,12 @@ import { OrderService } from '../../../core/services/order.service';
 import { Product } from '../../../core/models/product.models';
 import { Order } from '../../../core/models/order.models';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, RouterModule, AppCurrencyPipe, ImageUrlPipe],
   templateUrl: './product-detail.html'
 })
 export class ProductDetail implements OnInit {

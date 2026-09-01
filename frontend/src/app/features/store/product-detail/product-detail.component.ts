@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { ProductService } from '../../../core/store/services/product.service';
@@ -7,6 +7,7 @@ import { ToastService } from '../../../core/store/services/toast.service';
 import { RecentlyViewedService } from '../../../core/store/services/recently-viewed.service';
 import { WishlistService } from '../../../core/store/services/wishlist.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { Product, ProductReview } from '../../../core/store/models/product.model';
 import { Title, Meta } from '@angular/platform-browser';
 
@@ -15,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AppCurrencyPipe],
+  imports: [CommonModule, RouterModule, FormsModule, AppCurrencyPipe, ImageUrlPipe],
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css']
 })
@@ -41,6 +42,26 @@ export class ProductDetailComponent implements OnInit {
   quantity = signal(1);
   isAdding = signal(false);
   addedSuccess = signal(false);
+
+  // Fullscreen Lightbox State
+  isLightboxOpen = signal(false);
+  lightboxIndex = signal(0);
+  lightboxZoom = signal(1);
+
+  // All photos list for lightbox and carousel
+  allImages = computed(() => {
+    const list: string[] = [];
+    const p = this.product();
+    if (p?.image_url) {
+      list.push(p.image_url);
+    }
+    this.images().forEach(img => {
+      if (img.image_url && !list.includes(img.image_url)) {
+        list.push(img.image_url);
+      }
+    });
+    return list;
+  });
 
   // Reviews state
   isReviewModalOpen = signal(false);
@@ -285,4 +306,66 @@ export class ProductDetailComponent implements OnInit {
       }
     });
   }
+
+  // Fullscreen Lightbox Methods
+  openLightbox(url?: string | null) {
+    const images = this.allImages();
+    if (images.length === 0) return;
+    if (url) {
+      const idx = images.indexOf(url);
+      this.lightboxIndex.set(idx >= 0 ? idx : 0);
+    } else if (this.activeImage()) {
+      const idx = images.indexOf(this.activeImage()!);
+      this.lightboxIndex.set(idx >= 0 ? idx : 0);
+    } else {
+      this.lightboxIndex.set(0);
+    }
+    this.lightboxZoom.set(1);
+    this.isLightboxOpen.set(true);
+  }
+
+  closeLightbox() {
+    this.isLightboxOpen.set(false);
+    this.lightboxZoom.set(1);
+  }
+
+  nextLightbox(event?: MouseEvent) {
+    event?.stopPropagation();
+    const len = this.allImages().length;
+    if (len <= 1) return;
+    this.lightboxIndex.update(i => (i + 1) % len);
+    this.lightboxZoom.set(1);
+  }
+
+  prevLightbox(event?: MouseEvent) {
+    event?.stopPropagation();
+    const len = this.allImages().length;
+    if (len <= 1) return;
+    this.lightboxIndex.update(i => (i - 1 + len) % len);
+    this.lightboxZoom.set(1);
+  }
+
+  setLightboxIndex(idx: number, event?: MouseEvent) {
+    event?.stopPropagation();
+    this.lightboxIndex.set(idx);
+    this.lightboxZoom.set(1);
+  }
+
+  toggleZoom(event?: MouseEvent) {
+    event?.stopPropagation();
+    this.lightboxZoom.update(z => (z === 1 ? 1.75 : 1));
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (!this.isLightboxOpen()) return;
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    } else if (event.key === 'ArrowRight') {
+      this.nextLightbox();
+    } else if (event.key === 'ArrowLeft') {
+      this.prevLightbox();
+    }
+  }
 }
+

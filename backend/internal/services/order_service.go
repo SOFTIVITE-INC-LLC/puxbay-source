@@ -293,46 +293,12 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 					UserID:        nil, // Kiosk/Online might not have cashier
 				})
 
-				// Check for low stock alert
-				if (product.CurrentStock - item.Quantity) <= product.ReorderLevel {
-					stockNotif := models.Notification{
-						Title:            fmt.Sprintf("Low Stock Alert: %s", product.Name),
-						Message:          fmt.Sprintf("%s is low on stock (%.0f %s remaining, reorder point is %.0f).", product.Name, product.CurrentStock-item.Quantity, product.StockUnit, product.ReorderLevel),
-						Link:             "/inventory",
-						IsRead:           false,
-						NotificationType: "warning",
-						Category:         "low_stock",
-					}
-					_ = tx.Create(&stockNotif)
-				}
+				// Low stock tracking handled by reorder worker and inventory alerts
 			}
 		}
 
 		if err := tx.Create(&order).Error; err != nil {
 			return err
-		}
-
-		// Record Completed Order / Kiosk Order Notification in DB
-		if status == "completed" {
-			compNotif := models.Notification{
-				Title:            fmt.Sprintf("POS Order Completed #%s", order.OrderNumber),
-				Message:          fmt.Sprintf("Order #%s completed for GH₵%.2f via %s", order.OrderNumber, order.Total, strings.ToUpper(order.PaymentMethod)),
-				Link:             "/orders/" + order.ID.String(),
-				IsRead:           false,
-				NotificationType: "success",
-				Category:         "pos_completed",
-			}
-			_ = tx.Create(&compNotif)
-		} else if order.OrderType == "kiosk" {
-			kioskNotif := models.Notification{
-				Title:            fmt.Sprintf("New Kiosk Order #%s", order.OrderNumber),
-				Message:          fmt.Sprintf("Kiosk order for GH₵%.2f placed", order.Total),
-				Link:             "/orders/" + order.ID.String(),
-				IsRead:           false,
-				NotificationType: "info",
-				Category:         "kiosk_order",
-			}
-			_ = tx.Create(&kioskNotif)
 		}
 
 		// Assign ReferenceID as Order ID and create movements
