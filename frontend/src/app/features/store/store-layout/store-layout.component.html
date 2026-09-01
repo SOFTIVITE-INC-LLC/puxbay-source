@@ -277,7 +277,7 @@
 }
 
 <!-- Sticky Cart Bar -->
-@if (cartService.cartCount() > 0 && !miniCartOpen) {
+@if (cartService.cartCount() > 0 && !miniCartOpen && !isCartOrCheckout) {
   <div class="fixed bottom-0 left-0 w-full z-[45] p-4 animate-slide-up pointer-events-none">
     <div class="max-w-2xl mx-auto bg-white dark:bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/50 border border-slate-200 dark:border-white/10 p-4 flex items-center justify-between pointer-events-auto">
       <div class="flex items-center gap-2 sm:gap-3">

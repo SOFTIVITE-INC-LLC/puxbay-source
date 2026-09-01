@@ -129,6 +129,20 @@ export class CartComponent implements OnInit {
     this.toastService.show('Coupon removed', 'info');
   }
 
+  readonly freeShippingThreshold = 150;
+
+  get freeShippingProgress(): number {
+    return Math.min(100, Math.round((this.cartService.cartTotal() / this.freeShippingThreshold) * 100));
+  }
+
+  get amountNeededForFreeShipping(): number {
+    return Math.max(0, this.freeShippingThreshold - this.cartService.cartTotal());
+  }
+
+  get hasFreeShipping(): boolean {
+    return this.cartService.cartTotal() >= this.freeShippingThreshold;
+  }
+
   get finalTotal(): number {
     return Math.max(0, this.cartService.cartTotal() - this.couponDiscount());
   }

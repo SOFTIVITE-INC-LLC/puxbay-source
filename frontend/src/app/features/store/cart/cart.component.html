@@ -1,7 +1,8 @@
 <div class="animate-fade-in">
   <!-- Header -->
   <div class="flex items-center gap-3 mb-8">
-    <a routerLink="/store" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700/50 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:border-zinc-600 transition-all">
+    <a routerLink="/store"
+      class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700/50 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:border-zinc-600 transition-all">
       <span class="material-symbols-outlined !text-[20px]">arrow_back</span>
     </a>
     <div>
@@ -11,157 +12,307 @@
   </div>
 
   @if (isLoading()) {
-    <div class="flex justify-center items-center py-20">
-      <div class="animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent"></div>
-    </div>
+  <div class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-10 w-10 border-2 border-indigo-500 border-t-transparent"></div>
+  </div>
   } @else if (cartService.cartDetails().length === 0) {
-    <!-- Empty cart -->
-    <div class="glass-panel rounded-[2rem] p-12 sm:p-16 flex flex-col items-center justify-center text-center relative overflow-hidden">
-      <!-- Glow effect -->
-      <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-      <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
-        <span class="material-symbols-outlined !text-[40px] text-zinc-600">shopping_bag</span>
-      </div>
-      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Your cart is empty</h3>
-      <p class="text-slate-400 dark:text-zinc-500 mb-6 text-sm max-w-xs">Looks like you haven't added anything yet. Start browsing our collection!</p>
-      <a routerLink="/store" class="px-8 py-3 bg-indigo-600 text-slate-900 dark:text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">Start Shopping</a>
+  <!-- Empty cart -->
+  <div
+    class="glass-panel rounded-[2rem] p-12 sm:p-16 flex flex-col items-center justify-center text-center relative overflow-hidden">
+    <!-- Glow effect -->
+    <div
+      class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none">
     </div>
+    <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
+      <span class="material-symbols-outlined !text-[40px] text-zinc-600">shopping_bag</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Your cart is empty</h3>
+    <p class="text-slate-400 dark:text-zinc-500 mb-6 text-sm max-w-xs">Looks like you haven't added anything yet. Start
+      browsing our collection!</p>
+    <a routerLink="/store"
+      class="px-8 py-3 bg-indigo-600 text-slate-900 dark:text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20">Start
+      Shopping</a>
+  </div>
   } @else {
-    <div class="flex flex-col lg:flex-row gap-6">
-      <!-- Cart Items -->
-      <div class="flex-1 space-y-3">
-        @for (item of cartService.cartDetails(); track item.product_id) {
-          <div class="glass-card rounded-2xl p-4 flex items-center gap-4 group relative">
-            <!-- Image -->
-            <div class="w-20 h-20 bg-slate-100 dark:bg-zinc-800/50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-              @if (item.product.image_url) {
-                <img [src]="item.product.image_url" [alt]="item.product.name" class="w-full h-full object-cover">
-              } @else {
-                <span class="material-symbols-outlined !text-[28px] text-zinc-700">inventory_2</span>
-              }
-            </div>
-
-            <!-- Info -->
-            <div class="flex-1 min-w-0">
-              <a [routerLink]="['/store/product', item.product_id]" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white hover:text-indigo-400 transition-colors truncate block">{{ item.product.name }}</a>
-              <p class="text-sm text-indigo-400 font-bold mt-0.5">{{ item.product.selling_price | appCurrency }}</p>
-            </div>
-
-            <!-- Quantity stepper -->
-            <div class="flex items-center border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden flex-shrink-0 bg-slate-50 dark:bg-zinc-950/30">
-              <button (click)="updateQuantity(item.product_id, item.quantity - 1)"
-                      [disabled]="item.quantity <= 1"
-                      class="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:bg-white/5 hover:text-slate-900 dark:text-white disabled:opacity-30 transition-colors text-sm font-bold">−</button>
-              <div class="w-10 h-8 flex items-center justify-center font-bold text-slate-900 dark:text-white text-sm border-x border-slate-200 dark:border-white/10 bg-white/5">{{ item.quantity }}</div>
-              <button (click)="updateQuantity(item.product_id, item.quantity + 1)"
-                      class="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:bg-white/5 hover:text-slate-900 dark:text-white transition-colors text-sm font-bold">+</button>
-            </div>
-
-            <!-- Line total -->
-            <p class="font-black text-slate-900 dark:text-white w-20 text-right text-sm sm:text-base hidden sm:block">{{ (item.quantity * item.product.selling_price) | appCurrency }}</p>
-
-            <!-- Remove -->
-            <button (click)="removeItem(item.product_id)"
-                    class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors flex-shrink-0">
-              <span class="material-symbols-outlined !text-[18px]">close</span>
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- Order Summary Sidebar -->
-      <div class="w-full lg:w-80 flex-shrink-0">
-        <div class="glass-panel rounded-[2rem] p-6 sticky top-24 space-y-5">
-          <h3 class="text-lg font-black text-slate-900 dark:text-white">Order Summary</h3>
-
-          <div class="space-y-3 text-sm">
-            <div class="flex justify-between text-slate-500 dark:text-zinc-400">
-              <span>Subtotal ({{ cartService.cartCount() }} items)</span>
-              <span class="font-bold text-slate-900 dark:text-white">{{ cartService.cartTotal() | appCurrency }}</span>
-            </div>
-            @if (couponApplied()) {
-              <div class="flex justify-between text-emerald-400">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined !text-[16px]">sell</span>
-                  Coupon Discount
-                </span>
-                <span class="font-bold">-{{ couponDiscount() | appCurrency }}</span>
-              </div>
-            }
-          </div>
-
-          <!-- Coupon input -->
-          <div>
-            @if (!couponApplied()) {
-              <div class="flex gap-2">
-                <input
-                  type="text"
-                  [ngModel]="couponCode()"
-                  (ngModelChange)="couponCode.set($event)"
-                  placeholder="Coupon code"
-                  class="flex-1 px-3 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-                <button (click)="applyCoupon()"
-                        [disabled]="applyingCoupon() || !couponCode()"
-                        class="px-4 py-2.5 bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700/50 rounded-xl text-sm font-bold text-indigo-400 hover:bg-indigo-600 hover:text-slate-900 dark:text-white hover:border-indigo-500 disabled:opacity-40 transition-all">
-                  {{ applyingCoupon() ? '...' : 'Apply' }}
-                </button>
-              </div>
-              @if (couponError()) {
-                <p class="text-xs text-rose-400 mt-2 font-medium">{{ couponError() }}</p>
-              }
-            } @else {
-              <div class="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
-                <span class="text-sm text-emerald-400 font-bold">{{ couponCode() }}</span>
-                <button (click)="removeCoupon()" class="text-xs text-slate-500 dark:text-zinc-400 hover:text-rose-400 transition-colors font-bold">Remove</button>
-              </div>
-            }
-          </div>
-
-          <div class="pt-4 border-t border-slate-200 dark:border-zinc-800">
-            <div class="flex justify-between items-end">
-              <span class="text-sm text-slate-500 dark:text-zinc-400 font-medium">Total</span>
-              <span class="text-2xl font-black text-slate-900 dark:text-white">{{ finalTotal | appCurrency }}</span>
-            </div>
-          </div>
-
-          <!-- Min order warning -->
-          @if (!minOrderMet) {
-            <div class="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 flex items-start gap-2">
-              <span class="material-symbols-outlined !text-[18px] text-rose-400 mt-0.5">info</span>
-              <p class="text-xs text-rose-400 font-medium leading-relaxed">
-                Minimum order amount is <span class="font-bold">{{ settingsService.settings()?.min_order_amount | appCurrency }}</span>. 
-                Add <span class="font-bold">{{ minOrderDifference | appCurrency }}</span> more to proceed.
-              </p>
-            </div>
+  <div class="flex flex-col lg:flex-row gap-6">
+    <!-- Cart Items -->
+    <div class="flex-1 space-y-3">
+      @for (item of cartService.cartDetails(); track item.product_id) {
+      <div class="glass-card rounded-2xl p-4 flex items-center gap-4 group relative">
+        <!-- Image -->
+        <div
+          class="w-20 h-20 bg-slate-100 dark:bg-zinc-800/50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+          @if (item.product.image_url) {
+          <img [src]="item.product.image_url" [alt]="item.product.name" class="w-full h-full object-cover">
+          } @else {
+          <span class="material-symbols-outlined !text-[28px] text-zinc-700">inventory_2</span>
           }
+        </div>
 
-          <button (click)="proceedToCheckout()"
-                  [disabled]="!minOrderMet"
-                  class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-2xl font-bold text-base tracking-wide shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined !text-[20px]">lock</span>
-            Proceed to Checkout
-          </button>
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <a [routerLink]="['/store/product', item.product_id]"
+            class="text-sm sm:text-base font-bold text-slate-900 dark:text-white hover:text-indigo-400 transition-colors truncate block">{{
+            item.product.name }}</a>
+          <p class="text-sm text-indigo-400 font-bold mt-0.5">{{ item.product.selling_price | appCurrency }}</p>
+        </div>
 
-          <!-- Share Cart Row -->
-          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
-            <button (click)="shareOnWhatsApp()"
-                    class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-              <span class="material-symbols-outlined !text-[16px]">chat</span>
-              Share WhatsApp
-            </button>
-            <button (click)="copyShareLink()"
-                    class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-              <span class="material-symbols-outlined !text-[16px]">{{ copied() ? 'done' : 'content_copy' }}</span>
-              {{ copied() ? 'Copied!' : 'Copy Link' }}
-            </button>
+        <!-- Quantity stepper -->
+        <div
+          class="flex items-center border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden flex-shrink-0 bg-slate-50 dark:bg-zinc-950/30">
+          <button (click)="updateQuantity(item.product_id, item.quantity - 1)" [disabled]="item.quantity <= 1"
+            class="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:bg-white/5 hover:text-slate-900 dark:text-white disabled:opacity-30 transition-colors text-sm font-bold">−</button>
+          <div
+            class="w-10 h-8 flex items-center justify-center font-bold text-slate-900 dark:text-white text-sm border-x border-slate-200 dark:border-white/10 bg-white/5">
+            {{ item.quantity }}</div>
+          <button (click)="updateQuantity(item.product_id, item.quantity + 1)"
+            class="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:bg-white/5 hover:text-slate-900 dark:text-white transition-colors text-sm font-bold">+</button>
+        </div>
+
+        <!-- Line total -->
+        <p class="font-black text-slate-900 dark:text-white w-20 text-right text-sm sm:text-base hidden sm:block">{{
+          (item.quantity * item.product.selling_price) | appCurrency }}</p>
+
+        <!-- Remove -->
+        <button (click)="removeItem(item.product_id)"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 transition-colors flex-shrink-0">
+          <span class="material-symbols-outlined !text-[18px]">close</span>
+        </button>
+      </div>
+      }
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <div class="w-full lg:w-96 flex-shrink-0">
+      <div
+        class="glass-panel rounded-3xl p-6 sm:p-7 sticky top-24 space-y-6 shadow-2xl shadow-indigo-950/10 dark:shadow-black/60 border border-slate-200/80 dark:border-white/[0.08] bg-white/90 dark:bg-[#0f1422]/95 backdrop-blur-2xl">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/[0.06]">
+          <div class="flex items-center gap-2.5">
+            <div
+              class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <span class="material-symbols-outlined !text-[20px]">receipt_long</span>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 dark:text-white">Order Summary</h3>
+          </div>
+          <span
+            class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20">
+            {{ cartService.cartCount() }} {{ cartService.cartCount() === 1 ? 'item' : 'items' }}
+          </span>
+        </div>
+
+        <!-- Free Shipping Progress Tracker -->
+        <div class="rounded-2xl p-4 transition-all" [ngClass]="hasFreeShipping 
+                 ? 'bg-emerald-50/80 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20' 
+                 : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06]'">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[18px]"
+                [ngClass]="hasFreeShipping ? 'text-emerald-500' : 'text-indigo-500'">
+                {{ hasFreeShipping ? 'verified' : 'local_shipping' }}
+              </span>
+              <span class="text-xs font-bold"
+                [ngClass]="hasFreeShipping ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'">
+                @if (hasFreeShipping) {
+                Free Premium Shipping Unlocked!
+                } @else {
+                Add <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">{{ amountNeededForFreeShipping |
+                  appCurrency }}</span> for Free Shipping
+                }
+              </span>
+            </div>
+            <span class="text-[11px] font-black"
+              [ngClass]="hasFreeShipping ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500'">
+              {{ freeShippingProgress }}%
+            </span>
+          </div>
+          <!-- Progress Bar Track -->
+          <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500"
+              [ngClass]="hasFreeShipping ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-gradient-to-r from-indigo-500 to-indigo-400'"
+              [style.width.%]="freeShippingProgress">
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Breakdown List -->
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between items-center text-slate-600 dark:text-zinc-300">
+            <span class="font-medium">Subtotal</span>
+            <span class="font-bold text-slate-900 dark:text-white">{{ cartService.cartTotal() | appCurrency }}</span>
           </div>
 
-          <a routerLink="/store" class="block text-center text-sm text-slate-400 dark:text-zinc-500 hover:text-indigo-400 transition-colors font-medium">
-            ← Continue Shopping
-          </a>
+          <div class="flex justify-between items-center text-slate-600 dark:text-zinc-300">
+            <span class="font-medium flex items-center gap-1.5">
+              Estimated Delivery
+              <span class="material-symbols-outlined !text-[14px] text-slate-400 cursor-help"
+                title="Standard nationwide delivery">info</span>
+            </span>
+            @if (hasFreeShipping) {
+            <span class="font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <span class="line-through text-[11px] text-slate-400 font-normal">GH₵25.00</span>
+              FREE
+            </span>
+            } @else {
+            <span
+              class="text-xs font-semibold text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">
+              Calculated at checkout
+            </span>
+            }
+          </div>
+
+          <div class="flex justify-between items-center text-slate-600 dark:text-zinc-300">
+            <span class="font-medium">Estimated Taxes &amp; Fees</span>
+            <span
+              class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-500/20">
+              Included
+            </span>
+          </div>
+
+          @if (couponApplied()) {
+          <div
+            class="flex justify-between items-center text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+            <span class="flex items-center gap-1.5 font-bold text-xs">
+              <span class="material-symbols-outlined !text-[16px]">sell</span>
+              Coupon: {{ couponCode() }}
+            </span>
+            <span class="font-extrabold">-{{ couponDiscount() | appCurrency }}</span>
+          </div>
+          }
         </div>
+
+        <!-- Coupon input -->
+        <div class="pt-2">
+          @if (!couponApplied()) {
+          <div class="relative flex items-center">
+            <span
+              class="material-symbols-outlined !text-[18px] text-slate-400 absolute left-3.5 pointer-events-none">sell</span>
+            <input type="text" [ngModel]="couponCode()" (ngModelChange)="couponCode.set($event)"
+              placeholder="Promo or discount code"
+              class="w-full pl-10 pr-24 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-2xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all uppercase tracking-wider" />
+            <button (click)="applyCoupon()" [disabled]="applyingCoupon() || !couponCode()"
+              class="absolute right-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-md shadow-indigo-500/20 disabled:opacity-40 disabled:hover:bg-indigo-600 transition-all">
+              {{ applyingCoupon() ? 'Applying…' : 'Apply' }}
+            </button>
+          </div>
+          @if (couponError()) {
+          <p class="text-xs text-rose-500 mt-2 font-semibold flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[14px]">error</span>
+            {{ couponError() }}
+          </p>
+          }
+          } @else {
+          <div
+            class="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined !text-[14px]">check</span>
+              </div>
+              <div>
+                <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 block">{{ couponCode()
+                  }}</span>
+                <span class="text-[10px] text-emerald-600/80 dark:text-emerald-400/70 font-medium">Applied to your
+                  total</span>
+              </div>
+            </div>
+            <button (click)="removeCoupon()"
+              class="text-xs text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-extrabold px-2.5 py-1 rounded-lg hover:bg-rose-500/10 transition-colors">
+              Remove
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- Total Display Card -->
+        <div
+          class="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06]">
+          <div class="flex justify-between items-baseline mb-1">
+            <div>
+              <span
+                class="text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-widest block">Estimated
+                Total</span>
+              <span class="text-[11px] text-slate-400 dark:text-zinc-500">All local taxes &amp; duties included</span>
+            </div>
+            <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {{ finalTotal | appCurrency }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Min order warning -->
+        @if (!minOrderMet) {
+        <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-3.5 flex items-start gap-2.5">
+          <span class="material-symbols-outlined !text-[20px] text-rose-500 mt-0.5">info</span>
+          <p class="text-xs text-rose-600 dark:text-rose-400 font-medium leading-relaxed">
+            Minimum order amount is <span class="font-extrabold">{{ settingsService.settings()?.min_order_amount |
+              appCurrency }}</span>.
+            Add <span class="font-extrabold">{{ minOrderDifference | appCurrency }}</span> more to checkout.
+          </p>
+        </div>
+        }
+
+        <!-- Checkout CTA -->
+        <button (click)="proceedToCheckout()" [disabled]="!minOrderMet"
+          class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-indigo-500 to-indigo-600 hover:from-indigo-500 hover:to-indigo-600 text-white rounded-2xl font-black text-base tracking-wide shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all flex items-center justify-between group cursor-pointer">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined !text-[20px]">lock</span>
+            <span>Proceed to Checkout</span>
+          </div>
+          <span
+            class="material-symbols-outlined !text-[20px] transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </button>
+
+        <!-- Share Cart Options -->
+        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100 dark:border-white/[0.06]">
+          <button (click)="shareOnWhatsApp()"
+            class="py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <span class="material-symbols-outlined !text-[16px]">chat</span>
+            WhatsApp
+          </button>
+          <button (click)="copyShareLink()"
+            class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.08] text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-white/10 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            <span class="material-symbols-outlined !text-[16px]">{{ copied() ? 'done' : 'content_copy' }}</span>
+            {{ copied() ? 'Copied!' : 'Copy Link' }}
+          </button>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="pt-3 border-t border-slate-100 dark:border-white/[0.06] space-y-2">
+          <div class="flex items-center gap-2 text-slate-500 dark:text-zinc-400 text-xs">
+            <span class="material-symbols-outlined !text-[16px] text-emerald-500">lock</span>
+            <span>Guaranteed Safe &amp; Secure 256-Bit SSL Checkout</span>
+          </div>
+          <div class="flex items-center gap-2 text-slate-500 dark:text-zinc-400 text-xs">
+            <span class="material-symbols-outlined !text-[16px] text-indigo-500">local_shipping</span>
+            <span>Fast Tracked Nationwide Dispatch</span>
+          </div>
+          <div class="flex items-center gap-2 text-slate-500 dark:text-zinc-400 text-xs">
+            <span class="material-symbols-outlined !text-[16px] text-purple-500">cached</span>
+            <span>Hassle-Free Returns &amp; Instant Support</span>
+          </div>
+        </div>
+
+        <!-- Payment methods preview -->
+        <div
+          class="pt-2 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-zinc-500">
+          <span>Accepted Payments</span>
+          <div class="flex items-center gap-1.5 font-mono text-[10px] text-slate-600 dark:text-slate-400">
+            <span
+              class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 font-sans font-bold">MoMo</span>
+            <span
+              class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 font-sans font-bold">Telecel</span>
+            <span
+              class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 font-sans font-bold">Cards</span>
+          </div>
+        </div>
+
+        <a routerLink="/store"
+          class="block text-center text-xs font-bold text-slate-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors pt-1">
+          ← Continue Shopping
+        </a>
       </div>
     </div>
+  </div>
   }
 </div>

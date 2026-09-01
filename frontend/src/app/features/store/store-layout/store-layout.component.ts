@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../core/store/services/cart.service';
@@ -31,6 +31,7 @@ export class StoreLayoutComponent implements OnInit {
   authService = inject(StorefrontAuthService);
   currencyService = inject(CurrencyService);
   themeService = inject(ThemeService);
+  router = inject(Router);
   http = inject(HttpClient);
 
   mobileMenuOpen = false;
@@ -40,6 +41,11 @@ export class StoreLayoutComponent implements OnInit {
 
   newsletterEmail = '';
   isSubscribing = false;
+
+  get isCartOrCheckout(): boolean {
+    const url = this.router.url;
+    return url.includes('/cart') || url.includes('/checkout');
+  }
 
   ngOnInit() {
     this.cartService.loadCart();
