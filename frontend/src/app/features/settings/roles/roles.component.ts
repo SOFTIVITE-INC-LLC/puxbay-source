@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { RolesService, Role, Permission } from '../../../core/services/roles.service';
 import { ToastService } from '../../../core/services/toast';
-
+import { AlertService } from '../../../core/services/alert.service';
 
 @Component({
   selector: 'app-roles',
@@ -15,6 +15,7 @@ import { ToastService } from '../../../core/services/toast';
 export class RolesComponent implements OnInit {
   private rolesService = inject(RolesService);
   private toast = inject(ToastService);
+  private alertService = inject(AlertService);
   private fb = inject(FormBuilder);
 
   roles = signal<Role[]>([]);
@@ -127,12 +128,12 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  deleteRole(role: Role) {
+  async deleteRole(role: Role) {
     if (role.is_system) {
       this.toast.showError('System roles cannot be deleted');
       return;
     }
-    if (confirm(`Are you sure you want to delete ${role.name}?`)) {
+    if (await this.alertService.confirm(`Are you sure you want to delete ${role.name}?`, 'Delete Role', 'Delete', 'Cancel', 'danger')) {
       this.rolesService.deleteRole(role.id).subscribe({
         next: () => {
           this.toast.showSuccess('Role deleted');

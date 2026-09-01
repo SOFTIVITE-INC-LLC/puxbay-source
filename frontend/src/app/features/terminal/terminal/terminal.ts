@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { DeviceService, Device, DeviceCreateInput } from '../../../core/services/device.service';
+import { AlertService } from '../../../core/services/alert.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BranchService } from '../../../core/services/branch.service';
@@ -26,6 +27,7 @@ export class Terminal implements OnInit {
   private toastr = inject(ToastrService);
   private deviceService = inject(DeviceService);
   private branchService = inject(BranchService);
+  private alertService = inject(AlertService);
 
   devices = signal<Device[]>([]);
   loading = signal<boolean>(false);
@@ -91,7 +93,7 @@ export class Terminal implements OnInit {
   }
 
   async deleteDevice(id: string) {
-    if (confirm('Are you sure you want to delete this device?')) {
+    if (await this.alertService.confirm('Are you sure you want to delete this device?', 'Delete Device', 'Delete', 'Cancel', 'danger')) {
       try {
         await firstValueFrom(this.deviceService.deleteDevice(id));
         this.toastr.success('Device deleted');

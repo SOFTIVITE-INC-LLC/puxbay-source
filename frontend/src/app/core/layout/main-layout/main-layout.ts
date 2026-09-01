@@ -8,12 +8,11 @@ import { Topbar } from '../topbar/topbar';
 import { ToastComponent } from '../toast/toast';
 import { CommandPalette } from '../command-palette/command-palette';
 import { Copilot } from '../copilot/copilot';
-import { AlertComponent } from '../alert/alert';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterModule, Sidebar, Topbar, ToastComponent, CommandPalette, Copilot, AlertComponent],
+  imports: [RouterModule, Sidebar, Topbar, ToastComponent, CommandPalette, Copilot],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProfileService, UpdateMeInput } from '../../../core/services/profile.service';
+import { AlertService } from '../../../core/services/alert.service';
 
 @Component({
   selector: 'app-profile',
@@ -45,6 +46,7 @@ import { ProfileService, UpdateMeInput } from '../../../core/services/profile.se
 })
 export class Profile implements OnInit {
   profileService = inject(ProfileService);
+  private alertService = inject(AlertService);
 
   // Editable form state
   firstName = signal('');
@@ -170,8 +172,8 @@ export class Profile implements OnInit {
     });
   }
 
-  disable2FA() {
-    if (!confirm('Are you sure you want to disable Two-Factor Authentication? Your account will be less secure.')) {
+  async disable2FA() {
+    if (!(await this.alertService.confirm('Are you sure you want to disable Two-Factor Authentication? Your account will be less secure.', 'Disable 2FA', 'Disable 2FA', 'Cancel', 'danger'))) {
       return;
     }
     this.profileService.disable2FA().subscribe({

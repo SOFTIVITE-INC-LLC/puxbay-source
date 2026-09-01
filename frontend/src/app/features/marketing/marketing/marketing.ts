@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { MarketingService, Campaign, CustomerSegment } from '../../../core/services/marketing.service';
 import { SMSService, SMSSenderID } from '../../../core/services/sms.service';
 import { ToastService } from '../../../core/services/toast';
+import { AlertService } from '../../../core/services/alert.service';
 import { SettingsService } from '../../../core/services/settings.service';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 
@@ -19,6 +20,7 @@ import { StorefrontSettingsService } from '../../../core/store/services/storefro
 export class Marketing implements OnInit {
   marketingService = inject(MarketingService);
   smsService = inject(SMSService);
+  alertService = inject(AlertService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -382,8 +384,8 @@ export class Marketing implements OnInit {
     });
   }
 
-  deleteSenderID(s: SMSSenderID) {
-    if (!confirm(`Are you sure you want to delete the sender ID "${s.sender_id}"?`)) {
+  async deleteSenderID(s: SMSSenderID) {
+    if (!(await this.alertService.confirm(`Are you sure you want to delete the sender ID "${s.sender_id}"?`, 'Delete Sender ID', 'Delete', 'Cancel', 'danger'))) {
       return;
     }
     this.smsService.deleteSenderID(s.id).subscribe({

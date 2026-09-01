@@ -7,6 +7,7 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 
 import { PosOverrideModalComponent } from '../../../shared/components/pos-override-modal/pos-override-modal';
+import { AlertService } from '../../../core/services/alert.service';
 
 @Component({
   selector: 'app-order-detail',
@@ -17,6 +18,7 @@ import { PosOverrideModalComponent } from '../../../shared/components/pos-overri
 export class OrderDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private alertService = inject(AlertService);
   public orderService = inject(OrderService);
 
   order = signal<Order | null>(null);
@@ -90,7 +92,7 @@ export class OrderDetail implements OnInit {
         if (err.status === 403 && err.error?.error?.includes('Manager override')) {
           this.showOverrideModal.set(true);
         } else if (overridePin) {
-          alert(err.error?.error || 'Invalid override PIN');
+          this.alertService.alert(err.error?.error || 'Invalid override PIN', 'PIN Override Error', 'danger');
         }
       }
     });

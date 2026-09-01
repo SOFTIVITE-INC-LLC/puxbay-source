@@ -1460,3 +1460,22 @@ func (h *AdminHandler) DisableGiftCardAdmin(c *gin.Context) {
 	h.writeAdminAudit(c, "disable", "GiftCard", card.ID.String(), nil)
 	c.JSON(http.StatusOK, card)
 }
+
+func (h *AdminHandler) EnableGiftCardAdmin(c *gin.Context) {
+	var card models.GiftCard
+	if err := h.db.First(&card, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Gift card not found"})
+		return
+	}
+
+	card.Status = "active"
+	card.IsActive = true
+
+	if err := h.db.Save(&card).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to enable gift card"})
+		return
+	}
+
+	h.writeAdminAudit(c, "enable", "GiftCard", card.ID.String(), nil)
+	c.JSON(http.StatusOK, card)
+}

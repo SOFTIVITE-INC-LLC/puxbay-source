@@ -1,36 +1,49 @@
 @if (alertService.state().isOpen) {
-  <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-zinc-900/40 backdrop-blur-md p-4" (click)="onCancel()">
-    <div class="alert-dialog bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-white/50 dark:border-white/10" (click)="$event.stopPropagation()">
-      <div class="p-6">
-        <div class="flex flex-col items-center text-center space-y-4">
-          <!-- Icon depending on type -->
-          @if (alertService.state().type === 'confirm') {
-            <div class="w-16 h-16 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0 mb-2">
+  <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-fade-in" (click)="onCancel()">
+    <div class="alert-dialog bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-200 dark:border-zinc-800 animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="p-6 sm:p-7">
+        <div class="flex flex-col items-center text-center space-y-3">
+          <!-- Icon depending on variant -->
+          @if (alertService.state().variant === 'danger') {
+            <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center shrink-0 mb-1 shadow-inner">
+              <span class="material-symbols-outlined !text-[32px]">delete_forever</span>
+            </div>
+          } @else if (alertService.state().variant === 'warning') {
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0 mb-1 shadow-inner">
               <span class="material-symbols-outlined !text-[32px]">warning</span>
             </div>
+          } @else if (alertService.state().variant === 'success') {
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0 mb-1 shadow-inner">
+              <span class="material-symbols-outlined !text-[32px]">check_circle</span>
+            </div>
           } @else {
-            <div class="w-16 h-16 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 mb-2">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 flex items-center justify-center shrink-0 mb-1 shadow-inner">
               <span class="material-symbols-outlined !text-[32px]">info</span>
             </div>
           }
 
           <div>
-            <h3 class="text-xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">{{ alertService.state().title }}</h3>
-            <p class="text-[15px] font-medium text-zinc-500 dark:text-zinc-400 leading-snug">
+            <h3 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight mb-2">{{ alertService.state().title }}</h3>
+            <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
               {{ alertService.state().message }}
             </p>
           </div>
         </div>
       </div>
       
-      <div class="p-4 bg-zinc-50/50 dark:bg-black/20 border-t border-zinc-200/50 dark:border-zinc-800/50 flex gap-3">
+      <div class="p-4 bg-slate-50/80 dark:bg-zinc-950/60 border-t border-slate-200/80 dark:border-zinc-800/80 flex gap-3">
         @if (alertService.state().type === 'confirm') {
-          <button (click)="onCancel()" class="flex-1 py-3 px-4 rounded-xl font-bold text-[14px] text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-sm ring-1 ring-inset ring-zinc-200 dark:ring-white/10">
+          <button (click)="onCancel()" class="flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm text-slate-600 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all border border-slate-200 dark:border-zinc-700 active:scale-95 shadow-sm">
             {{ alertService.state().cancelText }}
           </button>
         }
-        <button (click)="onConfirm()" class="flex-1 py-3 px-4 rounded-xl font-bold text-[14px] text-white transition-all shadow-md active:scale-[0.98]"
-                [ngClass]="alertService.state().type === 'confirm' ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/25' : 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/25'">
+        <button (click)="onConfirm()" class="flex-1 py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm text-white transition-all shadow-md active:scale-95 flex items-center justify-center"
+                [ngClass]="{
+                  'bg-rose-600 hover:bg-rose-700 shadow-rose-600/25': alertService.state().variant === 'danger',
+                  'bg-amber-600 hover:bg-amber-700 shadow-amber-600/25': alertService.state().variant === 'warning',
+                  'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/25': alertService.state().variant === 'success',
+                  'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/25': alertService.state().variant === 'info'
+                }">
           {{ alertService.state().confirmText }}
         </button>
       </div>

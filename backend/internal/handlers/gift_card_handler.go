@@ -179,3 +179,29 @@ func (h *GiftCardHandler) Disable(c *gin.Context) {
 
 	c.JSON(http.StatusOK, card)
 }
+
+// Enable enables a disabled gift card.
+func (h *GiftCardHandler) Enable(c *gin.Context) {
+	id := c.Param("id")
+	cardID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid gift card ID"})
+		return
+	}
+
+	var card models.GiftCard
+	if err := h.getDB(c).First(&card, "id = ?", cardID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Gift card not found"})
+		return
+	}
+
+	card.Status = "active"
+	card.IsActive = true
+
+	if err := h.getDB(c).Save(&card).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to enable gift card"})
+		return
+	}
+
+	c.JSON(http.StatusOK, card)
+}

@@ -501,6 +501,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/gift-cards/check", giftCardHandler.CheckBalance)
 			api.GET("/gift-cards/:id", giftCardHandler.Get)
 			api.POST("/gift-cards/:id/disable", giftCardHandler.Disable)
+			api.POST("/gift-cards/:id/enable", giftCardHandler.Enable)
 			api.POST("/gift-cards/redeem", giftCardHandler.Redeem)
 
 			// Returns
@@ -1025,6 +1026,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			admin.GET("/gift-cards", middleware.RequireAdminPermission("billing:read"), adminHandler.ListAllGiftCards)
 			admin.POST("/gift-cards", middleware.RequireAdminPermission("billing:write"), adminHandler.CreateGiftCardAdmin)
 			admin.POST("/gift-cards/:id/disable", middleware.RequireAdminPermission("billing:write"), adminHandler.DisableGiftCardAdmin)
+			admin.POST("/gift-cards/:id/enable", middleware.RequireAdminPermission("billing:write"), adminHandler.EnableGiftCardAdmin)
 
 			// SMS Gateway & Sender ID Moderation
 			admin.GET("/sms/config", middleware.RequireAdminPermission("sms:read"), smsHandler.AdminGetSMSConfig)
