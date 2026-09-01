@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math/big"
 	"strings"
 	"time"
 
@@ -41,17 +42,18 @@ func (s *OrderService) ListOrders(params OrderListParams) ([]dto.OrderListRespon
 	query := s.db.Model(&models.Order{})
 
 	if params.BranchID != "" {
-		query = query.Where("(orders.branch_id = ? OR orders.branch_id IS NULL OR orders.order_type IN ('online', 'storefront', 'pickup', 'delivery'))", params.BranchID)
+		query = query.Where("orders.branch_id = ?", params.BranchID)
 	}
 	if params.Status != "" {
 		query = query.Where("orders.status = ?", params.Status)
 	}
 	if params.OrderType != "" {
-		if params.OrderType == "online" || params.OrderType == "storefront" {
+		switch params.OrderType {
+		case "online", "storefront":
 			query = query.Where("orders.order_type IN ('online', 'storefront', 'pickup', 'delivery')")
-		} else if params.OrderType == "pos" || params.OrderType == "in_store" {
+		case "pos", "in_store":
 			query = query.Where("orders.order_type IN ('pos', 'in_store')")
-		} else {
+		default:
 			query = query.Where("orders.order_type = ?", params.OrderType)
 		}
 	}
@@ -142,9 +144,9 @@ type OrderSummaryStats struct {
 func (s *OrderService) GetOrderSummaryStats(branchID string, cashierID string) (*OrderSummaryStats, error) {
 	var stats OrderSummaryStats
 	query := s.db.Model(&models.Order{})
-	
+
 	if branchID != "" {
-		query = query.Where("(branch_id = ? OR branch_id IS NULL OR order_type IN ('online', 'storefront', 'pickup', 'delivery'))", branchID)
+		query = query.Where("branch_id = ?", branchID)
 	}
 	if cashierID != "" {
 		query = query.Where("cashier_id = ?", cashierID)
@@ -673,9 +675,17 @@ func (s *OrderService) ProcessPOSCheckout(input OrderCreateInput, cashierID *uui
 }
 
 func generateOrderNumber() string {
-	b := make([]byte, 4)
-	rand.Read(b)
-	return fmt.Sprintf("ORD-%d-%s", time.Now().Unix(), hex.EncodeToString(b))
+	const charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 8)
+	for i := range b {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			b[i] = charset[i%len(charset)]
+		} else {
+			b[i] = charset[num.Int64()]
+		}
+	}
+	return string(b)
 }
 
 func generateReceiptToken() string {

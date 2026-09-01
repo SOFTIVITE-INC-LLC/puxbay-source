@@ -1,114 +1,201 @@
-<div class="animate-fade-in max-w-3xl mx-auto">
-  <div class="text-center mb-10">
-    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center mx-auto mb-4">
-      <span class="material-symbols-outlined !text-[32px] text-indigo-400">local_shipping</span>
+<div class="animate-fade-in max-w-3xl mx-auto space-y-8">
+  <!-- Header -->
+  <div class="text-center">
+    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center mx-auto mb-4 text-indigo-500 shadow-inner">
+      <span class="material-symbols-outlined !text-[32px]">local_shipping</span>
     </div>
-    <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Track Your Order</h1>
-    <p class="text-slate-500 dark:text-zinc-400">Enter your order number to see the latest status updates.</p>
+    <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Track Your Order</h1>
+    <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 max-w-md mx-auto">
+      Enter your 8-character tracking code sent via SMS to check your live order preparation and delivery progress. No account login required.
+    </p>
   </div>
 
-  <div class="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800/60 p-6 sm:p-8 mb-8 shadow-xl">
+  <!-- Search Card -->
+  <div class="bg-white dark:bg-zinc-900/80 rounded-3xl border border-slate-200 dark:border-zinc-800/80 p-5 sm:p-7 shadow-xl backdrop-blur-xl">
     <form (ngSubmit)="track()" class="flex flex-col sm:flex-row gap-3">
       <div class="flex-1 relative">
         <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 dark:text-zinc-500">
-          <span class="material-symbols-outlined !text-[20px]">tag</span>
+          <span class="material-symbols-outlined !text-[20px]">pin</span>
         </span>
-        <input type="text" [ngModel]="orderNumber()" (ngModelChange)="orderNumber.set($event)" name="orderNumber" placeholder="e.g. ORD-12345678"
-               class="w-full pl-11 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl text-slate-900 dark:text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono">
+        <input type="text" [ngModel]="orderNumber()" (ngModelChange)="onCodeInput($event)" name="orderNumber"
+               placeholder="Enter 8-digit code e.g. 8K3M9P2X"
+               maxlength="20"
+               class="w-full pl-11 pr-4 py-3.5 bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-2xl text-slate-900 dark:text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono font-bold tracking-widest text-sm uppercase">
       </div>
       <button type="submit" [disabled]="!orderNumber() || isTracking()"
-              class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+              class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-40 flex items-center justify-center gap-2 text-sm active:scale-95 shrink-0">
         @if (isTracking()) {
           <span class="material-symbols-outlined animate-spin !text-[20px]">refresh</span> Tracking...
         } @else {
+          <span class="material-symbols-outlined !text-[20px]">search</span>
           Track Order
         }
       </button>
     </form>
     
     @if (errorMsg()) {
-      <div class="mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 animate-fade-in">
-        <span class="material-symbols-outlined text-rose-400">error</span>
-        <p class="text-sm text-rose-400 font-medium">{{ errorMsg() }}</p>
+      <div class="mt-4 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3 animate-fade-in">
+        <span class="material-symbols-outlined text-rose-500 !text-[20px] mt-0.5">error</span>
+        <p class="text-xs sm:text-sm text-rose-500 font-medium leading-relaxed">{{ errorMsg() }}</p>
       </div>
     }
   </div>
 
+  <!-- Order Status Details Result -->
   @if (order()) {
-    <div class="bg-white dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800/60 overflow-hidden animate-slide-up">
-      <div class="p-6 sm:p-8 border-b border-slate-200 dark:border-zinc-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="bg-white dark:bg-zinc-900/80 rounded-3xl border border-slate-200 dark:border-zinc-800/80 overflow-hidden animate-slide-up shadow-2xl space-y-0">
+      <!-- Order Header Bar -->
+      <div class="p-6 sm:p-8 border-b border-slate-200 dark:border-zinc-800/80 bg-slate-50/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <p class="text-sm text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold mb-1">Order Number</p>
-          <p class="text-xl font-black text-slate-900 dark:text-white font-mono">{{ order().order_number }}</p>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-bold">Tracking Code</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold uppercase"
+                  [ngClass]="order().payment_status === 'paid' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'">
+              {{ order().payment_status === 'paid' ? 'Paid' : 'Pay at Pickup' }}
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-widest">{{ order().order_number }}</span>
+            <button (click)="copyTrackingCode()" title="Copy code" class="p-1.5 rounded-lg bg-slate-200/60 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:text-indigo-500 transition-colors">
+              <span class="material-symbols-outlined !text-[16px]">{{ copied() ? 'done' : 'content_copy' }}</span>
+            </button>
+            <button (click)="shareOnWhatsApp()" title="Share on WhatsApp" class="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-colors">
+              <span class="material-symbols-outlined !text-[16px]">chat</span>
+            </button>
+          </div>
         </div>
+
         <div class="text-left sm:text-right">
-          <p class="text-sm text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold mb-1">Date Placed</p>
-          <p class="text-slate-900 dark:text-white font-medium">{{ order().created_at | date:'mediumDate' }}</p>
+          <p class="text-xs text-slate-400 dark:text-zinc-500 uppercase tracking-wider font-bold mb-0.5">Date Placed</p>
+          <p class="text-sm font-bold text-slate-900 dark:text-white">{{ order().created_at | date:'medium' }}</p>
+          @if (order().branch?.name) {
+            <p class="text-xs text-indigo-500 dark:text-indigo-400 font-medium mt-0.5">Branch: {{ order().branch?.name }}</p>
+          }
         </div>
       </div>
 
-      <!-- Timeline -->
+      <!-- Live Timeline -->
       <div class="p-6 sm:p-10">
+        <h3 class="text-base font-black text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500 !text-[20px]">timeline</span>
+          Order Progress
+        </h3>
+
         <div class="relative max-w-xl mx-auto">
-          <!-- Connector Line -->
-          <div class="absolute left-6 top-10 bottom-10 w-0.5 bg-slate-100 dark:bg-zinc-800 -z-10"></div>
+          <!-- Timeline Vertical Bar -->
+          <div class="absolute left-6 top-6 bottom-6 w-0.5 bg-slate-200 dark:bg-zinc-800 -z-10"></div>
           
-          <div class="space-y-8">
-            <!-- Step 1: Placed/Pending -->
-            <div class="flex items-start gap-6 relative">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
-                   [ngClass]="getStepStatus(order().status, 0) === 'completed' || getStepStatus(order().status, 0) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : (getStepStatus(order().status, 0) === 'cancelled' ? 'bg-rose-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500')">
-                <span class="material-symbols-outlined !text-[20px]">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'cancel' : 'receipt_long' }}</span>
+          <div class="space-y-7">
+            <!-- Step 1: Placed -->
+            <div class="flex items-start gap-5 relative">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 shrink-0 transition-all"
+                   [ngClass]="getStepStatus(order().status, 0) === 'completed' || getStepStatus(order().status, 0) === 'active' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30' : (getStepStatus(order().status, 0) === 'cancelled' ? 'bg-rose-500 border-rose-500 text-white' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400')">
+                <span class="material-symbols-outlined !text-[22px]">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'cancel' : 'receipt_long' }}</span>
               </div>
-              <div class="pt-2">
-                <h4 class="text-base font-bold text-slate-900 dark:text-white">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'Order Cancelled' : 'Order Placed' }}</h4>
-                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1">We have received your order.</p>
-              </div>
-            </div>
-
-            <!-- Step 2: Processing -->
-            <div class="flex items-start gap-6 relative">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
-                   [ngClass]="getStepStatus(order().status, 1) === 'completed' || getStepStatus(order().status, 1) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
-                <span class="material-symbols-outlined !text-[20px]">inventory_2</span>
-              </div>
-              <div class="pt-2">
-                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 1) === 'pending'}">Processing</h4>
-                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 1) === 'pending'}">Your order is being prepared for shipping.</p>
+              <div class="pt-1.5 flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ getStepStatus(order().status, 0) === 'cancelled' ? 'Order Cancelled' : 'Order Placed & Confirmed' }}</h4>
+                  @if (getStepStatus(order().status, 0) === 'completed' || getStepStatus(order().status, 0) === 'active') {
+                    <span class="text-[10px] font-bold text-emerald-500 uppercase">Confirmed</span>
+                  }
+                </div>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">We have received and logged your order into the system.</p>
               </div>
             </div>
 
-            <!-- Step 3: Shipped -->
-            <div class="flex items-start gap-6 relative">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
-                   [ngClass]="getStepStatus(order().status, 2) === 'completed' || getStepStatus(order().status, 2) === 'active' ? 'bg-indigo-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
-                <span class="material-symbols-outlined !text-[20px]">local_shipping</span>
+            <!-- Step 2: Preparing -->
+            <div class="flex items-start gap-5 relative">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 shrink-0 transition-all"
+                   [ngClass]="getStepStatus(order().status, 1) === 'completed' || getStepStatus(order().status, 1) === 'active' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">inventory_2</span>
               </div>
-              <div class="pt-2">
-                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 2) === 'pending'}">Shipped</h4>
-                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 2) === 'pending'}">Your order has been handed over to the carrier.</p>
+              <div class="pt-1.5 flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-40': getStepStatus(order().status, 1) === 'pending'}">Preparing & Packaging</h4>
+                  @if (getStepStatus(order().status, 1) === 'active') {
+                    <span class="text-[10px] font-bold text-amber-500 uppercase animate-pulse">In Progress</span>
+                  }
+                </div>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5" [ngClass]="{'opacity-40': getStepStatus(order().status, 1) === 'pending'}">The store is gathering your items and preparing them for dispatch or pickup.</p>
               </div>
             </div>
 
-            <!-- Step 4: Delivered -->
-            <div class="flex items-start gap-6 relative">
-              <div class="w-12 h-12 rounded-full flex items-center justify-center border-4 border-zinc-900 shrink-0"
-                   [ngClass]="getStepStatus(order().status, 3) === 'completed' || getStepStatus(order().status, 3) === 'active' ? 'bg-emerald-500 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500'">
-                <span class="material-symbols-outlined !text-[20px]">home</span>
+            <!-- Step 3: Out for Delivery / Ready for Pickup -->
+            <div class="flex items-start gap-5 relative">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 shrink-0 transition-all"
+                   [ngClass]="getStepStatus(order().status, 2) === 'completed' || getStepStatus(order().status, 2) === 'active' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">local_shipping</span>
               </div>
-              <div class="pt-2">
-                <h4 class="text-base font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-50': getStepStatus(order().status, 3) === 'pending'}">Delivered</h4>
-                <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1" [ngClass]="{'opacity-50': getStepStatus(order().status, 3) === 'pending'}">Your order has been delivered.</p>
+              <div class="pt-1.5 flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-40': getStepStatus(order().status, 2) === 'pending'}">Ready for Pickup / Out for Delivery</h4>
+                  @if (getStepStatus(order().status, 2) === 'active') {
+                    <span class="text-[10px] font-bold text-indigo-500 uppercase animate-pulse">En Route</span>
+                  }
+                </div>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5" [ngClass]="{'opacity-40': getStepStatus(order().status, 2) === 'pending'}">Your order is ready to be collected or handed over to our delivery partner.</p>
+              </div>
+            </div>
+
+            <!-- Step 4: Completed -->
+            <div class="flex items-start gap-5 relative">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2 shrink-0 transition-all"
+                   [ngClass]="getStepStatus(order().status, 3) === 'completed' || getStepStatus(order().status, 3) === 'active' ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-400'">
+                <span class="material-symbols-outlined !text-[22px]">check_circle</span>
+              </div>
+              <div class="pt-1.5 flex-1">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white" [ngClass]="{'opacity-40': getStepStatus(order().status, 3) === 'pending'}">Delivered & Completed</h4>
+                  @if (getStepStatus(order().status, 3) === 'completed' || getStepStatus(order().status, 3) === 'active') {
+                    <span class="text-[10px] font-bold text-emerald-500 uppercase">Fulfilled</span>
+                  }
+                </div>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5" [ngClass]="{'opacity-40': getStepStatus(order().status, 3) === 'pending'}">Order successfully completed. Thank you for shopping with us!</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Items Breakdown -->
+      @if (order().items && order().items.length > 0) {
+        <div class="p-6 sm:p-8 border-t border-slate-200 dark:border-zinc-800/80">
+          <h3 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-400 !text-[18px]">shopping_bag</span>
+            Ordered Items ({{ order().items.length }})
+          </h3>
+          <div class="space-y-3">
+            @for (item of order().items; track item.id) {
+              <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/40 border border-slate-200/60 dark:border-zinc-800">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/60 overflow-hidden flex items-center justify-center shrink-0">
+                    @if (item.product?.image_url) {
+                      <img [src]="item.product.image_url" class="w-full h-full object-cover">
+                    } @else {
+                      <span class="material-symbols-outlined text-slate-400 !text-[20px]">inventory_2</span>
+                    }
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{{ item.product?.name || 'Product Item' }}</p>
+                    <p class="text-[11px] text-slate-400">Qty: {{ item.quantity }} × {{ item.unit_price | appCurrency }}</p>
+                  </div>
+                </div>
+                <span class="text-xs sm:text-sm font-black text-slate-900 dark:text-white shrink-0">{{ (item.total || (item.unit_price * item.quantity)) | appCurrency }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
       
-      <!-- Order Total Summary -->
-      <div class="bg-slate-50 dark:bg-zinc-950/50 p-6 border-t border-slate-200 dark:border-zinc-800/60 flex justify-between items-center">
-        <span class="text-sm font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Total Amount</span>
-        <span class="text-xl font-black text-slate-900 dark:text-white">{{ order().total_amount | appCurrency }}</span>
+      <!-- Order Total Summary Footer -->
+      <div class="bg-slate-50 dark:bg-zinc-950/60 p-6 sm:p-8 border-t border-slate-200 dark:border-zinc-800/80 flex justify-between items-center">
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Amount</span>
+          <p class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{{ (order().total || order().total_amount) | appCurrency }}</p>
+        </div>
+        <a routerLink="/store" class="px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold transition-all shadow-md active:scale-95">
+          Continue Shopping
+        </a>
       </div>
     </div>
   }

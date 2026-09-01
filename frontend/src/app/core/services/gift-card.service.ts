@@ -56,6 +56,12 @@ export class GiftCardService {
     );
   }
 
+  enableCard(id: string): Observable<GiftCard> {
+    return this.api.post<GiftCard>(`/gift-cards/${id}/enable`, {}).pipe(
+      tap(c => this.cards.update(list => list.map(card => card.id === id ? c : card)))
+    );
+  }
+
   checkBalance(code: string): Observable<{gift_card: GiftCard}> {
     return this.api.get<{gift_card: GiftCard}>(`/gift-cards/check?code=${code}`);
   }

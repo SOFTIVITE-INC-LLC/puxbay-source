@@ -382,6 +382,21 @@ export class Marketing implements OnInit {
     });
   }
 
+  deleteSenderID(s: SMSSenderID) {
+    if (!confirm(`Are you sure you want to delete the sender ID "${s.sender_id}"?`)) {
+      return;
+    }
+    this.smsService.deleteSenderID(s.id).subscribe({
+      next: () => {
+        this.toastService.showSuccess(`Sender ID "${s.sender_id}" deleted`);
+        this.smsService.getWallet().subscribe();
+      },
+      error: (err) => {
+        this.toastService.showError(err.error?.error || 'Failed to delete Sender ID');
+      }
+    });
+  }
+
   openTopupModal() {
     this.topupAmount.set(20);
     this.isTopupModalOpen.set(true);

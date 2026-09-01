@@ -100,7 +100,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	privacyHandler := handlers.NewPrivacyHandler(db)
 	publicPortalHandler := handlers.NewPublicPortalHandler(db)
 	adminHandler := handlers.NewAdminHandler(db, authService)
-	storefrontHandler := handlers.NewStorefrontAPIHandler(db, authService, &cfg.Paystack, redisClient)
+	storefrontHandler := handlers.NewStorefrontAPIHandler(db, authService, &cfg.Paystack, redisClient, smsService)
 	webhookHandler := handlers.NewWebhookHandler(db)
 	walletHandler := handlers.NewWalletAPIHandler(db)
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
@@ -716,6 +716,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/sms/transactions", smsHandler.GetSMSTransactions)
 			api.GET("/sms/sender-ids", smsHandler.ListSenderIDs)
 			api.POST("/sms/sender-ids", smsHandler.SubmitSenderID)
+			api.DELETE("/sms/sender-ids/:id", smsHandler.DeleteSenderID)
 			api.POST("/sms/wallet/topup/initiate", smsHandler.InitiateSMSTopup)
 			api.POST("/sms/wallet/topup/verify", smsHandler.VerifySMSTopup)
 		}
@@ -746,6 +747,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			storefrontPublic.POST("/products/:id/reviews", storefrontHandler.SubmitReview)
 			storefrontPublic.POST("/products/:id/notify", storefrontHandler.SubscribeBackInStock)
 			storefrontPublic.POST("/newsletter/subscribe", storefrontHandler.SubscribeNewsletter)
+			storefrontPublic.GET("/track-order", storefrontHandler.TrackOrder)
+			storefrontPublic.GET("/orders/track", storefrontHandler.TrackOrder)
+			storefrontPublic.GET("/track/:code", storefrontHandler.TrackOrder)
+			storefrontPublic.GET("/feeds/google", storefrontHandler.GetGoogleMerchantFeed)
+			storefrontPublic.GET("/feeds/facebook", storefrontHandler.GetFacebookCatalogFeed)
 
 			// Customer Auth
 			storefrontAuth := storefrontPublic.Group("/auth")
@@ -1026,6 +1032,7 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			admin.GET("/sms/sender-ids", middleware.RequireAdminPermission("sms:read"), smsHandler.AdminListSenderIDs)
 			admin.POST("/sms/sender-ids/:id/approve", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminApproveSenderID)
 			admin.POST("/sms/sender-ids/:id/reject", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminRejectSenderID)
+			admin.DELETE("/sms/sender-ids/:id", middleware.RequireAdminPermission("sms:write"), smsHandler.AdminDeleteSenderID)
 		}
 
 		// Public Marketing Endpoints

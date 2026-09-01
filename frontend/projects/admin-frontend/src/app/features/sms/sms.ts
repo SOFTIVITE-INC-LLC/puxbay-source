@@ -174,4 +174,24 @@ export class SmsComponent implements OnInit {
       }
     });
   }
+
+  async deleteSenderID(entry: AdminSenderIDEntry) {
+    const confirmed = await this.alertService.confirm({
+      title: 'Delete Sender ID',
+      message: `Permanently delete Sender ID "${entry.sender_id}" for tenant "${entry.tenant_name}"?`,
+      confirmText: 'Delete Sender ID',
+      type: 'danger'
+    });
+    if (confirmed) {
+      this.smsService.deleteSenderID(entry.id, entry.tenant_id).subscribe({
+        next: () => {
+          this.alertService.success(`Sender ID "${entry.sender_id}" deleted.`);
+          this.loadSenderIDs();
+        },
+        error: (err) => {
+          this.alertService.error(err.error?.error || 'Failed to delete Sender ID.');
+        }
+      });
+    }
+  }
 }

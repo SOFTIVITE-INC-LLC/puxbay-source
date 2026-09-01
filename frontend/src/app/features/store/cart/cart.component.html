@@ -143,6 +143,20 @@
             Proceed to Checkout
           </button>
 
+          <!-- Share Cart Row -->
+          <div class="flex items-center gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
+            <button (click)="shareOnWhatsApp()"
+                    class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined !text-[16px]">chat</span>
+              Share WhatsApp
+            </button>
+            <button (click)="copyShareLink()"
+                    class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined !text-[16px]">{{ copied() ? 'done' : 'content_copy' }}</span>
+              {{ copied() ? 'Copied!' : 'Copy Link' }}
+            </button>
+          </div>
+
           <a routerLink="/store" class="block text-center text-sm text-slate-400 dark:text-zinc-500 hover:text-indigo-400 transition-colors font-medium">
             ← Continue Shopping
           </a>

@@ -113,21 +113,42 @@ export class CheckoutComponent implements OnInit {
   getLocation() {
     if (navigator.geolocation) {
       this.locationLoading.set(true);
+      this.checkoutError.set('');
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          this.checkoutForm.patchValue({
-            address: `${lat}, ${lng}`,
-            city: 'GPS Location'
-          });
-          this.locationLoading.set(false);
+
+          // Reverse geocode coordinates to human-readable street address
+          this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`)
+            .subscribe({
+              next: (res) => {
+                const addr = res.address || {};
+                const road = addr.road || addr.suburb || addr.neighbourhood || addr.residential || '';
+                const city = addr.city || addr.town || addr.village || addr.county || addr.state || 'Local Area';
+                const formatted = res.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                
+                this.checkoutForm.patchValue({
+                  address: road ? `${road}, ${city}` : formatted,
+                  city: city
+                });
+                this.locationLoading.set(false);
+              },
+              error: () => {
+                this.checkoutForm.patchValue({
+                  address: `GPS: ${lat.toFixed(5)}, ${lng.toFixed(5)}`,
+                  city: 'Local Area'
+                });
+                this.locationLoading.set(false);
+              }
+            });
         },
         (error) => {
           console.error('Error getting location', error);
-          this.checkoutError.set('Failed to get your location. Please enter it manually or check permissions.');
+          this.checkoutError.set('Unable to access location. Please check browser permissions or enter address manually.');
           this.locationLoading.set(false);
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
       this.checkoutError.set('Geolocation is not supported by your browser.');
@@ -217,9 +238,10 @@ export class CheckoutComponent implements OnInit {
     if (this.paymentMethod() === 'pickup') {
       payload['payment_method'] = 'pickup';
       this.checkoutService.processCheckout(payload).subscribe({
-        next: () => {
+        next: (res: any) => {
           this.cartService.clearCart();
-          this.router.navigate(['/store/order-confirmation']);
+          const code = res?.order_number || res?.tracking_code || '';
+          this.router.navigate(['/store/order-confirmation'], { queryParams: code ? { code } : {} });
         },
         error: (err) => {
           this.checkoutError.set(err.error?.error || 'Verification failed. Please contact support.');
@@ -240,9 +262,10 @@ export class CheckoutComponent implements OnInit {
         // Payment successful, verify with backend
         payload['reference'] = response.reference;
         this.checkoutService.processCheckout(payload).subscribe({
-          next: () => {
+          next: (res: any) => {
             this.cartService.clearCart();
-            this.router.navigate(['/store/order-confirmation']);
+            const code = res?.order_number || res?.tracking_code || '';
+            this.router.navigate(['/store/order-confirmation'], { queryParams: code ? { code } : {} });
           },
           error: (err) => {
             this.checkoutError.set(err.error?.error || 'Verification failed. Please contact support.');

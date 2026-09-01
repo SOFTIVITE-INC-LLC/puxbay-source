@@ -108,6 +108,24 @@ func (h *SMSHandler) SubmitSenderID(c *gin.Context) {
 	c.JSON(201, senderID)
 }
 
+// DeleteSenderID deletes a tenant's Sender ID registration.
+func (h *SMSHandler) DeleteSenderID(c *gin.Context) {
+	db := getDB(c, h.db)
+	id := c.Param("id")
+
+	res := db.Where("id = ?", id).Delete(&models.SMSSenderID{})
+	if res.Error != nil {
+		c.JSON(500, gin.H{"error": "Failed to delete Sender ID: " + res.Error.Error()})
+		return
+	}
+	if res.RowsAffected == 0 {
+		c.JSON(404, gin.H{"error": "Sender ID not found"})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Sender ID deleted successfully"})
+}
+
 // InitiateSMSTopup initializes a Paystack payment to top-up the SMS wallet.
 func (h *SMSHandler) InitiateSMSTopup(c *gin.Context) {
 	db := getDB(c, h.db)
@@ -463,6 +481,33 @@ func (h *SMSHandler) AdminRejectSenderID(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"status": "rejected"})
+}
+
+// AdminDeleteSenderID deletes a tenant's Sender ID from the platform.
+func (h *SMSHandler) AdminDeleteSenderID(c *gin.Context) {
+	id := c.Param("id")
+	tenantSchema := c.Query("schema")
+	if tenantSchema == "" {
+		c.JSON(400, gin.H{"error": "schema query param required"})
+		return
+	}
+
+	parsedID, _ := uuid.Parse(id)
+	var rowsAffected int64
+	err := h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(fmt.Sprintf("SET LOCAL search_path TO %s, public", tenantSchema)).Error; err != nil {
+			return err
+		}
+		res := tx.Where("id = ?", parsedID).Delete(&models.SMSSenderID{})
+		rowsAffected = res.RowsAffected
+		return res.Error
+	})
+
+	if err != nil || rowsAffected == 0 {
+		c.JSON(404, gin.H{"error": "Sender ID not found"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Sender ID deleted"})
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

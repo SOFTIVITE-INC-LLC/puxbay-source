@@ -34,7 +34,7 @@
       <div class="w-full h-2 bg-white/50 dark:bg-zinc-950/50 rounded-full overflow-hidden border border-white/20 dark:border-zinc-800 shadow-inner">
         <div class="h-full bg-indigo-500 transition-all duration-700 ease-out relative overflow-hidden"
              [style.width]="progressPercentage + '%'">
-          <div class="absolute inset-0 bg-white/20 w-full animate-shimmer" style="background: #005b96, transparent); transform: skewX(-20deg);"></div>
+          <div class="absolute inset-0 bg-white/20 w-full animate-shimmer" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transform: skewX(-20deg);"></div>
         </div>
       </div>
     </div>
@@ -42,21 +42,21 @@
     <!-- Items List -->
     <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3 hide-scrollbar z-10 relative">
       @if (cartService.cartDetails().length === 0) {
-        <div class="h-full flex flex-col items-center justify-center text-center">
-          <div class="w-32 h-32 mb-6 rounded-full bg-slate-50 dark:bg-zinc-800/50 flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[48px] text-slate-300 dark:text-zinc-600">shopping_cart</span>
+        <div class="h-full flex flex-col items-center justify-center text-center py-12">
+          <div class="w-28 h-28 mb-4 rounded-full bg-slate-50 dark:bg-zinc-800/50 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[44px] text-slate-300 dark:text-zinc-600">shopping_cart</span>
           </div>
-          <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Your cart is feeling light</h3>
-          <p class="text-sm text-slate-500 dark:text-zinc-400 max-w-[250px] mb-8">Discover our latest collections and find something you'll love.</p>
-          <button (click)="closeCart.emit()" class="px-8 py-3.5 rounded-2xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold transition-all shadow-xl shadow-slate-900/20 dark:shadow-white/10 active:scale-95">
+          <h3 class="text-lg font-black text-slate-900 dark:text-white mb-1">Your cart is empty</h3>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 max-w-[220px] mb-6">Discover our latest items and find something you'll love.</p>
+          <button (click)="closeCart.emit()" class="px-6 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold transition-all shadow-md active:scale-95">
             Start Shopping
           </button>
         </div>
       }
 
       @for (item of cartService.cartDetails(); track item.product_id) {
-        <div class="flex gap-4 p-3 bg-white/60 dark:bg-zinc-800/40 hover:bg-white dark:hover:bg-zinc-800/80 rounded-2xl border border-slate-200/50 dark:border-white/5 relative group transition-colors shadow-sm hover:shadow-md">
-          <a [routerLink]="['/store/product', item.product_id]" (click)="closeCart.emit()" class="w-24 h-24 bg-slate-50 dark:bg-zinc-950 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 dark:border-zinc-800">
+        <div class="flex gap-3.5 p-3 bg-white/60 dark:bg-zinc-800/40 hover:bg-white dark:hover:bg-zinc-800/80 rounded-2xl border border-slate-200/50 dark:border-white/5 relative group transition-colors shadow-sm hover:shadow-md">
+          <a [routerLink]="['/store/product', item.product_id]" (click)="closeCart.emit()" class="w-20 h-20 bg-slate-50 dark:bg-zinc-950 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 dark:border-zinc-800">
             @if (item.product.image_url) {
               <img [src]="item.product.image_url" [alt]="item.product.name" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500">
             } @else {
@@ -68,28 +68,28 @@
           
           <div class="flex-1 min-w-0 flex flex-col py-0.5 justify-between">
             <div class="pr-6">
-              <a [routerLink]="['/store/product', item.product_id]" (click)="closeCart.emit()" class="font-bold text-slate-900 dark:text-white text-[15px] hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors line-clamp-2 leading-snug">
+              <a [routerLink]="['/store/product', item.product_id]" (click)="closeCart.emit()" class="font-bold text-slate-900 dark:text-white text-sm hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors line-clamp-2 leading-snug">
                 {{ item.product.name }}
               </a>
             </div>
             
             <div class="flex items-end justify-between mt-2">
-              <p class="font-black text-lg text-slate-900 dark:text-white">{{ item.product.selling_price | appCurrency }}</p>
+              <p class="font-black text-base text-slate-900 dark:text-white">{{ item.product.selling_price | appCurrency }}</p>
               
               <div class="flex items-center gap-1 bg-slate-100 dark:bg-zinc-900 rounded-lg p-1 border border-slate-200 dark:border-zinc-700/80">
-                <button (click)="updateQuantity(item.product_id, item.quantity, -1)" class="w-7 h-7 flex items-center justify-center rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors active:scale-95">
-                  <span class="material-symbols-outlined !text-[14px]">remove</span>
+                <button (click)="updateQuantity(item.product_id, item.quantity, -1)" class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors active:scale-95">
+                  <span class="material-symbols-outlined !text-[12px]">remove</span>
                 </button>
-                <span class="w-8 text-center text-sm font-bold text-slate-900 dark:text-white">{{ item.quantity }}</span>
-                <button (click)="updateQuantity(item.product_id, item.quantity, 1)" class="w-7 h-7 flex items-center justify-center rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors active:scale-95">
-                  <span class="material-symbols-outlined !text-[14px]">add</span>
+                <span class="w-7 text-center text-xs font-bold text-slate-900 dark:text-white">{{ item.quantity }}</span>
+                <button (click)="updateQuantity(item.product_id, item.quantity, 1)" class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors active:scale-95">
+                  <span class="material-symbols-outlined !text-[12px]">add</span>
                 </button>
               </div>
             </div>
           </div>
           
-          <button (click)="remove(item.product_id)" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-400 dark:text-zinc-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:border-rose-200 dark:hover:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-500 shadow-sm">
-            <span class="material-symbols-outlined !text-[16px]">delete</span>
+          <button (click)="remove(item.product_id)" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-400 dark:text-zinc-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:border-rose-200 dark:hover:border-rose-900 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-500 shadow-sm">
+            <span class="material-symbols-outlined !text-[14px]">delete</span>
           </button>
         </div>
       }
@@ -97,22 +97,38 @@
 
     <!-- Footer -->
     @if (cartService.cartDetails().length > 0) {
-      <div class="px-5 sm:px-6 py-5 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-t border-slate-200/50 dark:border-zinc-800/50 z-10 relative">
-        <div class="flex justify-between items-center mb-5">
+      <div class="px-5 sm:px-6 py-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-t border-slate-200/50 dark:border-zinc-800/50 z-10 relative space-y-3">
+        <div class="flex justify-between items-center">
           <span class="text-slate-500 dark:text-zinc-400 font-bold uppercase tracking-wider text-xs">Total</span>
-          <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{{ cartService.cartTotal() | appCurrency }}</span>
+          <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ cartService.cartTotal() | appCurrency }}</span>
+        </div>
+
+        <!-- Share Cart Action Row -->
+        <div class="flex items-center gap-2 pt-1">
+          <button (click)="shareOnWhatsApp()"
+                  title="Share cart via WhatsApp"
+                  class="flex-1 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined !text-[16px]">chat</span>
+            Share WhatsApp
+          </button>
+          <button (click)="copyShareLink()"
+                  title="Copy shareable cart link"
+                  class="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined !text-[16px]">{{ copied() ? 'done' : 'content_copy' }}</span>
+            {{ copied() ? 'Copied!' : 'Copy Link' }}
+          </button>
         </div>
         
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-2 pt-1">
           <a routerLink="/store/checkout" (click)="closeCart.emit()"
-             class="w-full py-4 rounded-2xl font-black text-white bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98] hover:shadow-indigo-600/40 relative overflow-hidden group">
+             class="w-full py-3.5 rounded-2xl font-black text-white bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98] hover:shadow-indigo-600/40 relative overflow-hidden group text-sm">
             <div class="absolute inset-0 bg-white/20 w-full translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" style="transform: skewX(-20deg);"></div>
-            Secure Checkout
-            <span class="material-symbols-outlined !text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            Proceed to Checkout
+            <span class="material-symbols-outlined !text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
           </a>
           <a routerLink="/store/cart" (click)="closeCart.emit()"
-             class="w-full py-3 rounded-xl font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors">
-            View Shopping Bag
+             class="w-full py-2.5 rounded-xl font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors text-xs">
+            View Full Cart Page
           </a>
         </div>
       </div>

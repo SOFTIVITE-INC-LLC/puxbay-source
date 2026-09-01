@@ -11,9 +11,9 @@ export interface OrderTrackResponse {
 })
 export class OrderService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/v1/storefront/orders';
+  private apiUrl = '/api/v1/storefront';
 
   trackOrder(orderNumber: string): Observable<OrderTrackResponse> {
-    return this.http.get<OrderTrackResponse>(`${this.apiUrl}/track?order_number=${encodeURIComponent(orderNumber)}`);
+    return this.http.get<OrderTrackResponse>(`${this.apiUrl}/track-order?code=${encodeURIComponent(orderNumber.trim())}`);
   }
 }

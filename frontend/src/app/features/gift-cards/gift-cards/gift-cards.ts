@@ -59,6 +59,13 @@ export class GiftCards implements OnInit {
     });
   }
 
+  enableCard(id: string) {
+    this.giftCardService.enableCard(id).subscribe({
+      next: () => this.toastr.success('Card enabled!'),
+      error: () => this.toastr.error('Failed to enable card.')
+    });
+  }
+
   openCreditModal(customer: any) {
     this.selectedCustomer.set(customer);
     this.creditAdjustment.set({ points: 0, amount: 0, description: '' });

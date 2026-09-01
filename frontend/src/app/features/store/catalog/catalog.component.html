@@ -45,20 +45,43 @@
   <div class="mb-2"></div>
   <!-- Promotional Bento Grid -->
 
-  <!-- Categories and Views -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+  <!-- Dynamic Category Landing Hero (when a category is selected) -->
+  @if (selectedCategory()) {
+    <div class="bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-zinc-900/60 rounded-3xl p-6 sm:p-8 border border-indigo-500/20 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+      <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Collection</span>
+            <span class="text-xs text-zinc-400 font-mono">{{ totalProducts() }} Products</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">{{ selectedCategory()?.name }}</h1>
+          <p class="text-xs sm:text-sm text-zinc-300 mt-1 max-w-xl">
+            Explore our curated selection of {{ selectedCategory()?.name }}. Fast delivery and premium quality guaranteed.
+          </p>
+        </div>
+        <button (click)="selectCategory(null)"
+                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0">
+          <span class="material-symbols-outlined !text-[16px]">close</span>
+          View All Products
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Categories and Carousel Navigation -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
     <div class="flex-1 w-full overflow-hidden">
-      <!-- Categories Carousel -->
       <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x">
         <button (click)="selectCategory(null)"
           class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all snap-start flex-shrink-0"
-          [ngClass]="!selectedCategoryId() ? 'bg-indigo-600 text-slate-900 dark:text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
+          [ngClass]="!selectedCategoryId() ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
           All Products
         </button>
         @for (category of categories(); track category.id) {
         <button (click)="selectCategory(category.id)"
           class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all snap-start flex-shrink-0"
-          [ngClass]="selectedCategoryId() === category.id ? 'bg-indigo-600 text-slate-900 dark:text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
+          [ngClass]="selectedCategoryId() === category.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
           {{ category.name }}
         </button>
         }
@@ -70,95 +93,186 @@
   <div class="flex flex-col md:flex-row gap-8">
 
     <!-- Mobile Filter Toggle -->
-    <div class="md:hidden flex justify-end mb-2">
+    <div class="md:hidden flex justify-between items-center mb-2">
+      <span class="text-xs font-bold text-slate-500 dark:text-zinc-400">{{ totalProducts() }} products found</span>
       <button (click)="isFiltersOpen.set(!isFiltersOpen())"
-        class="flex items-center gap-2 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white bg-white dark:bg-zinc-900/50 px-4 py-2 rounded-xl border border-slate-200 dark:border-zinc-800">
-        <span class="material-symbols-outlined !text-[20px]">filter_list</span>
-        Filters
+        class="flex items-center gap-2 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:text-white bg-white dark:bg-zinc-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 font-bold text-xs shadow-sm">
+        <span class="material-symbols-outlined !text-[18px]">tune</span>
+        Filters @if (activeFiltersCount() > 0) { <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center">{{ activeFiltersCount() }}</span> }
       </button>
     </div>
 
-    <!-- Sidebar Filters -->
+    <!-- Sidebar Faceted Filters -->
     <div class="w-full md:w-64 flex-shrink-0" [class.hidden]="!isFiltersOpen()">
-      <div class="bg-white dark:bg-zinc-900/50 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800/60 sticky top-24">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Filters</h3>
-          <button (click)="resetFilters()" class="text-sm text-indigo-400 hover:text-indigo-300">Reset</button>
+      <div class="bg-white dark:bg-zinc-900/70 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-zinc-800/80 sticky top-24 space-y-6 shadow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
+          <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-500 !text-[20px]">filter_alt</span>
+            Filters
+          </h3>
+          @if (activeFiltersCount() > 0) {
+            <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:text-rose-400 transition-colors">Reset All</button>
+          }
         </div>
 
-        <!-- Price Range -->
-        <div class="mb-6">
-          <h4 class="text-sm font-bold text-slate-500 dark:text-zinc-400 mb-3 uppercase tracking-wider">Price Range</h4>
-          <div class="flex items-center gap-2">
-            <input type="number" [ngModel]="minPrice()" (ngModelChange)="minPrice.set($event)" placeholder="Min"
-              class="w-full bg-slate-100 dark:bg-zinc-800/50 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-slate-900 dark:text-white text-sm outline-none focus:border-indigo-500">
-            <span class="text-slate-400 dark:text-zinc-500">-</span>
-            <input type="number" [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event)" placeholder="Max"
-              class="w-full bg-slate-100 dark:bg-zinc-800/50 border border-slate-300 dark:border-zinc-700/50 rounded-xl px-3 py-2 text-slate-900 dark:text-white text-sm outline-none focus:border-indigo-500">
+        <!-- Categories Facet -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2.5">Category</h4>
+          <div class="space-y-1 max-h-44 overflow-y-auto hide-scrollbar">
+            <div (click)="selectCategory(null)"
+                 class="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors flex items-center justify-between"
+                 [ngClass]="!selectedCategoryId() ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50'">
+              <span>All Categories</span>
+              @if (!selectedCategoryId()) { <span class="material-symbols-outlined !text-[14px]">check</span> }
+            </div>
+            @for (cat of categories(); track cat.id) {
+              <div (click)="selectCategory(cat.id)"
+                   class="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors flex items-center justify-between"
+                   [ngClass]="selectedCategoryId() === cat.id ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50'">
+                <span class="truncate">{{ cat.name }}</span>
+                @if (selectedCategoryId() === cat.id) { <span class="material-symbols-outlined !text-[14px]">check</span> }
+              </div>
+            }
           </div>
         </div>
 
-        <!-- Availability -->
-        <div class="mb-8">
-          <h4 class="text-sm font-bold text-slate-500 dark:text-zinc-400 mb-3 uppercase tracking-wider">Availability</h4>
-          <label class="flex items-center gap-3 cursor-pointer group">
+        <!-- Price Range Facet with Presets -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2.5">Price</h4>
+          <div class="grid grid-cols-2 gap-1.5 mb-3">
+            <button (click)="setPricePreset(0, 50)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">Under 50</button>
+            <button (click)="setPricePreset(50, 150)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">50 to 150</button>
+            <button (click)="setPricePreset(150, 300)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">150 to 300</button>
+            <button (click)="setPricePreset(300, null)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">300+</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="number" [ngModel]="minPrice()" (ngModelChange)="minPrice.set($event)" placeholder="Min"
+              class="w-full bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
+            <span class="text-slate-400 dark:text-zinc-500 text-xs">-</span>
+            <input type="number" [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event)" placeholder="Max"
+              class="w-full bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Rating Filter Facet -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Customer Rating</h4>
+          <div class="space-y-1.5">
+            <div (click)="setMinRating(4)" class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors" [class.bg-indigo-50]="minRating() === 4" [class.dark:bg-indigo-500/10]="minRating() === 4">
+              <span class="text-amber-400 text-xs flex">★★★★<span class="text-slate-300 dark:text-zinc-600">★</span></span>
+              <span class="text-xs font-medium text-slate-600 dark:text-zinc-400">& 4★ and above</span>
+            </div>
+            <div (click)="setMinRating(3)" class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors" [class.bg-indigo-50]="minRating() === 3" [class.dark:bg-indigo-500/10]="minRating() === 3">
+              <span class="text-amber-400 text-xs flex">★★★<span class="text-slate-300 dark:text-zinc-600">★★</span></span>
+              <span class="text-xs font-medium text-slate-600 dark:text-zinc-400">& 3★ and above</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability Facet -->
+        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800">
+          <label class="flex items-center gap-2.5 cursor-pointer group">
             <input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event)"
-              class="w-5 h-5 rounded border-slate-300 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-zinc-900">
-            <span class="text-slate-600 dark:text-zinc-300 group-hover:text-slate-900 dark:text-white transition-colors">In Stock Only</span>
+              class="w-4 h-4 rounded border-slate-300 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-indigo-600 focus:ring-indigo-500">
+            <span class="text-xs font-bold text-slate-700 dark:text-zinc-300 group-hover:text-indigo-500 transition-colors">In Stock Only</span>
           </label>
         </div>
 
         <button (click)="applyFilters()"
-          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-slate-900 dark:text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20">
+          class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-all shadow-md shadow-indigo-500/20">
           Apply Filters
         </button>
       </div>
     </div>
 
     <!-- Main Content Area -->
-    <div class="flex-1 min-w-0">
+    <div class="flex-1 min-w-0 space-y-4">
       <!-- Toolbar -->
       <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/50 p-3 rounded-2xl border border-slate-200 dark:border-zinc-800/60 backdrop-blur-sm mb-6">
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900/50 p-3 rounded-2xl border border-slate-200 dark:border-zinc-800/60 backdrop-blur-sm">
         <!-- Search -->
         <div class="relative flex-1 max-w-md">
           <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 dark:text-zinc-500">
-            <span class="material-symbols-outlined !text-[20px]">search</span>
+            <span class="material-symbols-outlined !text-[18px]">search</span>
           </span>
           <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearch($event)"
-            placeholder="Search products..."
-            class="w-full pl-10 pr-4 py-2.5 bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl text-sm text-slate-900 dark:text-white placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" />
+            placeholder="Search products in catalog..."
+            class="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/50 rounded-xl text-xs text-slate-900 dark:text-white placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" />
         </div>
 
         <div class="flex items-center gap-2">
-          <!-- Sort -->
-          <select [ngModel]="sortBy()" (ngModelChange)="onSortChange($event)"
-            class="px-3 py-2.5 bg-slate-100 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700/50 rounded-xl text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-            <option value="latest">Latest</option>
-            <option value="price_asc">Price: Low → High</option>
-            <option value="price_desc">Price: High → Low</option>
-            <option value="name_asc">Name: A → Z</option>
-          </select>
+          <!-- Rich Sort Dropdown -->
+          <div class="relative flex items-center">
+            <span class="text-xs text-slate-400 dark:text-zinc-500 mr-2 font-bold hidden sm:inline">Sort:</span>
+            <select [ngModel]="sortBy()" (ngModelChange)="onSortChange($event)"
+              class="px-3 py-2 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/50 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              <option value="latest">Newest Arrivals</option>
+              <option value="popularity">Popular / Best Sellers</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+              <option value="rating_desc">Highest Rated</option>
+              <option value="discount_desc">Biggest Discount</option>
+              <option value="name_asc">Name: A → Z</option>
+            </select>
+          </div>
 
-          <!-- View toggle -->
-          <div class="hidden sm:flex items-center border border-slate-300 dark:border-zinc-700/50 rounded-xl overflow-hidden">
+          <!-- View Mode Toggle -->
+          <div class="hidden sm:flex items-center border border-slate-200 dark:border-zinc-700/50 rounded-xl overflow-hidden">
             <button (click)="viewMode.set('grid')"
-              [class]="viewMode() === 'grid' ? 'bg-indigo-600 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
-              class="w-10 h-10 flex items-center justify-center transition-colors">
-              <span class="material-symbols-outlined !text-[20px]">grid_view</span>
+              [class]="viewMode() === 'grid' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
+              class="w-8 h-8 flex items-center justify-center transition-colors">
+              <span class="material-symbols-outlined !text-[18px]">grid_view</span>
             </button>
             <button (click)="viewMode.set('list')"
-              [class]="viewMode() === 'list' ? 'bg-indigo-600 text-slate-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
-              class="w-10 h-10 flex items-center justify-center transition-colors">
-              <span class="material-symbols-outlined !text-[20px]">view_list</span>
+              [class]="viewMode() === 'list' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
+              class="w-8 h-8 flex items-center justify-center transition-colors">
+              <span class="material-symbols-outlined !text-[18px]">view_list</span>
             </button>
           </div>
         </div>
       </div>
 
+      <!-- Active Filter Tags -->
+      @if (activeFiltersCount() > 0) {
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <span class="text-xs font-bold text-slate-400 dark:text-zinc-500">Active Filters:</span>
+          @if (selectedCategory()) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+              Category: {{ selectedCategory()?.name }}
+              <button (click)="clearFilter('category')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+            </span>
+          }
+          @if (minPrice() !== null || maxPrice() !== null) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+              Price: {{ minPrice() || 0 }} - {{ maxPrice() || '∞' }}
+              <button (click)="clearFilter('price')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+            </span>
+          }
+          @if (minRating() !== null) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+              Rating: {{ minRating() }}★+
+              <button (click)="clearFilter('rating')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+            </span>
+          }
+          @if (inStockOnly()) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+              In Stock Only
+              <button (click)="clearFilter('stock')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+            </span>
+          }
+          @if (searchQuery()) {
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+              "{{ searchQuery() }}"
+              <button (click)="clearFilter('search')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+            </span>
+          }
+          <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:underline ml-1">Clear all</button>
+        </div>
+      }
+
       <!-- Product count -->
       @if (!isLoading()) {
-      <p class="text-sm text-slate-400 dark:text-zinc-500 font-medium">
+      <p class="text-xs text-slate-400 dark:text-zinc-500 font-medium">
         Showing <span class="text-slate-900 dark:text-white font-bold">{{ products().length }}</span> of <span
           class="text-slate-900 dark:text-white font-bold">{{ totalProducts() }}</span> products
       </p>

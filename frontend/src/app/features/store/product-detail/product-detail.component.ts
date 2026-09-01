@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { ProductService } from '../../../core/store/services/product.service';
@@ -32,7 +32,7 @@ export class ProductDetailComponent implements OnInit {
   metaService = inject(Meta);
 
   product = signal<Product | null>(null);
-  images = signal<{image_url: string}[]>([]);
+  images = signal<{ image_url: string }[]>([]);
   activeImage = signal<string | null>(null);
   reviews = signal<ProductReview[]>([]);
   avgRating = signal(0);
@@ -41,16 +41,54 @@ export class ProductDetailComponent implements OnInit {
   quantity = signal(1);
   isAdding = signal(false);
   addedSuccess = signal(false);
-  
+
   // Reviews state
   isReviewModalOpen = signal(false);
   newReviewRating = signal(0);
   hoverRating = signal(0);
   newReviewComment = signal('');
+  newReviewAuthor = signal('');
   isSubmittingReview = signal(false);
+  selectedReviewFilter = signal<number | null>(null);
+
+  // Sticky Mobile Bar State
+  showStickyBar = signal(false);
 
   // Bundle state
   isAddingBundle = signal(false);
+
+  // Computed Rating Breakdown (5 to 1 stars)
+  ratingBreakdown = computed(() => {
+    const list = this.reviews();
+    const total = list.length;
+    const counts: { [star: number]: { count: number, percent: number } } = {
+      5: { count: 0, percent: 0 },
+      4: { count: 0, percent: 0 },
+      3: { count: 0, percent: 0 },
+      2: { count: 0, percent: 0 },
+      1: { count: 0, percent: 0 },
+    };
+
+    if (total === 0) return counts;
+
+    list.forEach(r => {
+      const star = Math.min(5, Math.max(1, Math.round(r.rating)));
+      if (counts[star]) counts[star].count++;
+    });
+
+    for (let i = 1; i <= 5; i++) {
+      counts[i].percent = Math.round((counts[i].count / total) * 100);
+    }
+    return counts;
+  });
+
+  // Filtered reviews
+  filteredReviews = computed(() => {
+    const filter = this.selectedReviewFilter();
+    const list = this.reviews();
+    if (!filter) return list;
+    return list.filter(r => Math.round(r.rating) === filter);
+  });
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -60,7 +98,23 @@ export class ProductDetailComponent implements OnInit {
       }
     });
     this.recentlyViewedService.loadRecentlyViewed();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', this.onWindowScroll);
+    }
   }
+
+  ngOnDestroy() {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', this.onWindowScroll);
+    }
+  }
+
+  onWindowScroll = () => {
+    if (typeof window !== 'undefined') {
+      this.showStickyBar.set(window.scrollY > 350);
+    }
+  };
 
   loadProduct(id: string) {
     this.isLoading.set(true);
@@ -68,14 +122,14 @@ export class ProductDetailComponent implements OnInit {
       next: (res) => {
         this.product.set(res.product);
         this.images.set(res.images || []);
-        
+
         // Set active image (main product image or first gallery image)
         if (res.product.image_url) {
           this.activeImage.set(res.product.image_url);
         } else if (res.images && res.images.length > 0) {
           this.activeImage.set(res.images[0].image_url);
         }
-        
+
         this.reviews.set(res.reviews || []);
         this.avgRating.set(res.avg_rating || 0);
         this.relatedProducts.set(res.related_products || []);
@@ -90,7 +144,7 @@ export class ProductDetailComponent implements OnInit {
   updateSEO(product: Product) {
     this.titleService.setTitle(`${product.name} | Puxbay`);
     this.metaService.updateTag({ name: 'description', content: product.description || '' });
-    
+
     this.metaService.updateTag({ property: 'og:title', content: product.name });
     this.metaService.updateTag({ property: 'og:description', content: product.description || '' });
     if (product.image_url) {
@@ -164,7 +218,7 @@ export class ProductDetailComponent implements OnInit {
     if (!p || this.newReviewRating() === 0) return;
 
     this.isSubmittingReview.set(true);
-    
+
     // Using mock customer ID since we don't have auth state yet
     const reviewData = {
       customer_id: '123e4567-e89b-12d3-a456-426614174000',
@@ -176,7 +230,7 @@ export class ProductDetailComponent implements OnInit {
       next: (review) => {
         // Optimistically update the UI
         this.reviews.update(current => [review, ...current]);
-        
+
         // Recalculate average rating
         const currentReviews = this.reviews();
         const sum = currentReviews.reduce((acc, r) => acc + r.rating, 0);
@@ -197,11 +251,11 @@ export class ProductDetailComponent implements OnInit {
   addAllToCart() {
     const p = this.product();
     const related = this.relatedProducts();
-    
+
     if (!p || related.length === 0 || this.isAddingBundle()) return;
 
     this.isAddingBundle.set(true);
-    
+
     // Add current product
     this.cartService.addToCart({
       product_id: p.id,

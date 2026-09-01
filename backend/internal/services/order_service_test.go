@@ -29,7 +29,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 func TestOrderService_VoidOrder(t *testing.T) {
 	db := setupTestDB(t)
-	svc := services.NewOrderService(db, nil)
+	svc := services.NewOrderService(db, nil, uuid.Nil)
 
 	customerID := uuid.New()
 	db.Create(&models.Customer{
@@ -84,7 +84,7 @@ func TestOrderService_VoidOrder(t *testing.T) {
 
 func TestOrderService_CreateOrder_NegativeStockPrevention(t *testing.T) {
 	db := setupTestDB(t)
-	svc := services.NewOrderService(db, nil)
+	svc := services.NewOrderService(db, nil, uuid.Nil)
 
 	productID := uuid.New()
 	db.Create(&models.Product{

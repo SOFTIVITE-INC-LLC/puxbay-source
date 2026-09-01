@@ -211,3 +211,21 @@ func (s *SMSService) SendLoyaltyPointsEarned(db *gorm.DB, phone, customerName st
 		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
 	}()
 }
+
+// SendStorefrontOrderSMS sends order tracking code and status link via SMS
+func (s *SMSService) SendStorefrontOrderSMS(db *gorm.DB, phone, customerName, trackingCode string, total float64, storeName, trackURL string) {
+	if phone == "" {
+		return
+	}
+	if storeName == "" {
+		storeName = "Puxbay Store"
+	}
+	if customerName == "" {
+		customerName = "Valued Customer"
+	}
+	msg := fmt.Sprintf("Hi %s! Your order of GHS %.2f at %s has been received. Your 8-character tracking code is: %s. Track your order anytime: %s 📦", customerName, total, storeName, trackingCode, trackURL)
+	desc := fmt.Sprintf("Storefront Order Tracking SMS: %s", trackingCode)
+	go func() {
+		_ = s.SendTenantSMS(db, []string{phone}, msg, desc)
+	}()
+}

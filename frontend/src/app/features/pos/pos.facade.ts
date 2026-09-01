@@ -34,6 +34,7 @@ export class PosFacade {
 
   // --- UI STATE ---
   showCustomerDropdown = signal(false);
+  customerSearchQuery = signal('');
   isCheckoutModalOpen = signal(false);
   isSuccessModalOpen = signal(false);
   isMobileCartOpen = signal(false);
@@ -75,6 +76,16 @@ export class PosFacade {
   // --- DATA ---
   customers = this.customerService.customers;
   categories = this.categoryService.categories;
+
+  filteredCustomers = computed(() => {
+    const q = this.customerSearchQuery().toLowerCase().trim();
+    if (!q) return this.customers();
+    return this.customers().filter(c =>
+      c.name?.toLowerCase().includes(q) ||
+      c.phone?.toLowerCase().includes(q) ||
+      c.email?.toLowerCase().includes(q)
+    );
+  });
 
   constructor() {
     window.addEventListener('online', () => this.isOffline.set(false));
@@ -339,6 +350,7 @@ export class PosFacade {
   selectCustomer(c: Customer | null) {
     this.selectedCustomer.set(c);
     this.showCustomerDropdown.set(false);
+    this.customerSearchQuery.set('');
     // Mock loyalty logic: load points
     this.loyaltyPoints.set(c ? Math.floor(Math.random() * 50) + 10 : 0);
   }

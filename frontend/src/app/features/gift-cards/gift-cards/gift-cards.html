@@ -63,6 +63,11 @@
               @if (card.status === 'active') {
                 <button (click)="disableCard(card.id)" class="text-[10px] font-bold uppercase tracking-wider bg-black/10 px-3 py-1.5 rounded-lg hover:bg-black/20 backdrop-blur-sm transition-colors">Disable</button>
               }
+              @if (card.status === 'disabled') {
+                <button (click)="enableCard(card.id)" class="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-1">
+                  <span class="material-symbols-outlined !text-[12px]">check_circle</span> Enable
+                </button>
+              }
             </div>
           </div>
         </div>

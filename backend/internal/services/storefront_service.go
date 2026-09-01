@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -295,13 +296,17 @@ func (s *StorefrontService) GetProduct(id string) (*ProductDetail, error) {
 }
 
 func (s *StorefrontService) TrackOrder(orderNumber string) (*models.Order, error) {
-	if orderNumber == "" {
+	trimmed := strings.ToUpper(strings.TrimSpace(orderNumber))
+	if trimmed == "" {
 		return nil, errors.New("order_number is required")
 	}
 
 	var order models.Order
-	if err := s.db.Where("order_number = ?", orderNumber).
-		Preload("Items").First(&order).Error; err != nil {
+	if err := s.db.Where("UPPER(order_number) = ?", trimmed).
+		Preload("Items.Product").
+		Preload("Branch").
+		Preload("Customer").
+		First(&order).Error; err != nil {
 		return nil, errors.New("order not found")
 	}
 

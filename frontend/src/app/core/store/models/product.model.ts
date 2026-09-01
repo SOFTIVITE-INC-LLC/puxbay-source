@@ -31,6 +31,7 @@ export interface ProductReview {
   id: string;
   product_id: string;
   customer_id: string;
+  author?: string;
   rating: number;
   comment: string;
   is_visible: boolean;

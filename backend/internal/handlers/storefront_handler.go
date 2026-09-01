@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/rand"
+	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -28,10 +32,11 @@ type StorefrontAPIHandler struct {
 	authService *services.AuthService
 	paystackCfg *config.PaystackConfig
 	redis       *redis.Client
+	smsService  *services.SMSService
 }
 
-func NewStorefrontAPIHandler(db *gorm.DB, authService *services.AuthService, paystackCfg *config.PaystackConfig, rdb *redis.Client) *StorefrontAPIHandler {
-	return &StorefrontAPIHandler{db: db, authService: authService, paystackCfg: paystackCfg, redis: rdb}
+func NewStorefrontAPIHandler(db *gorm.DB, authService *services.AuthService, paystackCfg *config.PaystackConfig, rdb *redis.Client, sms *services.SMSService) *StorefrontAPIHandler {
+	return &StorefrontAPIHandler{db: db, authService: authService, paystackCfg: paystackCfg, redis: rdb, smsService: sms}
 }
 
 func (h *StorefrontAPIHandler) service(c *gin.Context) *services.StorefrontService {
@@ -336,18 +341,24 @@ func (h *StorefrontAPIHandler) GetProduct(c *gin.Context) {
 	})
 }
 
-// TrackOrder allows public order tracking.
+// TrackOrder allows public order tracking by 8-character tracking code.
 func (h *StorefrontAPIHandler) TrackOrder(c *gin.Context) {
 	orderNumber := c.Query("order_number")
+	if orderNumber == "" {
+		orderNumber = c.Query("code")
+	}
+	if orderNumber == "" {
+		orderNumber = c.Param("code")
+	}
 
 	order, err := h.service(c).TrackOrder(orderNumber)
 	if err != nil {
 		if err.Error() == "order_number is required" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Please enter a valid 8-character order tracking code."})
 			return
 		}
 		if err.Error() == "order not found" {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			c.JSON(http.StatusNotFound, gin.H{"error": "No order found matching tracking code '" + strings.ToUpper(strings.TrimSpace(orderNumber)) + "'."})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track order"})
@@ -355,11 +366,30 @@ func (h *StorefrontAPIHandler) TrackOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"order_number": order.OrderNumber,
-		"status":       order.Status,
-		"created_at":   order.CreatedAt,
-		"total_amount": order.Total,
-		"items":        order.Items,
+		"order": gin.H{
+			"order_number":   order.OrderNumber,
+			"tracking_code":  order.OrderNumber,
+			"status":         order.Status,
+			"payment_status": order.PaymentStatus,
+			"payment_method": order.PaymentMethod,
+			"order_type":     order.OrderType,
+			"created_at":     order.CreatedAt,
+			"updated_at":     order.UpdatedAt,
+			"subtotal":       order.Subtotal,
+			"total":          order.Total,
+			"total_amount":   order.Total,
+			"notes":          order.Notes,
+			"receipt_token":  order.ReceiptToken,
+			"branch":         order.Branch,
+			"customer":       order.Customer,
+			"items":          order.Items,
+		},
+		"order_number":  order.OrderNumber,
+		"tracking_code": order.OrderNumber,
+		"status":        order.Status,
+		"created_at":    order.CreatedAt,
+		"total_amount":  order.Total,
+		"items":         order.Items,
 	})
 }
 
@@ -724,6 +754,7 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 	}
 
 	// 2. Process Order
+	var orderNumber string
 	err := getDB(c, h.db).Transaction(func(tx *gorm.DB) error {
 		var customerID *uuid.UUID
 		if req.CustomerID != "" {
@@ -847,7 +878,8 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 			notes += "Notes: " + req.OrderNotes
 		}
 
-		order := models.Order{
+		var createdOrder models.Order
+		createdOrder = models.Order{
 			BranchScoped:  models.BranchScoped{BranchID: branchID},
 			OrderNumber:   generateOrderNumber(),
 			CustomerID:    customerID,
@@ -862,14 +894,43 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 			ReceiptToken:  generateReceiptToken(),
 			Items:         orderItems,
 		}
-		if err := tx.Create(&order).Error; err != nil {
+		if err := tx.Create(&createdOrder).Error; err != nil {
 			return err
+		}
+
+		// Dispatch SMS to customer with tracking code
+		if h.smsService != nil {
+			targetPhone := req.CustomerPhone
+			targetName := req.CustomerName
+			if targetPhone == "" && customerID != nil {
+				var cust models.Customer
+				if tx.First(&cust, "id = ?", customerID).Error == nil && cust.Phone != nil {
+					targetPhone = *cust.Phone
+					targetName = cust.Name
+				}
+			}
+			if targetPhone != "" {
+				scheme := "https"
+				if c.Request.TLS == nil && c.Request.Header.Get("X-Forwarded-Proto") != "https" {
+					scheme = "http"
+				}
+				trackURL := fmt.Sprintf("%s://%s/store/track-order?code=%s", scheme, c.Request.Host, createdOrder.OrderNumber)
+				var storeName string
+				var tenant models.Tenant
+				if tx.First(&tenant).Error == nil && tenant.Name != "" {
+					storeName = tenant.Name
+				} else {
+					storeName = "Store"
+				}
+				h.smsService.SendStorefrontOrderSMS(tx, targetPhone, targetName, createdOrder.OrderNumber, createdOrder.Total, storeName, trackURL)
+			}
 		}
 
 		if sessionID != "" {
 			tx.Model(&models.AbandonedCart{}).Where("email = ? OR email = ?", sessionID, req.CustomerID).Update("is_recovered", true)
 		}
 
+		orderNumber = createdOrder.OrderNumber
 		return nil
 	})
 
@@ -878,7 +939,12 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, gin.H{"status": "checkout_successful", "reference": req.Reference})
+	c.JSON(201, gin.H{
+		"status":        "checkout_successful",
+		"order_number":  orderNumber,
+		"tracking_code": orderNumber,
+		"reference":     req.Reference,
+	})
 }
 
 func (h *StorefrontAPIHandler) UpdateCartEmail(c *gin.Context) {
@@ -913,9 +979,17 @@ func (h *StorefrontAPIHandler) UpdateCartEmail(c *gin.Context) {
 }
 
 func generateOrderNumber() string {
-	b := make([]byte, 4)
-	rand.Read(b)
-	return fmt.Sprintf("ORD-%d-%s", time.Now().Unix(), hex.EncodeToString(b))
+	const charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 8)
+	for i := range b {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			b[i] = charset[i%len(charset)]
+		} else {
+			b[i] = charset[num.Int64()]
+		}
+	}
+	return string(b)
 }
 
 func generateReceiptToken() string {
@@ -1087,4 +1161,122 @@ func (h *StorefrontAPIHandler) ToggleCustomerWishlist(c *gin.Context) {
 		db.Delete(&wl)
 		c.JSON(http.StatusOK, gin.H{"status": "removed", "wishlist": wl})
 	}
+}
+
+// GetGoogleMerchantFeed generates an RSS 2.0 XML product feed for Google Merchant Center
+func (h *StorefrontAPIHandler) GetGoogleMerchantFeed(c *gin.Context) {
+	db := getDB(c, h.db)
+	var products []models.Product
+	if err := db.Where("is_active = ?", true).Preload("Category").Find(&products).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Failed to load products")
+		return
+	}
+
+	scheme := "https"
+	if c.Request.TLS == nil && c.Request.Header.Get("X-Forwarded-Proto") != "https" {
+		scheme = "http"
+	}
+	host := c.Request.Host
+
+	var xmlBuilder strings.Builder
+	xmlBuilder.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` + "\n")
+	xmlBuilder.WriteString(`<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">` + "\n")
+	xmlBuilder.WriteString("<channel>\n")
+	xmlBuilder.WriteString("<title>Puxbay Store Products</title>\n")
+	xmlBuilder.WriteString(fmt.Sprintf("<link>%s://%s/store</link>\n", scheme, host))
+	xmlBuilder.WriteString("<description>Product Catalog Feed for Google Merchant Center</description>\n")
+
+	for _, p := range products {
+		avail := "in_stock"
+		if p.CurrentStock <= 0 {
+			avail = "out_of_stock"
+		}
+		categoryName := ""
+		if p.Category != nil {
+			categoryName = p.Category.Name
+		}
+		imgLink := ""
+		if p.Image != nil && *p.Image != "" {
+			imgLink = *p.Image
+		} else {
+			imgLink = fmt.Sprintf("%s://%s/assets/placeholder.png", scheme, host)
+		}
+		productLink := fmt.Sprintf("%s://%s/store/product/%s", scheme, host, p.ID)
+
+		xmlBuilder.WriteString("<item>\n")
+		xmlBuilder.WriteString(fmt.Sprintf("<g:id>%s</g:id>\n", p.ID))
+		xmlBuilder.WriteString(fmt.Sprintf("<g:title><![CDATA[%s]]></g:title>\n", p.Name))
+		xmlBuilder.WriteString(fmt.Sprintf("<g:description><![CDATA[%s]]></g:description>\n", p.Description))
+		xmlBuilder.WriteString(fmt.Sprintf("<g:link>%s</g:link>\n", productLink))
+		xmlBuilder.WriteString(fmt.Sprintf("<g:image_link>%s</g:image_link>\n", imgLink))
+		xmlBuilder.WriteString("<g:condition>new</g:condition>\n")
+		xmlBuilder.WriteString(fmt.Sprintf("<g:availability>%s</g:availability>\n", avail))
+		xmlBuilder.WriteString(fmt.Sprintf("<g:price>%.2f GHS</g:price>\n", p.SellingPrice))
+		if categoryName != "" {
+			xmlBuilder.WriteString(fmt.Sprintf("<g:product_type><![CDATA[%s]]></g:product_type>\n", categoryName))
+		}
+		xmlBuilder.WriteString("<g:brand>Puxbay</g:brand>\n")
+		xmlBuilder.WriteString("</item>\n")
+	}
+
+	xmlBuilder.WriteString("</channel>\n")
+	xmlBuilder.WriteString("</rss>\n")
+
+	c.Data(http.StatusOK, "application/xml; charset=utf-8", []byte(xmlBuilder.String()))
+}
+
+// GetFacebookCatalogFeed generates a standard CSV product feed for Meta / Facebook Catalog
+func (h *StorefrontAPIHandler) GetFacebookCatalogFeed(c *gin.Context) {
+	db := getDB(c, h.db)
+	var products []models.Product
+	if err := db.Where("is_active = ?", true).Preload("Category").Find(&products).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Failed to load products")
+		return
+	}
+
+	scheme := "https"
+	if c.Request.TLS == nil && c.Request.Header.Get("X-Forwarded-Proto") != "https" {
+		scheme = "http"
+	}
+	host := c.Request.Host
+
+	b := &bytes.Buffer{}
+	w := csv.NewWriter(b)
+
+	// Write CSV Header
+	w.Write([]string{"id", "title", "description", "availability", "condition", "price", "link", "image_link", "brand", "product_type"})
+
+	for _, p := range products {
+		avail := "in stock"
+		if p.CurrentStock <= 0 {
+			avail = "out of stock"
+		}
+		categoryName := ""
+		if p.Category != nil {
+			categoryName = p.Category.Name
+		}
+		imgLink := ""
+		if p.Image != nil && *p.Image != "" {
+			imgLink = *p.Image
+		} else {
+			imgLink = fmt.Sprintf("%s://%s/assets/placeholder.png", scheme, host)
+		}
+		productLink := fmt.Sprintf("%s://%s/store/product/%s", scheme, host, p.ID)
+
+		w.Write([]string{
+			p.ID.String(),
+			p.Name,
+			p.Description,
+			avail,
+			"new",
+			fmt.Sprintf("%.2f GHS", p.SellingPrice),
+			productLink,
+			imgLink,
+			"Puxbay",
+			categoryName,
+		})
+	}
+	w.Flush()
+
+	c.Data(http.StatusOK, "text/csv; charset=utf-8", b.Bytes())
 }

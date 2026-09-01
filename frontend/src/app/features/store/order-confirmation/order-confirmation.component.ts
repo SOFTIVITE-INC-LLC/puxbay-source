@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StorefrontAuthService } from '../../../core/store/services/storefront-auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -13,17 +13,39 @@ import { SessionService } from '../../../core/store/services/session.service';
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './order-confirmation.component.html'
 })
-export class OrderConfirmationComponent {
+export class OrderConfirmationComponent implements OnInit {
   authService = inject(StorefrontAuthService);
   http = inject(HttpClient);
   toast = inject(ToastService);
   sessionService = inject(SessionService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
 
+  trackingCode = signal<string>('');
+  copied = signal(false);
   isGuest = signal(!this.authService.currentUser());
   name = signal('');
   password = signal('');
   isConverting = signal(false);
+
+  ngOnInit() {
+    this.route.queryParamMap.subscribe(params => {
+      const code = params.get('code') || params.get('order_number') || params.get('tracking_code');
+      if (code) {
+        this.trackingCode.set(code.toUpperCase());
+      }
+    });
+  }
+
+  copyCode() {
+    const code = this.trackingCode();
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
+      this.copied.set(true);
+      this.toast.show('Tracking code copied!', 'success');
+      setTimeout(() => this.copied.set(false), 2500);
+    });
+  }
 
   convertAccount() {
     if (!this.password() || !this.name() || this.isConverting()) return;

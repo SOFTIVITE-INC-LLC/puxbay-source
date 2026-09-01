@@ -189,17 +189,36 @@
       </div>
 
       <div *ngIf="facade.showCustomerDropdown()" class="absolute top-full left-5 right-5 mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-        <div class="max-h-60 overflow-y-auto">
+        <!-- Search Input -->
+        <div class="p-2.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-[18px]">search</span>
+            <input
+              type="text"
+              placeholder="Search by name, phone or email..."
+              [ngModel]="facade.customerSearchQuery()"
+              (ngModelChange)="facade.customerSearchQuery.set($event)"
+              (click)="$event.stopPropagation()"
+              class="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-400 dark:focus:border-indigo-500 transition-colors"
+              autofocus>
+          </div>
+        </div>
+        <div class="max-h-52 overflow-y-auto">
           <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700" (click)="facade.selectCustomer(null)">
             <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><span class="material-symbols-outlined text-sm text-slate-500">person_off</span></div>
             <span class="font-bold text-slate-700 dark:text-slate-300">Walk-in Customer</span>
           </div>
-          <div *ngFor="let c of facade.customers()" (click)="facade.selectCustomer(c)" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
-            <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center font-black">{{ c.name.charAt(0) }}</div>
-            <div class="flex flex-col">
-              <span class="font-bold text-sm text-slate-800 dark:text-slate-200">{{ c.name }}</span>
-              <span class="text-xs text-slate-500">{{ c.phone }}</span>
+          <div *ngFor="let c of facade.filteredCustomers()" (click)="facade.selectCustomer(c)" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
+            <div class="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0">{{ c.name.charAt(0) }}</div>
+            <div class="flex flex-col min-w-0">
+              <span class="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{{ c.name }}</span>
+              <span class="text-xs text-slate-500 truncate">{{ c.phone }}</span>
             </div>
+          </div>
+          <!-- Empty state -->
+          <div *ngIf="facade.filteredCustomers().length === 0" class="py-6 flex flex-col items-center gap-1.5 text-slate-400">
+            <span class="material-symbols-outlined !text-[28px]">person_search</span>
+            <span class="text-xs font-semibold">No customers found</span>
           </div>
         </div>
       </div>

@@ -99,6 +99,17 @@ export class SMSService {
     );
   }
 
+  deleteSenderID(id: string): Observable<any> {
+    return this.api.delete<any>(`/sms/sender-ids/${id}`).pipe(
+      tap(() => {
+        this.senderIDs.update(ids => ids.filter(s => s.id !== id));
+        if (this.activeSenderID()?.id === id) {
+          this.activeSenderID.set(null);
+        }
+      })
+    );
+  }
+
   initiateTopup(amount: number, email: string): Observable<any> {
     return this.api.post<any>('/sms/wallet/topup/initiate', { amount, email });
   }

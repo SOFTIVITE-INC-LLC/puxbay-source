@@ -38,11 +38,30 @@ export class CatalogComponent implements OnInit, OnDestroy {
   selectedCategoryId = signal<string | null>(null);
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
+  minRating = signal<number | null>(null);
   inStockOnly = signal(false);
   sortBy = signal<string>('latest');
   isLoading = signal(true);
   viewMode = signal<'grid' | 'list'>('grid');
   isFiltersOpen = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth > 768 : false);
+
+  // Selected Category computed
+  selectedCategory = computed(() => {
+    const id = this.selectedCategoryId();
+    if (!id) return null;
+    return this.categories().find(c => c.id === id) || null;
+  });
+
+  // Active filter count
+  activeFiltersCount = computed(() => {
+    let count = 0;
+    if (this.selectedCategoryId()) count++;
+    if (this.minPrice() !== null || this.maxPrice() !== null) count++;
+    if (this.inStockOnly()) count++;
+    if (this.minRating() !== null) count++;
+    if (this.searchQuery().trim()) count++;
+    return count;
+  });
 
   // Pagination
   currentPage = signal(1);
@@ -85,14 +104,17 @@ export class CatalogComponent implements OnInit, OnDestroy {
     const queryBranch = this.route.snapshot.queryParamMap.get('branch_id') || this.route.snapshot.queryParamMap.get('branchId');
     if (paramBranch) {
       this.branchId.set(paramBranch);
+      if (typeof window !== 'undefined') localStorage.setItem('store_branch_id', paramBranch);
     } else if (queryBranch) {
       this.branchId.set(queryBranch);
+      if (typeof window !== 'undefined') localStorage.setItem('store_branch_id', queryBranch);
     }
 
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const b = params.get('branchId');
       if (b && b !== this.branchId()) {
         this.branchId.set(b);
+        if (typeof window !== 'undefined') localStorage.setItem('store_branch_id', b);
         this.loadCategories();
         this.loadProducts();
       }
@@ -102,6 +124,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
       const b = qp.get('branch_id') || qp.get('branchId');
       if (b && b !== this.branchId()) {
         this.branchId.set(b);
+        if (typeof window !== 'undefined') localStorage.setItem('store_branch_id', b);
         this.loadCategories();
         this.loadProducts();
       }
@@ -245,10 +268,31 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
+  setPricePreset(min: number | null, max: number | null) {
+    this.minPrice.set(min);
+    this.maxPrice.set(max);
+    this.applyFilters();
+  }
+
+  setMinRating(rating: number | null) {
+    this.minRating.set(this.minRating() === rating ? null : rating);
+    this.applyFilters();
+  }
+
+  clearFilter(filter: 'category' | 'price' | 'stock' | 'rating' | 'search') {
+    if (filter === 'category') this.selectedCategoryId.set(null);
+    if (filter === 'price') { this.minPrice.set(null); this.maxPrice.set(null); }
+    if (filter === 'stock') this.inStockOnly.set(false);
+    if (filter === 'rating') this.minRating.set(null);
+    if (filter === 'search') this.searchQuery.set('');
+    this.applyFilters();
+  }
+
   resetFilters() {
     this.selectedCategoryId.set(null);
     this.minPrice.set(null);
     this.maxPrice.set(null);
+    this.minRating.set(null);
     this.inStockOnly.set(false);
     this.searchQuery.set('');
     this.sortBy.set('latest');

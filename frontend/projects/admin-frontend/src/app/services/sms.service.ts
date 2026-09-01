@@ -51,4 +51,8 @@ export class AdminSMSService {
   rejectSenderID(id: string, schema: string, reason: string): Observable<any> {
     return this.http.post<any>(`${this.base}/sender-ids/${id}/reject?schema=${schema}`, { reason });
   }
+
+  deleteSenderID(id: string, schema: string): Observable<any> {
+    return this.http.delete<any>(`${this.base}/sender-ids/${id}?schema=${schema}`);
+  }
 }
