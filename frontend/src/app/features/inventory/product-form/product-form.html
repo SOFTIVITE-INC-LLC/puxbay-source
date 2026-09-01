@@ -131,6 +131,8 @@
                   </p>
                 </div>
               </div>
+            </div>
+
             <!-- ── Storefront Gallery Images (Up to 5) ── -->
             <div class="pf-field-group">
               <div class="flex items-center justify-between">
@@ -253,57 +255,6 @@
               />
             </div>
 
-          </div>
-        </div>
-
-        <!-- ═══ STATUS & VISIBILITY (always visible, not in sidebar on mobile) ═══ -->
-        <div class="pf-panel lg:hidden">
-          <div class="pf-panel-header">
-            <div class="pf-panel-icon pf-icon-indigo">
-              <span class="material-symbols-outlined">toggle_on</span>
-            </div>
-            <div>
-              <h2 class="pf-panel-title">Status & Visibility</h2>
-              <p class="pf-panel-subtitle">Control product availability</p>
-            </div>
-          </div>
-          <div class="pf-toggle-list">
-            <button type="button" (click)="update('is_active', !form().is_active)" class="pf-toggle-row" id="toggle-active-mobile">
-              <div class="pf-toggle-icon" [class.pf-ticon-emerald]="form().is_active">
-                <span class="material-symbols-outlined" style="font-size:16px" [class.text-emerald-600]="form().is_active" [class.text-slate-400]="!form().is_active">check_circle</span>
-              </div>
-              <div class="pf-toggle-text">
-                <span class="pf-toggle-label">Active</span>
-                <span class="pf-toggle-desc">Available at POS &amp; orders</span>
-              </div>
-              <div class="pf-switch" [class.pf-switch-on]="form().is_active" [class.pf-switch-emerald]="form().is_active">
-                <span class="pf-switch-knob" [style.transform]="form().is_active ? 'translateX(20px)' : 'translateX(0)'"></span>
-              </div>
-            </button>
-            <button type="button" (click)="update('is_online', !form().is_online)" class="pf-toggle-row" id="toggle-online-mobile">
-              <div class="pf-toggle-icon" [class.pf-ticon-blue]="form().is_online">
-                <span class="material-symbols-outlined" style="font-size:16px" [class.text-blue-600]="form().is_online" [class.text-slate-400]="!form().is_online">storefront</span>
-              </div>
-              <div class="pf-toggle-text">
-                <span class="pf-toggle-label">Sell Online</span>
-                <span class="pf-toggle-desc">Show in Storefront</span>
-              </div>
-              <div class="pf-switch" [class.pf-switch-on]="form().is_online" [class.pf-switch-blue]="form().is_online">
-                <span class="pf-switch-knob" [style.transform]="form().is_online ? 'translateX(20px)' : 'translateX(0)'"></span>
-              </div>
-            </button>
-            <button type="button" (click)="update('track_inventory', !form().track_inventory)" class="pf-toggle-row" id="toggle-track-mobile">
-              <div class="pf-toggle-icon" [class.pf-ticon-purple]="form().track_inventory">
-                <span class="material-symbols-outlined" style="font-size:16px" [class.text-purple-600]="form().track_inventory" [class.text-slate-400]="!form().track_inventory">analytics</span>
-              </div>
-              <div class="pf-toggle-text">
-                <span class="pf-toggle-label">Track Inventory</span>
-                <span class="pf-toggle-desc">Monitor stock levels</span>
-              </div>
-              <div class="pf-switch" [class.pf-switch-on]="form().track_inventory" [class.pf-switch-purple]="form().track_inventory">
-                <span class="pf-switch-knob" [style.transform]="form().track_inventory ? 'translateX(20px)' : 'translateX(0)'"></span>
-              </div>
-            </button>
           </div>
         </div>
 
