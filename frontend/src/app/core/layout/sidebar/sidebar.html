@@ -17,8 +17,8 @@
       class="w-10 h-10 rounded-xl bg-white p-[2px] shadow-lg shadow-primary-500/20 flex-shrink-0 cursor-pointer hover:scale-105 transition-all flex items-center justify-center overflow-hidden"
       [class.mx-auto]="isCollapsed"
     >
-      @if (tenantLogo()) {
-        <img [src]="tenantLogo()" alt="Company Logo" class="w-full h-full object-contain rounded-lg" />
+      @if (tenantLogo() && !logoError()) {
+        <img [src]="tenantLogo() | imageUrl:false" (error)="logoError.set(true)" alt="Company Logo" class="w-full h-full object-contain rounded-lg" />
       } @else {
         <img src="/logo.png" alt="Puxbay Logo" class="w-full h-full object-cover rounded-xl" />
       }

@@ -1,15 +1,16 @@
-import { Component, Input, Output, EventEmitter, inject, computed, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BranchService } from '../../../core/services/branch.service';
 import { StorefrontSettingsService } from '../../store/services/storefront-settings.service';
 import { SettingsService } from '../../services/settings.service';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ImageUrlPipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -19,6 +20,8 @@ export class Sidebar implements OnInit {
   branchService = inject(BranchService);
   storefrontSettings = inject(StorefrontSettingsService);
   settingsService = inject(SettingsService);
+
+  logoError = signal(false);
 
   @Input() isCollapsed = false;
   @Input() storeName = 'Puxbay OS';

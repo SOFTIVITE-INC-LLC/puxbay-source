@@ -16,11 +16,12 @@ import { WelcomeDiscountComponent } from '../catalog/components/welcome-discount
 import { CurrencyService } from '../../../core/store/services/currency.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-store-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ToastComponent, FormsModule, SearchOverlayComponent, MiniCartComponent, SocialProofComponent, WelcomeDiscountComponent, AppCurrencyPipe],
+  imports: [CommonModule, RouterModule, ToastComponent, FormsModule, SearchOverlayComponent, MiniCartComponent, SocialProofComponent, WelcomeDiscountComponent, AppCurrencyPipe, ImageUrlPipe],
   templateUrl: './store-layout.component.html'
 })
 export class StoreLayoutComponent implements OnInit {

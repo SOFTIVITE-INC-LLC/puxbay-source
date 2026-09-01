@@ -10,7 +10,7 @@
       <!-- Logo -->
       <a routerLink="/store" class="flex items-center gap-2.5 group">
         @if (settingsService.settings()?.logo_image) {
-          <img [src]="settingsService.settings()!.logo_image" alt="Logo" class="w-9 h-9 object-contain rounded-lg">
+          <img [src]="settingsService.settings()!.logo_image | imageUrl:false" alt="Logo" class="w-9 h-9 object-contain rounded-lg">
         } @else {
           <div class="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <span class="material-symbols-outlined !text-[20px] text-slate-900 dark:text-white">storefront</span>
@@ -212,7 +212,7 @@
       <div class="sm:col-span-2 lg:col-span-2">
         <div class="flex items-center gap-3 mb-6">
           @if (settingsService.settings()?.logo_image) {
-            <img [src]="settingsService.settings()!.logo_image" alt="Logo" class="w-12 h-12 object-contain rounded-xl bg-white/5 p-1 border border-slate-200 dark:border-white/10 shadow-lg">
+            <img [src]="settingsService.settings()!.logo_image | imageUrl:false" alt="Logo" class="w-12 h-12 object-contain rounded-xl bg-white/5 p-1 border border-slate-200 dark:border-white/10 shadow-lg">
           } @else {
             <div class="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <span class="material-symbols-outlined !text-[24px] text-slate-900 dark:text-white">storefront</span>
