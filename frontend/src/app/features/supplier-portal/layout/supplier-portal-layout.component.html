@@ -4,7 +4,7 @@
   <div class="min-h-[100dvh] print:h-auto w-full flex print:block md:p-3 print:p-0 gap-2 md:gap-3 relative z-10">
     <!-- Deep background radial gradients -->
     <div class="fixed inset-0 pointer-events-none hidden dark:block"
-      style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
+      style="background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 60%), radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);">
     </div>
 
     <!-- ── Mobile Overlay ── -->
@@ -154,7 +154,7 @@
       </header>
 
       <!-- ── Content Panel (Floating Card with Light/Dark Background) ── -->
-      <main class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white/90 dark: dark:from-[#05070f]/90 dark:to-[#030408]/90 p-4 md:p-6 transition-all">
+      <main class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white/80 dark:bg-black/50 backdrop-blur-2xl p-4 md:p-6 transition-all">
         <router-outlet></router-outlet>
       </main>
 

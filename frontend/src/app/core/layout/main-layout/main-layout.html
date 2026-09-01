@@ -1,11 +1,9 @@
 <!-- Outer wrapper so flex gap doesn't apply to utility components -->
-<div class="relative w-full min-h-[100dvh] print:h-auto print:overflow-visible print:bg-white bg-slate-100 dark:bg-[#020307] text-slate-900 dark:text-white font-outfit">
-  
+<div
+  class="relative w-full min-h-[100dvh] print:h-auto print:overflow-visible print:bg-white bg-slate-100 dark:bg-[#020307] text-slate-900 dark:text-white font-outfit">
+
   <div class="min-h-[100dvh] print:h-auto w-full flex print:block md:p-3 print:p-0 gap-2 md:gap-3 relative z-10">
-    <!-- Deep background noise/texture layer -->
-    <div class="fixed inset-0 pointer-events-none hidden dark:block"
-      style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
-    </div>
+
 
     <!-- ── Overlay for mobile sidebar ── -->
     @if (!isSidebarCollapsed) {
@@ -17,7 +15,8 @@
     <div
       class="print:hidden flex-shrink-0 z-40 flex flex-col h-[calc(100dvh-24px)] fixed top-3 left-3 self-start rounded-2xl overflow-hidden shadow-xl dark:shadow-2xl dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-white/[0.06] md:sticky md:left-auto md:translate-x-0 transition-transform duration-300"
       [class.-translate-x-[120%]]="isSidebarCollapsed" [class.translate-x-0]="!isSidebarCollapsed">
-      <app-sidebar ngSkipHydration class="h-full" [isCollapsed]="isSidebarCollapsed" (toggleCollapse)="toggleSidebar()"></app-sidebar>
+      <app-sidebar ngSkipHydration class="h-full" [isCollapsed]="isSidebarCollapsed"
+        (toggleCollapse)="toggleSidebar()"></app-sidebar>
     </div>
 
     <!-- ── Main Area (Flex Column) ── -->
@@ -25,15 +24,17 @@
 
       <!-- Support Mode Banner -->
       @if (isImpersonating()) {
-        <div class="bg-rose-600 text-white px-4 py-2 text-sm font-bold flex justify-between items-center shrink-0 shadow-md z-50 rounded-2xl">
-          <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-[18px]">warning</span>
-            Support Mode: You are impersonating a tenant.
-          </div>
-          <button (click)="exitImpersonation()" class="px-3 py-1 bg-white text-rose-600 rounded-lg hover:bg-rose-50 transition shadow-sm text-xs cursor-pointer">
-            Exit Support Mode
-          </button>
+      <div
+        class="bg-rose-600 text-white px-4 py-2 text-sm font-bold flex justify-between items-center shrink-0 shadow-md z-50 rounded-2xl">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">warning</span>
+          Support Mode: You are impersonating a tenant.
         </div>
+        <button (click)="exitImpersonation()"
+          class="px-3 py-1 bg-white text-rose-600 rounded-lg hover:bg-rose-50 transition shadow-sm text-xs cursor-pointer">
+          Exit Support Mode
+        </button>
+      </div>
       }
 
       <!-- ── Topbar (Floating Panel, sticky) ── -->
@@ -44,7 +45,7 @@
 
       <!-- ── Content ── -->
       <main
-        class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white dark: dark:from-[#05070f]/90 dark:to-[#030408]/90">
+        class="print:block print:overflow-visible print:shadow-none print:ring-0 print:rounded-none print:bg-white print:p-0 flex-1 min-h-0 overflow-y-auto rounded-2xl relative ring-1 ring-slate-200 dark:ring-white/[0.05] shadow-sm dark:shadow-xl dark:shadow-black/30 bg-white/70 dark:bg-black/40 backdrop-blur-2xl">
         <div class="w-full min-h-full print:min-h-0">
           <router-outlet></router-outlet>
         </div>

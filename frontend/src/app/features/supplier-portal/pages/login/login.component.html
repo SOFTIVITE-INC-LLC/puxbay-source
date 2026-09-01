@@ -1,14 +1,13 @@
-<div class="min-h-screen bg-slate-100 dark:bg-[#020307] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative font-outfit overflow-hidden">
-  
-  <!-- Deep Background Glows matching Admin Login -->
-  <div class="fixed inset-0 pointer-events-none"
-    style="background: transparent 0%, transparent 60%), none 0%, transparent 55%), none 0%, transparent 50%);">
-  </div>
+<div
+  class="min-h-screen bg-slate-100 dark:bg-[#020307] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative font-outfit overflow-hidden">
+
+
 
   <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
     <div class="flex justify-center mb-5">
       <div class="w-14 h-14 rounded-2xl bg-indigo-500 p-[2px] shadow-xl shadow-indigo-500/25">
-        <div class="w-full h-full bg-white dark:bg-[#080c16] rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-2xl">
+        <div
+          class="w-full h-full bg-white dark:bg-[#080c16] rounded-[14px] flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-2xl">
           P
         </div>
       </div>
@@ -25,10 +24,16 @@
     <div class="glass-panel py-8 px-6 sm:px-10 rounded-3xl shadow-2xl">
       <form class="space-y-5" (ngSubmit)="onSubmit()">
         <div>
-          <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Email address</label>
+          <label for="email"
+            class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Email
+            address</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+            <div
+              class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+              </svg>
             </div>
             <input id="email" name="email" type="email" autocomplete="email" required [(ngModel)]="email"
               class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
@@ -37,12 +42,18 @@
         </div>
 
         <div>
-          <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Password</label>
+          <label for="password"
+            class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-1.5">Password</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <div
+              class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
-            <input id="password" name="password" type="password" autocomplete="current-password" required [(ngModel)]="password"
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+              [(ngModel)]="password"
               class="block w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
               placeholder="••••••••">
           </div>
