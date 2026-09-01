@@ -55,7 +55,7 @@ export class Dashboard implements OnInit {
       { label: 'Orders', icon: 'receipt_long', route: '/orders', color: 'bg-primary-700', roles: ['admin', 'manager', 'cashier'] },
       { label: 'Products', icon: 'inventory_2', route: '/inventory', color: 'bg-puxbay-deep', roles: ['admin', 'manager'] },
       { label: 'Customers', icon: 'group', route: '/customers', color: 'bg-primary-500', roles: ['admin', 'manager', 'cashier'] },
-      { label: 'Purchase Orders', icon: 'contract', route: '/purchase-orders', color: 'bg-puxbay-navy', roles: ['admin', 'manager'] },
+      { label: 'Purchase Orders', icon: 'contract', route: '/inventory/supply-chain', color: 'bg-puxbay-navy', roles: ['admin', 'manager'] },
       { label: 'Reports', icon: 'insert_chart', route: '/reports', color: 'bg-primary-600', roles: ['admin', 'manager'] },
     ];
     return actions.filter(a => a.roles.includes(role || ''));

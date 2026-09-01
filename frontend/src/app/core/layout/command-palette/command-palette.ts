@@ -28,7 +28,7 @@ export class CommandPalette {
     { name: 'Dashboard', description: 'View your business overview', icon: 'dashboard', route: '/dashboard', category: 'Navigation' },
     { name: 'Orders', description: 'Manage all customer orders', icon: 'receipt_long', route: '/orders', category: 'Navigation' },
     { name: 'Inventory', description: 'Track products and stock levels', icon: 'inventory_2', route: '/inventory', category: 'Navigation' },
-    { name: 'Purchase Orders', description: 'Manage supplier orders', icon: 'local_shipping', route: '/purchase-orders', category: 'Navigation' },
+    { name: 'Purchase Orders', description: 'Manage supplier orders', icon: 'local_shipping', route: '/inventory/supply-chain', category: 'Navigation' },
     { name: 'Customers', description: 'CRM and customer management', icon: 'group', route: '/customers', category: 'Navigation' },
     { name: 'Financial', description: 'Revenue, expenses, and accounting', icon: 'account_balance', route: '/financial', category: 'Navigation' },
     { name: 'Staff & HR', description: 'Manage your team and payroll', icon: 'badge', route: '/hr', category: 'Navigation' },

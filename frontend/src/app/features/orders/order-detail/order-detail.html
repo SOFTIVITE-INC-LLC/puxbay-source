@@ -19,37 +19,23 @@
   @else if (order()) {
 
     <!-- ═══ HERO HEADER ═══ -->
-    <div class="relative overflow-hidden bg-zinc-950 dark:bg-[#02040a]">
-
-      <!-- Ambient glow based on status -->
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[80px] opacity-30 transition-colors duration-700"
-             [ngClass]="{
-               'bg-emerald-500': order()!.status === 'completed',
-               'bg-amber-400': order()!.status === 'pending',
-               'bg-zinc-600': order()!.status === 'cancelled' || order()!.status === 'voided',
-               'bg-indigo-500': !['completed','pending','cancelled','voided'].includes(order()!.status || '')
-             }"></div>
-        <!-- Grid pattern overlay -->
-        <div class="absolute inset-0 opacity-[0.03]"
-             style="background: #005b96 1px, transparent 1px), #005b96 1px, transparent 1px); background-size: 40px 40px;"></div>
-      </div>
+    <div class="relative overflow-hidden bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800">
 
       <!-- ── Nav row ── -->
       <div class="relative z-10 flex items-center justify-between px-4 md:px-8 pt-5 pb-0">
-        <button (click)="goBack()" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors font-semibold text-sm">
+        <button (click)="goBack()" class="flex items-center gap-2 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors font-semibold text-sm">
           <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
           <span class="hidden sm:inline text-xs uppercase tracking-widest">Orders</span>
         </button>
 
         <div class="flex items-center gap-2">
-          <button (click)="printReceipt()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-all whitespace-nowrap">
+          <button (click)="printReceipt()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-all whitespace-nowrap">
             <span class="material-symbols-outlined !text-[14px]">print</span>
             <span class="hidden sm:inline">Print</span>
           </button>
 
           @if (order()!.status === 'completed') {
-            <button (click)="quickReturn()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 transition-all whitespace-nowrap">
+            <button (click)="quickReturn()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-all whitespace-nowrap">
               <span class="material-symbols-outlined !text-[14px]">assignment_return</span>
               <span class="hidden sm:inline">Return</span>
             </button>
@@ -96,13 +82,13 @@
               </span>
               <span class="text-xs font-black uppercase tracking-widest"
                     [ngClass]="{
-                      'text-emerald-400': order()!.status === 'completed',
-                      'text-amber-400': order()!.status === 'pending',
-                      'text-zinc-400': order()!.status === 'cancelled' || order()!.status === 'voided'
+                      'text-emerald-500': order()!.status === 'completed',
+                      'text-amber-500': order()!.status === 'pending',
+                      'text-slate-400 dark:text-zinc-400': order()!.status === 'cancelled' || order()!.status === 'voided'
                     }">{{ order()!.status }}</span>
-              <span class="text-zinc-700 text-xs">·</span>
+              <span class="text-slate-300 dark:text-zinc-700 text-xs">·</span>
               <!-- Fulfillment type inline -->
-              <span class="text-zinc-400 text-xs font-semibold flex items-center gap-1">
+              <span class="text-slate-500 dark:text-zinc-400 text-xs font-semibold flex items-center gap-1">
                 <span class="material-symbols-outlined !text-[13px]">{{ order()!.order_type === 'delivery' ? 'local_shipping' : order()!.order_type === 'pickup' ? 'storefront' : 'shopping_bag' }}</span>
                 {{ order()!.order_type === 'delivery' ? 'Delivery' : order()!.order_type === 'pickup' ? 'Pickup' : order()!.order_type === 'in_store' ? 'In-Store' : (order()!.order_type | titlecase) }}
               </span>
@@ -110,11 +96,11 @@
 
             <!-- Order number -->
             <div>
-              <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tighter font-mono leading-none">#{{ order()!.order_number }}</h1>
-              <p class="text-zinc-500 text-sm mt-3 flex items-center gap-1.5 font-medium">
+              <h1 class="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tighter font-mono leading-none">#{{ order()!.order_number }}</h1>
+              <p class="text-slate-500 dark:text-zinc-500 text-sm mt-3 flex items-center gap-1.5 font-medium">
                 <span class="material-symbols-outlined !text-[14px]">calendar_month</span>
                 {{ order()!.created_at | date:'EEEE, MMMM d, y' }}
-                <span class="text-zinc-700">·</span>
+                <span class="text-slate-300 dark:text-zinc-700">·</span>
                 <span class="material-symbols-outlined !text-[14px]">schedule</span>
                 {{ order()!.created_at | date:'h:mm a' }}
               </p>
@@ -122,57 +108,48 @@
 
             <!-- Metadata tags -->
             <div class="flex flex-wrap items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-zinc-300">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300">
                 <span class="material-symbols-outlined !text-[12px] text-blue-400">payments</span>
                 {{ order()!.payment_method | uppercase }}
               </span>
               @if (order()!.items?.length) {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-zinc-300">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300">
                   <span class="material-symbols-outlined !text-[12px] text-violet-400">inventory_2</span>
                   {{ order()!.items!.length }} {{ order()!.items!.length === 1 ? 'item' : 'items' }}
                 </span>
               }
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/5 border border-white/10 text-zinc-300">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300">
                 <span class="material-symbols-outlined !text-[12px] text-amber-400">person</span>
                 {{ getCustomerName(order()) }}
               </span>
             </div>
           </div>
 
-          <!-- Right: Total card (glassmorphic) -->
+          <!-- Right: Total card -->
           <div class="relative shrink-0 lg:min-w-[280px]">
-            <!-- Card glow -->
-            <div class="absolute -inset-4 rounded-3xl opacity-20 blur-2xl transition-colors"
-                 [ngClass]="{
-                   'bg-emerald-500': order()!.status === 'completed',
-                   'bg-amber-400': order()!.status === 'pending',
-                   'bg-zinc-600': order()!.status === 'cancelled' || order()!.status === 'voided',
-                   'bg-indigo-500': !['completed','pending','cancelled','voided'].includes(order()!.status || '')
-                 }"></div>
-
-            <div class="relative bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-4">
+            <div class="relative bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/50 rounded-2xl p-6 space-y-4">
               <!-- Total amount -->
               <div>
-                <p class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2">Grand Total</p>
-                <p class="font-black text-white leading-none tracking-tighter"
+                <p class="text-slate-500 dark:text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2">Grand Total</p>
+                <p class="font-black text-slate-900 dark:text-white leading-none tracking-tighter"
                    style="font-size: clamp(2rem, 5vw, 3.5rem)">{{ (order()?.total || 0) | appCurrency }}</p>
               </div>
 
               <!-- Divider -->
-              <div class="h-px bg-white/10"></div>
+              <div class="h-px bg-slate-200 dark:bg-white/10"></div>
 
               <!-- Breakdown row -->
               <div class="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <p class="text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Subtotal</p>
-                  <p class="text-zinc-200 text-sm font-bold">{{ order()!.subtotal | appCurrency }}</p>
+                  <p class="text-slate-500 dark:text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Subtotal</p>
+                  <p class="text-slate-800 dark:text-zinc-200 text-sm font-bold">{{ order()!.subtotal | appCurrency }}</p>
                 </div>
                 <div>
-                  <p class="text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Tax</p>
-                  <p class="text-zinc-200 text-sm font-bold">{{ order()!.tax | appCurrency }}</p>
+                  <p class="text-slate-500 dark:text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Tax</p>
+                  <p class="text-slate-800 dark:text-zinc-200 text-sm font-bold">{{ order()!.tax | appCurrency }}</p>
                 </div>
                 <div>
-                  <p class="text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Paid</p>
+                  <p class="text-slate-500 dark:text-zinc-600 text-[9px] font-black uppercase tracking-widest mb-1">Paid</p>
                   <p class="font-bold text-sm"
                      [ngClass]="{
                        'text-emerald-400': (order()!.amount_paid || 0) >= (order()?.total || 0),
@@ -193,8 +170,8 @@
         </div>
       </div>
 
-      <!-- Bottom fade into page bg -->
-      <div class="h-8 bg-transparent dark:to-[#05070f]"></div>
+      <!-- Bottom separator -->
+      <div class="h-2 bg-slate-100 dark:bg-zinc-950/50"></div>
     </div>
 
     <!-- ═══ BODY ═══ -->

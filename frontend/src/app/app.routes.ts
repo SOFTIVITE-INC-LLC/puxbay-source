@@ -178,7 +178,13 @@ export const routes: Routes = [
       },
       {
         path: 'inventory/purchase-orders',
-        loadComponent: () => import('./features/inventory/purchase-orders/purchase-orders').then(m => m.PurchaseOrders)
+        redirectTo: 'inventory/supply-chain',
+        pathMatch: 'full'
+      },
+      {
+        path: 'purchase-orders',
+        redirectTo: 'inventory/supply-chain',
+        pathMatch: 'full'
       },
       {
         path: 'financial',
