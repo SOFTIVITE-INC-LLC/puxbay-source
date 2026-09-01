@@ -61,6 +61,8 @@ type ProductCreateInput struct {
 	Description    string
 	SKU            string
 	Barcode        string
+	Image          *string
+	ImageURL       *string
 	CategoryID     *string
 	CostPrice      float64
 	SellingPrice   float64
@@ -107,6 +109,14 @@ func (s *ProductService) CreateProduct(input ProductCreateInput) (*models.Produc
 		ManufacturerAddress:      input.ManufacturerAddress,
 		IsActive:                 true,
 		IsOnline:                 false,
+	}
+
+	if input.Image != nil && *input.Image != "" {
+		product.Image = input.Image
+		product.ImageURL = input.Image
+	} else if input.ImageURL != nil && *input.ImageURL != "" {
+		product.Image = input.ImageURL
+		product.ImageURL = input.ImageURL
 	}
 
 	if input.IsActive != nil {
@@ -227,6 +237,14 @@ func (s *ProductService) UpdateProduct(id string, input ProductCreateInput) (*mo
 	}
 	if input.Barcode != "" {
 		product.Barcode = &input.Barcode
+	}
+
+	if input.Image != nil && *input.Image != "" {
+		product.Image = input.Image
+		product.ImageURL = input.Image
+	} else if input.ImageURL != nil && *input.ImageURL != "" {
+		product.Image = input.ImageURL
+		product.ImageURL = input.ImageURL
 	}
 
 	if input.CategoryID != nil && *input.CategoryID != "" {

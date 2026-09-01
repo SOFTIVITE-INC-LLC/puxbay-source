@@ -125,6 +125,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	reportService := services.NewReportService(db, cfg.SMTP)
 	reportScheduleHandler := handlers.NewReportScheduleHandler(db, reportService, emailService)
 	smsHandler := handlers.NewSMSHandler(db, &cfg.Paystack)
+	uploadHandler := handlers.NewUploadHandler()
+
+	// Static file serving for uploads (logos, product images, banners)
+	r.Static("/uploads", "./uploads")
+
 	// ──────────────────────────────────────────────
 	// Health Check Endpoints (no auth required)
 	// ──────────────────────────────────────────────
@@ -700,6 +705,8 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			// Settings / Domains
 			api.GET("/settings", settingsHandler.GetSettings)
 			api.PUT("/settings", settingsHandler.UpdateSettings)
+			api.POST("/upload", uploadHandler.UploadImage)
+			api.POST("/upload/image", uploadHandler.UploadImage)
 			api.GET("/settings/domains", adminHandler.ListDomains)
 			api.POST("/settings/domains", adminHandler.CreateDomain)
 			api.DELETE("/settings/domains/:id", adminHandler.DeleteDomain)

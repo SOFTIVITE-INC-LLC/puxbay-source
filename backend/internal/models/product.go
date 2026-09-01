@@ -60,7 +60,8 @@ type Product struct {
 	IsActive    bool    `gorm:"default:true;index" json:"is_active"`
 	IsOnline    bool    `gorm:"default:true;index" json:"is_online"` // Sell online
 	Version     int     `gorm:"default:1" json:"version"`            // Optimistic Locking
-	Image       *string `gorm:"size:255" json:"image,omitempty"`
+	Image       *string `gorm:"size:512" json:"image,omitempty"`
+	ImageURL    *string `gorm:"size:512" json:"image_url,omitempty"`
 
 	SupplierID *uuid.UUID `gorm:"type:uuid;index" json:"supplier_id,omitempty"`
 	Supplier   *Supplier  `gorm:"foreignKey:SupplierID" json:"supplier,omitempty"`
@@ -80,7 +81,14 @@ type Product struct {
 }
 
 func (p *Product) AfterFind(tx *gorm.DB) (err error) {
+	if (p.ImageURL == nil || *p.ImageURL == "") && (p.Image != nil && *p.Image != "") {
+		p.ImageURL = p.Image
+	}
+	if (p.Image == nil || *p.Image == "") && (p.ImageURL != nil && *p.ImageURL != "") {
+		p.Image = p.ImageURL
+	}
 	prependCDN(p.Image)
+	prependCDN(p.ImageURL)
 	return
 }
 

@@ -57,6 +57,8 @@ type ProductCreateRequest struct {
 	Description    string  `json:"description"`
 	SKU            string  `json:"sku" binding:"required"`
 	Barcode        string  `json:"barcode"`
+	Image          *string `json:"image"`
+	ImageURL       *string `json:"image_url"`
 	CategoryID     *string `json:"category_id"`
 	CostPrice      float64 `json:"cost_price"`
 	SellingPrice   float64 `json:"selling_price" binding:"required"`
@@ -91,11 +93,18 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		branchID = &strID
 	}
 
+	img := req.Image
+	if img == nil || *img == "" {
+		img = req.ImageURL
+	}
+
 	input := services.ProductCreateInput{
 		Name:                     req.Name,
 		Description:              req.Description,
 		SKU:                      req.SKU,
 		Barcode:                  req.Barcode,
+		Image:                    img,
+		ImageURL:                 img,
 		CategoryID:               req.CategoryID,
 		CostPrice:                req.CostPrice,
 		SellingPrice:             req.SellingPrice,
@@ -160,22 +169,37 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		branchID = &strID
 	}
 
+	img := req.Image
+	if img == nil || *img == "" {
+		img = req.ImageURL
+	}
+
 	input := services.ProductCreateInput{
-		Name:           req.Name,
-		Description:    req.Description,
-		SKU:            req.SKU,
-		Barcode:        req.Barcode,
-		CategoryID:     req.CategoryID,
-		CostPrice:      req.CostPrice,
-		SellingPrice:   req.SellingPrice,
-		WholesalePrice: req.WholesalePrice,
-		TrackInventory: req.TrackInventory,
-		CurrentStock:   req.CurrentStock,
-		ReorderLevel:   req.ReorderLevel,
-		StockUnit:      req.StockUnit,
-		IsActive:       req.IsActive,
-		IsOnline:       req.IsOnline,
-		BranchID:       branchID,
+		Name:                     req.Name,
+		Description:              req.Description,
+		SKU:                      req.SKU,
+		Barcode:                  req.Barcode,
+		Image:                    img,
+		ImageURL:                 img,
+		CategoryID:               req.CategoryID,
+		CostPrice:                req.CostPrice,
+		SellingPrice:             req.SellingPrice,
+		WholesalePrice:           req.WholesalePrice,
+		TrackInventory:           req.TrackInventory,
+		CurrentStock:             req.CurrentStock,
+		ReorderLevel:             req.ReorderLevel,
+		StockUnit:                req.StockUnit,
+		IsActive:                 req.IsActive,
+		IsOnline:                 req.IsOnline,
+		BranchID:                 branchID,
+		ExpiryDate:               req.ExpiryDate,
+		ManufacturingDate:        req.ManufacturingDate,
+		MinimumWholesaleQuantity: req.MinimumWholesaleQuantity,
+		BatchNumber:              req.BatchNumber,
+		InvoiceWaybillNumber:     req.InvoiceWaybillNumber,
+		CountryOfOrigin:          req.CountryOfOrigin,
+		ManufacturerName:         req.ManufacturerName,
+		ManufacturerAddress:      req.ManufacturerAddress,
 	}
 
 	product, err := h.service(c).UpdateProduct(id, input)

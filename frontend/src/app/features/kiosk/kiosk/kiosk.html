@@ -218,10 +218,17 @@
   <!-- ── Kiosk Header ── -->
   <header class="relative z-10 h-16 md:h-22 bg-black/30 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-4 md:px-10 shrink-0">
     <div class="flex items-center gap-3 md:gap-4">
-      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center">
-        <span class="material-symbols-outlined !text-[18px] md:!text-[22px]">restaurant</span>
+      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center overflow-hidden">
+        @if ($any(storefrontService.settings())?.logo_image) {
+          <img [src]="$any(storefrontService.settings())?.logo_image" class="w-full h-full object-contain p-1 rounded-xl" />
+        } @else {
+          <span class="material-symbols-outlined !text-[18px] md:!text-[22px]">restaurant</span>
+        }
       </div>
-      <h1 class="text-lg md:text-3xl font-black tracking-tight line-clamp-1">{{ $any(storefrontService.settings())?.store_name || 'Self-Service Kiosk' }}</h1>
+      <div>
+        <h1 class="text-lg md:text-3xl font-black tracking-tight line-clamp-1 leading-none">{{ $any(storefrontService.settings())?.store_name || 'Self-Service Kiosk' }}</h1>
+        <span class="text-[9px] md:text-xs font-bold text-white/50 tracking-tight">Powered by PUXBAY</span>
+      </div>
     </div>
     <div class="flex items-center gap-2 md:gap-4">
       <button (click)="startOver()" class="px-4 py-2 md:px-7 md:py-3 rounded-xl md:rounded-2xl bg-white/10 text-sm md:text-lg font-bold hover:bg-white/20 transition-colors active:scale-95">

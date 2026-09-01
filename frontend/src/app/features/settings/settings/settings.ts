@@ -38,6 +38,15 @@ export class Settings implements OnInit {
   activeTab = signal('store');
   domains = signal<any[]>([]);
   newDomainName = signal('');
+  isUploadingLogo = signal(false);
+
+  get config(): any {
+    return this.settingsService.settings() || {};
+  }
+
+  get storefrontConfig(): any {
+    return this.storefrontService.settings() || {};
+  }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -79,11 +88,57 @@ export class Settings implements OnInit {
     }
   }
 
-  saveSettings() {
-    const s = this.settingsService.settings();
+  onLogoFileSelected(event: any) {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    this.isUploadingLogo.set(true);
+    this.settingsService.uploadImage(file, 'logo').subscribe({
+      next: (res) => {
+        this.isUploadingLogo.set(false);
+        const url = res.url;
+        this.config.logo_url = url;
+
+        // Also update storefront settings signal
+        this.storefrontService.settings.update(s => s ? { ...s, logo_image: url } : { logo_image: url });
+
+        // Save immediately
+        this.saveAllStoreSettings();
+        this.toastService.showSuccess('Logo uploaded and applied across the system!');
+      },
+      error: (err) => {
+        this.isUploadingLogo.set(false);
+        this.alertService.alert(err.error?.error || 'Failed to upload logo', 'Upload Error', 'danger');
+      }
+    });
+  }
+
+  removeLogo() {
+    this.config.logo_url = '';
+    this.storefrontService.settings.update(s => s ? { ...s, logo_image: '' } : { logo_image: '' });
+    this.saveAllStoreSettings();
+    this.toastService.showInfo('Logo removed.');
+  }
+
+  saveAllStoreSettings() {
+    const s = this.config;
     if (s) {
-      this.settingsService.updateSettings(s).subscribe(() => this.toastService.showSuccess('Settings Saved!'));
+      if (s.company_name) {
+        s.store_name = s.company_name;
+        this.storefrontService.settings.update(sf => sf ? { ...sf, store_name: s.company_name, logo_image: s.logo_url } : { store_name: s.company_name, logo_image: s.logo_url });
+      }
+      this.settingsService.updateSettings(s).subscribe(() => {
+        const sf = this.storefrontService.settings();
+        if (sf) {
+          this.storefrontService.updateSettings(sf).subscribe();
+        }
+        this.toastService.showSuccess('Store Details Saved Successfully!');
+      });
     }
+  }
+
+  saveSettings() {
+    this.saveAllStoreSettings();
   }
 
   saveStorefrontSettings() {

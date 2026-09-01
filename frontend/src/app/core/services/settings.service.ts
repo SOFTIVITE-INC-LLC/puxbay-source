@@ -4,6 +4,9 @@ import { Observable, tap } from 'rxjs';
 import { BranchService } from './branch.service';
 
 export interface GlobalSettings {
+  company_name?: string;
+  store_name?: string;
+  logo_url?: string;
   currency: string;
   timezone: string;
   date_format: string;
@@ -74,5 +77,11 @@ export class SettingsService {
         }
       })
     );
+  }
+
+  uploadImage(file: File, type: string = 'logo'): Observable<{ url: string; filename: string; size: number }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.api.post<{ url: string; filename: string; size: number }>(`/upload?type=${type}`, formData);
   }
 }

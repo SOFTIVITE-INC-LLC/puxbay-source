@@ -8,6 +8,9 @@ import { CatalogService } from '../../../core/services/catalog.service';
 import { Product } from '../../../core/models/models';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { SettingsService } from '../../../core/services/settings.service';
+import { AlertService } from '../../../core/services/alert.service';
+
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
 
 @Component({
   selector: 'app-product-form',
@@ -19,6 +22,7 @@ export class ProductForm implements OnInit, OnDestroy {
   toastService = inject(ToastService);
   catalogService = inject(CatalogService);
   settingsService = inject(SettingsService);
+  alertService = inject(AlertService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -26,6 +30,7 @@ export class ProductForm implements OnInit, OnDestroy {
 
   isEditing = signal(false);
   isSaving = signal(false);
+  isUploadingImage = signal(false);
   productId = signal<string | null>(null);
   activeTab: 'basic' | 'pricing' | 'inventory' | 'details' = 'basic';
 
@@ -86,6 +91,47 @@ export class ProductForm implements OnInit, OnDestroy {
 
   get breadcrumb() {
     return this.isEditing() ? 'Edit' : 'Add';
+  }
+
+  /** Returns the current product image URL for preview */
+  get currentImage(): string | null {
+    const f = this.form() as any;
+    return f.image_url || f.image || null;
+  }
+
+  onImageFileSelected(event: any) {
+    const file: File = event.target?.files?.[0];
+    if (!file) return;
+
+    // Client-side 2 MB guard for instant feedback
+    if (file.size > MAX_IMAGE_BYTES) {
+      this.alertService.alert(
+        `Image is too large (${(file.size / 1024 / 1024).toFixed(2)} MB). Maximum allowed size is 2 MB.`,
+        'File Too Large',
+        'danger'
+      );
+      event.target.value = '';
+      return;
+    }
+
+    this.isUploadingImage.set(true);
+    this.settingsService.uploadImage(file, 'product').subscribe({
+      next: (res) => {
+        this.isUploadingImage.set(false);
+        this.form.update(f => ({ ...f, image_url: res.url, image: res.url }));
+        this.toastService.showSuccess('Product image uploaded!');
+      },
+      error: (err) => {
+        this.isUploadingImage.set(false);
+        const msg = err?.error?.error || 'Failed to upload image';
+        this.alertService.alert(msg, 'Upload Error', 'danger');
+      }
+    });
+  }
+
+  removeProductImage() {
+    this.form.update(f => ({ ...f, image_url: null, image: null }));
+    this.toastService.showInfo('Image removed.');
   }
 
   save() {

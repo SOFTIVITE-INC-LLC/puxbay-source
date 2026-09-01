@@ -1,8 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ViewEncapsulation } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { QRCodeComponent } from 'angularx-qrcode';
+import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
+import { SettingsService } from '../../../core/services/settings.service';
 
 @Component({
   selector: 'app-receipt',
@@ -13,15 +15,13 @@ import { QRCodeComponent } from 'angularx-qrcode';
   template: `
   <div id="print-receipt" class="legacy-receipt">
    <div class="header">
-     <div class="store-logo" *ngIf="order?.tenant?.logo_url">
-       <img [src]="order.tenant.logo_url" alt="Store Logo" style="max-height: 50px; margin-bottom: 10px;">
+     <div class="store-logo" *ngIf="logoUrl()">
+       <img [src]="logoUrl()" alt="Store Logo" style="max-height: 48px; max-width: 140px; object-fit: contain; margin: 0 auto 8px auto; display: block;">
      </div>
-     <div class="store-name">{{ order?.branch?.name || order?.tenant?.name || 'PUXBAY STORE' }}</div>
+     <div class="store-name">{{ storeName() }}</div>
      <div *ngIf="order?.branch?.address">{{ order?.branch?.address }}</div>
-     <div *ngIf="!order?.branch?.address">123 Commerce Avenue, Accra</div>
      <div *ngIf="order?.branch?.contact_email">{{ order?.branch?.contact_email }}</div>
      <div *ngIf="order?.branch?.phone">{{ order?.branch?.phone }}</div>
-     <div *ngIf="!order?.branch?.phone">+233 24 613 6978</div>
    </div>
 
    <div class="meta">
@@ -35,7 +35,11 @@ import { QRCodeComponent } from 'angularx-qrcode';
      </div>
      <div *ngIf="order?.cashier || order?.user">
        <span>Cashier:</span>
-       <span>{{ order?.cashier || order?.user?.name || 'Admin' }}</span>
+       <span>{{ order?.cashier || order?.user?.name || 'Staff' }}</span>
+     </div>
+     <div *ngIf="order?.customer_name || order?.customer?.name">
+       <span>Customer:</span>
+       <span>{{ order?.customer_name || order?.customer?.name }}</span>
      </div>
    </div>
 
@@ -59,43 +63,45 @@ import { QRCodeComponent } from 'angularx-qrcode';
    </table>
 
    <div class="totals">
-     <div *ngIf="order?.discount_amount > 0" class="total-row subtotal-row">
-       <span>Subtotal</span>
-       <span>{{ ((order?.total_amount || order?.total) + (order?.discount_amount || 0)) | appCurrency }}</span>
+     <div class="subtotal-row flex justify-between" *ngIf="order?.subtotal">
+       <span>Subtotal:</span>
+       <span>{{ (order?.subtotal || 0) | appCurrency }}</span>
      </div>
-     <div *ngIf="order?.discount_amount > 0" class="total-row subtotal-row" style="color:#666;">
-       <span>Discount</span>
-       <span>-{{ order?.discount_amount | appCurrency }}</span>
+     <div class="subtotal-row flex justify-between" *ngIf="order?.tax">
+       <span>Tax:</span>
+       <span>{{ (order?.tax || 0) | appCurrency }}</span>
      </div>
-     <div class="total-row">
-       <span>TOTAL</span>
-       <span>{{ (order?.total_amount || order?.total) | appCurrency }}</span>
+     <div class="subtotal-row flex justify-between" *ngIf="order?.discount">
+       <span>Discount:</span>
+       <span>-{{ (order?.discount || 0) | appCurrency }}</span>
      </div>
-     <div *ngIf="order?.amount_paid > 0" class="total-row subtotal-row">
-       <span>Cash Paid</span>
-       <span>{{ order?.amount_paid | appCurrency }}</span>
+     <div class="total-row flex justify-between">
+       <span>TOTAL:</span>
+       <span>{{ (order?.total || 0) | appCurrency }}</span>
      </div>
-     <div *ngIf="order?.change_due > 0" class="total-row subtotal-row">
-       <span>Change</span>
-       <span>{{ order?.change_due | appCurrency }}</span>
+     <div class="subtotal-row flex justify-between" *ngIf="order?.amount_paid !== undefined">
+       <span>Amount Paid ({{ (order?.payment_method || 'CASH') | uppercase }}):</span>
+       <span>{{ (order?.amount_paid || 0) | appCurrency }}</span>
      </div>
    </div>
 
    <div class="footer">
-     <p>Thank you for shopping with us!</p>
-     <p>Please keep this receipt for returns.</p>
-     <div style="margin-top: 15px; padding: 12px; border: 1px solid #eee; border-radius: 8px;">
-       <div style="font-weight: bold; margin-bottom: 5px;">Join MyWallet</div>
-       <div style="font-size: 10px; color: #666; margin-bottom: 10px;">Track points &amp; receipts on your phone</div>
-       <qrcode [qrdata]="order?.order_number || '00000000'" [width]="100" [errorCorrectionLevel]="'M'"></qrcode>
+     <p style="font-weight: bold; margin-bottom: 4px;">Thank you for your purchase!</p>
+     <div *ngIf="order?.receipt_token" style="margin: 10px 0;">
+       <qrcode [qrdata]="'https://puxbay.com/r/' + order?.receipt_token" [width]="80" [errorCorrectionLevel]="'M'"></qrcode>
+       <span style="font-size: 9px; display: block; margin-top: 2px;">Scan to view digital receipt</span>
+     </div>
+     <div class="powered-by" style="font-size: 10px; color: #444; margin-top: 10px; font-weight: bold; letter-spacing: 0.5px; border-top: 1px dotted #ccc; padding-top: 6px;">
+       Powered by PUXBAY
      </div>
    </div>
   </div>
   `,
   styles: [`
-    /* ── Default: receipt is hidden in normal page view ── */
-    #print-receipt {
-      display: none;
+    @media screen {
+      #print-receipt {
+        display: none;
+      }
     }
 
     /* ── Receipt Styles (global since encapsulation is None) ── */
@@ -162,7 +168,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
     }
     .legacy-receipt .footer {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 20px;
       font-size: 12px;
       border-top: 1px dashed #000;
       padding-top: 10px;
@@ -199,6 +205,22 @@ import { QRCodeComponent } from 'angularx-qrcode';
     }
   `]
 })
-export class ReceiptComponent {
+export class ReceiptComponent implements OnInit {
   @Input() order: any;
+
+  storefrontSettings = inject(StorefrontSettingsService);
+  settingsService = inject(SettingsService);
+
+  ngOnInit() {
+    this.storefrontSettings.loadSettings().subscribe();
+    this.settingsService.getSettings().subscribe();
+  }
+
+  logoUrl = computed(() => {
+    return this.order?.tenant?.logo_url || this.settingsService.settings()?.logo_url || this.storefrontSettings.settings()?.logo_image || null;
+  });
+
+  storeName = computed(() => {
+    return this.order?.tenant?.name || this.settingsService.settings()?.company_name || this.storefrontSettings.settings()?.store_name || this.order?.branch?.name || 'PUXBAY STORE';
+  });
 }
