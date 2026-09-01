@@ -750,7 +750,16 @@ func (s *OrderService) VoidOrder(id string) error {
 	})
 }
 
-func (s *OrderService) CompleteOrder(id string, overridePin string) error {
+type CompleteOrderInput struct {
+	OverridePin   string
+	PaymentMethod string
+	PaymentStatus string
+	AmountPaid    float64
+	Notes         string
+	SplitDetails  string
+}
+
+func (s *OrderService) CompleteOrder(id string, input CompleteOrderInput) error {
 	var order models.Order
 	if err := s.db.Where("id = ?", id).First(&order).Error; err != nil {
 		return errors.New("order not found")
@@ -759,15 +768,88 @@ func (s *OrderService) CompleteOrder(id string, overridePin string) error {
 	// For online/kiosk/storefront/delivery orders: verify OTP or allow manager override PIN
 	isOnlineOrKiosk := order.OrderType == "online" || order.OrderType == "kiosk" || order.OrderType == "delivery" || order.OrderType == "storefront" || order.OrderType == "pickup"
 	if isOnlineOrKiosk && !order.IsOTPVerified {
-		if strings.TrimSpace(overridePin) == "" {
+		if strings.TrimSpace(input.OverridePin) == "" {
 			return errors.New("Manager override or customer OTP verification required before completing this order")
 		}
 	}
 
-	return s.db.Model(&models.Order{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"status":          "completed",
-		"is_otp_verified": true,
-	}).Error
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		paymentMethod := "cash"
+		if input.PaymentMethod != "" {
+			paymentMethod = input.PaymentMethod
+		} else if order.PaymentMethod != "" {
+			paymentMethod = order.PaymentMethod
+		}
+
+		amountPaid := order.Total
+		if input.AmountPaid > 0 {
+			amountPaid = input.AmountPaid
+		}
+
+		notes := ""
+		if order.Notes != nil {
+			notes = *order.Notes
+		}
+		if input.SplitDetails != "" {
+			if notes != "" {
+				notes += "\n"
+			}
+			notes += "Payment breakdown: " + input.SplitDetails
+		}
+		if input.Notes != "" {
+			if notes != "" {
+				notes += "\n"
+			}
+			notes += input.Notes
+		}
+
+		updates := map[string]interface{}{
+			"status":          "completed",
+			"is_otp_verified": true,
+			"payment_status":  "paid",
+			"payment_method":  paymentMethod,
+			"amount_paid":     amountPaid,
+		}
+		if notes != "" {
+			updates["notes"] = notes
+		}
+
+		if err := tx.Model(&models.Order{}).Where("id = ?", id).Updates(updates).Error; err != nil {
+			return err
+		}
+
+		// If customer is attached and order was not paid previously, record customer total spend and loyalty points
+		if order.CustomerID != nil && order.PaymentStatus != "paid" && order.Total > 0 {
+			var customer models.Customer
+			if err := tx.Where("id = ?", order.CustomerID).First(&customer).Error; err == nil {
+				var crmSettings models.CRMSettings
+				if err := tx.First(&crmSettings).Error; err != nil {
+					crmSettings.PointsPerCurrency = 1.0
+				}
+				pointsRate := crmSettings.PointsPerCurrency
+				if pointsRate <= 0 {
+					pointsRate = 1.0
+				}
+				pointsEarned := order.Total * pointsRate
+				earnTx := models.LoyaltyTransaction{
+					CustomerID:      *order.CustomerID,
+					OrderID:         &order.ID,
+					Points:          pointsEarned,
+					TransactionType: "earned",
+				}
+				desc := fmt.Sprintf("Earned points on completed Order #%s", order.OrderNumber)
+				earnTx.Description = &desc
+				_ = tx.Create(&earnTx)
+
+				_ = tx.Model(&customer).Updates(map[string]interface{}{
+					"total_spend": gorm.Expr("total_spend + ?", order.Total),
+					"loyalty_pts": gorm.Expr("loyalty_pts + ?", pointsEarned),
+				})
+			}
+		}
+
+		return nil
+	})
 }
 
 func (s *OrderService) SendPickupOTP(orderID string) (string, error) {

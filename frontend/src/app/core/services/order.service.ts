@@ -82,8 +82,9 @@ export class OrderService {
     return this.api.post<any>(`/orders/${id}/void`, {}, { headers }); 
   }
 
-  completeOrder(id: string, overridePin?: string): Observable<any> {
-    return this.api.post<any>(`/orders/${id}/complete`, { override_pin: overridePin });
+  completeOrder(id: string, payload?: { override_pin?: string; payment_method?: string; amount_paid?: number; payment_status?: string; notes?: string; split_details?: string } | string): Observable<any> {
+    const body = typeof payload === 'string' ? { override_pin: payload } : (payload || {});
+    return this.api.post<any>(`/orders/${id}/complete`, body);
   }
 
   sendPickupOTP(id: string): Observable<{ status: string; phone: string; masked: string; message: string }> {

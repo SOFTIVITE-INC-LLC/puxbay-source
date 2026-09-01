@@ -320,7 +320,12 @@ func (h *OrderHandler) VoidOrder(c *gin.Context) {
 }
 
 type CompleteOrderReq struct {
-	OverridePin string `json:"override_pin"`
+	OverridePin   string  `json:"override_pin"`
+	PaymentMethod string  `json:"payment_method"`
+	PaymentStatus string  `json:"payment_status"`
+	AmountPaid    float64 `json:"amount_paid"`
+	Notes         string  `json:"notes"`
+	SplitDetails  string  `json:"split_details"`
 }
 
 func (h *OrderHandler) CompleteOrder(c *gin.Context) {
@@ -328,7 +333,16 @@ func (h *OrderHandler) CompleteOrder(c *gin.Context) {
 	var req CompleteOrderReq
 	_ = c.ShouldBindJSON(&req)
 
-	if err := h.service(c).CompleteOrder(id, req.OverridePin); err != nil {
+	input := services.CompleteOrderInput{
+		OverridePin:   req.OverridePin,
+		PaymentMethod: req.PaymentMethod,
+		PaymentStatus: req.PaymentStatus,
+		AmountPaid:    req.AmountPaid,
+		Notes:         req.Notes,
+		SplitDetails:  req.SplitDetails,
+	}
+
+	if err := h.service(c).CompleteOrder(id, input); err != nil {
 		if strings.Contains(err.Error(), "Manager override") {
 			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 			return
