@@ -500,6 +500,46 @@ func (s *OrderService) CreateOrder(input OrderCreateInput) (*models.Order, error
 			}
 		}
 
+		// Log to platform-wide payment logs
+		storeName := s.getStoreName(tx)
+		custName := ""
+		custPhone := ""
+		if order.CustomerName != nil && *order.CustomerName != "" {
+			custName = *order.CustomerName
+		}
+		if order.CustomerPhone != nil && *order.CustomerPhone != "" {
+			custPhone = *order.CustomerPhone
+		}
+		if (custName == "" || custPhone == "") && order.CustomerID != nil {
+			var cust models.Customer
+			if tx.Where("id = ?", *order.CustomerID).First(&cust).Error == nil {
+				if custName == "" {
+					custName = cust.Name
+				}
+				if custPhone == "" && cust.Phone != nil {
+					custPhone = *cust.Phone
+				}
+			}
+		}
+		pLog := models.PaymentLog{
+			TenantID:      &s.tenantID,
+			TenantName:    storeName,
+			PaymentType:   "pos_order",
+			Reference:     fmt.Sprintf("POS-%s", order.OrderNumber),
+			OrderID:       &order.ID,
+			OrderNumber:   order.OrderNumber,
+			Amount:        order.AmountPaid,
+			Currency:      "GHS",
+			PaymentMethod: order.PaymentMethod,
+			Gateway:       "pos_terminal",
+			CustomerName:  custName,
+			CustomerPhone: custPhone,
+			Status:        "successful",
+			DisputeStatus: "none",
+			Notes:         fmt.Sprintf("POS Sale Order #%s (%s)", order.OrderNumber, order.PaymentMethod),
+		}
+		_ = tx.Table("public.payment_logs").Create(&pLog).Error
+
 		return nil
 	})
 

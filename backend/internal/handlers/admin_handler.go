@@ -525,17 +525,92 @@ func (h *AdminHandler) TogglePromoCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "toggled"})
 }
 
-// BillingPayments
-func (h *AdminHandler) ListBillingPayments(c *gin.Context) {
-	payments, stats, err := h.service.ListBillingPayments()
+// Payments
+func (h *AdminHandler) ListPayments(c *gin.Context) {
+	var params services.PaymentFilterParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	payments, stats, total, err := h.service.ListPaymentLogs(params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch payments"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"data":  payments,
 		"stats": stats,
+		"total": total,
+		"page":  params.Page,
+		"limit": params.Limit,
 	})
+}
+
+func (h *AdminHandler) CreatePayment(c *gin.Context) {
+	var input services.PaymentLogInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	payment, err := h.service.CreatePaymentLog(input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Payment logged successfully",
+		"data":    payment,
+	})
+}
+
+func (h *AdminHandler) GetPayment(c *gin.Context) {
+	id := c.Param("id")
+	payment, err := h.service.GetPaymentLog(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": payment})
+}
+
+func (h *AdminHandler) UpdatePayment(c *gin.Context) {
+	id := c.Param("id")
+	var input services.PaymentLogUpdateInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	payment, err := h.service.UpdatePaymentLog(id, input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Payment updated successfully",
+		"data":    payment,
+	})
+}
+
+func (h *AdminHandler) DeletePayment(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.service.DeletePaymentLog(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Payment log deleted"})
+}
+
+// ListBillingPayments (Legacy compatibility)
+func (h *AdminHandler) ListBillingPayments(c *gin.Context) {
+	h.ListPayments(c)
 }
 
 // AuditLogs

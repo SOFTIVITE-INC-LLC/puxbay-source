@@ -1,136 +1,716 @@
-<div class="p-4 md:p-8 max-w-7xl mx-auto">
-  <div class="mb-6">
-    <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">Payment History</h1>
-    <p class="text-slate-500 mt-1">Platform-wide invoice and payment records.</p>
-  </div>
-
-  <div *ngIf="isLoading()" class="flex justify-center p-20">
-    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-  </div>
-
-  <ng-container *ngIf="!isLoading()">
-    <!-- KPI Row -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" *ngIf="stats()">
-      <div class="bg-white rounded-2xl shadow-sm border border-emerald-200 p-5 flex flex-col justify-between bg-emerald-50/20">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-emerald-700 text-xs font-bold uppercase tracking-wider">Total Processed Revenue</h3>
-          <span class="material-symbols-outlined text-emerald-500 bg-emerald-100 p-1.5 rounded-xl text-[20px]">account_balance</span>
+<div class="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto space-y-8 font-sans">
+  
+  <!-- Top Header with Actions -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined !text-[24px]">payments</span>
         </div>
-        <p class="text-3xl font-extrabold text-emerald-800">GH₵{{ stats().total_revenue | number:'1.2-2' }}</p>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider">Successful Transactions</h3>
-          <span class="material-symbols-outlined text-indigo-500 bg-indigo-50 p-1.5 rounded-xl text-[20px]">check_circle</span>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Payment & Dispute Center</h1>
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Complete transaction ledger, subaccount routing splits, and dispute resolution tracking</p>
         </div>
-        <p class="text-3xl font-extrabold text-slate-800">{{ stats().successful_count }}</p>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-5 flex flex-col justify-between bg-rose-50/30">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-rose-600 text-xs font-bold uppercase tracking-wider">Failed Transactions</h3>
-          <span class="material-symbols-outlined text-rose-500 bg-rose-100 p-1.5 rounded-xl text-[20px]">error</span>
-        </div>
-        <p class="text-3xl font-extrabold text-rose-600">{{ stats().failed_count }}</p>
       </div>
     </div>
 
-    <!-- Data Table -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      <!-- Tab Filters -->
-      <div class="border-b border-slate-200 px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 text-sm font-semibold overflow-x-auto no-scrollbar">
-        <button (click)="setFilter('all')" [ngClass]="filter() === 'all' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-3 -mb-3 whitespace-nowrap' : 'text-slate-500 hover:text-slate-800 pb-3 -mb-3 whitespace-nowrap'">All Payments</button>
-        <button (click)="setFilter('succeeded')" [ngClass]="filter() === 'succeeded' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-3 -mb-3 whitespace-nowrap' : 'text-slate-500 hover:text-slate-800 pb-3 -mb-3 whitespace-nowrap'">Succeeded</button>
-        <button (click)="setFilter('failed')" [ngClass]="filter() === 'failed' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-3 -mb-3 whitespace-nowrap' : 'text-slate-500 hover:text-slate-800 pb-3 -mb-3 whitespace-nowrap'">Failed</button>
-        <button (click)="setFilter('pending')" [ngClass]="filter() === 'pending' ? 'text-indigo-600 border-b-2 border-indigo-600 pb-3 -mb-3 whitespace-nowrap' : 'text-slate-500 hover:text-slate-800 pb-3 -mb-3 whitespace-nowrap'">Pending</button>
+    <div class="flex flex-wrap items-center gap-3">
+      <button (click)="loadPayments()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-sm font-bold hover:bg-slate-50 dark:hover:bg-zinc-700 flex items-center gap-2 transition-all shadow-sm">
+        <span class="material-symbols-outlined !text-[18px]" [ngClass]="{'animate-spin': isLoading()}">refresh</span>
+        <span>Refresh</span>
+      </button>
+
+      <button (click)="exportCSV()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-sm font-bold hover:bg-slate-50 dark:hover:bg-zinc-700 flex items-center gap-2 transition-all shadow-sm">
+        <span class="material-symbols-outlined !text-[18px]">download</span>
+        <span>Export CSV</span>
+      </button>
+
+      <button (click)="openLogModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-sm font-black shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition-all active:scale-[0.98]">
+        <span class="material-symbols-outlined !text-[18px]">add_circle</span>
+        <span>Log Payment</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI / Metrics Grid -->
+  @if (stats()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <!-- Total Volume -->
+      <div class="rounded-3xl p-5 border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-500/10 backdrop-blur-sm relative overflow-hidden shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black tracking-wider uppercase text-emerald-700 dark:text-emerald-300">Total Volume</span>
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[18px]">account_balance</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">GH₵{{ stats()!.total_volume | number:'1.2-2' }}</h3>
+          <p class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[14px]">check_circle</span>
+            {{ stats()!.successful_count }} successful payments
+          </p>
+        </div>
       </div>
 
+      <!-- Subaccount Routed Volume -->
+      <div class="rounded-3xl p-5 border border-indigo-500/20 bg-indigo-500/5 dark:bg-indigo-500/10 backdrop-blur-sm relative overflow-hidden shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black tracking-wider uppercase text-indigo-700 dark:text-indigo-300">Subaccount Routed</span>
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[18px]">call_split</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">GH₵{{ stats()!.subaccount_routed_volume | number:'1.2-2' }}</h3>
+          <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[14px]">alt_route</span>
+            {{ stats()!.subaccount_routed_count }} routed to merchant subaccounts
+          </p>
+        </div>
+      </div>
+
+      <!-- Platform Fees / Retained -->
+      <div class="rounded-3xl p-5 border border-sky-500/20 bg-sky-500/5 dark:bg-sky-500/10 backdrop-blur-sm relative overflow-hidden shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black tracking-wider uppercase text-sky-700 dark:text-sky-300">Platform Revenue</span>
+          <div class="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[18px]">savings</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">GH₵{{ stats()!.platform_fee_total | number:'1.2-2' }}</h3>
+          <p class="text-xs font-bold text-sky-600 dark:text-sky-400 mt-1">Platform fee deductions & SaaS billing</p>
+        </div>
+      </div>
+
+      <!-- Disputed / Failed -->
+      <div class="rounded-3xl p-5 border border-amber-500/20 bg-amber-500/5 dark:bg-amber-500/10 backdrop-blur-sm relative overflow-hidden shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black tracking-wider uppercase text-amber-700 dark:text-amber-300">Disputes & Failed</span>
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[18px]">gavel</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{{ stats()!.disputed_count }} / {{ stats()!.failed_count }}</h3>
+          <p class="text-xs font-bold text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[14px]">warning</span>
+            {{ stats()!.disputed_count }} open dispute(s) under review
+          </p>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- Main Content Card with Filters and Data Table -->
+  <div class="rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden">
+    
+    <!-- Filter Bar Header -->
+    <div class="p-4 sm:p-6 border-b border-slate-200 dark:border-zinc-800 space-y-4">
+      
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        
+        <!-- Live Search -->
+        <div class="relative flex-1 max-w-md">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 !text-[20px]">search</span>
+          <input type="text"
+                 [ngModel]="searchQuery()"
+                 (ngModelChange)="onSearch($event)"
+                 placeholder="Search Reference, Order #, Tenant, Customer, Subaccount..."
+                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all" />
+        </div>
+
+        <!-- Secondary Filter Dropdowns -->
+        <div class="flex flex-wrap items-center gap-3">
+          
+          <!-- Payment Type Selector -->
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider hidden sm:inline">Type:</label>
+            <select [ngModel]="typeFilter()" (ngModelChange)="setTypeFilter($event)"
+                    class="py-2 px-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-slate-700 dark:text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
+              <option value="all">All Types</option>
+              <option value="store_order">Online Storefront</option>
+              <option value="pos_order">POS In-Store</option>
+              <option value="subscription">SaaS Subscription</option>
+              <option value="manual_entry">Manual Entry</option>
+              <option value="refund">Refund / Reversal</option>
+            </select>
+          </div>
+
+          <!-- Subaccount Routing Selector -->
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider hidden sm:inline">Routing:</label>
+            <select [ngModel]="routingFilter()" (ngModelChange)="setRoutingFilter($event)"
+                    class="py-2 px-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-slate-700 dark:text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
+              <option value="all">All Routing</option>
+              <option value="true">🔀 Subaccount Routed</option>
+              <option value="false">🏢 Platform Direct</option>
+            </select>
+          </div>
+
+          <!-- Dispute Filter Selector -->
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider hidden sm:inline">Dispute:</label>
+            <select [ngModel]="disputeFilter()" (ngModelChange)="setDisputeFilter($event)"
+                    class="py-2 px-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-slate-700 dark:text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
+              <option value="all">All Disputes</option>
+              <option value="under_review">⚠️ Under Review</option>
+              <option value="chargeback">🛑 Chargeback</option>
+              <option value="resolved">✅ Resolved</option>
+              <option value="none">No Dispute</option>
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Status Filter Tabs -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100 dark:border-zinc-800/80">
+        <button (click)="setStatusFilter('all')"
+                [ngClass]="statusFilter() === 'all' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+          All Statuses
+        </button>
+
+        <button (click)="setStatusFilter('successful')"
+                [ngClass]="statusFilter() === 'successful' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Successful
+        </button>
+
+        <button (click)="setStatusFilter('pending')"
+                [ngClass]="statusFilter() === 'pending' ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          Pending
+        </button>
+
+        <button (click)="setStatusFilter('failed')"
+                [ngClass]="statusFilter() === 'failed' ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+          Failed
+        </button>
+
+        <button (click)="setStatusFilter('refunded')"
+                [ngClass]="statusFilter() === 'refunded' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700'"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
+          Refunded
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Table Content Area -->
+    @if (isLoading()) {
+      <div class="py-24 flex flex-col items-center justify-center gap-3">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent"></div>
+        <p class="text-sm font-bold text-slate-400 dark:text-zinc-500">Loading payment ledger...</p>
+      </div>
+    } @else if (payments().length === 0) {
+      <div class="py-24 flex flex-col items-center justify-center text-center px-4">
+        <div class="w-16 h-16 rounded-3xl bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 flex items-center justify-center mb-4">
+          <span class="material-symbols-outlined !text-[32px]">receipt_long</span>
+        </div>
+        <h3 class="text-lg font-black text-slate-800 dark:text-white">No payment records found</h3>
+        <p class="text-sm text-slate-500 dark:text-zinc-400 max-w-sm mt-1 mb-6">No transactions match your current search and filter criteria.</p>
+        <button (click)="openLogModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+          Record First Payment
+        </button>
+      </div>
+    } @else {
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse min-w-[600px]">
-          <thead class="bg-slate-50 border-b border-slate-200">
+        <table class="w-full text-left border-collapse min-w-[900px]">
+          <thead class="bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-200 dark:border-zinc-800 text-xs font-black text-slate-400 dark:text-zinc-500 uppercase tracking-wider">
             <tr>
-              <th class="px-4 md:px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tenant</th>
-              <th class="px-4 md:px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
-              <th class="px-4 md:px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th class="px-4 md:px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Integration Ref</th>
-              <th class="px-4 md:px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              <th class="px-5 py-4">Date & Ref</th>
+              <th class="px-5 py-4">Tenant / Store</th>
+              <th class="px-5 py-4">Type & Channel</th>
+              <th class="px-5 py-4">Subaccount Routing</th>
+              <th class="px-5 py-4">Amount</th>
+              <th class="px-5 py-4">Status & Dispute</th>
+              <th class="px-5 py-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr *ngFor="let p of filteredPayments" class="hover:bg-slate-50 transition-colors">
-              <td class="px-4 md:px-6 py-4">
-                <div class="font-bold text-slate-900">{{ p.subscription?.tenant?.name || 'Unknown Tenant' }}</div>
-                <div class="text-xs font-medium text-slate-500 mt-0.5">{{ p.date | date:'medium' }}</div>
-              </td>
-              
-              <td class="px-4 md:px-6 py-4">
-                <div class="text-base md:text-lg font-extrabold text-slate-800">GH₵{{ p.amount | number:'1.2-2' }}</div>
-              </td>
-
-              <td class="px-4 md:px-6 py-4">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-                      [ngClass]="{
-                        'bg-emerald-100 text-emerald-700': p.status === 'succeeded' || p.status === 'paid',
-                        'bg-rose-100 text-rose-700': p.status === 'failed',
-                        'bg-amber-100 text-amber-700': p.status === 'pending'
-                      }">
-                  <div class="w-1.5 h-1.5 rounded-full" 
-                       [ngClass]="{
-                         'bg-emerald-500': p.status === 'succeeded' || p.status === 'paid',
-                         'bg-rose-500': p.status === 'failed',
-                         'bg-amber-500': p.status === 'pending'
-                       }"></div>
-                  {{ p.status | titlecase }}
-                </span>
-              </td>
-
-              <td class="px-4 md:px-6 py-4 hidden md:table-cell">
-                <div *ngIf="p.paystack_reference" class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                  <span class="material-symbols-outlined text-[14px] text-teal-600">link</span>
-                  <span class="text-xs font-mono font-bold text-slate-600 tracking-wider">{{ p.paystack_reference }}</span>
-                </div>
-                <div *ngIf="!p.paystack_reference" class="text-sm font-semibold text-slate-400">
-                  Manual Entry
-                </div>
-              </td>
-
-              <td class="px-4 md:px-6 py-4 text-right">
-                <div class="relative inline-block text-left action-menu-container">
-                  <button (click)="toggleDropdown(p.id, $event)" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
-                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
-                  </button>
-
-                  <!-- Dropdown Menu -->
-                  <div *ngIf="openDropdownId() === p.id" class="absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 overflow-hidden transform origin-top-right transition-all">
-                    <div class="py-1">
-                      <button class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-2 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">open_in_new</span> View in Paystack
-                      </button>
-                      <button *ngIf="p.status === 'failed'" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-emerald-600 flex items-center gap-2 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">refresh</span> Retry Payment
-                      </button>
-                      <div *ngIf="p.status === 'succeeded' || p.status === 'paid'" class="border-t border-slate-100 my-1"></div>
-                      <button *ngIf="p.status === 'succeeded' || p.status === 'paid'" class="w-full text-left px-4 py-2 text-sm font-medium text-amber-600 hover:bg-amber-50 flex items-center gap-2 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">undo</span> Issue Refund
-                      </button>
-                    </div>
+          <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/60 text-sm">
+            @for (p of payments(); track p.id) {
+              <tr class="hover:bg-slate-50/70 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer"
+                  (click)="openDetail(p)">
+                
+                <!-- Date & Reference -->
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800/50 flex items-center gap-1"
+                          (click)="copyReference(p.reference, $event)" title="Click to copy">
+                      {{ p.reference || ('PAY-' + p.id.slice(0,8)) }}
+                      <span class="material-symbols-outlined !text-[12px] text-slate-400 hover:text-indigo-500">
+                        {{ copiedRef() === p.reference ? 'check' : 'content_copy' }}
+                      </span>
+                    </span>
                   </div>
-                </div>
-              </td>
-            </tr>
-            
-            <tr *ngIf="filteredPayments.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center">
-                <div class="flex flex-col items-center justify-center">
-                  <span class="material-symbols-outlined text-4xl text-slate-300 mb-3">receipt_long</span>
-                  <p class="text-slate-500 font-medium">No payments match this filter.</p>
-                </div>
-              </td>
-            </tr>
+                  <div class="text-[11px] font-semibold text-slate-400 dark:text-zinc-500 mt-1">
+                    {{ p.created_at | date:'medium' }}
+                  </div>
+                </td>
+
+                <!-- Tenant / Store -->
+                <td class="px-5 py-4">
+                  <div class="font-black text-slate-900 dark:text-white">
+                    {{ p.tenant_name || p.tenant?.name || 'Platform SaaS' }}
+                  </div>
+                  @if (p.customer_name || p.customer_phone) {
+                    <div class="text-xs text-slate-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
+                      <span class="material-symbols-outlined !text-[12px] text-slate-400">person</span>
+                      <span class="truncate max-w-[150px]">{{ p.customer_name || p.customer_phone }}</span>
+                    </div>
+                  }
+                </td>
+
+                <!-- Type & Channel -->
+                <td class="px-5 py-4">
+                  <div class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-lg"
+                       [ngClass]="{
+                         'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40': p.payment_type === 'store_order',
+                         'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40': p.payment_type === 'pos_order',
+                         'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40': p.payment_type === 'subscription',
+                         'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700': p.payment_type === 'manual_entry'
+                       }">
+                    <span>{{ p.payment_type.replace('_', ' ') | uppercase }}</span>
+                  </div>
+                  <div class="text-[11px] font-medium text-slate-400 dark:text-zinc-500 mt-1 uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-outlined !text-[12px]">credit_card</span>
+                    {{ p.payment_method || 'Paystack' }}
+                  </div>
+                </td>
+
+                <!-- Subaccount Routing Badge -->
+                <td class="px-5 py-4">
+                  @if (p.is_subaccount_routed || p.subaccount_code) {
+                    <div class="inline-flex flex-col gap-0.5">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                        <span class="material-symbols-outlined !text-[12px] text-emerald-500">alt_route</span>
+                        Subaccount Split
+                      </span>
+                      @if (p.subaccount_code) {
+                        <span class="text-[10px] font-mono text-slate-400 dark:text-zinc-500 tracking-wider">
+                          {{ p.subaccount_code }}
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
+                      <span class="material-symbols-outlined !text-[12px] text-slate-400">domain</span>
+                      Platform Direct
+                    </span>
+                  }
+                </td>
+
+                <!-- Amount -->
+                <td class="px-5 py-4">
+                  <div class="font-black text-base text-slate-900 dark:text-white">
+                    {{ p.currency || 'GH₵' }} {{ p.amount | number:'1.2-2' }}
+                  </div>
+                  @if (p.order_number) {
+                    <div class="text-[11px] font-bold text-slate-400 dark:text-zinc-500">
+                      Order #{{ p.order_number }}
+                    </div>
+                  }
+                </td>
+
+                <!-- Status & Dispute -->
+                <td class="px-5 py-4">
+                  <div class="flex flex-col gap-1">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black w-fit"
+                          [ngClass]="{
+                            'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300': p.status === 'successful' || p.status === 'succeeded' || p.status === 'paid',
+                            'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300': p.status === 'pending',
+                            'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300': p.status === 'failed' || p.status === 'declined',
+                            'bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300': p.status === 'refunded'
+                          }">
+                      <span class="w-1.5 h-1.5 rounded-full"
+                            [ngClass]="{
+                              'bg-emerald-500': p.status === 'successful' || p.status === 'succeeded' || p.status === 'paid',
+                              'bg-amber-500': p.status === 'pending',
+                              'bg-rose-500': p.status === 'failed' || p.status === 'declined',
+                              'bg-purple-500': p.status === 'refunded'
+                            }"></span>
+                      {{ (p.status || 'successful') | uppercase }}
+                    </span>
+
+                    @if (p.dispute_status && p.dispute_status !== 'none') {
+                      <span class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 w-fit">
+                        <span class="material-symbols-outlined !text-[12px]">gavel</span>
+                        {{ p.dispute_status.replace('_', ' ') | uppercase }}
+                      </span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-5 py-4 text-right" (click)="$event.stopPropagation()">
+                  <div class="relative inline-block text-left action-menu-container">
+                    <button (click)="toggleDropdown(p.id, $event)"
+                            class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all cursor-pointer">
+                      <span class="material-symbols-outlined !text-[20px]">more_vert</span>
+                    </button>
+
+                    @if (openDropdownId() === p.id) {
+                      <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-700 py-1.5 z-50 text-xs font-bold text-left animate-in fade-in zoom-in-95">
+                        <button (click)="openDetail(p)" class="w-full px-4 py-2 text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 flex items-center gap-2">
+                          <span class="material-symbols-outlined !text-[16px] text-indigo-500">visibility</span>
+                          View Breakdown & Audit
+                        </button>
+                        <button (click)="copyReference(p.reference, $event)" class="w-full px-4 py-2 text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700 flex items-center gap-2">
+                          <span class="material-symbols-outlined !text-[16px] text-slate-400">content_copy</span>
+                          Copy Reference
+                        </button>
+                        <div class="my-1 border-t border-slate-100 dark:border-zinc-700"></div>
+                        <button (click)="deletePayment(p.id)" class="w-full px-4 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2">
+                          <span class="material-symbols-outlined !text-[16px]">delete</span>
+                          Delete Log
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </td>
+
+              </tr>
+            }
           </tbody>
         </table>
       </div>
+    }
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MODAL: MANUAL LOG PAYMENT / SETTLEMENT -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (isLogModalOpen()) {
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+        
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[22px]">post_add</span>
+            </div>
+            <div>
+              <h2 class="text-xl font-black text-slate-900 dark:text-white">Record Payment / Dispute Log</h2>
+              <p class="text-xs text-slate-500 dark:text-zinc-400">Manually log offline settlement, bank wire, or dispute entry</p>
+            </div>
+          </div>
+          <button (click)="closeLogModal()" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined !text-[20px]">close</span>
+          </button>
+        </div>
+
+        <!-- Modal Form -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Tenant Select -->
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Tenant / Company</label>
+            <select [ngModel]="newPayment().tenant_id" (ngModelChange)="onTenantSelected($event)"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="">-- Platform Level / No Specific Tenant --</option>
+              @for (t of tenants(); track t.id) {
+                <option [value]="t.id">{{ t.name }} ({{ t.subdomain }}.puxbay.com)</option>
+              }
+            </select>
+          </div>
+
+          <!-- Payment Type -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Payment Type</label>
+            <select [(ngModel)]="newPayment().payment_type"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="store_order">Storefront Order</option>
+              <option value="pos_order">POS In-Store Sale</option>
+              <option value="subscription">SaaS Subscription Billing</option>
+              <option value="manual_entry">Manual Offline Settlement</option>
+              <option value="dispute_settlement">Dispute Settlement</option>
+              <option value="refund">Refund / Chargeback</option>
+            </select>
+          </div>
+
+          <!-- Payment Method -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Channel / Method</label>
+            <select [(ngModel)]="newPayment().payment_method"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="paystack">Paystack Gateway</option>
+              <option value="mobile_money">Mobile Money (MoMo)</option>
+              <option value="card">Credit / Debit Card</option>
+              <option value="bank_transfer">Bank Wire / Transfer</option>
+              <option value="cash">Cash Settlement</option>
+            </select>
+          </div>
+
+          <!-- Amount -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Amount (GHS) *</label>
+            <input type="number" [(ngModel)]="newPayment().amount" min="0" step="0.01" placeholder="0.00"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Reference -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Reference ID</label>
+            <input type="text" [(ngModel)]="newPayment().reference" placeholder="e.g. PSTK_123456"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-mono font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Subaccount Code (Routing) -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Subaccount Code (Optional)</label>
+            <input type="text" [(ngModel)]="newPayment().subaccount_code" placeholder="e.g. ACCT_xxxxxxx"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-mono text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Order Number -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Order Number (Optional)</label>
+            <input type="text" [(ngModel)]="newPayment().order_number" placeholder="e.g. RA0WA0W4"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Customer Name -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Customer Name</label>
+            <input type="text" [(ngModel)]="newPayment().customer_name" placeholder="John Doe"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Customer Phone -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Customer Phone</label>
+            <input type="text" [(ngModel)]="newPayment().customer_phone" placeholder="024XXXXXXX"
+                   class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Status</label>
+            <select [(ngModel)]="newPayment().status"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="successful">Successful</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+              <option value="refunded">Refunded</option>
+            </select>
+          </div>
+
+          <!-- Dispute Tag -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Dispute Flag</label>
+            <select [(ngModel)]="newPayment().dispute_status"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="none">No Dispute</option>
+              <option value="under_review">⚠️ Under Review</option>
+              <option value="chargeback">🛑 Chargeback</option>
+              <option value="resolved">✅ Resolved</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">Notes / Audit Memo</label>
+            <textarea [(ngModel)]="newPayment().notes" rows="2" placeholder="Provide background context, receipt info, or dispute details..."
+                      class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl text-sm font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
+          <button (click)="closeLogModal()" class="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-zinc-800">
+            Cancel
+          </button>
+          <button (click)="submitNewPayment()" [disabled]="isSaving()"
+                  class="px-6 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-black shadow-lg shadow-indigo-600/30 flex items-center gap-2 disabled:opacity-50">
+            @if (isSaving()) {
+              <span class="material-symbols-outlined !text-[18px] animate-spin">sync</span>
+              <span>Saving...</span>
+            } @else {
+              <span class="material-symbols-outlined !text-[18px]">check_circle</span>
+              <span>Save Payment Record</span>
+            }
+          </button>
+        </div>
+
+      </div>
     </div>
-  </ng-container>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- DRAWER: PAYMENT BREAKDOWN & DISPUTE RESOLUTION -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (isDetailDrawerOpen() && selectedPayment()) {
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end">
+      <div class="bg-white dark:bg-zinc-900 border-l border-slate-200 dark:border-zinc-800 w-full max-w-xl h-full p-6 sm:p-8 overflow-y-auto shadow-2xl space-y-6 flex flex-col justify-between animate-in slide-in-from-right">
+        
+        <div class="space-y-6">
+          
+          <!-- Drawer Header -->
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <span class="material-symbols-outlined !text-[22px]">receipt</span>
+              </div>
+              <div>
+                <h2 class="text-lg font-black text-slate-900 dark:text-white">Transaction Breakdown</h2>
+                <p class="text-xs font-mono text-slate-500 dark:text-zinc-400">{{ selectedPayment()!.reference }}</p>
+              </div>
+            </div>
+            <button (click)="closeDetail()" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center justify-center text-slate-400 hover:text-slate-600">
+              <span class="material-symbols-outlined !text-[20px]">close</span>
+            </button>
+          </div>
+
+          <!-- Amount Summary Card -->
+          <div class="rounded-3xl p-5 bg-gradient-to-br from-indigo-600/10 via-purple-600/5 to-transparent border border-indigo-500/20 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Total Charged</span>
+            <div class="text-3xl font-black text-slate-900 dark:text-white">
+              {{ selectedPayment()!.currency || 'GH₵' }} {{ selectedPayment()!.amount | number:'1.2-2' }}
+            </div>
+            <div class="flex flex-wrap items-center gap-2 pt-2">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+                Type: {{ selectedPayment()!.payment_type.replace('_', ' ') | uppercase }}
+              </span>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+                Channel: {{ selectedPayment()!.payment_method | uppercase }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Subaccount Routing Split Details -->
+          <div class="rounded-2xl p-4 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
+                <span class="material-symbols-outlined !text-[16px] text-indigo-500">alt_route</span>
+                Routing & Settlement Split
+              </span>
+              @if (selectedPayment()!.is_subaccount_routed) {
+                <span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                  ROUTED TO SUBACCOUNT
+                </span>
+              } @else {
+                <span class="px-2 py-0.5 rounded text-[10px] font-black bg-slate-200 text-slate-700 dark:bg-zinc-700 dark:text-zinc-300">
+                  PLATFORM DIRECT
+                </span>
+              }
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Subaccount Code:</span>
+                <span class="font-mono font-bold text-slate-800 dark:text-zinc-200">{{ selectedPayment()!.subaccount_code || 'None (Direct to Platform)' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Gateway Provider:</span>
+                <span class="font-bold text-slate-800 dark:text-zinc-200 uppercase">{{ selectedPayment()!.gateway || 'Paystack' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer & Order Information -->
+          <div class="rounded-2xl p-4 bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-3">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <span class="material-symbols-outlined !text-[16px] text-indigo-500">person</span>
+              Customer & Order Reference
+            </span>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Customer:</span>
+                <span class="font-bold text-slate-800 dark:text-zinc-200">{{ selectedPayment()!.customer_name || 'Anonymous' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Phone:</span>
+                <span class="font-bold text-slate-800 dark:text-zinc-200">{{ selectedPayment()!.customer_phone || '-' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Order Number:</span>
+                <span class="font-bold text-indigo-600 dark:text-indigo-400 font-mono">{{ selectedPayment()!.order_number ? '#' + selectedPayment()!.order_number : '-' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 dark:text-zinc-500 font-bold block">Tenant:</span>
+                <span class="font-bold text-slate-800 dark:text-zinc-200">{{ selectedPayment()!.tenant_name || selectedPayment()!.tenant?.name || 'Platform' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dispute Resolution & Status Management -->
+          <div class="rounded-2xl p-5 border border-amber-500/30 bg-amber-500/5 space-y-4">
+            <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+              <span class="material-symbols-outlined !text-[20px]">gavel</span>
+              <h4 class="text-sm font-black uppercase tracking-wider">Dispute Resolution & Audit</h4>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1">Payment Status</label>
+                <select [(ngModel)]="editPaymentStatus"
+                        class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="successful">Successful</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1">Dispute Status</label>
+                <select [(ngModel)]="editDisputeStatus"
+                        class="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="none">No Dispute</option>
+                  <option value="under_review">⚠️ Under Review</option>
+                  <option value="chargeback">🛑 Chargeback</option>
+                  <option value="resolved">✅ Resolved</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider mb-1">Audit Notes / Dispute Justification</label>
+              <textarea [(ngModel)]="editDisputeNotes" rows="3" placeholder="Add resolution notes, chargeback tracking ID, or merchant confirmation..."
+                        class="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+
+            <button (click)="saveDisputeUpdates()" [disabled]="isUpdatingDispute()"
+                    class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2">
+              @if (isUpdatingDispute()) {
+                <span class="material-symbols-outlined !text-[16px] animate-spin">sync</span>
+                <span>Saving Dispute Status...</span>
+              } @else {
+                <span class="material-symbols-outlined !text-[16px]">save</span>
+                <span>Update Dispute & Audit Log</span>
+              }
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+          <button (click)="deletePayment(selectedPayment()!.id)" class="px-4 py-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined !text-[16px]">delete</span>
+            Delete Log
+          </button>
+
+          <button (click)="closeDetail()" class="px-5 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold transition-all">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
 </div>

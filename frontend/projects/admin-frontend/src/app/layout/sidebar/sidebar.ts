@@ -45,8 +45,7 @@ export class SidebarComponent {
       items: [
         { label: 'Pricing Plans', route: '/pricing-plans', icon: 'payments', permission: 'pricing_plans:read' },
         { label: 'Subscriptions', route: '/subscriptions', icon: 'card_membership', permission: 'billing:read' },
-        { label: 'Upcoming Renewals', route: '/renewals', icon: 'event_repeat', permission: 'billing:read' },
-        { label: 'Invoices', route: '/payments', icon: 'receipt_long', permission: 'billing:read' },
+        { label: 'Payments & Disputes', route: '/payments', icon: 'account_balance_wallet', permission: 'billing:read' },
         { label: 'Failed Payments', route: '/failed-payments', icon: 'money_off', permission: 'billing:read' },
         { label: 'Promo Codes', route: '/promo-codes', icon: 'local_activity', permission: 'promo_codes:read' }
       ]

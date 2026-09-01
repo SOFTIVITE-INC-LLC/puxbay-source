@@ -947,6 +947,48 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 			tx.Model(&models.AbandonedCart{}).Where("email = ? OR email = ?", sessionID, req.CustomerID).Update("is_recovered", true)
 		}
 
+		// Log to platform-wide payment logs
+		var storeTenant models.Tenant
+		tName := "Storefront"
+		if tx.Table("public.tenants").Where("id = ?", tenantID).First(&storeTenant).Error == nil && storeTenant.Name != "" {
+			tName = storeTenant.Name
+		}
+		var sfSettings models.StorefrontSettings
+		_ = tx.First(&sfSettings).Error
+
+		var subCode *string
+		isRouted := false
+		if sfSettings.PaystackSubaccountCode != "" {
+			c := sfSettings.PaystackSubaccountCode
+			subCode = &c
+			isRouted = true
+		}
+		ref := req.Reference
+		if ref == "" {
+			ref = fmt.Sprintf("ORD-%s", createdOrder.OrderNumber)
+		}
+		pLog := models.PaymentLog{
+			TenantID:           &tenantID,
+			TenantName:         tName,
+			PaymentType:        "store_order",
+			Reference:          ref,
+			OrderID:            &createdOrder.ID,
+			OrderNumber:        createdOrder.OrderNumber,
+			Amount:             createdOrder.Total,
+			Currency:           "GHS",
+			PaymentMethod:      createdOrder.PaymentMethod,
+			Gateway:            "paystack",
+			SubaccountCode:     subCode,
+			IsSubaccountRouted: isRouted,
+			CustomerName:       req.CustomerName,
+			CustomerEmail:      req.CustomerEmail,
+			CustomerPhone:      req.CustomerPhone,
+			Status:             "successful",
+			DisputeStatus:      "none",
+			Notes:              notes,
+		}
+		_ = tx.Table("public.payment_logs").Create(&pLog).Error
+
 		orderNumber = createdOrder.OrderNumber
 		return nil
 	})

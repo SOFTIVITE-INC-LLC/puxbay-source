@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -336,7 +337,272 @@ func (s *AdminService) TogglePromoCode(id uuid.UUID) error {
 	return s.db.Model(&code).Update("is_active", !code.IsActive).Error
 }
 
-// BillingPayments
+type PaymentFilterParams struct {
+	Search           string `form:"search"`
+	Status           string `form:"status"`
+	PaymentType      string `form:"payment_type"`
+	SubaccountRouted string `form:"subaccount_routed"` // "all", "true", "false"
+	DisputeStatus    string `form:"dispute_status"`
+	TenantID         string `form:"tenant_id"`
+	FromDate         string `form:"from_date"`
+	ToDate           string `form:"to_date"`
+	Page             int    `form:"page,default=1"`
+	Limit            int    `form:"limit,default=50"`
+}
+
+type PaymentLogInput struct {
+	TenantID           *uuid.UUID `json:"tenant_id"`
+	TenantName         string     `json:"tenant_name"`
+	PaymentType        string     `json:"payment_type"`
+	Reference          string     `json:"reference"`
+	OrderID            *uuid.UUID `json:"order_id"`
+	OrderNumber        string     `json:"order_number"`
+	Amount             float64    `json:"amount"`
+	Currency           string     `json:"currency"`
+	PaymentMethod      string     `json:"payment_method"`
+	Gateway            string     `json:"gateway"`
+	SubaccountCode     *string    `json:"subaccount_code"`
+	IsSubaccountRouted bool       `json:"is_subaccount_routed"`
+	SubaccountShare    float64    `json:"subaccount_share"`
+	PlatformFee        float64    `json:"platform_fee"`
+	CustomerName       string     `json:"customer_name"`
+	CustomerEmail      string     `json:"customer_email"`
+	CustomerPhone      string     `json:"customer_phone"`
+	Status             string     `json:"status"`
+	DisputeStatus      string     `json:"dispute_status"`
+	Notes              string     `json:"notes"`
+}
+
+type PaymentLogUpdateInput struct {
+	Status        *string `json:"status"`
+	DisputeStatus *string `json:"dispute_status"`
+	Notes         *string `json:"notes"`
+}
+
+// ListPaymentLogs retrieves paginated, searchable payment logs with rich metrics
+func (s *AdminService) ListPaymentLogs(params PaymentFilterParams) ([]models.PaymentLog, map[string]interface{}, int64, error) {
+	_ = s.db.AutoMigrate(&models.PaymentLog{})
+
+	query := s.db.Table("public.payment_logs").Preload("Tenant")
+
+	if params.Search != "" {
+		sTerm := "%" + strings.TrimSpace(params.Search) + "%"
+		query = query.Where("reference ILIKE ? OR order_number ILIKE ? OR tenant_name ILIKE ? OR customer_name ILIKE ? OR customer_phone ILIKE ? OR customer_email ILIKE ? OR subaccount_code ILIKE ?",
+			sTerm, sTerm, sTerm, sTerm, sTerm, sTerm, sTerm)
+	}
+
+	if params.Status != "" && params.Status != "all" {
+		query = query.Where("status = ?", strings.ToLower(params.Status))
+	}
+
+	if params.PaymentType != "" && params.PaymentType != "all" {
+		query = query.Where("payment_type = ?", strings.ToLower(params.PaymentType))
+	}
+
+	if params.SubaccountRouted == "true" {
+		query = query.Where("is_subaccount_routed = ? OR (subaccount_code IS NOT NULL AND subaccount_code != '')", true)
+	} else if params.SubaccountRouted == "false" {
+		query = query.Where("is_subaccount_routed = ? AND (subaccount_code IS NULL OR subaccount_code = '')", false)
+	}
+
+	if params.DisputeStatus != "" && params.DisputeStatus != "all" {
+		query = query.Where("dispute_status = ?", strings.ToLower(params.DisputeStatus))
+	}
+
+	if params.TenantID != "" {
+		if tID, err := uuid.Parse(params.TenantID); err == nil {
+			query = query.Where("tenant_id = ?", tID)
+		}
+	}
+
+	if params.FromDate != "" {
+		query = query.Where("created_at >= ?", params.FromDate)
+	}
+	if params.ToDate != "" {
+		query = query.Where("created_at <= ?", params.ToDate)
+	}
+
+	var total int64
+	query.Count(&total)
+
+	// Compute aggregated stats
+	stats := map[string]interface{}{
+		"total_volume":             0.0,
+		"successful_count":         int64(0),
+		"failed_count":             int64(0),
+		"disputed_count":           int64(0),
+		"subaccount_routed_volume": 0.0,
+		"subaccount_routed_count":  int64(0),
+		"platform_fee_total":       0.0,
+	}
+
+	var statsRows []struct {
+		Status             string
+		DisputeStatus      string
+		IsSubaccountRouted bool
+		Amount             float64
+		PlatformFee        float64
+		Count              int64
+	}
+
+	s.db.Table("public.payment_logs").
+		Select("status, dispute_status, is_subaccount_routed, SUM(amount) as amount, SUM(platform_fee) as platform_fee, COUNT(id) as count").
+		Group("status, dispute_status, is_subaccount_routed").
+		Scan(&statsRows)
+
+	for _, r := range statsRows {
+		if r.Status == "successful" || r.Status == "paid" || r.Status == "succeeded" {
+			stats["total_volume"] = stats["total_volume"].(float64) + r.Amount
+			stats["successful_count"] = stats["successful_count"].(int64) + r.Count
+			stats["platform_fee_total"] = stats["platform_fee_total"].(float64) + r.PlatformFee
+			if r.IsSubaccountRouted {
+				stats["subaccount_routed_volume"] = stats["subaccount_routed_volume"].(float64) + r.Amount
+				stats["subaccount_routed_count"] = stats["subaccount_routed_count"].(int64) + r.Count
+			}
+		} else if r.Status == "failed" || r.Status == "declined" {
+			stats["failed_count"] = stats["failed_count"].(int64) + r.Count
+		}
+
+		if r.DisputeStatus == "under_review" || r.DisputeStatus == "disputed" || r.DisputeStatus == "chargeback" {
+			stats["disputed_count"] = stats["disputed_count"].(int64) + r.Count
+		}
+	}
+
+	limit := params.Limit
+	if limit <= 0 {
+		limit = 50
+	}
+	page := params.Page
+	if page <= 0 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
+	var logs []models.PaymentLog
+	err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&logs).Error
+
+	return logs, stats, total, err
+}
+
+// CreatePaymentLog manually records a payment / settlement / dispute
+func (s *AdminService) CreatePaymentLog(input PaymentLogInput) (*models.PaymentLog, error) {
+	_ = s.db.AutoMigrate(&models.PaymentLog{})
+
+	if input.Reference == "" {
+		input.Reference = fmt.Sprintf("PAY-%d", time.Now().UnixNano()/1e6)
+	}
+	if input.Currency == "" {
+		input.Currency = "GHS"
+	}
+	if input.Status == "" {
+		input.Status = "successful"
+	}
+	if input.DisputeStatus == "" {
+		input.DisputeStatus = "none"
+	}
+	if input.PaymentType == "" {
+		input.PaymentType = "manual_entry"
+	}
+	if input.PaymentMethod == "" {
+		input.PaymentMethod = "paystack"
+	}
+	if input.Gateway == "" {
+		input.Gateway = "manual"
+	}
+
+	if input.TenantID != nil && input.TenantName == "" {
+		var tenant models.Tenant
+		if err := s.db.Table("public.tenants").Where("id = ?", *input.TenantID).First(&tenant).Error; err == nil {
+			input.TenantName = tenant.Name
+		}
+	}
+
+	if input.SubaccountCode != nil && *input.SubaccountCode != "" {
+		input.IsSubaccountRouted = true
+	}
+
+	paymentLog := models.PaymentLog{
+		TenantID:           input.TenantID,
+		TenantName:         input.TenantName,
+		PaymentType:        input.PaymentType,
+		Reference:          input.Reference,
+		OrderID:            input.OrderID,
+		OrderNumber:        input.OrderNumber,
+		Amount:             input.Amount,
+		Currency:           input.Currency,
+		PaymentMethod:      input.PaymentMethod,
+		Gateway:            input.Gateway,
+		SubaccountCode:     input.SubaccountCode,
+		IsSubaccountRouted: input.IsSubaccountRouted,
+		SubaccountShare:    input.SubaccountShare,
+		PlatformFee:        input.PlatformFee,
+		CustomerName:       input.CustomerName,
+		CustomerEmail:      input.CustomerEmail,
+		CustomerPhone:      input.CustomerPhone,
+		Status:             input.Status,
+		DisputeStatus:      input.DisputeStatus,
+		Notes:              input.Notes,
+	}
+
+	if err := s.db.Table("public.payment_logs").Create(&paymentLog).Error; err != nil {
+		return nil, err
+	}
+
+	return &paymentLog, nil
+}
+
+// GetPaymentLog retrieves a single payment log by ID
+func (s *AdminService) GetPaymentLog(id string) (*models.PaymentLog, error) {
+	pID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errors.New("invalid payment log ID")
+	}
+
+	var log models.PaymentLog
+	if err := s.db.Table("public.payment_logs").Preload("Tenant").Where("id = ?", pID).First(&log).Error; err != nil {
+		return nil, errors.New("payment log not found")
+	}
+
+	return &log, nil
+}
+
+// UpdatePaymentLog updates status, dispute status, and notes of a payment log
+func (s *AdminService) UpdatePaymentLog(id string, input PaymentLogUpdateInput) (*models.PaymentLog, error) {
+	pID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errors.New("invalid payment log ID")
+	}
+
+	updates := map[string]interface{}{}
+	if input.Status != nil {
+		updates["status"] = *input.Status
+	}
+	if input.DisputeStatus != nil {
+		updates["dispute_status"] = *input.DisputeStatus
+	}
+	if input.Notes != nil {
+		updates["notes"] = *input.Notes
+	}
+
+	if len(updates) > 0 {
+		if err := s.db.Table("public.payment_logs").Where("id = ?", pID).Updates(updates).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	return s.GetPaymentLog(id)
+}
+
+// DeletePaymentLog removes a payment log entry
+func (s *AdminService) DeletePaymentLog(id string) error {
+	pID, err := uuid.Parse(id)
+	if err != nil {
+		return errors.New("invalid payment log ID")
+	}
+	return s.db.Table("public.payment_logs").Where("id = ?", pID).Delete(&models.PaymentLog{}).Error
+}
+
+// BillingPayments (Legacy backward-compatible wrapper)
 func (s *AdminService) ListBillingPayments() ([]models.BillingPayment, map[string]interface{}, error) {
 	var payments []models.BillingPayment
 	stats := map[string]interface{}{

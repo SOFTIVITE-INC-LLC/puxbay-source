@@ -149,5 +149,6 @@ func MigratePublicModels(db *gorm.DB) error {
 		&Broadcast{},
 		&DeviceToken{},
 		&SMSGatewayConfig{},
+		&PaymentLog{},
 	)
 }
