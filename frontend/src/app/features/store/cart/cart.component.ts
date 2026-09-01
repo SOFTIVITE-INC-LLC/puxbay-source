@@ -73,7 +73,7 @@ export class CartComponent implements OnInit {
     const details = this.cartService.cartDetails();
     if (details.length === 0) return;
 
-    let text = `🛒 *My Shopping Cart*\n\n`;
+    let text = `*My Shopping Cart*\n\n`;
     details.forEach(item => {
       text += `• ${item.quantity}x ${item.product.name} — ${(item.product.selling_price * item.quantity).toFixed(2)}\n`;
     });

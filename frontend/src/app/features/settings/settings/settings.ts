@@ -9,6 +9,7 @@ import { AdminService } from '../../../core/services/admin.service';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { RolesComponent } from '../roles/roles.component';
+import { NotificationSoundService } from '../../../core/services/notification-sound.service';
 
 @Component({
   selector: 'app-settings',
@@ -34,11 +35,22 @@ export class Settings implements OnInit {
   adminService = inject(AdminService);
   storefrontService = inject(StorefrontSettingsService);
   alertService = inject(AlertService);
+  soundService = inject(NotificationSoundService);
   
   activeTab = signal('store');
   domains = signal<any[]>([]);
   newDomainName = signal('');
   isUploadingLogo = signal(false);
+
+  testSound(type: string) {
+    this.soundService.play(type);
+    this.toastService.showInfo(`Previewing ${type.replace('_', ' ')} sound`);
+  }
+
+  toggleSound(enabled: boolean) {
+    this.soundService.setSoundEnabled(enabled);
+    this.toastService.showSuccess(enabled ? 'Notification sounds enabled' : 'Notification sounds muted');
+  }
 
   get config(): any {
     return this.settingsService.settings() || {};

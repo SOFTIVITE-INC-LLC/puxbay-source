@@ -11,6 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 import { OfflineDbService } from '../../core/services/offline-db.service';
 import { PrinterService } from '../../core/services/printer.service';
 import { GiftCardService } from '../../core/services/gift-card.service';
+import { NotificationSoundService } from '../../core/services/notification-sound.service';
 
 @Injectable({ providedIn: 'root' })
 export class PosFacade {
@@ -24,6 +25,7 @@ export class PosFacade {
   readonly printer = inject(PrinterService);
   private giftCardService = inject(GiftCardService);
   private storefrontSettings = inject(StorefrontSettingsService);
+  private soundService = inject(NotificationSoundService);
 
   // --- CORE STATE ---
   searchQuery = signal('');
@@ -652,6 +654,7 @@ export class PosFacade {
       next: (res) => {
         this.isCheckoutLoading.set(false);
         this.toastr.success(`Order completed! #${res.order_number}`);
+        this.soundService.playPosCompletedSound();
         // Enrich response with product names since backend createOrder doesn't preload Product relation
         if (res && res.items) {
           res.items = res.items.map((rItem: any) => {

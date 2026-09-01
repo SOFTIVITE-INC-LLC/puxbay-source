@@ -319,29 +319,29 @@ func (s *ReportService) RenderDailyZReportHTML(data *DailyZReportData) (string, 
     <div class="section-title">Payment Collections & Sales Tender</div>
     <table>
       <tr><th>Payment Method</th><th class="text-right">Amount (GHS)</th></tr>
-      <tr><td>💵 Cash Sales</td><td class="text-right font-bold">{{printf "%.2f" .CashTotal}}</td></tr>
-      <tr><td>📱 Mobile Money (MTN / Telecel)</td><td class="text-right font-bold">{{printf "%.2f" .MoMoTotal}}</td></tr>
-      <tr><td>💳 Card / Paystack</td><td class="text-right font-bold">{{printf "%.2f" .CardTotal}}</td></tr>
-      <tr><td>🤝 Store Credit / BNPL (Purchased on credit)</td><td class="text-right font-bold" style="color:#d97706;">{{printf "%.2f" .CreditTotal}}</td></tr>
-      <tr><td>🎁 Gift Cards</td><td class="text-right font-bold">{{printf "%.2f" .GiftCardTotal}}</td></tr>
+      <tr><td>Cash Sales</td><td class="text-right font-bold">{{printf "%.2f" .CashTotal}}</td></tr>
+      <tr><td>Mobile Money (MTN / Telecel)</td><td class="text-right font-bold">{{printf "%.2f" .MoMoTotal}}</td></tr>
+      <tr><td>Card / Paystack</td><td class="text-right font-bold">{{printf "%.2f" .CardTotal}}</td></tr>
+      <tr><td>Store Credit / BNPL (Purchased on credit)</td><td class="text-right font-bold" style="color:#d97706;">{{printf "%.2f" .CreditTotal}}</td></tr>
+      <tr><td>Gift Cards</td><td class="text-right font-bold">{{printf "%.2f" .GiftCardTotal}}</td></tr>
       <tr class="highlight"><td>Total Daily Sales</td><td class="text-right">{{printf "%.2f" .TotalSales}}</td></tr>
     </table>
 
     <div class="section-title">Customer Debt & Credit Accounts</div>
     <table>
       <tr><th>Account / Transaction</th><th class="text-right">Amount (GHS)</th></tr>
-      <tr><td>📥 Debt Repayments Collected Today ({{.DebtRepaymentsCount}} payments)</td><td class="text-right positive">+GHS {{printf "%.2f" .DebtRepaymentsTotal}}</td></tr>
+      <tr><td>Debt Repayments Collected Today ({{.DebtRepaymentsCount}} payments)</td><td class="text-right positive">+GHS {{printf "%.2f" .DebtRepaymentsTotal}}</td></tr>
       <tr style="font-size: 11px; color: #64748b;">
         <td style="padding-left: 20px;">&bull; Cash: GHS {{printf "%.2f" .DebtRepaymentsCash}} | MoMo: GHS {{printf "%.2f" .DebtRepaymentsMoMo}} | Card: GHS {{printf "%.2f" .DebtRepaymentsCard}}</td>
         <td class="text-right">-</td>
       </tr>
-      <tr><td>📤 New Credit / BNPL Extended Today</td><td class="text-right negative">GHS {{printf "%.2f" .CreditTotal}}</td></tr>
-      <tr><td>📊 Total Outstanding Accounts Receivable (All Debt)</td><td class="text-right font-bold" style="color:#b91c1c;">GHS {{printf "%.2f" .TotalAccountsReceivable}}</td></tr>
+      <tr><td>New Credit / BNPL Extended Today</td><td class="text-right negative">GHS {{printf "%.2f" .CreditTotal}}</td></tr>
+      <tr><td>Total Outstanding Accounts Receivable (All Debt)</td><td class="text-right font-bold" style="color:#b91c1c;">GHS {{printf "%.2f" .TotalAccountsReceivable}}</td></tr>
       {{if gt .OverdueDebtTotal 0.0}}
-      <tr><td>⚠️ Overdue Customer Debt</td><td class="text-right" style="color:#dc2626; font-weight:900;">GHS {{printf "%.2f" .OverdueDebtTotal}}</td></tr>
+      <tr><td>Overdue Customer Debt</td><td class="text-right" style="color:#dc2626; font-weight:900;">GHS {{printf "%.2f" .OverdueDebtTotal}}</td></tr>
       {{end}}
       <tr class="highlight" style="background:#e0f2fe;">
-        <td><strong>💵 Net Liquid Money Received Today</strong><br><small style="color:#64748b;">(Cash + MoMo + Card + Debt Repayments)</small></td>
+        <td><strong>Net Liquid Money Received Today</strong><br><small style="color:#64748b;">(Cash + MoMo + Card + Debt Repayments)</small></td>
         <td class="text-right font-bold" style="color:#0369a1; font-size:15px;">GHS {{printf "%.2f" .NetCashCollected}}</td>
       </tr>
     </table>

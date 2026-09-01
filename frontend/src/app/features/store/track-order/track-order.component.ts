@@ -90,7 +90,7 @@ export class TrackOrderComponent implements OnInit {
     if (!o) return;
     const code = o.order_number || this.orderNumber();
     const url = `${window.location.origin}/store/track-order?code=${code}`;
-    const text = `📦 *Order Tracking Update*\n\n• *Tracking Code:* ${code}\n• *Status:* ${o.status.toUpperCase()}\n• *Total:* GHS ${Number(o.total || 0).toFixed(2)}\n\nTrack live status here:\n${url}`;
+    const text = `*Order Tracking Update*\n\n• *Tracking Code:* ${code}\n• *Status:* ${o.status.toUpperCase()}\n• *Total:* GHS ${Number(o.total || 0).toFixed(2)}\n\nTrack live status here:\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 }

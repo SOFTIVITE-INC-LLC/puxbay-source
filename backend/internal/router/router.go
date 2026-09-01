@@ -66,10 +66,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	authService.SetEmailService(authEmailService)
 
 	smsService := services.NewSMSService(cfg.SMS)
+	pushService := services.NewPushService(db, hub)
 
 	// Initialize handlers
 	offlineHandler := handlers.NewOfflineHandler(db)
-	kioskHandler := handlers.NewKioskHandler(db, smsService)
+	kioskHandler := handlers.NewKioskHandler(db, smsService, pushService)
 	authHandler := handlers.NewAuthHandler(db, authService, cfg.SMTP, cfg.App.RootDomain, cfg.JWT)
 	healthHandler := handlers.NewHealthHandler(db, redisClient)
 	branchHandler := handlers.NewBranchHandler(db)
@@ -98,11 +99,10 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 	privacyHandler := handlers.NewPrivacyHandler(db)
 	publicPortalHandler := handlers.NewPublicPortalHandler(db)
 	adminHandler := handlers.NewAdminHandler(db, authService)
-	storefrontHandler := handlers.NewStorefrontAPIHandler(db, authService, &cfg.Paystack, redisClient, smsService)
+	storefrontHandler := handlers.NewStorefrontAPIHandler(db, authService, &cfg.Paystack, redisClient, smsService, pushService)
 	webhookHandler := handlers.NewWebhookHandler(db)
 	walletHandler := handlers.NewWalletAPIHandler(db)
 	notificationHandler := handlers.NewNotificationHandler(db, hub)
-	pushService := services.NewPushService(db, hub)
 	deviceTokenHandler := handlers.NewDeviceTokenHandler(pushService)
 	returnHandler := handlers.NewReturnHandler(db)
 	cashDrawerHandler := handlers.NewCashDrawerHandler(db)

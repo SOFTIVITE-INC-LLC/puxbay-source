@@ -24,12 +24,14 @@ func NewPushService(db *gorm.DB, hub *ws.Hub) *PushService {
 
 // PushPayload is the JSON structure sent over WebSocket.
 type PushPayload struct {
-	Type     string `json:"type"`
-	Title    string `json:"title"`
-	Message  string `json:"message"`
-	Category string `json:"category"`
-	Link     string `json:"link,omitempty"`
-	Icon     string `json:"icon,omitempty"`
+	Type      string `json:"type"`
+	Title     string `json:"title"`
+	Message   string `json:"message"`
+	Category  string `json:"category"`
+	NotifType string `json:"notif_type,omitempty"`
+	SoundType string `json:"sound_type,omitempty"`
+	Link      string `json:"link,omitempty"`
+	Icon      string `json:"icon,omitempty"`
 }
 
 // RegisterToken stores a device token for a user.
@@ -53,17 +55,44 @@ func (s *PushService) DeactivateToken(token string) error {
 		Update("is_active", false).Error
 }
 
+func soundForCategory(category, notifType string) string {
+	switch {
+	case notifType == "online_order" || category == "online_order" || category == "storefront":
+		return "online_order"
+	case notifType == "kiosk_order" || category == "kiosk" || category == "kiosk_order":
+		return "kiosk_order"
+	case notifType == "pos_completed" || category == "pos_order_completed" || category == "sale":
+		return "pos_completed"
+	case notifType == "low_stock" || category == "low_stock" || category == "inventory":
+		return "low_stock"
+	case notifType == "anomaly" || category == "anomaly" || category == "security":
+		return "anomaly"
+	default:
+		return "general"
+	}
+}
+
 // SendToUser broadcasts a push notification to all active WebSocket connections
 // for the given user (via their tenant channel), and stores the token list
 // for future native delivery.
 func (s *PushService) SendToUser(tenantID uuid.UUID, userID uuid.UUID, title, message, category, link string) {
+	s.SendToUserWithSound(tenantID, userID, title, message, category, link, "", soundForCategory(category, ""))
+}
+
+func (s *PushService) SendToUserWithSound(tenantID uuid.UUID, userID uuid.UUID, title, message, category, link, notifType, soundType string) {
+	if soundType == "" {
+		soundType = soundForCategory(category, notifType)
+	}
+
 	payload := PushPayload{
-		Type:     "notification",
-		Title:    title,
-		Message:  message,
-		Category: category,
-		Link:     link,
-		Icon:     iconForCategory(category),
+		Type:      "notification",
+		Title:     title,
+		Message:   message,
+		Category:  category,
+		NotifType: notifType,
+		SoundType: soundType,
+		Link:      link,
+		Icon:      iconForCategory(category),
 	}
 
 	data, err := json.Marshal(payload)
@@ -72,7 +101,6 @@ func (s *PushService) SendToUser(tenantID uuid.UUID, userID uuid.UUID, title, me
 		return
 	}
 
-	// Broadcast over WebSocket to all connected web/mobile clients in this tenant
 	if s.hub != nil {
 		s.hub.BroadcastMessage(tenantID.String(), data)
 	}
@@ -80,13 +108,23 @@ func (s *PushService) SendToUser(tenantID uuid.UUID, userID uuid.UUID, title, me
 
 // SendToTenantAdmins broadcasts a notification to all admin WebSocket clients.
 func (s *PushService) SendToTenantAdmins(tenantID uuid.UUID, title, message, category, link string) {
+	s.SendToTenantAdminsWithSound(tenantID, title, message, category, link, "", soundForCategory(category, ""))
+}
+
+func (s *PushService) SendToTenantAdminsWithSound(tenantID uuid.UUID, title, message, category, link, notifType, soundType string) {
+	if soundType == "" {
+		soundType = soundForCategory(category, notifType)
+	}
+
 	payload := PushPayload{
-		Type:     "notification",
-		Title:    title,
-		Message:  message,
-		Category: category,
-		Link:     link,
-		Icon:     iconForCategory(category),
+		Type:      "notification",
+		Title:     title,
+		Message:   message,
+		Category:  category,
+		NotifType: notifType,
+		SoundType: soundType,
+		Link:      link,
+		Icon:      iconForCategory(category),
 	}
 
 	data, err := json.Marshal(payload)

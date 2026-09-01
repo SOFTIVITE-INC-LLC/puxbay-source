@@ -33,10 +33,11 @@ type StorefrontAPIHandler struct {
 	paystackCfg *config.PaystackConfig
 	redis       *redis.Client
 	smsService  *services.SMSService
+	pushService *services.PushService
 }
 
-func NewStorefrontAPIHandler(db *gorm.DB, authService *services.AuthService, paystackCfg *config.PaystackConfig, rdb *redis.Client, sms *services.SMSService) *StorefrontAPIHandler {
-	return &StorefrontAPIHandler{db: db, authService: authService, paystackCfg: paystackCfg, redis: rdb, smsService: sms}
+func NewStorefrontAPIHandler(db *gorm.DB, authService *services.AuthService, paystackCfg *config.PaystackConfig, rdb *redis.Client, sms *services.SMSService, push *services.PushService) *StorefrontAPIHandler {
+	return &StorefrontAPIHandler{db: db, authService: authService, paystackCfg: paystackCfg, redis: rdb, smsService: sms, pushService: push}
 }
 
 func (h *StorefrontAPIHandler) service(c *gin.Context) *services.StorefrontService {
@@ -717,6 +718,13 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 		return
 	}
 
+	var tenantID uuid.UUID
+	if tid, exists := c.Get(middleware.ContextKeyTenantID); exists {
+		if id, ok := tid.(uuid.UUID); ok {
+			tenantID = id
+		}
+	}
+
 	if strings.TrimSpace(req.CustomerPhone) == "" {
 		c.JSON(400, gin.H{"error": "Customer phone number is required for order verification and updates"})
 		return
@@ -935,6 +943,36 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 			}
 		}
 
+		// Record Online Order Notification in DB
+		orderNotif := models.Notification{
+			Title:            fmt.Sprintf("New Online Order #%s", createdOrder.OrderNumber),
+			Message:          fmt.Sprintf("New online order from %s for %s. Total: GH₵%.2f", req.CustomerName, req.DeliveryMethod, createdOrder.Total),
+			Link:             "/orders/" + createdOrder.ID.String(),
+			IsRead:           false,
+			NotificationType: "info",
+			Category:         "online_order",
+		}
+		_ = tx.Create(&orderNotif)
+
+		// Check for Low Stock on Tracked Items
+		for _, item := range req.Items {
+			pID, _ := uuid.Parse(item.ProductID)
+			var prod models.Product
+			if err := tx.Where("id = ?", pID).First(&prod).Error; err == nil {
+				if prod.TrackInventory && (prod.CurrentStock-float64(item.Quantity)) <= prod.ReorderLevel {
+					stockNotif := models.Notification{
+						Title:            fmt.Sprintf("Low Stock Alert: %s", prod.Name),
+						Message:          fmt.Sprintf("%s is running low (%.0f %s remaining, reorder level is %.0f).", prod.Name, prod.CurrentStock-float64(item.Quantity), prod.StockUnit, prod.ReorderLevel),
+						Link:             "/inventory",
+						IsRead:           false,
+						NotificationType: "warning",
+						Category:         "low_stock",
+					}
+					_ = tx.Create(&stockNotif)
+				}
+			}
+		}
+
 		if sessionID != "" {
 			tx.Model(&models.AbandonedCart{}).Where("email = ? OR email = ?", sessionID, req.CustomerID).Update("is_recovered", true)
 		}
@@ -946,6 +984,23 @@ func (h *StorefrontAPIHandler) VerifyPaystackCheckout(c *gin.Context) {
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Checkout failed: " + err.Error()})
 		return
+	}
+
+	// Broadcast Real-time Push & Sound to Admins/Cashiers
+	if h.pushService != nil && tenantID != uuid.Nil {
+		custName := req.CustomerName
+		if custName == "" {
+			custName = "Online Customer"
+		}
+		h.pushService.SendToTenantAdminsWithSound(
+			tenantID,
+			fmt.Sprintf("New Online Order #%s", orderNumber),
+			fmt.Sprintf("New online order from %s (%s). Total: GH₵%.2f", custName, req.DeliveryMethod, req.Total),
+			"online_order",
+			"/orders",
+			"online_order",
+			"online_order",
+		)
 	}
 
 	c.JSON(201, gin.H{

@@ -76,7 +76,7 @@ func processAnomalyDetection(db *gorm.DB, intelligenceSvc *services.Intelligence
 				notifType = "error"
 			}
 
-			title := fmt.Sprintf("⚠️ %d Anomaly Alert(s) Detected", len(anomalies))
+			title := fmt.Sprintf("%d Anomaly Alert(s) Detected", len(anomalies))
 			msg := buildAnomalySummary(anomalies)
 
 			tenantID, err := uuid.Parse(tenant.ID.String())
@@ -115,11 +115,11 @@ func buildAnomalySummary(anomalies []services.Anomaly) string {
 			msg += fmt.Sprintf("...and %d more anomaly/anomalies.\n", len(anomalies)-3)
 			break
 		}
-		icon := "⚠️"
+		prefix := "[WARNING]"
 		if a.Severity == "critical" {
-			icon = "🔴"
+			prefix = "[CRITICAL]"
 		}
-		msg += fmt.Sprintf("%s %s (deviation: %.1f%%)\n", icon, a.Title, a.Deviation)
+		msg += fmt.Sprintf("%s %s (deviation: %.1f%%)\n", prefix, a.Title, a.Deviation)
 	}
 	return msg
 }

@@ -14,12 +14,13 @@ import (
 )
 
 type KioskHandler struct {
-	db         *gorm.DB
-	smsService *services.SMSService
+	db          *gorm.DB
+	smsService  *services.SMSService
+	pushService *services.PushService
 }
 
-func NewKioskHandler(db *gorm.DB, sms *services.SMSService) *KioskHandler {
-	return &KioskHandler{db: db, smsService: sms}
+func NewKioskHandler(db *gorm.DB, sms *services.SMSService, push *services.PushService) *KioskHandler {
+	return &KioskHandler{db: db, smsService: sms, pushService: push}
 }
 
 // GetConfig returns the kiosk configuration for a given branch
@@ -165,6 +166,23 @@ func (h *KioskHandler) PlaceOrder(c *gin.Context) {
 	if h.smsService != nil && customerPhone != "" {
 		msg := fmt.Sprintf("Thank you for your order! Your Kiosk Order #%s has been placed. Please present this code when called.", order.OrderNumber)
 		_ = h.smsService.SendTenantSMS(tx, []string{customerPhone}, msg, "Kiosk Order SMS: #"+order.OrderNumber)
+	}
+
+	// Dispatch Real-time Notification & Sound to Admins/Cashiers
+	if h.pushService != nil && tenantID != uuid.Nil {
+		custDisplay := customerName
+		if custDisplay == "" {
+			custDisplay = "Customer"
+		}
+		h.pushService.SendToTenantAdminsWithSound(
+			tenantID,
+			fmt.Sprintf("New Kiosk Order #%s", order.OrderNumber),
+			fmt.Sprintf("Kiosk order for GH₵%.2f placed by %s", order.Total, custDisplay),
+			"kiosk_order",
+			"/orders/"+order.ID.String(),
+			"kiosk_order",
+			"kiosk_order",
+		)
 	}
 
 	c.JSON(http.StatusCreated, order)

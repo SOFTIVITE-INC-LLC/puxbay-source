@@ -186,7 +186,7 @@ func (s *NotificationService) CreateAndPush(tenantID, userID uuid.UUID, title, m
 
 	// Fire WebSocket push (non-blocking — runs in goroutine)
 	if s.pushService != nil {
-		go s.pushService.SendToUser(tenantID, userID, title, message, category, link)
+		go s.pushService.SendToUserWithSound(tenantID, userID, title, message, category, link, notifType, soundForCategory(category, notifType))
 	}
 
 	return nil
@@ -211,6 +211,6 @@ func (s *NotificationService) CreateAndPushToAdmins(tenantID uuid.UUID, title, m
 
 	// Also broadcast over WebSocket to all connected clients in this tenant
 	if s.pushService != nil {
-		go s.pushService.SendToTenantAdmins(tenantID, title, message, category, link)
+		go s.pushService.SendToTenantAdminsWithSound(tenantID, title, message, category, link, notifType, soundForCategory(category, notifType))
 	}
 }

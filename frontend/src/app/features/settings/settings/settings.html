@@ -377,6 +377,68 @@
                 </label>
               </div>
 
+              <!-- ── Sound Effects & Audio Alerts ── -->
+              <div class="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <span class="material-symbols-outlined !text-[22px]">volume_up</span>
+                    </div>
+                    <div>
+                      <h4 class="font-black text-zinc-900 dark:text-white">Notification Sounds & Audio Alerts</h4>
+                      <p class="text-xs text-zinc-500 mt-0.5">Plays audio chimes when new online orders, kiosk sales, stock alerts, or anomalies occur.</p>
+                    </div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" [checked]="soundService.soundEnabled()" (change)="toggleSound($any($event.target).checked)" class="sr-only peer" />
+                    <div class="w-12 h-6 bg-zinc-200 dark:bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                  </label>
+                </div>
+
+                <!-- Sound Previews Grid -->
+                <div class="pt-3 border-t border-zinc-200 dark:border-zinc-700/60 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <button type="button" (click)="testSound('online_order')" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 transition-all text-left group">
+                    <div class="flex items-center gap-2.5">
+                      <span class="material-symbols-outlined text-indigo-500 text-[18px]">shopping_bag</span>
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">Online Storefront Order</span>
+                    </div>
+                    <span class="material-symbols-outlined text-zinc-400 group-hover:text-indigo-500 text-[16px]">play_circle</span>
+                  </button>
+
+                  <button type="button" (click)="testSound('kiosk_order')" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-indigo-500 transition-all text-left group">
+                    <div class="flex items-center gap-2.5">
+                      <span class="material-symbols-outlined text-cyan-500 text-[18px]">desktop_windows</span>
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">Self-Service Kiosk</span>
+                    </div>
+                    <span class="material-symbols-outlined text-zinc-400 group-hover:text-cyan-500 text-[16px]">play_circle</span>
+                  </button>
+
+                  <button type="button" (click)="testSound('pos_completed')" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-emerald-500 transition-all text-left group">
+                    <div class="flex items-center gap-2.5">
+                      <span class="material-symbols-outlined text-emerald-500 text-[18px]">payments</span>
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">POS Sale / Paid</span>
+                    </div>
+                    <span class="material-symbols-outlined text-zinc-400 group-hover:text-emerald-500 text-[16px]">play_circle</span>
+                  </button>
+
+                  <button type="button" (click)="testSound('low_stock')" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-amber-500 transition-all text-left group">
+                    <div class="flex items-center gap-2.5">
+                      <span class="material-symbols-outlined text-amber-500 text-[18px]">inventory_2</span>
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">Low Stock Alert</span>
+                    </div>
+                    <span class="material-symbols-outlined text-zinc-400 group-hover:text-amber-500 text-[16px]">play_circle</span>
+                  </button>
+
+                  <button type="button" (click)="testSound('anomaly')" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-rose-500 transition-all text-left group">
+                    <div class="flex items-center gap-2.5">
+                      <span class="material-symbols-outlined text-rose-500 text-[18px]">warning</span>
+                      <span class="text-xs font-bold text-zinc-800 dark:text-zinc-200">Security / Anomaly Alert</span>
+                    </div>
+                    <span class="material-symbols-outlined text-zinc-400 group-hover:text-rose-500 text-[16px]">play_circle</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label class="block text-sm font-bold mb-2">Admin Notification Email</label>
                 <input type="email" [(ngModel)]="config.admin_notification_email" placeholder="admin@store.com" class="w-full px-4 py-3 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all text-sm" />

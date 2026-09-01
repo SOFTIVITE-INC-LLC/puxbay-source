@@ -9,6 +9,7 @@ import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { PosOverrideModalComponent } from '../../../shared/components/pos-override-modal/pos-override-modal';
 import { AlertService } from '../../../core/services/alert.service';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
+import { NotificationSoundService } from '../../../core/services/notification-sound.service';
 
 export interface SplitPaymentRow {
   method: string;
@@ -28,6 +29,7 @@ export class OrderDetail implements OnInit, OnDestroy {
   private alertService = inject(AlertService);
   public orderService = inject(OrderService);
   public storefrontSettingsService = inject(StorefrontSettingsService);
+  private soundService = inject(NotificationSoundService);
 
   order = signal<Order | null>(null);
   loading = signal(true);
@@ -378,6 +380,7 @@ export class OrderDetail implements OnInit, OnDestroy {
       next: () => {
         this.completingOrder.set(false);
         this.showPaymentModal.set(false);
+        this.soundService.playPosCompletedSound();
         this.alertService.alert(`Order #${o.order_number} has been recorded as PAID via ${method.toUpperCase()}.`, 'Payment Completed', 'success');
         this.loadOrder(o.id!);
       },
@@ -410,6 +413,7 @@ export class OrderDetail implements OnInit, OnDestroy {
         this.completingOrder.set(false);
         this.showOverrideModal.set(false);
         this.showOtpModal.set(false);
+        this.soundService.playPosCompletedSound();
         this.loadOrder(o.id!);
       },
       error: (err) => {

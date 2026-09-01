@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { NotificationSoundService } from './notification-sound.service';
+import { NotificationService } from './notification.service';
+import { ToastService } from './toast';
 
 export interface WebSocketMessage {
   type: string;
@@ -15,6 +18,10 @@ export class WebsocketService {
   private reconnectInterval = 3000;
   private reconnectAttempts = 0;
   
+  private soundService = inject(NotificationSoundService);
+  private notificationService = inject(NotificationService);
+  private toastService = inject(ToastService);
+
   public messages$ = new Subject<WebSocketMessage>();
 
   constructor() {
@@ -53,14 +60,48 @@ export class WebsocketService {
         const data = JSON.parse(event.data);
         this.messages$.next(data);
 
-        // Native Browser Push Notification
-        if (data.type === 'notification' && 'Notification' in window && Notification.permission === 'granted') {
-          try {
-            new Notification(data.title || 'Puxbay Notification', {
-              body: data.message,
-              icon: '/assets/icons/icon-192x192.png',
-            });
-          } catch (_) {}
+        // Real-time Push Notification & Sound Playback
+        if (data.type === 'notification') {
+          // 1. Play synthesized acoustic sound chime based on sound_type / category
+          const soundType = data.sound_type || data.category || data.notif_type || 'general';
+          this.soundService.play(soundType);
+
+          // 2. Update Notification State
+          this.notificationService.unreadCount.update(c => c + 1);
+          const newNotif = {
+            id: data.id || 'notif-' + Date.now(),
+            user_id: '',
+            type: data.notif_type || data.category || 'info',
+            title: data.title || 'New Notification',
+            message: data.message || '',
+            is_read: false,
+            link: data.link || '',
+            created_at: new Date().toISOString()
+          };
+          this.notificationService.notifications.update(list => [newNotif, ...list]);
+          this.notificationService.latestNotifications.update(list => [newNotif, ...list.slice(0, 4)]);
+
+          // 3. Show In-App Floating Toast
+          if (data.title || data.message) {
+            const toastMsg = data.title ? `${data.title} — ${data.message}` : data.message;
+            if (soundType === 'low_stock') {
+              this.toastService.showWarning(toastMsg);
+            } else if (soundType === 'anomaly') {
+              this.toastService.showError(toastMsg);
+            } else {
+              this.toastService.showSuccess(toastMsg);
+            }
+          }
+
+          // 4. Native Browser Push Notification (if permission granted)
+          if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+              new Notification(data.title || 'Puxbay Notification', {
+                body: data.message,
+                icon: '/assets/icons/icon-192x192.png',
+              });
+            } catch (_) {}
+          }
         }
       } catch (e) {
         console.error('[WebSocket] Failed to parse message', e);

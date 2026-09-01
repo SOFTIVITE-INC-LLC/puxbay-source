@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable, tap } from 'rxjs';
+import { NotificationSoundService } from './notification-sound.service';
 
 export interface Notification {
   id: string;
@@ -42,6 +43,9 @@ export class NotificationService {
   settings = signal<NotificationSetting | null>(null);
   loading = signal<boolean>(false);
 
+  private previousCount = 0;
+  private soundService = inject(NotificationSoundService);
+
   getList(params?: any): Observable<NotificationListResult> {
     this.loading.set(true);
     return this.api.get<NotificationListResult>('/notifications', { params }).pipe(
@@ -56,8 +60,17 @@ export class NotificationService {
   getLatest(): Observable<{count: number, notifications: Notification[]}> {
     return this.api.get<{count: number, notifications: Notification[]}>('/notifications/latest').pipe(
       tap(res => {
+        const prev = this.previousCount;
+        const current = res.count || 0;
+        this.previousCount = current;
         this.latestNotifications.set(res.notifications || []);
-        this.unreadCount.set(res.count || 0);
+        this.unreadCount.set(current);
+
+        // If new notifications arrived via polling fallback and count grew
+        if (current > prev && prev > 0 && res.notifications?.length > 0) {
+          const first = res.notifications[0];
+          this.soundService.play((first as any).category || first.type || 'general');
+        }
       })
     );
   }
