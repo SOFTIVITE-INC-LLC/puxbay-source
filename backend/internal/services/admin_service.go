@@ -383,7 +383,7 @@ type PaymentLogUpdateInput struct {
 func (s *AdminService) ListPaymentLogs(params PaymentFilterParams) ([]models.PaymentLog, map[string]interface{}, int64, error) {
 	_ = s.db.AutoMigrate(&models.PaymentLog{})
 
-	query := s.db.Table("public.payment_logs").Preload("Tenant")
+	query := s.db.Model(&models.PaymentLog{})
 
 	if params.Search != "" {
 		sTerm := "%" + strings.TrimSpace(params.Search) + "%"
@@ -479,7 +479,7 @@ func (s *AdminService) ListPaymentLogs(params PaymentFilterParams) ([]models.Pay
 	offset := (page - 1) * limit
 
 	var logs []models.PaymentLog
-	err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&logs).Error
+	err := query.Preload("Tenant").Order("created_at desc").Limit(limit).Offset(offset).Find(&logs).Error
 
 	return logs, stats, total, err
 }
@@ -559,7 +559,7 @@ func (s *AdminService) GetPaymentLog(id string) (*models.PaymentLog, error) {
 	}
 
 	var log models.PaymentLog
-	if err := s.db.Table("public.payment_logs").Preload("Tenant").Where("id = ?", pID).First(&log).Error; err != nil {
+	if err := s.db.Model(&models.PaymentLog{}).Preload("Tenant").Where("id = ?", pID).First(&log).Error; err != nil {
 		return nil, errors.New("payment log not found")
 	}
 
