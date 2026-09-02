@@ -155,7 +155,7 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login({ username: userEmail, password: userPass, totpCode: code }).subscribe({
+    this.authService.login({ username: userEmail, password: userPass, totp_code: code, totpCode: code }).subscribe({
       next: () => {
         this.isLoading.set(false);
         const user = this.authService.currentUser();

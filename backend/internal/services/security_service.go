@@ -92,20 +92,25 @@ func (s *SecurityService) Verify2FA(userID uuid.UUID, code string) error {
 }
 
 // validateTOTPCode performs TOTP validation (RFC 6238).
-// Checks the code against the current and adjacent 30-second windows for clock skew tolerance.
 func validateTOTPCode(secret, code string) bool {
-	secretBytes, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(secret)
+	cleanSecret := strings.ToUpper(strings.TrimSpace(strings.ReplaceAll(secret, " ", "")))
+	cleanCode := strings.TrimSpace(code)
+
+	secretBytes, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(cleanSecret)
 	if err != nil || len(secretBytes) == 0 {
-		return false
+		secretBytes, err = base32.StdEncoding.DecodeString(cleanSecret)
+		if err != nil || len(secretBytes) == 0 {
+			return false
+		}
 	}
 
 	now := time.Now()
-	// Check current window and ±1 window for clock skew tolerance
-	for _, offset := range []int64{-30, 0, 30} {
+	// Check ±2 time windows (-60s to +60s) for clock skew tolerance
+	for _, offset := range []int64{-60, -30, 0, 30, 60} {
 		t := now.Add(time.Duration(offset) * time.Second)
 		counter := uint64(t.Unix()) / 30
 		expected := hmacBasedOTP(secretBytes, counter)
-		if expected == code {
+		if expected == cleanCode {
 			return true
 		}
 	}

@@ -98,9 +98,10 @@ func NewAuthHandler(db *gorm.DB, authService *services.AuthService, smtpCfg conf
 }
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	TOTPCode string `json:"totp_code,omitempty"`
+	Username      string `json:"username" binding:"required"`
+	Password      string `json:"password" binding:"required"`
+	TOTPCode      string `json:"totp_code,omitempty"`
+	TOTPCodeCamel string `json:"totpCode,omitempty"`
 }
 
 // RegisterRequest is the request body for tenant registration.
@@ -126,7 +127,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	profile, tokens, err := h.authService.Authenticate(req.Username, req.Password, req.TOTPCode)
+	totpCode := strings.TrimSpace(req.TOTPCode)
+	if totpCode == "" {
+		totpCode = strings.TrimSpace(req.TOTPCodeCamel)
+	}
+
+	profile, tokens, err := h.authService.Authenticate(req.Username, req.Password, totpCode)
 	if err != nil {
 		if err.Error() == "2fa_required" {
 			c.JSON(http.StatusForbidden, gin.H{
