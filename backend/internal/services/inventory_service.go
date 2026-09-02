@@ -476,7 +476,7 @@ func (s *InventoryService) CreateStocktake(input StocktakeInput) (*models.Stockt
 
 func (s *InventoryService) GetStocktake(id string) (*models.StocktakeSession, error) {
 	var st models.StocktakeSession
-	if err := s.db.Where("id = ?", id).Preload("Entries").Preload("Entries.Product").First(&st).Error; err != nil {
+	if err := s.db.Where("id = ?", id).Preload("Entries").Preload("Entries.Product").Preload("Entries.Product.Category").First(&st).Error; err != nil {
 		return nil, err
 	}
 	return &st, nil

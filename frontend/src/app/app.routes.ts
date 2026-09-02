@@ -193,6 +193,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/inventory/stocktake-detail/stocktake-detail').then(m => m.StocktakeDetailComponent)
       },
       {
+        path: 'inventory/stocktake/:id/analysis',
+        loadComponent: () => import('./features/inventory/stocktake-detail/stocktake-detail').then(m => m.StocktakeDetailComponent)
+      },
+      {
         path: 'inventory/purchase-orders',
         redirectTo: 'inventory/supply-chain',
         pathMatch: 'full'
