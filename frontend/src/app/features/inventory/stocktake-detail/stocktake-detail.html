@@ -1,34 +1,31 @@
-<div class="min-h-screen flex flex-col p-4 sm:p-6 lg:p-8 gap-6 max-w-7xl mx-auto text-slate-900 dark:text-slate-100 relative">
-  <!-- Ambient background glow effects -->
-  <div class="fixed top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary-500/10 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none no-print"></div>
-  <div class="fixed bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-sky-500/10 dark:bg-teal-500/10 rounded-full blur-3xl pointer-events-none no-print"></div>
+<div class="w-full max-w-full flex flex-col p-4 sm:p-6 lg:p-7 gap-6 text-slate-900 dark:text-slate-100 relative overflow-x-hidden">
 
   <!-- Top Navigation & Header Bar -->
-  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 relative z-10 no-print">
-    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4">
+  <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 w-full relative z-10 no-print">
+    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
       <button 
         (click)="goBack()" 
-        class="w-11 h-11 rounded-2xl bg-white dark:bg-slate-800/90 shadow-sm border border-slate-200 dark:border-slate-700/70 hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center text-slate-600 dark:text-slate-300 group"
+        class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white dark:bg-slate-800/90 shadow-sm border border-slate-200 dark:border-slate-700/70 hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-md hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center text-slate-600 dark:text-slate-300 group shrink-0"
         title="Back to Stocktakes"
       >
         <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
       </button>
 
-      <div>
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white truncate">
             Stocktake Session
           </h1>
           
           <!-- Status Badge -->
           <div class="flex items-center">
             @if (session()?.status === 'completed') {
-              <span class="px-3.5 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-200 dark:border-emerald-500/30 shadow-sm flex items-center gap-1.5">
-                <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+              <span class="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-200 dark:border-emerald-500/30 shadow-sm flex items-center gap-1.5">
+                <span class="material-symbols-outlined !text-[15px]">check_circle</span>
                 Completed & Reconciled
               </span>
             } @else if (session()) {
-              <span class="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)] flex items-center gap-2">
+              <span class="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)] flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 In Progress
               </span>
@@ -36,10 +33,10 @@
           </div>
         </div>
 
-        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium flex flex-wrap items-center gap-x-2 gap-y-1">
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium flex flex-wrap items-center gap-x-2 gap-y-1 truncate">
           <span class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-            <span class="material-symbols-outlined !text-[16px] text-primary-500">inventory_2</span>
-            {{ session()?.name || 'Loading session...' }}
+            <span class="material-symbols-outlined !text-[15px] text-primary-500">inventory_2</span>
+            {{ session()?.name || 'Loading...' }}
           </span>
           <span class="hidden sm:inline text-slate-300 dark:text-slate-700">&bull;</span>
           <span>Started {{ session()?.created_at | date:'medium' }}</span>
@@ -52,21 +49,21 @@
     </div>
 
     <!-- Action Tools & View Tabs -->
-    <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto justify-start xl:justify-end">
+    <div class="flex flex-wrap items-center gap-2.5 w-full xl:w-auto justify-start xl:justify-end shrink-0">
       
       <!-- View Switcher Tabs -->
-      <div class="inline-flex p-1.5 bg-slate-200/70 dark:bg-slate-800/80 rounded-2xl border border-slate-300/50 dark:border-slate-700/60 shadow-inner">
+      <div class="inline-flex p-1 bg-slate-200/80 dark:bg-slate-800/90 rounded-2xl border border-slate-300/60 dark:border-slate-700/60 shadow-inner">
         <button
           type="button"
           (click)="activeTab.set('live')"
           [class]="activeTab() === 'live' 
-            ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-white shadow-md font-extrabold' 
+            ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-white shadow-sm font-extrabold' 
             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold'"
-          class="px-4 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-1.5 cursor-pointer"
         >
-          <span class="material-symbols-outlined !text-[18px]">qr_code_scanner</span>
-          Live Counting
-          <span class="px-1.5 py-0.5 rounded-md text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
+          <span class="material-symbols-outlined !text-[16px]">qr_code_scanner</span>
+          <span>Live Counting</span>
+          <span class="px-1.5 py-0.2 rounded-md text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
             {{ totalItems() }}
           </span>
         </button>
@@ -75,14 +72,14 @@
           type="button"
           (click)="activeTab.set('analysis')"
           [class]="activeTab() === 'analysis' 
-            ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-white shadow-md font-extrabold' 
+            ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-white shadow-sm font-extrabold' 
             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold'"
-          class="px-4 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-1.5 cursor-pointer"
         >
-          <span class="material-symbols-outlined !text-[18px]">analytics</span>
-          Variance Analysis & Audit
+          <span class="material-symbols-outlined !text-[16px]">analytics</span>
+          <span>Variance Analysis & Audit</span>
           @if (discrepancyCount() > 0) {
-            <span class="px-1.5 py-0.5 rounded-md text-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono font-bold">
+            <span class="px-1.5 py-0.2 rounded-md text-[10px] bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono font-bold">
               {{ discrepancyCount() }}
             </span>
           }
@@ -95,10 +92,10 @@
         <button
           type="button"
           (click)="exportCSV()"
-          class="p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center gap-1.5"
+          class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center gap-1.5 cursor-pointer"
           title="Export CSV Audit Sheet"
         >
-          <span class="material-symbols-outlined !text-[18px]">download</span>
+          <span class="material-symbols-outlined !text-[16px]">download</span>
           <span class="hidden sm:inline">Export CSV</span>
         </button>
 
@@ -106,10 +103,10 @@
         <button
           type="button"
           (click)="printReport()"
-          class="p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center gap-1.5"
+          class="p-2 sm:px-3 sm:py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center gap-1.5 cursor-pointer"
           title="Print Audit Summary"
         >
-          <span class="material-symbols-outlined !text-[18px]">print</span>
+          <span class="material-symbols-outlined !text-[16px]">print</span>
           <span class="hidden sm:inline">Print</span>
         </button>
 
@@ -118,10 +115,10 @@
           type="button"
           (click)="refreshNow()"
           [disabled]="isRefreshing()"
-          class="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center justify-center"
+          class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 transition-all flex items-center justify-center cursor-pointer"
           title="Refresh Data"
         >
-          <span class="material-symbols-outlined !text-[18px]" [class.animate-spin]="isRefreshing()">sync</span>
+          <span class="material-symbols-outlined !text-[16px]" [class.animate-spin]="isRefreshing()">sync</span>
         </button>
 
         <!-- Finalize Button -->
@@ -129,9 +126,9 @@
           <button
             type="button"
             (click)="finalizeSession()"
-            class="px-4 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+            class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
           >
-            <span class="material-symbols-outlined !text-[20px]">done_all</span>
+            <span class="material-symbols-outlined !text-[18px]">done_all</span>
             <span>Finalize & Reconcile</span>
           </button>
         }
@@ -141,23 +138,22 @@
 
   <!-- Executive Summary KPI Bar (Always visible) -->
   @if (session()) {
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full relative z-10">
       
       <!-- Metric 1: Stock Accuracy Rate -->
-      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Accuracy Rate</span>
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
-            <span class="material-symbols-outlined !text-[18px]">verified</span>
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px]">verified</span>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="flex items-baseline gap-2">
-            <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">{{ accuracyRate() }}%</span>
-            <span class="text-xs font-bold text-slate-400">({{ matchedCount() }}/{{ totalItems() }} items)</span>
+        <div class="mt-2.5">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono">{{ accuracyRate() }}%</span>
+            <span class="text-[11px] font-bold text-slate-400">({{ matchedCount() }}/{{ totalItems() }})</span>
           </div>
-          <!-- Mini Accuracy Progress Bar -->
-          <div class="w-full bg-slate-100 dark:bg-slate-700/60 h-2 rounded-full mt-2.5 overflow-hidden">
+          <div class="w-full bg-slate-100 dark:bg-slate-700/60 h-1.5 rounded-full mt-2 overflow-hidden">
             <div 
               class="h-full rounded-full transition-all duration-500" 
               [style.width.%]="accuracyRate()"
@@ -168,45 +164,45 @@
       </div>
 
       <!-- Metric 2: Counted vs Expected Units -->
-      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Units Counted</span>
-          <div class="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[18px]">tag</span>
+          <div class="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px]">tag</span>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="flex items-baseline gap-2">
-            <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono">{{ totalCountedUnits() }}</span>
-            <span class="text-xs font-bold text-slate-400">of {{ totalExpectedUnits() }} exp</span>
+        <div class="mt-2.5">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono">{{ totalCountedUnits() }}</span>
+            <span class="text-[11px] font-bold text-slate-400">of {{ totalExpectedUnits() }} exp</span>
           </div>
-          <p class="text-xs font-bold mt-2.5 flex items-center gap-1"
+          <p class="text-[11px] font-bold mt-2 flex items-center gap-0.5 truncate"
             [ngClass]="netVarianceUnits() === 0 ? 'text-slate-500' : netVarianceUnits() > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
-            <span class="material-symbols-outlined !text-[14px]">
+            <span class="material-symbols-outlined !text-[13px]">
               {{ netVarianceUnits() > 0 ? 'arrow_upward' : netVarianceUnits() < 0 ? 'arrow_downward' : 'check' }}
             </span>
-            <span>Net Variance: {{ netVarianceUnits() > 0 ? '+' : '' }}{{ netVarianceUnits() }} units</span>
+            <span>Net: {{ netVarianceUnits() > 0 ? '+' : '' }}{{ netVarianceUnits() }} units</span>
           </p>
         </div>
       </div>
 
       <!-- Metric 3: Discrepancy Breakdown -->
-      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Discrepancies</span>
-          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[18px]">warning</span>
+          <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px]">warning</span>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="flex items-baseline gap-2">
-            <span class="text-2xl sm:text-3xl font-black font-mono"
+        <div class="mt-2.5">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl sm:text-2xl font-black font-mono"
               [ngClass]="discrepancyCount() === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
               {{ discrepancyCount() }}
             </span>
-            <span class="text-xs font-bold text-slate-400">SKUs affected</span>
+            <span class="text-[11px] font-bold text-slate-400">SKUs affected</span>
           </div>
-          <div class="flex items-center gap-3 mt-2.5 text-xs font-bold">
+          <div class="flex items-center gap-2.5 mt-2 text-[11px] font-bold truncate">
             <span class="text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
               <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
               {{ shortageCount() }} shortages
@@ -220,21 +216,21 @@
       </div>
 
       <!-- Metric 4: Net Valuation Impact -->
-      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Financial Variance</span>
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-            <span class="material-symbols-outlined !text-[18px]">payments</span>
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[16px]">payments</span>
           </div>
         </div>
-        <div class="mt-3">
-          <div class="flex items-baseline gap-2">
-            <span class="text-2xl sm:text-3xl font-black font-mono"
+        <div class="mt-2.5">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl sm:text-2xl font-black font-mono truncate"
               [ngClass]="netVarianceValue() === 0 ? 'text-slate-900 dark:text-white' : netVarianceValue() > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
               {{ (netVarianceValue() >= 0 ? '+' : '') }}{{ netVarianceValue() | appCurrency }}
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-2.5 truncate font-medium">
+          <p class="text-[11px] text-slate-400 mt-2 truncate font-medium">
             Loss: <span class="text-rose-500 font-bold font-mono">-{{ totalShrinkageValue() | appCurrency }}</span> | Gain: <span class="text-emerald-500 font-bold font-mono">+{{ totalSurplusValue() | appCurrency }}</span>
           </p>
         </div>
@@ -245,12 +241,12 @@
 
   <!-- Loading State -->
   @if (loading() && !session()) {
-    <div class="flex flex-col items-center justify-center p-20 gap-4 bg-white/50 dark:bg-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800">
-      <div class="relative w-16 h-16">
-        <div class="absolute inset-0 rounded-full border-4 border-emerald-500/20"></div>
-        <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
+    <div class="flex flex-col items-center justify-center p-16 gap-3 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+      <div class="relative w-12 h-12">
+        <div class="absolute inset-0 rounded-full border-3 border-emerald-500/20"></div>
+        <div class="absolute inset-0 rounded-full border-3 border-emerald-500 border-t-transparent animate-spin"></div>
       </div>
-      <p class="text-slate-500 font-bold animate-pulse text-sm">Loading stocktake session data...</p>
+      <p class="text-slate-500 font-bold animate-pulse text-xs">Loading stocktake session data...</p>
     </div>
   }
 
@@ -258,117 +254,108 @@
   <!-- TAB 1: LIVE COUNTING & SCANNER VIEW                                     -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   @if (session() && activeTab() === 'live') {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full items-start relative z-10">
       
-      <!-- Left Column: Scanner Portal Card -->
-      <div class="lg:col-span-1 space-y-6">
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-slate-900/5 border border-slate-200/80 dark:border-slate-700/60 p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden group">
+      <!-- Left Column: Scanner Portal Card (Compact) -->
+      <div class="lg:col-span-4 flex flex-col gap-4">
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-700/60 p-5 sm:p-6 flex flex-col items-center text-center">
           
-          <!-- Card background effects -->
-          <div class="absolute top-0 right-0 w-36 h-36 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none"></div>
-          
-          <div class="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 mb-4 transform group-hover:scale-105 group-hover:rotate-2 transition-transform">
-            <span class="material-symbols-outlined !text-3xl">qr_code_scanner</span>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 mb-3">
+            <span class="material-symbols-outlined !text-2xl">qr_code_scanner</span>
           </div>
           
-          <h2 class="text-xl font-black text-slate-900 dark:text-white mb-2">Scanner Portal</h2>
-          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed max-w-xs">
-            Staff can scan this QR code with their phones or handheld scanners to immediately participate in real-time counting without signing in.
+          <h2 class="text-base font-black text-slate-900 dark:text-white mb-1">Scanner Portal</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed max-w-xs">
+            Staff can scan this QR code on their phones to start scanning without login.
           </p>
           
           <!-- QR Code Display -->
-          <div class="relative p-1.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-3xl mb-6 shadow-2xl shadow-emerald-500/20 group-hover:shadow-emerald-500/30 transition-shadow">
-            <div class="bg-white p-4 sm:p-5 rounded-[22px]">
-              <img [src]="qrUrl()" alt="Portal QR Code" class="w-44 h-44 sm:w-48 sm:h-48 mix-blend-multiply block">
+          <div class="relative p-1 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl mb-4 shadow-md">
+            <div class="bg-white p-3 rounded-[14px]">
+              <img [src]="qrUrl()" alt="Portal QR Code" class="w-36 h-36 sm:w-40 sm:h-40 mix-blend-multiply block object-contain">
             </div>
           </div>
           
           <!-- Portal URL input + copy -->
-          <div class="w-full relative group/input">
+          <div class="w-full relative">
             <input 
               type="text" 
               readonly 
               [value]="portalUrl()" 
-              class="w-full bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pl-4 pr-11 text-xs text-slate-600 dark:text-slate-300 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all"
+              class="w-full bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-3 pr-10 text-xs text-slate-600 dark:text-slate-300 font-mono focus:outline-none"
             >
             <button 
               (click)="copyPortalUrl()" 
-              class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+              class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
               title="Copy URL"
             >
-              <span class="material-symbols-outlined !text-[18px]">content_copy</span>
+              <span class="material-symbols-outlined !text-[16px]">content_copy</span>
             </button>
           </div>
           
-          <div class="flex items-center gap-2 mt-4 w-full">
-            <button 
-              (click)="openPortalUrl()" 
-              class="flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm hover:-translate-y-0.5 transition-all cursor-pointer"
-            >
-              <span>Open in New Tab</span>
-              <span class="material-symbols-outlined !text-[16px]">open_in_new</span>
-            </button>
-          </div>
+          <button 
+            (click)="openPortalUrl()" 
+            class="w-full mt-3 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition-colors cursor-pointer"
+          >
+            <span>Open in New Tab</span>
+            <span class="material-symbols-outlined !text-[15px]">open_in_new</span>
+          </button>
 
           <!-- Live Scanner helper footnote -->
-          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/50 w-full flex items-center justify-center gap-2 text-[11px] font-bold text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Auto-syncs every 5s &bull; Last synced: {{ lastSynced() | date:'shortTime' }}
+          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50 w-full flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Synced: {{ lastSynced() | date:'shortTime' }}
           </div>
         </div>
       </div>
       
       <!-- Right Column: Live Counts Table & Quick Filters -->
-      <div class="lg:col-span-2">
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-slate-900/5 border border-slate-200/80 dark:border-slate-700/60 overflow-hidden flex flex-col h-full">
+      <div class="lg:col-span-8 min-w-0">
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-700/60 overflow-hidden flex flex-col">
           
           <!-- Table Header & Controls -->
-          <div class="p-5 sm:p-6 border-b border-slate-200/70 dark:border-slate-700/60 flex flex-col gap-4 bg-slate-50/50 dark:bg-slate-800/40">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="p-4 sm:p-5 border-b border-slate-200/70 dark:border-slate-700/60 flex flex-col gap-3.5 bg-slate-50/50 dark:bg-slate-800/40">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
-                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+                <h2 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   Live Counts
-                  <span class="px-2.5 py-0.5 bg-slate-200/70 dark:bg-slate-700 rounded-lg text-xs font-mono text-slate-600 dark:text-slate-300 font-bold">
-                    {{ filteredEntries().length }} of {{ totalItems() }} items
+                  <span class="px-2 py-0.5 bg-slate-200/70 dark:bg-slate-700 rounded-md text-[11px] font-mono text-slate-600 dark:text-slate-300 font-bold">
+                    {{ filteredEntries().length }} / {{ totalItems() }}
                   </span>
                 </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Real-time counts submitted by active handheld scanners</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Real-time counts submitted by active handheld scanners</p>
               </div>
               
-              <!-- Sync Indicator -->
               @if (session()?.status !== 'completed') {
-                <div class="flex items-center gap-2 text-xs font-bold px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-200 dark:border-emerald-500/20">
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
+                <div class="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-200 dark:border-emerald-500/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Sync Active
                 </div>
               }
             </div>
 
             <!-- Search and Filter Bar -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-200/60 dark:border-slate-700/40">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/40">
               
               <!-- Search Input -->
-              <div class="relative flex-1">
-                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 !text-[18px]">search</span>
+              <div class="relative flex-1 min-w-[180px]">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-[16px]">search</span>
                 <input
                   type="text"
                   [ngModel]="searchQuery()"
                   (ngModelChange)="searchQuery.set($event)"
-                  placeholder="Search product name, SKU, barcode..."
-                  class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2 pl-10 pr-4 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-400"
+                  placeholder="Search product, SKU..."
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-1.5 pl-8 pr-3 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 transition-all placeholder:text-slate-400"
                 />
               </div>
 
               <!-- Filter Pills -->
-              <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+              <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 shrink-0">
                 <button
                   type="button"
                   (click)="filterStatus.set('all')"
                   [class]="filterStatus() === 'all' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200'"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
                 >
                   All ({{ totalItems() }})
                 </button>
@@ -377,7 +364,7 @@
                   type="button"
                   (click)="filterStatus.set('discrepancy')"
                   [class]="filterStatus() === 'discrepancy' ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200'"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
                 >
                   Discrepancies ({{ discrepancyCount() }})
                 </button>
@@ -386,7 +373,7 @@
                   type="button"
                   (click)="filterStatus.set('shortage')"
                   [class]="filterStatus() === 'shortage' ? 'bg-rose-500 text-white' : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200'"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
                 >
                   Shortages ({{ shortageCount() }})
                 </button>
@@ -395,7 +382,7 @@
                   type="button"
                   (click)="filterStatus.set('matched')"
                   [class]="filterStatus() === 'matched' ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-200'"
-                  class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors whitespace-nowrap cursor-pointer"
                 >
                   Matched ({{ matchedCount() }})
                 </button>
@@ -404,26 +391,25 @@
             </div>
           </div>
           
-          <!-- Table -->
-          <div class="overflow-x-auto flex-1">
-            <table class="w-full text-left border-collapse">
+          <!-- Table with clean scroll container -->
+          <div class="overflow-x-auto w-full max-w-full">
+            <table class="w-full text-left border-collapse min-w-[500px]">
               <thead>
                 <tr class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-black border-b border-slate-100 dark:border-slate-800">
-                  <th class="py-3.5 px-6">Product Details</th>
-                  <th class="py-3.5 px-4 text-right">Expected</th>
-                  <th class="py-3.5 px-4 text-right">Actual Count</th>
-                  <th class="py-3.5 px-4 text-right">Variance</th>
-                  <th class="py-3.5 px-6 text-right">Actions</th>
+                  <th class="py-3 px-4">Product Details</th>
+                  <th class="py-3 px-3 text-right">Expected</th>
+                  <th class="py-3 px-3 text-right">Actual Count</th>
+                  <th class="py-3 px-3 text-right">Variance</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs sm:text-sm">
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
                 @if (filteredEntries().length === 0) {
                   <tr>
-                    <td colspan="5" class="py-16 text-center">
-                      <div class="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-500">
-                        <span class="material-symbols-outlined !text-4xl opacity-50">search_off</span>
-                        <p class="font-bold text-sm">No items matching criteria</p>
-                        <p class="text-xs max-w-xs">Try clearing your search query or switching your discrepancy filter.</p>
+                    <td colspan="5" class="py-12 text-center">
+                      <div class="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
+                        <span class="material-symbols-outlined !text-3xl opacity-50">search_off</span>
+                        <p class="font-bold text-xs">No items matching criteria</p>
                       </div>
                     </td>
                   </tr>
@@ -433,18 +419,18 @@
                   <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors group">
                     
                     <!-- Product Info -->
-                    <td class="py-4 px-6">
-                      <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary-50 dark:group-hover:bg-primary-500/10 group-hover:text-primary-500 transition-colors shrink-0">
-                          <span class="material-symbols-outlined !text-[18px]">inventory_2</span>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-primary-500 transition-colors shrink-0">
+                          <span class="material-symbols-outlined !text-[16px]">inventory_2</span>
                         </div>
-                        <div class="min-w-0">
-                          <p class="font-bold text-slate-900 dark:text-white truncate max-w-xs sm:max-w-md">{{ entry.product?.name || 'Unknown Item' }}</p>
-                          <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400 font-mono">
+                        <div class="min-w-0 flex-1">
+                          <p class="font-bold text-slate-900 dark:text-white truncate">{{ entry.product?.name || 'Unknown Item' }}</p>
+                          <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
                             <span>SKU: {{ entry.product?.sku || 'N/A' }}</span>
                             @if (entry.product?.category?.name) {
                               <span>&bull;</span>
-                              <span class="text-slate-500 font-sans font-medium">{{ entry.product.category.name }}</span>
+                              <span class="text-slate-500 font-sans">{{ entry.product.category.name }}</span>
                             }
                           </div>
                         </div>
@@ -452,74 +438,74 @@
                     </td>
 
                     <!-- Expected Stock -->
-                    <td class="py-4 px-4 text-right text-slate-500 dark:text-slate-400 font-mono font-bold">
+                    <td class="py-3 px-3 text-right text-slate-500 dark:text-slate-400 font-mono font-bold">
                       {{ entry.expected_stock }}
                     </td>
 
                     <!-- Counted Stock (with In-line Edit) -->
-                    <td class="py-4 px-4 text-right">
+                    <td class="py-3 px-3 text-right">
                       @if (editingEntryId() === entry.id) {
-                        <div class="inline-flex items-center justify-end gap-1.5">
+                        <div class="inline-flex items-center justify-end gap-1">
                           <input 
                             type="number"
                             min="0"
                             [ngModel]="editCountValue()"
                             (ngModelChange)="editCountValue.set($event)"
-                            class="w-20 px-2 py-1 bg-white dark:bg-slate-900 border border-emerald-500 rounded-lg text-right font-mono font-bold text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            class="w-16 px-1.5 py-0.5 bg-white dark:bg-slate-900 border border-emerald-500 rounded text-right font-mono font-bold text-xs text-slate-900 dark:text-white outline-none"
                             (keydown.enter)="saveCount(entry)"
                             (keydown.escape)="cancelEditCount()"
                           />
                           <button 
                             type="button" 
                             (click)="saveCount(entry)" 
-                            class="p-1 text-emerald-600 hover:text-emerald-500 transition-colors"
+                            class="p-0.5 text-emerald-600 hover:text-emerald-500 transition-colors cursor-pointer"
                             title="Save"
                           >
-                            <span class="material-symbols-outlined !text-[18px]">check</span>
+                            <span class="material-symbols-outlined !text-[16px]">check</span>
                           </button>
                           <button 
                             type="button" 
                             (click)="cancelEditCount()" 
-                            class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                            class="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
                             title="Cancel"
                           >
-                            <span class="material-symbols-outlined !text-[18px]">close</span>
+                            <span class="material-symbols-outlined !text-[16px]">close</span>
                           </button>
                         </div>
                       } @else {
-                        <span class="font-mono font-black text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
+                        <span class="font-mono font-black text-sm text-emerald-600 dark:text-emerald-400">
                           {{ entry.actual_stock }}
                         </span>
                       }
                     </td>
 
                     <!-- Variance Tag -->
-                    <td class="py-4 px-4 text-right">
-                      <div class="inline-flex items-center justify-end font-mono font-bold text-xs sm:text-sm px-2.5 py-1 rounded-lg"
+                    <td class="py-3 px-3 text-right">
+                      <div class="inline-flex items-center justify-end font-mono font-bold text-xs px-2 py-0.5 rounded-md"
                         [ngClass]="{
                           'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400': entry.difference < 0, 
                           'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400': entry.difference > 0, 
                           'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400': entry.difference === 0
                         }">
                         @if (entry.difference > 0) {
-                          <span class="material-symbols-outlined !text-[14px] mr-1">trending_up</span>
+                          <span class="material-symbols-outlined !text-[12px] mr-0.5">trending_up</span>
                         } @else if (entry.difference < 0) {
-                          <span class="material-symbols-outlined !text-[14px] mr-1">trending_down</span>
+                          <span class="material-symbols-outlined !text-[12px] mr-0.5">trending_down</span>
                         }
                         {{ entry.difference > 0 ? '+' : '' }}{{ entry.difference }}
                       </div>
                     </td>
 
                     <!-- Actions -->
-                    <td class="py-4 px-6 text-right">
+                    <td class="py-3 px-4 text-right">
                       @if (session()?.status !== 'completed') {
                         <button
                           type="button"
                           (click)="startEditCount(entry)"
-                          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors"
-                          title="Manually adjust count"
+                          class="p-1 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                          title="Edit count"
                         >
-                          <span class="material-symbols-outlined !text-[18px]">edit</span>
+                          <span class="material-symbols-outlined !text-[16px]">edit</span>
                         </button>
                       }
                     </td>
@@ -540,61 +526,61 @@
   <!-- TAB 2: IN-DEPTH VARIANCE ANALYSIS & AUDIT REPORT                         -->
   <!-- ══════════════════════════════════════════════════════════════════════ -->
   @if (session() && activeTab() === 'analysis') {
-    <div class="space-y-6 relative z-10">
+    <div class="flex flex-col gap-5 w-full relative z-10">
       
       <!-- Financial Impact Scorecard -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 w-full">
         
         <!-- Shrinkage Loss -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-rose-200/80 dark:border-rose-900/40 shadow-sm relative overflow-hidden">
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-rose-200/80 dark:border-rose-900/40 shadow-sm relative overflow-hidden">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black uppercase tracking-wider text-rose-500">Shrinkage / Missing Stock</span>
-            <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
-              <span class="material-symbols-outlined !text-[20px]">trending_down</span>
+            <span class="text-[11px] font-black uppercase tracking-wider text-rose-500">Shrinkage / Missing Stock</span>
+            <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[18px]">trending_down</span>
             </div>
           </div>
-          <div class="mt-4">
-            <h3 class="text-3xl font-black font-mono text-rose-600 dark:text-rose-400">
+          <div class="mt-3">
+            <h3 class="text-2xl font-black font-mono text-rose-600 dark:text-rose-400 truncate">
               -{{ totalShrinkageValue() | appCurrency }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
-              Total financial cost of <span class="font-bold text-rose-600">{{ shortageCount() }} missing products</span>.
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Total cost of <span class="font-bold text-rose-600">{{ shortageCount() }} missing SKUs</span>.
             </p>
           </div>
         </div>
 
         <!-- Surplus Gain -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-emerald-200/80 dark:border-emerald-900/40 shadow-sm relative overflow-hidden">
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-emerald-200/80 dark:border-emerald-900/40 shadow-sm relative overflow-hidden">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black uppercase tracking-wider text-emerald-500">Surplus / Over-Count</span>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-              <span class="material-symbols-outlined !text-[20px]">trending_up</span>
+            <span class="text-[11px] font-black uppercase tracking-wider text-emerald-500">Surplus / Over-Count</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[18px]">trending_up</span>
             </div>
           </div>
-          <div class="mt-4">
-            <h3 class="text-3xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+          <div class="mt-3">
+            <h3 class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 truncate">
               +{{ totalSurplusValue() | appCurrency }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
-              Valuation of <span class="font-bold text-emerald-600">{{ surplusCount() }} excess products</span> found in physical inventory.
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Asset value of <span class="font-bold text-emerald-600">{{ surplusCount() }} excess SKUs</span> found.
             </p>
           </div>
         </div>
 
         <!-- Net Valuation Impact -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm relative overflow-hidden">
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm relative overflow-hidden">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Inventory Impact</span>
-            <div class="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-500 flex items-center justify-center">
-              <span class="material-symbols-outlined !text-[20px]">account_balance_wallet</span>
+            <span class="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Inventory Impact</span>
+            <div class="w-8 h-8 rounded-lg bg-primary-500/10 text-primary-500 flex items-center justify-center">
+              <span class="material-symbols-outlined !text-[18px]">account_balance_wallet</span>
             </div>
           </div>
-          <div class="mt-4">
-            <h3 class="text-3xl font-black font-mono"
+          <div class="mt-3">
+            <h3 class="text-2xl font-black font-mono truncate"
               [ngClass]="netVarianceValue() === 0 ? 'text-slate-900 dark:text-white' : netVarianceValue() > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
               {{ (netVarianceValue() >= 0 ? '+' : '') }}{{ netVarianceValue() | appCurrency }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
               Net balance adjustment after reconciling physical counts.
             </p>
           </div>
@@ -603,40 +589,40 @@
       </div>
 
       <!-- Category Breakdown Matrix -->
-      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-900/5">
-        <div class="flex items-center justify-between mb-6">
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-sm w-full">
+        <div class="flex items-center justify-between mb-4">
           <div>
-            <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Category Variance Breakdown</h2>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Discrepancy and accuracy breakdown aggregated by product category</p>
+            <h2 class="text-base font-black text-slate-900 dark:text-white">Category Variance Breakdown</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Discrepancy and accuracy breakdown aggregated by product category</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 w-full">
           @for (cat of categoryStats(); track cat.categoryName) {
-            <div class="bg-slate-50/70 dark:bg-slate-900/60 rounded-2xl p-5 border border-slate-200/60 dark:border-slate-700/50 flex flex-col justify-between">
+            <div class="bg-slate-50/70 dark:bg-slate-900/60 rounded-xl p-4 border border-slate-200/60 dark:border-slate-700/50 flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between">
-                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white truncate">{{ cat.categoryName }}</h4>
-                  <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md"
+                <div class="flex items-center justify-between gap-2">
+                  <h4 class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ cat.categoryName }}</h4>
+                  <span class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded"
                     [ngClass]="cat.accuracyRate >= 95 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'">
-                    {{ cat.accuracyRate }}% Acc.
+                    {{ cat.accuracyRate }}%
                   </span>
                 </div>
 
-                <div class="mt-4 space-y-2 text-xs">
+                <div class="mt-3 space-y-1.5 text-xs">
                   <div class="flex justify-between text-slate-500">
-                    <span>Items Counted:</span>
+                    <span>Counted:</span>
                     <span class="font-bold text-slate-800 dark:text-slate-200 font-mono">{{ cat.countedUnits }} / {{ cat.expectedUnits }}</span>
                   </div>
                   <div class="flex justify-between text-slate-500">
-                    <span>Variance Units:</span>
+                    <span>Variance:</span>
                     <span class="font-bold font-mono" [ngClass]="cat.varianceUnits === 0 ? 'text-slate-500' : cat.varianceUnits > 0 ? 'text-emerald-600' : 'text-rose-600'">
                       {{ cat.varianceUnits > 0 ? '+' : '' }}{{ cat.varianceUnits }}
                     </span>
                   </div>
                   <div class="flex justify-between text-slate-500">
-                    <span>Valuation Impact:</span>
-                    <span class="font-black font-mono" [ngClass]="cat.varianceValue === 0 ? 'text-slate-500' : cat.varianceValue > 0 ? 'text-emerald-600' : 'text-rose-600'">
+                    <span>Valuation:</span>
+                    <span class="font-bold font-mono" [ngClass]="cat.varianceValue === 0 ? 'text-slate-500' : cat.varianceValue > 0 ? 'text-emerald-600' : 'text-rose-600'">
                       {{ (cat.varianceValue >= 0 ? '+' : '') }}{{ cat.varianceValue | appCurrency }}
                     </span>
                   </div>
@@ -644,7 +630,7 @@
               </div>
 
               <!-- Progress bar -->
-              <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
+              <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-3 overflow-hidden">
                 <div 
                   class="h-full rounded-full transition-all duration-500" 
                   [style.width.%]="cat.accuracyRate"
@@ -657,27 +643,27 @@
       </div>
 
       <!-- Critical Variances (Top Shortages & Surpluses) -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
         
         <!-- Top Shortages Card -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-900/5">
-          <h3 class="text-base font-black text-rose-600 dark:text-rose-400 flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined !text-[20px]">report_problem</span>
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+          <h3 class="text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-1.5 mb-3">
+            <span class="material-symbols-outlined !text-[16px]">report_problem</span>
             Top Inventory Shortages (Shrinkage)
           </h3>
 
           @if (topShortages().length === 0) {
-            <p class="text-xs text-slate-400 py-6 text-center">No missing items detected in this stocktake session.</p>
+            <p class="text-xs text-slate-400 py-4 text-center">No missing items detected in this session.</p>
           } @else {
             <div class="divide-y divide-slate-100 dark:divide-slate-800">
               @for (item of topShortages(); track item.id) {
-                <div class="py-3 flex items-center justify-between gap-3 text-xs">
-                  <div class="min-w-0">
+                <div class="py-2.5 flex items-center justify-between gap-3 text-xs">
+                  <div class="min-w-0 flex-1">
                     <p class="font-bold text-slate-800 dark:text-slate-100 truncate">{{ item.product?.name }}</p>
-                    <p class="text-[11px] text-slate-400 font-mono">SKU: {{ item.product?.sku }} &bull; Expected: {{ item.expected_stock }}, Counted: {{ item.actual_stock }}</p>
+                    <p class="text-[10px] text-slate-400 font-mono truncate">SKU: {{ item.product?.sku }} &bull; Exp: {{ item.expected_stock }}, Actual: {{ item.actual_stock }}</p>
                   </div>
                   <div class="text-right shrink-0">
-                    <span class="font-black font-mono text-rose-600 dark:text-rose-400 text-sm block">
+                    <span class="font-black font-mono text-rose-600 dark:text-rose-400 text-xs block">
                       {{ item.difference }}
                     </span>
                     <span class="text-[10px] text-slate-400 font-mono">
@@ -691,24 +677,24 @@
         </div>
 
         <!-- Top Surpluses Card -->
-        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 border border-slate-200/80 dark:border-slate-700/60 shadow-xl shadow-slate-900/5">
-          <h3 class="text-base font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-2 mb-4">
-            <span class="material-symbols-outlined !text-[20px]">add_circle</span>
+        <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+          <h3 class="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 mb-3">
+            <span class="material-symbols-outlined !text-[16px]">add_circle</span>
             Top Inventory Surpluses (Over-count)
           </h3>
 
           @if (topSurpluses().length === 0) {
-            <p class="text-xs text-slate-400 py-6 text-center">No surplus items detected in this stocktake session.</p>
+            <p class="text-xs text-slate-400 py-4 text-center">No surplus items detected in this session.</p>
           } @else {
             <div class="divide-y divide-slate-100 dark:divide-slate-800">
               @for (item of topSurpluses(); track item.id) {
-                <div class="py-3 flex items-center justify-between gap-3 text-xs">
-                  <div class="min-w-0">
+                <div class="py-2.5 flex items-center justify-between gap-3 text-xs">
+                  <div class="min-w-0 flex-1">
                     <p class="font-bold text-slate-800 dark:text-slate-100 truncate">{{ item.product?.name }}</p>
-                    <p class="text-[11px] text-slate-400 font-mono">SKU: {{ item.product?.sku }} &bull; Expected: {{ item.expected_stock }}, Counted: {{ item.actual_stock }}</p>
+                    <p class="text-[10px] text-slate-400 font-mono truncate">SKU: {{ item.product?.sku }} &bull; Exp: {{ item.expected_stock }}, Actual: {{ item.actual_stock }}</p>
                   </div>
                   <div class="text-right shrink-0">
-                    <span class="font-black font-mono text-emerald-600 dark:text-emerald-400 text-sm block">
+                    <span class="font-black font-mono text-emerald-600 dark:text-emerald-400 text-xs block">
                       +{{ item.difference }}
                     </span>
                     <span class="text-[10px] text-slate-400 font-mono">
@@ -725,19 +711,19 @@
 
       <!-- Reconciliation Confirmation Banner -->
       @if (session()?.status !== 'completed') {
-        <div class="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+        <div class="bg-slate-900 dark:bg-slate-800/90 rounded-2xl p-5 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md">
           <div>
-            <h3 class="text-xl font-black">Ready to Reconcile Inventory?</h3>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              Finalizing will commit <span class="font-bold text-white">{{ discrepancyCount() }} stock adjustments</span> into the system audit trail and adjust active catalog stock quantities to match physical counts.
+            <h3 class="text-base font-black">Ready to Reconcile Inventory?</h3>
+            <p class="text-xs text-slate-300 mt-0.5 max-w-xl">
+              Finalizing will commit <span class="font-bold text-white">{{ discrepancyCount() }} stock adjustments</span> and sync catalog stock quantities to match physical counts.
             </p>
           </div>
           <button
             type="button"
             (click)="finalizeSession()"
-            class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+            class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
           >
-            <span class="material-symbols-outlined !text-[20px]">done_all</span>
+            <span class="material-symbols-outlined !text-[18px]">done_all</span>
             <span>Finalize & Apply Adjustments</span>
           </button>
         </div>
