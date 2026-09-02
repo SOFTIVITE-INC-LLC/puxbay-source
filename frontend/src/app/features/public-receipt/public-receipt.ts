@@ -3,19 +3,18 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { Title } from '@angular/platform-browser';
-import { ImageUrlPipe } from '../../core/pipes/image-url.pipe';
+import { resolveImageUrl } from '../../core/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-public-receipt',
   standalone: true,
-  imports: [CommonModule, RouterModule, ImageUrlPipe],
+  imports: [CommonModule, RouterModule],
   templateUrl: './public-receipt.html',
 })
 export class PublicReceiptComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private api = inject(ApiService);
   private titleService = inject(Title);
-  private imageUrlPipe = inject(ImageUrlPipe);
 
   order = signal<any | null>(null);
   isLoading = signal(true);
@@ -52,7 +51,7 @@ export class PublicReceiptComponent implements OnInit {
           this.receiptHeader.set(res.branch.receipt_header);
           this.receiptFooter.set(res.branch.receipt_footer);
           if (res.branch.logo) {
-            this.logoUrl.set(this.imageUrlPipe.transform(res.branch.logo, false));
+            this.logoUrl.set(resolveImageUrl(res.branch.logo, false));
           }
         }
         this.isLoading.set(false);

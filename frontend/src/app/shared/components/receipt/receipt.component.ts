@@ -5,7 +5,7 @@ import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { SettingsService } from '../../../core/services/settings.service';
-import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
+import { resolveImageUrl } from '../../../core/pipes/image-url.pipe';
 
 @Component({
   selector: 'app-receipt',
@@ -211,7 +211,6 @@ export class ReceiptComponent implements OnInit {
 
   storefrontSettings = inject(StorefrontSettingsService);
   settingsService = inject(SettingsService);
-  private imageUrlPipe = inject(ImageUrlPipe);
 
   ngOnInit() {
     this.storefrontSettings.loadSettings().subscribe();
@@ -223,7 +222,7 @@ export class ReceiptComponent implements OnInit {
       || this.settingsService.settings()?.logo_url
       || this.storefrontSettings.settings()?.logo_image
       || null;
-    return raw ? this.imageUrlPipe.transform(raw, false) : null;
+    return raw ? resolveImageUrl(raw) : null;
   });
 
   storeName = computed(() => {

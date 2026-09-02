@@ -15,7 +15,6 @@ export const DEFAULT_PRODUCT_PLACEHOLDER = `data:image/svg+xml;utf8,<svg xmlns="
 @Pipe({
   name: 'imageUrl',
   standalone: true,
-  providedIn: 'root',
 })
 export class ImageUrlPipe implements PipeTransform {
   transform(value: string | null | undefined, fallback: boolean = true): string {
@@ -40,4 +39,24 @@ export class ImageUrlPipe implements PipeTransform {
     // In development the Angular dev server proxy forwards /uploads to the backend.
     return cleanVal.startsWith('/') ? cleanVal : '/' + cleanVal;
   }
+}
+
+/**
+ * Standalone utility function — same logic as ImageUrlPipe.transform().
+ * Use this in component TypeScript code instead of injecting the pipe.
+ */
+export function resolveImageUrl(value: string | null | undefined, fallback = false): string {
+  if (!value || value.trim() === '') {
+    return fallback ? DEFAULT_PRODUCT_PLACEHOLDER : '';
+  }
+  const cleanVal = value.trim();
+  if (cleanVal.startsWith('http://') || cleanVal.startsWith('https://') || cleanVal.startsWith('data:')) {
+    return cleanVal;
+  }
+  if (environment.production) {
+    const apiOrigin = environment.apiUrl.replace(/\/api\/v1$/, '');
+    const path = cleanVal.startsWith('/') ? cleanVal : '/' + cleanVal;
+    return apiOrigin + path;
+  }
+  return cleanVal.startsWith('/') ? cleanVal : '/' + cleanVal;
 }
