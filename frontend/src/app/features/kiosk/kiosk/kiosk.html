@@ -220,7 +220,7 @@
     <div class="flex items-center gap-3 md:gap-4">
       <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-indigo-500 shadow-lg shadow-indigo-500/30 flex items-center justify-center overflow-hidden">
         @if ($any(storefrontService.settings())?.logo_image) {
-          <img [src]="$any(storefrontService.settings())?.logo_image" class="w-full h-full object-contain p-1 rounded-xl" />
+          <img [src]="$any(storefrontService.settings())?.logo_image | imageUrl:false" class="w-full h-full object-contain p-1 rounded-xl" />
         } @else {
           <span class="material-symbols-outlined !text-[18px] md:!text-[22px]">restaurant</span>
         }

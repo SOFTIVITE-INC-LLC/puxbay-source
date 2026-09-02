@@ -15,6 +15,7 @@ export const DEFAULT_PRODUCT_PLACEHOLDER = `data:image/svg+xml;utf8,<svg xmlns="
 @Pipe({
   name: 'imageUrl',
   standalone: true,
+  providedIn: 'root',
 })
 export class ImageUrlPipe implements PipeTransform {
   transform(value: string | null | undefined, fallback: boolean = true): string {

@@ -2,6 +2,7 @@ import { ToastService } from '../../../core/services/toast';
 import { Component, OnInit, OnDestroy, computed, inject, signal, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -12,7 +13,7 @@ import { ApiService } from '../../../core/services/api.service';
 @Component({
   selector: 'app-kiosk',
   standalone: true,
-  imports: [CommonModule, AppCurrencyPipe, FormsModule],
+  imports: [CommonModule, AppCurrencyPipe, FormsModule, ImageUrlPipe],
   templateUrl: './kiosk.html',
 })
 export class Kiosk implements OnInit, OnDestroy {
