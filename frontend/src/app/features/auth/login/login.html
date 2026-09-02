@@ -1,95 +1,223 @@
 <style>
-  :root { --brand: #005b96; }
+  :root {
+    --brand: #005b96;
+  }
 
   /* Left pane styling */
   .auth-left-bg {
     background: #011f4b;
-    position: relative; overflow: hidden;
+    position: relative;
+    overflow: hidden;
   }
+
   .auth-left-bg::before {
-    content: ''; position: absolute;
-    top: -20%; left: -20%; width: 70%; height: 70%;
-    background: radial-gradient(circle, rgba(0,91,150,0.4) 0%, transparent 70%);
-    border-radius: 50%; pointer-events: none;
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    pointer-events: none;
   }
+
   .auth-left-bg::after {
-    content: ''; position: absolute;
-    bottom: -20%; right: -20%; width: 70%; height: 70%;
-    background: radial-gradient(circle, rgba(1,31,75,0.6) 0%, transparent 70%);
-    border-radius: 50%; pointer-events: none;
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    right: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle, rgba(1, 31, 75, 0.6) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
   }
 
   /* Right pane inputs (Light Theme) */
   .auth-label {
-    display: block; font-size: 10px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 0.12em; color: #64748b; margin-bottom: 8px;
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    margin-bottom: 8px;
   }
+
   .auth-input {
-    width: 100%; padding: 14px 16px;
-    background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
-    font-size: 14px; font-weight: 500; color: #0f172a; outline: none;
+    width: 100%;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f172a;
+    outline: none;
     transition: all 0.2s;
   }
-  .auth-input::placeholder { color: #94a3b8; }
-  .auth-input:focus { border-color: #005b96; box-shadow: 0 0 0 3px rgba(0,91,150,0.2); }
-  .auth-input.error { border-color: #f43f5e; box-shadow: 0 0 0 3px rgba(244,63,94,0.15); }
 
-  .input-wrap { position: relative; }
-  .input-icon { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: #94a3b8; pointer-events: none; transition: color 0.2s; width: 18px; height: 18px; }
-  .input-wrap:focus-within .input-icon { color: #005b96; }
-  .input-wrap.has-icon .auth-input { padding-left: 44px; }
+  .auth-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .auth-input:focus {
+    border-color: #005b96;
+    box-shadow: 0 0 0 3px rgba(0, 91, 150, 0.2);
+  }
+
+  .auth-input.error {
+    border-color: #f43f5e;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-icon {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s;
+    width: 18px;
+    height: 18px;
+  }
+
+  .input-wrap:focus-within .input-icon {
+    color: #005b96;
+  }
+
+  .input-wrap.has-icon .auth-input {
+    padding-left: 44px;
+  }
 
   .auth-btn-primary {
-    width: 100%; padding: 16px; background: #005b96; color: white;
-    font-weight: 800; font-size: 14px; border-radius: 10px; border: none;
-    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    padding: 16px;
+    background: #005b96;
+    color: white;
+    font-weight: 800;
+    font-size: 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  .auth-btn-primary:hover:not(:disabled) { background: #03396c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,91,150,0.3); }
-  .auth-btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
-  .auth-divider { display: flex; align-items: center; gap: 16px; margin: 32px 0; }
-  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
-  .auth-divider span { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; }
-
-  .auth-btn-google {
-    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
-    color: #0f172a; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+  .auth-btn-primary:hover:not(:disabled) {
+    background: #03396c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 91, 150, 0.3);
   }
-  .auth-btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-  .split-layout { display: flex; min-height: 100vh; font-family: 'Outfit', sans-serif; }
-  .split-left { flex: 1; display: none; padding: 64px; flex-direction: column; justify-content: space-between; }
-  .split-right { flex: 1; display: flex; flex-direction: column; padding: 48px 24px; position: relative; background: #fff; overflow-y: auto; }
-  
+  .auth-btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #f1f5f9;
+  }
+
+  .auth-divider span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .split-layout {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .split-left {
+    flex: 1;
+    display: none;
+    padding: 64px;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .split-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 24px;
+    position: relative;
+    background: #fff;
+    overflow-y: auto;
+  }
+
   @media (min-width: 1024px) {
-    .split-left { display: flex; }
-    .split-right { max-width: 600px; padding: 64px; }
+    .split-left {
+      display: flex;
+    }
+
+    .split-right {
+      max-width: 600px;
+      padding: 64px;
+    }
   }
 
   /* Spinner animation */
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-  .animate-spin { animation: spin 1s linear infinite; }
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
 </style>
 
 <div class="split-layout">
   <!-- Left Pane -->
   <div class="split-left auth-left-bg">
     <div style="position:relative; z-index:10;">
-      <a routerLink="/" style="display:inline-flex; align-items:center; gap:12px; text-decoration:none; margin-bottom: 64px;">
-        <div style="width:36px; height:36px; background: #005b96; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-          <svg style="height:20px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      <a routerLink="/"
+        style="display:inline-flex; align-items:center; gap:12px; text-decoration:none; margin-bottom: 64px;">
+        <div
+          style="width:36px; height:36px; background: #005b96; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+          <svg style="height:20px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
         <span style="color:#fff; font-weight:900; font-size:22px; letter-spacing:-0.03em;">Puxbay</span>
       </a>
 
-      <div style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.25); color:#6497b1; font-size:9px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:24px;">
-        <span style="display:inline-block; width:6px; height:6px; background:#6497b1; border-radius:50%; margin-right:6px;"></span>
+      <div
+        style="display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.25); color:#6497b1; font-size:9px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:24px;">
+        <span
+          style="display:inline-block; width:6px; height:6px; background:#6497b1; border-radius:50%; margin-right:6px;"></span>
         Welcome Back
       </div>
 
-      <h1 style="font-size:clamp(2.2rem, 4.5vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:-0.04em; line-height:1.1; margin-bottom:24px;">
-        Continue where you<br/>left off in <span style="color:#b3cde0;">Puxbay.</span>
+      <h1
+        style="font-size:clamp(2.2rem, 4.5vw, 3.8rem); font-weight:900; color:#fff; letter-spacing:-0.04em; line-height:1.1; margin-bottom:24px;">
+        Continue where you<br />left off in <span style="color:#b3cde0;">Puxbay.</span>
       </h1>
       <p style="font-size:16px; color:#94a3b8; font-weight:500; line-height:1.7; max-width:480px; margin-bottom:48px;">
         Access your personalized dashboard to manage your sales, analytics, and retail operations.
@@ -97,22 +225,32 @@
 
       <div style="display:flex; flex-direction:column; gap:32px;">
         <div style="display:flex; gap:16px;">
-          <div style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-            <svg style="width:20px;height:20px;color:#6497b1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <div
+            style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:20px;height:20px;color:#6497b1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
           <div>
             <h4 style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">Real-Time Synchronization</h4>
-            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">Your changes are synced instantly across all your connected POS terminals.</p>
+            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">Your changes
+              are synced instantly across all your connected POS terminals.</p>
           </div>
         </div>
-        
+
         <div style="display:flex; gap:16px;">
-          <div style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-            <svg style="width:20px;height:20px;color:#6497b1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <div
+            style="width:40px; height:40px; background:rgba(255,255,255,0.05); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg style="width:20px;height:20px;color:#6497b1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
           </div>
           <div>
-            <h4 style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">Advanced Analytics Dashboard</h4>
-            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">View detailed reports on your inventory levels, revenue, and best selling products.</p>
+            <h4 style="font-size:14px; font-weight:800; color:#fff; margin-bottom:4px;">Advanced Analytics Dashboard
+            </h4>
+            <p style="font-size:12px; color:#64748b; font-weight:500; line-height:1.6; max-width:320px;">View detailed
+              reports on your inventory levels, revenue, and best selling products.</p>
           </div>
         </div>
       </div>
@@ -123,14 +261,18 @@
   <div class="split-right">
     <!-- Top right link -->
     <div style="position:absolute; top:32px; right:48px; display:flex; justify-content:flex-end;">
-      <span style="font-size:13px; font-weight:600; color:#64748b;">Don't have an account? <a routerLink="/register" style="font-weight:700; color:#005b96; text-decoration:none;">Sign up</a></span>
+      <span style="font-size:13px; font-weight:600; color:#64748b;">Don't have an account? <a routerLink="/register"
+          style="font-weight:700; color:#005b96; text-decoration:none;">Sign up</a></span>
     </div>
 
     <!-- Mobile logo -->
     <div class="lg:hidden mb-12">
       <a routerLink="/" style="display:inline-flex; align-items:center; gap:10px; text-decoration:none;">
-        <div style="width:32px; height:32px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-          <svg style="height:16px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <div
+          style="width:32px; height:32px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+          <svg style="height:16px; color:#fff" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
         <span style="color:#0f172a; font-weight:900; font-size:20px; letter-spacing:-0.03em;">Puxbay</span>
       </a>
@@ -143,51 +285,45 @@
       </div>
 
       <form style="display:flex; flex-direction:column; gap:20px;" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div>
+          <label for="email" class="auth-label">Email Address</label>
+          <input id="email" formControlName="email" type="email" autocomplete="email" required class="auth-input" placeholder="Enter email address">
+        </div>
 
-        @if (!requires2FA()) {
-          <div>
-              <label for="email" class="auth-label">Email Address</label>
-              <input id="email" formControlName="email" type="email" autocomplete="email" required class="auth-input" placeholder="Enter email address">
-          </div>
-          <div>
-              <label for="password" class="auth-label">Password</label>
-              <input id="password" formControlName="password" type="password" autocomplete="current-password" required class="auth-input" placeholder="Enter password">
-          </div>
-        } @else {
-          <div>
-              <label for="totpCode" class="auth-label">Authentication Code (2FA)</label>
-              <input id="totpCode" formControlName="totpCode" type="text" autocomplete="one-time-code" required class="auth-input" placeholder="Enter 6-digit code">
-          </div>
-        }
+        <div>
+          <label for="password" class="auth-label">Password</label>
+          <input id="password" formControlName="password" type="password" autocomplete="current-password" required class="auth-input" placeholder="Enter password">
+        </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:-4px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <input id="remember-me" type="checkbox" style="width:14px; height:14px; border-radius:4px; border:1px solid #cbd5e1; accent-color:#005b96;">
-                <label for="remember-me" style="font-size:13px; font-weight:500; color:#475569;">Remember me</label>
-            </div>
-            <a href="#" style="font-size:13px; font-weight:600; color:#005b96; text-decoration:none;">Forgot password?</a>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input id="remember-me" type="checkbox" style="width:14px; height:14px; border-radius:4px; border:1px solid #cbd5e1; accent-color:#005b96;">
+            <label for="remember-me" style="font-size:13px; font-weight:500; color:#475569;">Remember me</label>
+          </div>
+          <a href="#" style="font-size:13px; font-weight:600; color:#005b96; text-decoration:none;">Forgot password?</a>
         </div>
 
         <div style="margin-top:8px;">
-            @if (errorMessage()) {
-              <div style="padding: 10px; background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; font-size: 13px; font-weight: 500; margin-bottom: 16px; border-radius: 4px;">
-                {{ errorMessage() }}
-              </div>
+          @if (errorMessage()) {
+            <div style="padding: 10px; background-color: #fee2e2; border-left: 4px solid #ef4444; color: #b91c1c; font-size: 13px; font-weight: 500; margin-bottom: 16px; border-radius: 4px;">
+              {{ errorMessage() }}
+            </div>
+          }
+          <button type="submit" class="auth-btn-primary" style="background:#005b96;" [disabled]="isLoading()">
+            @if (isLoading()) {
+              <svg class="animate-spin" style="width:18px; height:18px; color:white;" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Signing in...
+            } @else {
+              Sign in
+              <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
             }
-            <button type="submit" class="auth-btn-primary" style="background:#005b96;" [disabled]="isLoading()">
-                @if (isLoading()) {
-                  <svg class="animate-spin" style="width:18px; height:18px; color:white;" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                } @else {
-                  Sign in
-                  <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                }
-            </button>
+          </button>
         </div>
-
       </form>
 
       <div style="text-align:center; margin-top:64px; font-size:11px; font-weight:700; color:#cbd5e1; letter-spacing:0.1em; text-transform:uppercase;">

@@ -129,7 +129,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	profile, tokens, err := h.authService.Authenticate(req.Username, req.Password, req.TOTPCode)
 	if err != nil {
 		if err.Error() == "2fa_required" {
-			c.Error(middleware.NewAppError(http.StatusForbidden, "Two-factor authentication code required", err))
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "2fa_required",
+				"message": "Two-factor authentication code required",
+			})
 			return
 		}
 		c.Error(middleware.NewAppError(http.StatusUnauthorized, err.Error(), err))

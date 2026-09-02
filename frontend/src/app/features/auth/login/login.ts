@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,7 +16,6 @@ export class Login {
   loginForm: FormGroup;
   errorMessage = signal<string | null>(null);
   isLoading = signal(false);
-  requires2FA = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -26,8 +25,7 @@ export class Login {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      totpCode: ['']
+      password: ['', Validators.required]
     });
   }
 
@@ -35,9 +33,9 @@ export class Login {
     if (this.loginForm.valid) {
       this.isLoading.set(true);
       this.errorMessage.set(null);
-      const { email, password, totpCode } = this.loginForm.value;
+      const { email, password } = this.loginForm.value;
 
-      this.authService.login({ username: email, password, totpCode }).subscribe({
+      this.authService.login({ username: email, password }).subscribe({
         next: () => {
           this.isLoading.set(false);
           const user = this.authService.currentUser();
@@ -65,8 +63,6 @@ export class Login {
                   } else {
                     parts.unshift(userSubdomain);
                   }
-                  const newHostname = parts.join('.');
-                  const port = window.location.port ? `:${window.location.port}` : '';
                   window.location.href = `https://${userSubdomain}.puxbay.com/dashboard`;
                   return;
                 }
@@ -90,9 +86,13 @@ export class Login {
         error: (err) => {
           this.isLoading.set(false);
           if (err.error?.error === '2fa_required') {
-            this.requires2FA.set(true);
-            this.loginForm.get('totpCode')?.setValidators([Validators.required, Validators.minLength(6), Validators.maxLength(6)]);
-            this.loginForm.get('totpCode')?.updateValueAndValidity();
+            // Redirect to dedicated 2FA verification page with credentials in navigation state
+            this.router.navigate(['/auth/two-factor'], {
+              state: {
+                username: email,
+                password: password
+              }
+            });
           } else if (err.error?.error === 'password_change_required') {
             // Redirect to force change password UI, passing the credentials
             this.router.navigate(['/force-change-password'], {
@@ -102,7 +102,7 @@ export class Login {
               }
             });
           } else {
-            this.errorMessage.set(err.error?.error || 'Login failed. Please check your credentials.');
+            this.errorMessage.set(err.error?.message || err.error?.error || 'Login failed. Please check your credentials.');
           }
         }
       });

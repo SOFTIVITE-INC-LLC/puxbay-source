@@ -91,6 +91,22 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/force-change-password/force-change-password').then(m => m.ForceChangePassword)
   },
   {
+    path: 'two-factor',
+    loadComponent: () => import('./features/auth/two-factor/two-factor').then(m => m.TwoFactorComponent)
+  },
+  {
+    path: 'auth/two-factor',
+    loadComponent: () => import('./features/auth/two-factor/two-factor').then(m => m.TwoFactorComponent)
+  },
+  {
+    path: 'verify-2fa',
+    loadComponent: () => import('./features/auth/two-factor/two-factor').then(m => m.TwoFactorComponent)
+  },
+  {
+    path: 'auth/verify-2fa',
+    loadComponent: () => import('./features/auth/two-factor/two-factor').then(m => m.TwoFactorComponent)
+  },
+  {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
   },
