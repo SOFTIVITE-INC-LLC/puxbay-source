@@ -15,19 +15,27 @@
       </p>
     </div>
 
-    @if (activeTab() === 'builder' && customReport()?.rows?.length) {
-      <button (click)="exportCustomCSV()"
-        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-teal-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
-        Export Custom Report
+    <!-- Universal Export Actions for Active Tab -->
+    <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+      <button (click)="exportActiveTab('excel')"
+        title="Export report to Microsoft Excel (.xls)"
+        class="flex-1 sm:flex-none justify-center flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md shadow-emerald-600/20 active:scale-95 transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">table_chart</span>
+        Export to Excel
       </button>
-    } @else {
-      <button (click)="exportTopProductsCSV()"
-        class="w-full sm:w-auto justify-center flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-teal-600 text-white font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:scale-95 transition-all text-xs sm:text-sm">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
-        Export Top Products
+      <button (click)="exportActiveTab('pdf')"
+        title="Export report as formatted PDF"
+        class="flex-1 sm:flex-none justify-center flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold shadow-md shadow-rose-600/20 active:scale-95 transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">picture_as_pdf</span>
+        Export to PDF
       </button>
-    }
+      <button (click)="exportActiveTab('csv')"
+        title="Export report as CSV"
+        class="justify-center flex items-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 font-bold shadow-sm active:scale-95 transition-all text-xs sm:text-sm whitespace-nowrap cursor-pointer">
+        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
+        CSV
+      </button>
+    </div>
   </div>
 
   <!-- ── Controls Row ─────────────────────────────────────────── -->
@@ -497,73 +505,264 @@
   <!-- CUSTOM BUILDER TAB                                           -->
   <!-- ════════════════════════════════════════════════════════════ -->
   @if (!isLoading() && activeTab() === 'builder') {
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Builder Controls (Left Sidebar) -->
-      <div class="lg:col-span-1 space-y-6">
-        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
-          <h3 class="font-bold mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2">Dimensions (Rows)</h3>
-          <div class="space-y-2">
-            @for (dim of ['date', 'payment_method', 'staff']; track dim) {
-              <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/40 p-1.5 rounded-lg transition-colors">
-                <input type="checkbox" [checked]="reportForm().dimensions.includes(dim)" (change)="toggleDimension(dim)" class="accent-teal-500 rounded text-teal-500 focus:ring-teal-500">
-                <span class="capitalize">{{ dim.replace('_', ' ') }}</span>
-              </label>
+      <!-- ── Builder Controls (Left Sidebar) ── -->
+      <div class="lg:col-span-4 space-y-5">
+        
+        <!-- Dimensions Box -->
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[18px] text-primary-500">grid_view</span>
+              <h3 class="font-black text-sm text-zinc-800 dark:text-zinc-100">Dimensions (Group By)</h3>
+            </div>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-primary-500/10 text-primary-500">
+              {{ reportForm().dimensions.length }} selected
+            </span>
+          </div>
+
+          <!-- Dimension Options Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
+            @for (dim of dimensionOptions; track dim.id) {
+              <button type="button" (click)="toggleDimension(dim.id)"
+                class="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-semibold text-left transition-all border"
+                [class.bg-primary-500/10]="reportForm().dimensions.includes(dim.id)"
+                [class.border-primary-500/40]="reportForm().dimensions.includes(dim.id)"
+                [class.text-primary-600]="reportForm().dimensions.includes(dim.id)"
+                [class.dark:text-primary-400]="reportForm().dimensions.includes(dim.id)"
+                [class.bg-zinc-50]="!reportForm().dimensions.includes(dim.id)"
+                [class.dark:bg-zinc-800/40]="!reportForm().dimensions.includes(dim.id)"
+                [class.border-zinc-200]="!reportForm().dimensions.includes(dim.id)"
+                [class.dark:border-zinc-800]="!reportForm().dimensions.includes(dim.id)"
+                [class.text-zinc-600]="!reportForm().dimensions.includes(dim.id)"
+                [class.dark:text-zinc-400]="!reportForm().dimensions.includes(dim.id)">
+                <span class="material-symbols-outlined !text-[16px] shrink-0">{{ dim.icon }}</span>
+                <span class="truncate">{{ dim.label }}</span>
+                @if (reportForm().dimensions.includes(dim.id)) {
+                  <span class="material-symbols-outlined !text-[14px] ml-auto text-primary-500 shrink-0">check</span>
+                }
+              </button>
             }
           </div>
         </div>
 
-        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-5 shadow-sm">
-          <h3 class="font-bold mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-2">Metrics (Columns)</h3>
-          <div class="space-y-2">
-            @for (met of ['revenue', 'orders', 'discounts', 'tax']; track met) {
-              <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/40 p-1.5 rounded-lg transition-colors">
-                <input type="checkbox" [checked]="reportForm().metrics.includes(met)" (change)="toggleMetric(met)" class="accent-teal-500 rounded text-teal-500 focus:ring-teal-500">
-                <span class="capitalize">{{ met }}</span>
-              </label>
+        <!-- Metrics Box -->
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined !text-[18px] text-emerald-500">monitoring</span>
+              <h3 class="font-black text-sm text-zinc-800 dark:text-zinc-100">Metrics (Columns / Calculations)</h3>
+            </div>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500">
+              {{ reportForm().metrics.length }} selected
+            </span>
+          </div>
+
+          <!-- Metric Options Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-1">
+            @for (met of metricOptions; track met.id) {
+              <button type="button" (click)="toggleMetric(met.id)"
+                class="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-semibold text-left transition-all border"
+                [class.bg-emerald-500/10]="reportForm().metrics.includes(met.id)"
+                [class.border-emerald-500/40]="reportForm().metrics.includes(met.id)"
+                [class.text-emerald-600]="reportForm().metrics.includes(met.id)"
+                [class.dark:text-emerald-400]="reportForm().metrics.includes(met.id)"
+                [class.bg-zinc-50]="!reportForm().metrics.includes(met.id)"
+                [class.dark:bg-zinc-800/40]="!reportForm().metrics.includes(met.id)"
+                [class.border-zinc-200]="!reportForm().metrics.includes(met.id)"
+                [class.dark:border-zinc-800]="!reportForm().metrics.includes(met.id)"
+                [class.text-zinc-600]="!reportForm().metrics.includes(met.id)"
+                [class.dark:text-zinc-400]="!reportForm().metrics.includes(met.id)">
+                <span class="material-symbols-outlined !text-[16px] shrink-0">{{ met.icon }}</span>
+                <span class="truncate">{{ met.label }}</span>
+                @if (reportForm().metrics.includes(met.id)) {
+                  <span class="material-symbols-outlined !text-[14px] ml-auto text-emerald-500 shrink-0">check</span>
+                }
+              </button>
             }
           </div>
         </div>
 
-        <button (click)="generateCustomReport()" [disabled]="isBuildingReport()"
-          class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-zinc-800 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50">
-          <span class="material-symbols-outlined !text-[18px]">play_arrow</span>
-          {{ isBuildingReport() ? 'Running Query...' : 'Run Report' }}
-        </button>
+        <!-- Filters & Scope Box -->
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 shadow-sm space-y-3">
+          <div class="flex items-center gap-2 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+            <span class="material-symbols-outlined !text-[18px] text-amber-500">filter_alt</span>
+            <h3 class="font-black text-sm text-zinc-800 dark:text-zinc-100">Filters &amp; Scope</h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <!-- Order Status Filter -->
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Order Status</label>
+              <select [ngModel]="reportForm().status" (ngModelChange)="reportForm.update(f => ({...f, status: $event}))"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-200 outline-none">
+                <option value="completed">Completed Only</option>
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
+
+            <!-- Sales Channel Filter -->
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Sales Channel</label>
+              <select [ngModel]="reportForm().order_type" (ngModelChange)="reportForm.update(f => ({...f, order_type: $event}))"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-200 outline-none">
+                <option value="all">All Channels</option>
+                <option value="in_store">In-Store / POS</option>
+                <option value="online">Online Storefront</option>
+                <option value="delivery">Fleet / Delivery</option>
+                <option value="kiosk">Self-Service Kiosk</option>
+              </select>
+            </div>
+
+            <!-- Payment Method Filter -->
+            <div class="sm:col-span-2">
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Payment Method</label>
+              <select [ngModel]="reportForm().payment_method" (ngModelChange)="reportForm.update(f => ({...f, payment_method: $event}))"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 font-semibold text-zinc-700 dark:text-zinc-200 outline-none">
+                <option value="all">All Payment Methods</option>
+                <option value="cash">Cash</option>
+                <option value="card">Card / POS Terminal</option>
+                <option value="mobile">Mobile Money</option>
+                <option value="credit">Customer Credit / Debt</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          <button (click)="resetBuilder()"
+            class="px-4 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all text-xs flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined !text-[16px]">restart_alt</span>
+            Reset
+          </button>
+          <button (click)="generateCustomReport()" [disabled]="isBuildingReport()"
+            class="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-bold shadow-lg shadow-primary-600/30 hover:-translate-y-0.5 active:scale-95 transition-all text-sm disabled:opacity-50 cursor-pointer">
+            @if (isBuildingReport()) {
+              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              Generating...
+            } @else {
+              <span class="material-symbols-outlined !text-[18px]">play_arrow</span>
+              Run Custom Report
+            }
+          </button>
+        </div>
+
       </div>
 
-      <!-- Builder Results (Right Area) -->
-      <div class="lg:col-span-3">
-        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-white/50 dark:border-zinc-800/50 p-6 shadow-sm h-full flex flex-col">
+      <!-- ── Builder Results (Right Area) ── -->
+      <div class="lg:col-span-8">
+        <div class="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 sm:p-6 shadow-sm min-h-[500px] flex flex-col">
+          
           @if (customReport()) {
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="font-bold text-lg flex items-center gap-2">
-                <span class="material-symbols-outlined !text-[20px] text-teal-500">table_view</span>
-                Report Results
-              </h2>
-              <span class="text-sm text-zinc-400">{{ customReport()!.rows.length }} rows returned</span>
-            </div>
             
-            @if (customReport()!.rows.length > 0) {
-              <div class="overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded-xl">
-                <table class="w-full text-sm whitespace-nowrap">
+            <!-- Result Header & Actions -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div>
+                <h2 class="font-black text-lg flex items-center gap-2 text-zinc-800 dark:text-zinc-100">
+                  <span class="material-symbols-outlined !text-[20px] text-primary-500">table_chart</span>
+                  Custom Report Results
+                </h2>
+                <p class="text-xs text-zinc-400 mt-0.5">
+                  {{ filteredCustomReportRows().length }} of {{ customReport()!.rows.length }} rows returned
+                </p>
+              </div>
+
+              <!-- Quick Export & Search -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Search Input -->
+                <div class="relative min-w-[160px]">
+                  <span class="absolute left-2.5 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[15px] text-zinc-400">search</span>
+                  <input type="text" [ngModel]="customReportSearch()" (ngModelChange)="customReportSearch.set($event)"
+                    placeholder="Search results…"
+                    class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold outline-none focus:ring-2 focus:ring-primary-500/30">
+                </div>
+
+                <!-- Excel Export -->
+                <button (click)="exportCustomReport('excel')" title="Export to Excel (.xls)"
+                  class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all cursor-pointer">
+                  <span class="material-symbols-outlined !text-[15px]">table_chart</span>
+                  Excel
+                </button>
+
+                <!-- PDF Export -->
+                <button (click)="exportCustomReport('pdf')" title="Export formatted PDF"
+                  class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-sm transition-all cursor-pointer">
+                  <span class="material-symbols-outlined !text-[15px]">picture_as_pdf</span>
+                  PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- KPI Summary Cards for Custom Report -->
+            @if (customReportKpis(); as kpi) {
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div class="bg-primary-50/60 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 rounded-xl p-3">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-primary-500">Total Revenue</span>
+                  <p class="text-base sm:text-lg font-black text-primary-600 dark:text-primary-400 mt-0.5">
+                    {{ kpi.totalRevenue | appCurrency }}
+                  </p>
+                </div>
+                <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/60 rounded-xl p-3">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Total Orders</span>
+                  <p class="text-base sm:text-lg font-black text-zinc-800 dark:text-zinc-100 mt-0.5">
+                    {{ kpi.totalOrders | number }}
+                  </p>
+                </div>
+                <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/60 rounded-xl p-3">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Avg Order Value</span>
+                  <p class="text-base sm:text-lg font-black text-zinc-800 dark:text-zinc-100 mt-0.5">
+                    {{ kpi.aov | appCurrency }}
+                  </p>
+                </div>
+                <div class="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl p-3">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500">Total Discounts</span>
+                  <p class="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5">
+                    {{ kpi.totalDiscounts | appCurrency }}
+                  </p>
+                </div>
+              </div>
+            }
+            
+            <!-- Table View -->
+            @if (filteredCustomReportRows().length > 0) {
+              <div class="overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded-xl flex-1">
+                <table class="w-full text-xs sm:text-sm whitespace-nowrap">
                   <thead>
-                    <tr class="bg-zinc-50 dark:bg-zinc-900/50 text-xs font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-800">
+                    <tr class="bg-zinc-100/70 dark:bg-zinc-800/60 text-[11px] font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 dark:border-zinc-800">
                       @for (header of customReport()!.headers; track header) {
-                        <th class="px-6 py-3 text-left border-r border-zinc-200 dark:border-zinc-800 last:border-0">{{ header.replace('_', ' ') }}</th>
+                        <th (click)="sortCustomColumn(header)"
+                          class="px-4 sm:px-5 py-3 text-left border-r border-zinc-200 dark:border-zinc-800 last:border-0 cursor-pointer hover:bg-zinc-200/50 dark:hover:bg-zinc-700/50 transition-colors select-none">
+                          <div class="flex items-center gap-1.5">
+                            <span>{{ header.replace('_', ' ') }}</span>
+                            @if (customReportSort().column === header) {
+                              <span class="material-symbols-outlined !text-[14px] text-primary-500">
+                                {{ customReportSort().asc ? 'arrow_upward' : 'arrow_downward' }}
+                              </span>
+                            }
+                          </div>
+                        </th>
                       }
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                    @for (row of customReport()!.rows; track $index) {
+                  <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+                    @for (row of filteredCustomReportRows(); track $index) {
                       <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                         @for (header of customReport()!.headers; track header) {
-                          <td class="px-6 py-3 font-medium border-r border-zinc-100 dark:border-zinc-800 last:border-0">
-                            <!-- Try to format as currency if it looks like a metric, otherwise plain text -->
-                            @if (['revenue', 'discounts', 'tax'].includes(header)) {
-                              {{ row[header] | appCurrency }}
+                          <td class="px-4 sm:px-5 py-3 font-medium border-r border-zinc-100 dark:border-zinc-800/60 last:border-0 text-zinc-700 dark:text-zinc-200">
+                            <!-- Monetary metrics formatted with currency pipe -->
+                            @if (['revenue', 'discounts', 'tax', 'net_sales', 'subtotal', 'amount_paid', 'avg_order_value'].includes(header)) {
+                              <span class="font-bold text-zinc-900 dark:text-white">
+                                {{ (row[header] || 0) | appCurrency }}
+                              </span>
+                            } @else if (['orders', 'items_sold'].includes(header)) {
+                              <span class="font-bold">{{ row[header] | number }}</span>
                             } @else {
-                              {{ row[header] }}
+                              <span class="capitalize">{{ row[header] || '–' }}</span>
                             }
                           </td>
                         }
@@ -575,16 +774,23 @@
             } @else {
               <div class="flex-1 flex flex-col items-center justify-center gap-2 py-16 text-center">
                 <span class="material-symbols-outlined !text-[48px] text-zinc-300">search_off</span>
-                <p class="font-semibold text-zinc-500">No results found for your query.</p>
+                <p class="font-bold text-zinc-700 dark:text-zinc-300">No results match your search.</p>
+                <p class="text-xs text-zinc-400">Try adjusting your search keyword or selected dimensions.</p>
               </div>
             }
+
           } @else {
+            <!-- Empty Placeholder -->
             <div class="flex-1 flex flex-col items-center justify-center gap-4 py-24 text-center">
-              <div class="w-20 h-20 rounded-2xl bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined !text-[40px] text-teal-400">tune</span>
+              <div class="w-20 h-20 rounded-2xl bg-primary-50 dark:bg-primary-950/30 flex items-center justify-center text-primary-500">
+                <span class="material-symbols-outlined !text-[44px]">tune</span>
               </div>
-              <h3 class="text-xl font-bold">Custom Report Builder</h3>
-              <p class="text-zinc-500 max-w-sm">Select dimensions and metrics on the left, then click "Run Report" to generate dynamic data tables.</p>
+              <div>
+                <h3 class="text-xl font-extrabold text-zinc-800 dark:text-zinc-100">Interactive Report Builder</h3>
+                <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm max-w-md mt-1">
+                  Choose dimensions and metrics from the left panel, configure filters, and click <strong>"Run Custom Report"</strong> to generate custom aggregated spreadsheets.
+                </p>
+              </div>
             </div>
           }
         </div>

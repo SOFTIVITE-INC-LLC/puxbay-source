@@ -157,10 +157,13 @@ func (h *AnalyticsHandler) ReportBuilder(c *gin.Context) {
 	branchID := middleware.ResolveBranchID(c, c.Query("branch_id"))
 
 	type ReportRequest struct {
-		Metrics    []string `json:"metrics"`
-		Dimensions []string `json:"dimensions"`
-		From       string   `json:"from"`
-		To         string   `json:"to"`
+		Metrics       []string `json:"metrics"`
+		Dimensions    []string `json:"dimensions"`
+		From          string   `json:"from"`
+		To            string   `json:"to"`
+		Status        string   `json:"status"`
+		OrderType     string   `json:"order_type"`
+		PaymentMethod string   `json:"payment_method"`
 	}
 	var req ReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -168,7 +171,7 @@ func (h *AnalyticsHandler) ReportBuilder(c *gin.Context) {
 		return
 	}
 
-	result, err := h.service(c).GenerateCustomReport(tenantID, branchID, req.Metrics, req.Dimensions, req.From, req.To)
+	result, err := h.service(c).GenerateCustomReport(tenantID, branchID, req.Metrics, req.Dimensions, req.From, req.To, req.Status, req.OrderType, req.PaymentMethod)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate report"})
 		return

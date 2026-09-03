@@ -595,7 +595,7 @@ type CustomReportResult struct {
 	Rows    []map[string]interface{} `json:"rows"`
 }
 
-func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metrics []string, dimensions []string, from, to string) (*CustomReportResult, error) {
+func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metrics []string, dimensions []string, from, to, status, orderType, paymentMethod string) (*CustomReportResult, error) {
 	if len(metrics) == 0 {
 		metrics = []string{"revenue"}
 	}
@@ -605,8 +605,21 @@ func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metri
 
 	db := s.db.Session(&gorm.Session{})
 
-	baseQuery := db.Table("orders").
-		Where("orders.status = ?", "completed")
+	baseQuery := db.Table("orders")
+
+	if status != "" && status != "all" {
+		baseQuery = baseQuery.Where("orders.status = ?", status)
+	} else if status == "" {
+		baseQuery = baseQuery.Where("orders.status = ?", "completed")
+	}
+
+	if orderType != "" && orderType != "all" {
+		baseQuery = baseQuery.Where("orders.order_type = ?", orderType)
+	}
+
+	if paymentMethod != "" && paymentMethod != "all" {
+		baseQuery = baseQuery.Where("orders.payment_method = ?", paymentMethod)
+	}
 
 	if branchID != "" {
 		baseQuery = baseQuery.Where("orders.branch_id = ?", branchID)
@@ -623,6 +636,45 @@ func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metri
 		}
 	}
 
+	// Check if joins are needed
+	needsOrderItems := false
+	needsProducts := false
+	needsCategories := false
+	needsUsers := false
+
+	for _, dim := range dimensions {
+		switch dim {
+		case "staff":
+			needsUsers = true
+		case "product":
+			needsOrderItems = true
+			needsProducts = true
+		case "category":
+			needsOrderItems = true
+			needsProducts = true
+			needsCategories = true
+		}
+	}
+
+	for _, met := range metrics {
+		if met == "items_sold" {
+			needsOrderItems = true
+		}
+	}
+
+	if needsUsers {
+		baseQuery = baseQuery.Joins("LEFT JOIN public.users ON public.users.id = orders.cashier_id")
+	}
+	if needsOrderItems {
+		baseQuery = baseQuery.Joins("LEFT JOIN order_items ON order_items.order_id = orders.id")
+	}
+	if needsProducts {
+		baseQuery = baseQuery.Joins("LEFT JOIN products ON products.id = order_items.product_id")
+	}
+	if needsCategories {
+		baseQuery = baseQuery.Joins("LEFT JOIN categories ON categories.id = products.category_id")
+	}
+
 	var selectFields []string
 	var groupFields []string
 
@@ -630,15 +682,41 @@ func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metri
 	for _, dim := range dimensions {
 		switch dim {
 		case "date":
-			selectFields = append(selectFields, "DATE(orders.created_at) as date")
-			groupFields = append(groupFields, "DATE(orders.created_at)")
+			selectFields = append(selectFields, "TO_CHAR(orders.created_at, 'YYYY-MM-DD') as date")
+			groupFields = append(groupFields, "TO_CHAR(orders.created_at, 'YYYY-MM-DD')")
+		case "month":
+			selectFields = append(selectFields, "TO_CHAR(orders.created_at, 'YYYY-MM') as month")
+			groupFields = append(groupFields, "TO_CHAR(orders.created_at, 'YYYY-MM')")
+		case "day_of_week":
+			selectFields = append(selectFields, "TRIM(TO_CHAR(orders.created_at, 'Day')) as day_of_week")
+			groupFields = append(groupFields, "TRIM(TO_CHAR(orders.created_at, 'Day'))")
+		case "hour":
+			selectFields = append(selectFields, "EXTRACT(HOUR FROM orders.created_at)::text || ':00' as hour")
+			groupFields = append(groupFields, "EXTRACT(HOUR FROM orders.created_at)")
 		case "payment_method":
-			selectFields = append(selectFields, "orders.payment_method as payment_method")
+			selectFields = append(selectFields, "COALESCE(NULLIF(orders.payment_method, ''), 'unspecified') as payment_method")
 			groupFields = append(groupFields, "orders.payment_method")
+		case "payment_status":
+			selectFields = append(selectFields, "COALESCE(NULLIF(orders.payment_status, ''), 'unpaid') as payment_status")
+			groupFields = append(groupFields, "orders.payment_status")
+		case "order_type":
+			selectFields = append(selectFields, "COALESCE(NULLIF(orders.order_type, ''), 'in_store') as order_type")
+			groupFields = append(groupFields, "orders.order_type")
+		case "status":
+			selectFields = append(selectFields, "orders.status as status")
+			groupFields = append(groupFields, "orders.status")
 		case "staff":
-			baseQuery = baseQuery.Joins("LEFT JOIN public.users ON public.users.id = orders.cashier_id")
-			selectFields = append(selectFields, "COALESCE(public.users.first_name || ' ' || public.users.last_name, 'Online') as staff")
+			selectFields = append(selectFields, "COALESCE(public.users.first_name || ' ' || public.users.last_name, 'Online / Direct') as staff")
 			groupFields = append(groupFields, "public.users.first_name, public.users.last_name")
+		case "customer":
+			selectFields = append(selectFields, "COALESCE(NULLIF(orders.customer_name, ''), 'Walk-in Customer') as customer")
+			groupFields = append(groupFields, "orders.customer_name")
+		case "category":
+			selectFields = append(selectFields, "COALESCE(categories.name, 'Uncategorized') as category")
+			groupFields = append(groupFields, "categories.name")
+		case "product":
+			selectFields = append(selectFields, "COALESCE(products.name, 'Unknown Product') as product")
+			groupFields = append(groupFields, "products.name")
 		}
 	}
 
@@ -646,13 +724,31 @@ func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metri
 	for _, met := range metrics {
 		switch met {
 		case "revenue":
-			selectFields = append(selectFields, "SUM(orders.total) as revenue")
+			if needsOrderItems && (needsProducts || needsCategories) {
+				selectFields = append(selectFields, "COALESCE(SUM(order_items.total), 0) as revenue")
+			} else {
+				selectFields = append(selectFields, "COALESCE(SUM(orders.total), 0) as revenue")
+			}
 		case "orders":
-			selectFields = append(selectFields, "COUNT(orders.id) as orders")
+			selectFields = append(selectFields, "COUNT(DISTINCT orders.id) as orders")
 		case "discounts":
-			selectFields = append(selectFields, "SUM(orders.discount) as discounts")
+			if needsOrderItems && (needsProducts || needsCategories) {
+				selectFields = append(selectFields, "COALESCE(SUM(order_items.discount), 0) as discounts")
+			} else {
+				selectFields = append(selectFields, "COALESCE(SUM(orders.discount), 0) as discounts")
+			}
 		case "tax":
-			selectFields = append(selectFields, "SUM(orders.tax) as tax")
+			selectFields = append(selectFields, "COALESCE(SUM(orders.tax), 0) as tax")
+		case "subtotal":
+			selectFields = append(selectFields, "COALESCE(SUM(orders.subtotal), 0) as subtotal")
+		case "amount_paid":
+			selectFields = append(selectFields, "COALESCE(SUM(orders.amount_paid), 0) as amount_paid")
+		case "net_sales":
+			selectFields = append(selectFields, "COALESCE(SUM(orders.total - orders.tax - orders.discount), 0) as net_sales")
+		case "avg_order_value":
+			selectFields = append(selectFields, "ROUND(COALESCE(SUM(orders.total) / NULLIF(COUNT(DISTINCT orders.id), 0), 0)::numeric, 2) as avg_order_value")
+		case "items_sold":
+			selectFields = append(selectFields, "COALESCE(SUM(order_items.quantity), COUNT(DISTINCT orders.id)) as items_sold")
 		}
 	}
 
@@ -671,16 +767,9 @@ func (s *AnalyticsService) GenerateCustomReport(tenantID, branchID string, metri
 		baseQuery = baseQuery.Group(g)
 	}
 
-	// Order by the first dimension (usually date) descending if date is present
-	hasDate := false
-	for _, dim := range dimensions {
-		if dim == "date" {
-			hasDate = true
-			break
-		}
-	}
-	if hasDate {
-		baseQuery = baseQuery.Order("date DESC")
+	// Order by primary dimension or metric
+	if len(groupFields) > 0 {
+		baseQuery = baseQuery.Order(groupFields[0] + " DESC")
 	}
 
 	var rows []map[string]interface{}

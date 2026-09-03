@@ -23,25 +23,34 @@
         <span class="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 material-symbols-outlined !text-[16px] sm:!text-[18px] text-zinc-400 pointer-events-none">expand_more</span>
       </div>
 
-      <!-- Export Button based on active tab -->
-      @if (activeTab() === 'pnl') {
-        <button (click)="printPnL()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
-          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">print</span> Print P&amp;L
+      <!-- Export Buttons for Active Tab -->
+      <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+        <button (click)="exportActiveFinancialTab('excel')"
+          title="Export active financial report to Excel (.xls)"
+          class="flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 active:scale-95 transition-all whitespace-nowrap cursor-pointer">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">table_chart</span>
+          Excel
         </button>
-      } @else if (activeTab() === 'expenses') {
-        <button (click)="exportExpensesCSV()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
-          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span> Export CSV
-        </button>
-      } @else if (activeTab() === 'tax') {
-        <button (click)="exportTaxCSV()" class="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap">
-          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span> Export CSV
-        </button>
-      }
 
-      <button (click)="openExpenseCategoryModal()" class="items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all hidden sm:flex">
+        <button (click)="exportActiveFinancialTab('pdf')"
+          title="Export active financial report as PDF"
+          class="flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 active:scale-95 transition-all whitespace-nowrap cursor-pointer">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">picture_as_pdf</span>
+          PDF
+        </button>
+
+        <button (click)="exportActiveFinancialTab('csv')"
+          title="Export CSV"
+          class="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap cursor-pointer">
+          <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
+          CSV
+        </button>
+      </div>
+
+      <button (click)="openExpenseCategoryModal()" class="items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs sm:text-sm font-bold shadow-sm transition-all hidden sm:flex cursor-pointer">
         <span class="material-symbols-outlined !text-[18px]">category</span> New Category
       </button>
-      <button (click)="openExpenseModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-emerald-500 hover:opacity-90 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all whitespace-nowrap">
+      <button (click)="openExpenseModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-emerald-500 hover:opacity-90 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-500/25 transition-all whitespace-nowrap cursor-pointer">
         <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">add</span> Add Expense
       </button>
     </div>

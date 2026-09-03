@@ -1,4 +1,5 @@
 import { ToastService } from '../../../core/services/toast';
+import { ExportService } from '../../../core/services/export.service';
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -214,44 +215,248 @@ export class Financial implements OnInit {
     this.fetchData();
   }
 
-  exportExpensesCSV() {
+  exportService = inject(ExportService);
+
+  exportActiveFinancialTab(format: 'excel' | 'pdf' | 'csv') {
+    const tab = this.activeTab();
+    switch (tab) {
+      case 'pnl':
+        this.exportPnL(format);
+        break;
+      case 'expenses':
+        this.exportExpenses(format);
+        break;
+      case 'tax':
+        this.exportTaxReport(format);
+        break;
+      case 'ledger':
+        this.exportLedger(format);
+        break;
+      case 'journal':
+        this.exportJournal(format);
+        break;
+    }
+  }
+
+  exportPnL(format: 'excel' | 'pdf' | 'csv') {
+    const pnl = this.pnlData();
+    if (!pnl) {
+      this.toastService.showError('No P&L data to export.');
+      return;
+    }
+
+    const headers = ['Line Item', 'Amount (GHS)', '% of Revenue'];
+    const rev = Number(pnl.gross_revenue || pnl.revenue || 0);
+    const getPct = (val: number) => rev > 0 ? ((val / rev) * 100).toFixed(1) + '%' : '0.0%';
+
+    const rows: any[][] = [
+      ['Gross Sales / Revenue', rev.toFixed(2), '100.0%'],
+      ['Cost of Goods Sold (COGS)', Number(pnl.cogs || 0).toFixed(2), getPct(Number(pnl.cogs || 0))],
+      ['Gross Profit', Number(pnl.gross_profit || (rev - (pnl.cogs || 0))).toFixed(2), getPct(Number(pnl.gross_profit || (rev - (pnl.cogs || 0))))],
+      ['Operating Expenses', Number(pnl.total_expenses || pnl.expenses || 0).toFixed(2), getPct(Number(pnl.total_expenses || pnl.expenses || 0))],
+      ['Tax / VAT Expense', Number(pnl.tax || 0).toFixed(2), getPct(Number(pnl.tax || 0))],
+      ['Net Profit / (Loss)', Number(pnl.net_profit || 0).toFixed(2), getPct(Number(pnl.net_profit || 0))],
+    ];
+
+    // Add category breakdown if available
+    if (pnl.expense_breakdown && pnl.expense_breakdown.length) {
+      rows.push(['--- Expense Breakdown by Category ---', '', '']);
+      for (const eb of pnl.expense_breakdown) {
+        rows.push([`  - ${eb.category || eb.name}`, Number(eb.amount || 0).toFixed(2), getPct(Number(eb.amount || 0))]);
+      }
+    }
+
+    const marginPct = rev > 0 ? ((pnl.net_profit / rev) * 100).toFixed(1) + '%' : '0.0%';
+
+    const options = {
+      filename: `pnl_statement_${this.dateRange()}`,
+      title: 'Profit & Loss Statement (Income Statement)',
+      subtitle: `Accounting Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      dateRange: `Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      headers,
+      rows,
+      summaryCards: [
+        { label: 'Gross Revenue', value: 'GHS ' + rev.toFixed(2), highlight: true },
+        { label: 'Total Expenses', value: 'GHS ' + Number(pnl.total_expenses || pnl.expenses || 0).toFixed(2) },
+        { label: 'Net Profit', value: 'GHS ' + Number(pnl.net_profit || 0).toFixed(2), highlight: pnl.net_profit >= 0 },
+        { label: 'Net Margin', value: marginPct },
+      ]
+    };
+
+    if (format === 'excel') {
+      this.exportService.exportToExcel(options);
+      this.toastService.showSuccess('P&L Statement exported to Excel!');
+    } else if (format === 'pdf') {
+      this.exportService.exportToPdf(options);
+    } else {
+      this.exportService.exportToCsv(options);
+      this.toastService.showSuccess('P&L Statement exported to CSV!');
+    }
+  }
+
+  exportExpenses(format: 'excel' | 'pdf' | 'csv') {
     const expenses = this.filteredExpenses();
     if (!expenses.length) {
       this.toastService.showError('No expenses to export.');
       return;
     }
-    const headers = ['Date', 'Category', 'Description', 'Amount', 'Recurring', 'Interval'];
+
+    const headers = ['Date', 'Category', 'Description', 'Amount (GHS)', 'Recurring', 'Interval'];
     const rows = expenses.map(e => [
       e.date ? e.date.split('T')[0] : '',
-      e.category?.name || e.category_id || '',
-      e.description || '',
-      e.amount || 0,
+      e.category?.name || e.category_id || 'General',
+      e.description || '–',
+      Number(e.amount || 0).toFixed(2),
       e.is_recurring ? 'Yes' : 'No',
-      e.recurrence_interval || ''
+      e.recurrence_interval || '–'
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `expenses_${this.dateRange()}.csv`;
-    a.click();
-    this.toastService.showSuccess('Expenses exported!');
+
+    const totalAmt = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+    const options = {
+      filename: `expenses_${this.dateRange()}`,
+      title: 'Operating Expenses Ledger',
+      subtitle: `Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      dateRange: `Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      headers,
+      rows,
+      summaryCards: [
+        { label: 'Total Expenses', value: 'GHS ' + totalAmt.toFixed(2), highlight: true },
+        { label: 'Expense Entries', value: expenses.length },
+        { label: 'Average Expense', value: 'GHS ' + (expenses.length ? (totalAmt / expenses.length).toFixed(2) : '0.00') },
+      ]
+    };
+
+    if (format === 'excel') {
+      this.exportService.exportToExcel(options);
+      this.toastService.showSuccess('Expenses exported to Excel!');
+    } else if (format === 'pdf') {
+      this.exportService.exportToPdf(options);
+    } else {
+      this.exportService.exportToCsv(options);
+      this.toastService.showSuccess('Expenses exported to CSV!');
+    }
   }
 
-  exportTaxCSV() {
+  exportTaxReport(format: 'excel' | 'pdf' | 'csv') {
     const tr = this.taxReportData();
-    if (!tr) return;
-    const csv = `"Total Sales","Total Tax Collected","Taxable Amount","Order Count"\n"${tr.total_sales}","${tr.total_tax_collected}","${tr.taxable_amount}","${tr.order_count}"`;
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `tax_report_${this.dateRange()}.csv`;
-    a.click();
-    this.toastService.showSuccess('Tax report exported!');
+    if (!tr) {
+      this.toastService.showError('No tax report data to export.');
+      return;
+    }
+
+    const headers = ['Tax Metric', 'Amount (GHS)'];
+    const rows: any[][] = [
+      ['Total Gross Sales', Number(tr.total_sales || 0).toFixed(2)],
+      ['Taxable Sales Amount', Number(tr.taxable_amount || 0).toFixed(2)],
+      ['Total Tax Collected', Number(tr.total_tax_collected || 0).toFixed(2)],
+      ['Total Orders Count', Number(tr.order_count || 0)],
+      ['Effective Tax Rate', tr.taxable_amount > 0 ? ((tr.total_tax_collected / tr.taxable_amount) * 100).toFixed(2) + '%' : '0.0%'],
+    ];
+
+    const options = {
+      filename: `tax_report_${this.dateRange()}`,
+      title: 'Tax Summary & Filing Report',
+      subtitle: `Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      dateRange: `Period: ${this.dateRange().replace('_', ' ').toUpperCase()}`,
+      headers,
+      rows,
+      summaryCards: [
+        { label: 'Tax Collected', value: 'GHS ' + Number(tr.total_tax_collected || 0).toFixed(2), highlight: true },
+        { label: 'Taxable Sales', value: 'GHS ' + Number(tr.taxable_amount || 0).toFixed(2) },
+        { label: 'Total Orders', value: tr.order_count || 0 },
+      ]
+    };
+
+    if (format === 'excel') {
+      this.exportService.exportToExcel(options);
+      this.toastService.showSuccess('Tax report exported to Excel!');
+    } else if (format === 'pdf') {
+      this.exportService.exportToPdf(options);
+    } else {
+      this.exportService.exportToCsv(options);
+      this.toastService.showSuccess('Tax report exported to CSV!');
+    }
+  }
+
+  exportLedger(format: 'excel' | 'pdf' | 'csv') {
+    const accounts = this.ledgerAccounts();
+    if (!accounts.length) {
+      this.toastService.showError('No ledger accounts to export.');
+      return;
+    }
+
+    const headers = ['Account Code', 'Account Name', 'Type', 'Balance (GHS)', 'Description'];
+    const rows = accounts.map(a => [
+      a.code || '–',
+      a.name || '–',
+      a.type || '–',
+      Number(a.balance || 0).toFixed(2),
+      a.description || '–'
+    ]);
+
+    const options = {
+      filename: 'chart_of_accounts',
+      title: 'Chart of Accounts (General Ledger)',
+      dateRange: `As of ${new Date().toISOString().slice(0, 10)}`,
+      headers,
+      rows,
+      summaryCards: [
+        { label: 'Total Accounts', value: accounts.length, highlight: true }
+      ]
+    };
+
+    if (format === 'excel') {
+      this.exportService.exportToExcel(options);
+      this.toastService.showSuccess('Chart of Accounts exported to Excel!');
+    } else if (format === 'pdf') {
+      this.exportService.exportToPdf(options);
+    } else {
+      this.exportService.exportToCsv(options);
+      this.toastService.showSuccess('Chart of Accounts exported to CSV!');
+    }
+  }
+
+  exportJournal(format: 'excel' | 'pdf' | 'csv') {
+    const entries = this.journalEntries();
+    if (!entries.length) {
+      this.toastService.showError('No journal entries to export.');
+      return;
+    }
+
+    const headers = ['Date', 'Reference ID', 'Reference Type', 'Description', 'Lines Count'];
+    const rows = entries.map(j => [
+      j.created_at ? new Date(j.created_at).toLocaleDateString() : '–',
+      j.reference_id || '–',
+      j.reference_type || 'Manual',
+      j.description || '–',
+      j.lines?.length || 0
+    ]);
+
+    const options = {
+      filename: 'journal_entries',
+      title: 'General Journal Entries Record',
+      dateRange: `As of ${new Date().toISOString().slice(0, 10)}`,
+      headers,
+      rows,
+      summaryCards: [
+        { label: 'Total Entries', value: entries.length, highlight: true }
+      ]
+    };
+
+    if (format === 'excel') {
+      this.exportService.exportToExcel(options);
+      this.toastService.showSuccess('Journal entries exported to Excel!');
+    } else if (format === 'pdf') {
+      this.exportService.exportToPdf(options);
+    } else {
+      this.exportService.exportToCsv(options);
+      this.toastService.showSuccess('Journal entries exported to CSV!');
+    }
   }
 
   printPnL() {
-    window.print();
+    this.exportPnL('pdf');
   }
 
   saveTaxConfig() {
