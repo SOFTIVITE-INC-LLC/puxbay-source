@@ -309,7 +309,7 @@ body.sidebar-is-collapsed .nav-link-premium:hover {
     font-size: 1.05rem !important;
     /* VS Code uses ~16px icons */
     transition: color 0.12s ease !important;
-    color: #475569 !important;
+    color: #64748b !important;
     flex-shrink: 0 !important;
     font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20 !important;
 }
@@ -339,10 +339,6 @@ body.sidebar-is-collapsed .nav-label {
 /* VS Code active item — left 2px bar + subtle tint + brighter text */
 .nav-link-active {
     background-color: rgba(0, 91, 150, 0.14) !important;
-    color: #005b96 !important;
-}
-
-:root.dark .nav-link-active {
     color: #b3cde0 !important;
 }
 
@@ -366,22 +362,16 @@ body.sidebar-is-collapsed .nav-link-active {
 }
 
 .nav-link-active .material-symbols-outlined {
-    color: #005b96 !important;
+    color: #6497b1 !important;
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20 !important;
 }
 
-:root.dark .nav-link-active .material-symbols-outlined {
-    color: #6497b1 !important;
-}
-
 .nav-link-active .nav-label {
-    color: #005b96 !important;
+    color: #b3cde0 !important;
     font-weight: 600 !important;
 }
 
-:root.dark .nav-link-active .nav-label {
-    color: #b3cde0 !important;
-}
+
 
 /* Section labels — VS Code uses small uppercase headers with spacing */
 .section-label-premium {
@@ -394,7 +384,7 @@ body.sidebar-is-collapsed .nav-link-active {
     font-weight: 700 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.1em !important;
-    color: #334155 !important;
+    color: #475569 !important;
     font-family: 'Outfit', 'Inter', sans-serif !important;
     transition: opacity 0.2s !important;
     white-space: nowrap !important;
@@ -606,4 +596,75 @@ app-supplier-portal-scorecard .tier-badge {
 .reveal.active {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ── Global @media print: clean UI print for reports, statements, slips ── */
+@media print {
+  /* Force white page */
+  html, body {
+    background: #fff !important;
+    color: #111 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Strip dark glassmorphic / translucent backgrounds from content containers */
+  .bg-white\/70,
+  .bg-black\/40,
+  .backdrop-blur-2xl,
+  [class*="backdrop-blur"],
+  [class*="bg-slate"],
+  [class*="bg-zinc"],
+  [class*="dark:bg"] {
+    background: #fff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Ensure text is visible on white background */
+  [class*="text-slate"],
+  [class*="text-zinc"],
+  [class*="text-gray"],
+  [class*="dark:text"] {
+    color: #111 !important;
+  }
+
+  /* Strip colored badge / chip backgrounds for readability — keep borders */
+  [class*="bg-emerald"],
+  [class*="bg-rose"],
+  [class*="bg-amber"],
+  [class*="bg-indigo"],
+  [class*="bg-blue"],
+  [class*="bg-violet"] {
+    background: #f0f0f0 !important;
+    color: #111 !important;
+  }
+
+  /* Remove shadows, rings, and rounded panels */
+  [class*="shadow"],
+  [class*="ring-"] {
+    box-shadow: none !important;
+  }
+
+  /* Remove border-radius from main content cards */
+  main,
+  main > * {
+    border-radius: 0 !important;
+  }
+
+  /* Hide interactive / non-content elements */
+  #toast-container,
+  app-copilot,
+  app-command-palette,
+  app-toast,
+  button[class*="print:"],
+  [class*="no-print"],
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Allow page breaks between sections */
+  table { page-break-inside: auto; }
+  tr    { page-break-inside: avoid; page-break-after: auto; }
+  thead { display: table-header-group; }
 }

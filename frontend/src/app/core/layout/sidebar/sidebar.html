@@ -1,11 +1,11 @@
 <aside
-  class="h-full flex flex-col bg-white/70 dark:bg-black/40 backdrop-blur-2xl transition-all duration-300 ease-in-out font-outfit relative z-50 border-r border-slate-200/50 dark:border-white/10 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] dark:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.5)] w-64"
+  class="h-full flex flex-col bg-[#011f4b] backdrop-blur-2xl transition-all duration-300 ease-in-out font-outfit relative z-50 border-r border-white/[0.07] shadow-[4px_0_32px_-8px_rgba(0,0,0,0.6)] w-64"
   [class.md:w-64]="!isCollapsed"
   [class.md:w-[80px]]="isCollapsed"
 >
   <!-- ── Logo Area ── -->
   <div
-    class="h-16 flex items-center px-5 border-b border-slate-200/50 dark:border-white/10 relative overflow-hidden flex-shrink-0 bg-white/30 dark:bg-white/5 backdrop-blur-md"
+    class="h-16 flex items-center px-5 border-b border-white/[0.07] relative overflow-hidden flex-shrink-0 bg-white/5 backdrop-blur-md"
   >
     <!-- Subtle Glow -->
     <div
@@ -29,11 +29,11 @@
       [class.opacity-0]="isCollapsed"
       [class.w-0]="isCollapsed"
     >
-      <span class="text-[14px] font-black text-slate-900 dark:text-white tracking-tight truncate leading-tight">{{
+      <span class="text-[14px] font-black text-white tracking-tight truncate leading-tight">{{
         companyName() || 'Puxbay'
       }}</span>
       <div class="flex items-center gap-1 mt-0.5">
-        <span class="text-[9px] font-bold text-slate-400 dark:text-zinc-500 tracking-tight whitespace-nowrap">
+        <span class="text-[9px] font-bold text-slate-400 tracking-tight whitespace-nowrap">
           Powered by <span class="text-primary-500 font-extrabold">Puxbay</span>
         </span>
       </div>
@@ -42,7 +42,7 @@
     <!-- Mobile Close Button (hidden on desktop) -->
     <button
       (click)="onToggle()"
-      class="ml-auto lg:hidden text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-white/5 p-2 rounded-lg transition-colors flex-shrink-0"
+      class="ml-auto lg:hidden text-slate-400 hover:text-white bg-white/10 p-2 rounded-lg transition-colors flex-shrink-0"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
@@ -58,7 +58,7 @@
     <!-- ═══════════════════════════════════════════════════ -->
     @if (userRole() === 'supplier') {
       <div class="px-3 py-2 mt-2 mb-1" [class.hidden]="isCollapsed">
-        <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
           Supplier Portal
         </p>
       </div>
@@ -129,7 +129,7 @@
         <!-- Administration Section (admin/superadmin only) -->
         @if (userRole() === 'admin' || userRole() === 'superadmin') {
           <div class="px-3 py-2 mt-2 mb-1" [class.hidden]="isCollapsed">
-            <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               Administration
             </p>
           </div>
@@ -218,7 +218,7 @@
 
         <!-- Company Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Company</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Company</p>
         </div>
         <a
           routerLink="/dashboard"
@@ -313,7 +313,7 @@
 
         <!-- Commerce Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Commerce</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Commerce</p>
         </div>
         <a
           routerLink="/storefront"
@@ -381,7 +381,7 @@
 
         <!-- Growth Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Growth</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Growth</p>
         </div>
         <a
           routerLink="/marketing"
@@ -422,7 +422,7 @@
 
         <!-- Analytics & Finance Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Analytics & Finance</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Analytics & Finance</p>
         </div>
         <a
           routerLink="/intelligence"
@@ -454,7 +454,7 @@
 
         <!-- Developer Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Developer</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Developer</p>
         </div>
         <a
           routerLink="/integration"
@@ -486,7 +486,7 @@
 
         <!-- Account Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Account</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Account</p>
         </div>
         <a
           routerLink="/profile"
@@ -525,7 +525,7 @@
 
         <!-- Sales Operations -->
         <div class="px-3 py-2 mt-1 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Overview</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Overview</p>
         </div>
         <a
           routerLink="/dashboard"
@@ -555,7 +555,7 @@
           <span class="nav-label" [class.hidden]="isCollapsed">Kanban Board</span>
         </a>        <!-- Sales Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Sales</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Sales</p>
         </div>
         <a
           routerLink="/pos"
@@ -615,7 +615,7 @@
         <!-- Stock Section -->
         @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Stock</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Stock</p>
         </div>
         <a
           routerLink="/inventory"
@@ -650,7 +650,7 @@
         <!-- Management Section -->
         @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Management</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Management</p>
         </div>
         <a
           routerLink="/staff"
@@ -694,7 +694,7 @@
         <!-- Analytics & Growth Section -->
         @if (userRole() === 'admin' || userRole() === 'manager' || userRole() === 'superadmin') {
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Analytics & Growth</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Analytics & Growth</p>
         </div>
         <a
           routerLink="/financial"
@@ -737,7 +737,7 @@
 
         <!-- Account Section -->
         <div class="px-3 py-2 mt-4 mb-1" [class.hidden]="isCollapsed">
-          <p class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Account</p>
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Account</p>
         </div>
         <a
           routerLink="/profile"
@@ -773,12 +773,12 @@
   </nav>
 
   <!-- ── Bottom Actions (Logout) ── -->
-  <div class="p-3 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20 flex flex-col gap-2">
+  <div class="p-3 border-t border-white/[0.06] bg-black/20 flex flex-col gap-2">
     <!-- Logout Button -->
     <button
       (click)="logout()"
       [title]="isCollapsed ? 'Sign Out Securely' : ''"
-      class="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 text-slate-500 dark:text-slate-400 transition-all border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
+      class="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-white/5 hover:bg-red-500/10 hover:text-red-400 text-slate-400 transition-all border border-transparent hover:border-red-500/20"
     >
       <span class="material-symbols-outlined !text-[18px]">logout</span>
       <span class="text-[13px] font-bold" [class.hidden]="isCollapsed">Sign Out</span>
