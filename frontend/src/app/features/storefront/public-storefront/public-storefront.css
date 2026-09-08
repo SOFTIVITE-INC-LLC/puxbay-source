@@ -9,6 +9,16 @@
   color: #343a40;
   background: #fff;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.storefront-root *,
+.storefront-root *::before,
+.storefront-root *::after {
+  box-sizing: border-box;
 }
 
 /* ── Topbar ── */
@@ -844,17 +854,54 @@
   .sf-features-inner { grid-template-columns: repeat(2, 1fr); }
   .sf-footer-inner { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 768px) {
+  .sf-topbar-inner,
+  .sf-header-inner,
+  .sf-nav-inner,
+  .sf-features-inner,
+  .sf-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
   .sf-topbar-left { display: none; }
+  .sf-header-inner {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .sf-logo { max-width: 60%; }
+  .sf-logo-a, .sf-logo-b {
+    font-size: 1.25rem;
+    padding: 2px 8px;
+  }
+  .sf-search-form {
+    order: 3;
+    width: 100%;
+    flex-basis: 100%;
+    margin-top: 2px;
+  }
+  .sf-search-input { padding: 8px 12px; font-size: 13px; }
+  .sf-search-btn { padding: 8px 14px; font-size: 14px; }
+  .sf-header-cart { margin-left: auto; }
+  
+  .sf-nav-links { display: none; }
   .sf-hero { flex-direction: column; }
-  .sf-offer-banners { flex-direction: row; }
-  .sf-features-inner { grid-template-columns: repeat(2, 1fr); }
+  .sf-offer-banners { flex-direction: column; }
+  .sf-features-inner { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .sf-mid-banners { flex-direction: column; }
-  .sf-footer-inner { grid-template-columns: 1fr 1fr; }
+  .sf-footer-inner { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .sf-carousel { height: 260px; }
+  .sf-product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
+
 @media (max-width: 480px) {
   .sf-features-inner { grid-template-columns: 1fr 1fr; }
   .sf-footer-inner { grid-template-columns: 1fr; }
-  .sf-product-grid { grid-template-columns: repeat(2, 1fr); }
+  .sf-product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sf-logo-a, .sf-logo-b {
+    font-size: 1.1rem;
+    padding: 1px 6px;
+  }
 }
