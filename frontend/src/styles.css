@@ -1,4 +1,6 @@
 @import 'ngx-toastr/toastr';
+@import './app/features/store/store-layout/store-theme.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

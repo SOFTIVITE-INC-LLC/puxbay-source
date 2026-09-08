@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,8 +12,9 @@ import { StorefrontSettingsService } from '../../../core/store/services/storefro
   standalone: true,
   imports: [CommonModule, FormsModule, AppCurrencyPipe],
   templateUrl: './public-storefront.html',
+  styleUrl: './public-storefront.css',
 })
-export class PublicStorefront implements OnInit {
+export class PublicStorefront implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   productService = inject(ProductService);
@@ -44,6 +45,12 @@ export class PublicStorefront implements OnInit {
   // Phase 3 States
   wishlist = signal<Set<string>>(new Set());
   recentlyViewedIds = signal<string[]>([]);
+
+  // Template UI state
+  catMenuOpen = signal(false);
+  heroSlide = signal(0);
+  currentYear = signal(new Date().getFullYear());
+  private heroInterval: any;
 
   guestDetails = signal({ name: '', email: '', phone: '', address: '' });
   orderPlaced = signal(false);
@@ -146,6 +153,30 @@ export class PublicStorefront implements OnInit {
         this.recentlyViewedIds.set(JSON.parse(savedRecentlyViewed));
       }
     } catch(e) {}
+
+    // Auto-advance hero carousel
+    this.heroInterval = setInterval(() => {
+      this.heroSlide.update(s => (s + 1) % 3);
+    }, 4000);
+  }
+
+  ngOnDestroy() {
+    if (this.heroInterval) clearInterval(this.heroInterval);
+  }
+
+  scrollToTop() {
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  scrollToProducts() {
+    if (typeof document !== 'undefined') {
+      const el = document.getElementById('sf-products');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  productCountByCategory(cat: string): number {
+    return this.productsList().filter(p => (p.category?.name || p.category) === cat).length;
   }
   
   toggleWishlist(productId: string) {

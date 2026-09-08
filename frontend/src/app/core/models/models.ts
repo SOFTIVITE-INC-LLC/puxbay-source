@@ -126,6 +126,13 @@ export interface StorefrontSettings extends TenantScoped {
   store_name: string;
   slug: string;
   primary_color: string;
+  secondary_color?: string;
+  accent_color?: string;
+  background_color?: string;
+  card_radius?: string;
+  button_radius?: string;
+  font_family?: string;
+  announcement_text?: string;
   welcome_message?: string | null;
   about_text?: string | null;
   logo_url?: string | null;

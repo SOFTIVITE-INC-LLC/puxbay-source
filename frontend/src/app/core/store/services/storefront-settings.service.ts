@@ -7,6 +7,13 @@ export interface StorefrontSettings {
   banner_image?: string;
   logo_image?: string;
   primary_color?: string;
+  secondary_color?: string;
+  accent_color?: string;
+  background_color?: string;
+  card_radius?: string;
+  button_radius?: string;
+  font_family?: string;
+  announcement_text?: string;
   welcome_message?: string;
   about_text?: string;
   allow_pickup?: boolean;

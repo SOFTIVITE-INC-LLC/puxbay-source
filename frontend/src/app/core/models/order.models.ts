@@ -27,7 +27,9 @@ export interface Return {
   amount?: number;
   status: string;
   total_refund?: number;
+  refund_method?: string;
   reason?: string;
   reason_detail?: string;
   created_at?: string;
+  items?: { product_id?: string; quantity: number; reason?: string; restock: boolean }[];
 }

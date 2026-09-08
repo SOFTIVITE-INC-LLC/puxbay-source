@@ -18,7 +18,14 @@ type StorefrontSettings struct {
 	StoreName              string     `gorm:"size:100" json:"store_name,omitempty"`
 	BannerImage            string     `gorm:"size:255" json:"banner_image,omitempty"`
 	LogoImage              string     `gorm:"size:255" json:"logo_image,omitempty"`
-	PrimaryColor           string     `gorm:"size:7;default:'#3b82f6'" json:"primary_color"`
+	PrimaryColor           string     `gorm:"size:20;default:'#FFD333'" json:"primary_color"`
+	SecondaryColor         string     `gorm:"size:20;default:'#3D464D'" json:"secondary_color,omitempty"`
+	AccentColor            string     `gorm:"size:20;default:'#FFD333'" json:"accent_color,omitempty"`
+	BackgroundColor        string     `gorm:"size:20;default:'#F5F5F5'" json:"background_color,omitempty"`
+	CardRadius             string     `gorm:"size:20;default:'0px'" json:"card_radius,omitempty"`
+	ButtonRadius           string     `gorm:"size:20;default:'0px'" json:"button_radius,omitempty"`
+	FontFamily             string     `gorm:"size:50;default:'Roboto'" json:"font_family,omitempty"`
+	AnnouncementText       string     `gorm:"size:255" json:"announcement_text,omitempty"`
 	WelcomeMessage         string     `gorm:"type:text" json:"welcome_message,omitempty"`
 	AboutText              string     `gorm:"type:text" json:"about_text,omitempty"`
 	AllowPickup            bool       `gorm:"default:true" json:"allow_pickup"`

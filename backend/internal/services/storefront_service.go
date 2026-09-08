@@ -39,10 +39,16 @@ func (s *StorefrontService) GetSettings() (*models.StorefrontSettings, error) {
 	var settings models.StorefrontSettings
 	if err := s.db.First(&settings).Error; err != nil {
 		settings = models.StorefrontSettings{
-			IsActive:     false,
-			StoreName:    "",
-			PrimaryColor: "#3b82f6",
-			AllowPickup:  true,
+			IsActive:        false,
+			StoreName:       "",
+			PrimaryColor:    "#FFD333",
+			SecondaryColor:  "#3D464D",
+			AccentColor:     "#FFD333",
+			BackgroundColor: "#F5F5F5",
+			CardRadius:      "0px",
+			ButtonRadius:    "0px",
+			FontFamily:      "Roboto",
+			AllowPickup:     true,
 		}
 	}
 
@@ -111,7 +117,16 @@ func (s *StorefrontService) UpdateSettings(req *models.StorefrontSettings) (*mod
 
 	settings.IsActive = req.IsActive
 	settings.StoreName = req.StoreName
+	settings.LogoImage = req.LogoImage
+	settings.BannerImage = req.BannerImage
 	settings.PrimaryColor = req.PrimaryColor
+	settings.SecondaryColor = req.SecondaryColor
+	settings.AccentColor = req.AccentColor
+	settings.BackgroundColor = req.BackgroundColor
+	settings.CardRadius = req.CardRadius
+	settings.ButtonRadius = req.ButtonRadius
+	settings.FontFamily = req.FontFamily
+	settings.AnnouncementText = req.AnnouncementText
 	settings.WelcomeMessage = req.WelcomeMessage
 	settings.AboutText = req.AboutText
 	settings.AllowPickup = req.AllowPickup

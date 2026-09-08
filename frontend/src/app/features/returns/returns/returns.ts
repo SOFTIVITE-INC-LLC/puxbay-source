@@ -1,14 +1,15 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
-import { CommonModule, CurrencyPipe, DatePipe, SlicePipe } from '@angular/common';
+import { CommonModule, DatePipe, SlicePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReturnService } from '../../../core/services/return.service';
+import { Return } from '../../../core/models/order.models';
 
 @Component({
   selector: 'app-returns',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, SlicePipe, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, DatePipe, SlicePipe, TitleCasePipe, AppCurrencyPipe],
   templateUrl: './returns.html',
 })
 export class Returns implements OnInit {
@@ -23,13 +24,24 @@ export class Returns implements OnInit {
   searchQuery = signal('');
   statusFilter = signal('');
 
+  // Detail slide-over
+  selectedReturn = signal<Return | null>(null);
+
   // New return form
-  newReturn = signal({
+  newReturn = signal<{
+    order_id: string;
+    reason: string;
+    reason_detail: string;
+    refund_method: string;
+    refund_amount: number;
+    items: { product_id: string; quantity: number; reason: string; restock: boolean }[];
+  }>({
     order_id: '',
     reason: '',
     reason_detail: '',
     refund_method: 'cash',
     refund_amount: 0,
+    items: [],
   });
 
   // Computed stats
@@ -57,7 +69,7 @@ export class Returns implements OnInit {
 
   ngOnInit() {
     this.returnService.getReturns().subscribe();
-    
+
     // Handle Quick Return from Orders
     this.route.queryParams.subscribe(params => {
       if (params['new'] === 'true' && params['order_id']) {
@@ -67,6 +79,7 @@ export class Returns implements OnInit {
           reason_detail: '',
           refund_method: 'cash',
           refund_amount: 0,
+          items: [],
         });
         this.isModalOpen.set(true);
         // Clear query params so refresh doesn't reopen modal
@@ -75,8 +88,9 @@ export class Returns implements OnInit {
     });
   }
 
+  // ── Modal ──────────────────────────────────────────────
   openNewReturnModal() {
-    this.newReturn.set({ order_id: '', reason: '', reason_detail: '', refund_method: 'cash', refund_amount: 0 });
+    this.newReturn.set({ order_id: '', reason: '', reason_detail: '', refund_method: 'cash', refund_amount: 0, items: [] });
     this.isModalOpen.set(true);
   }
 
@@ -84,11 +98,49 @@ export class Returns implements OnInit {
     this.isModalOpen.set(false);
   }
 
+  // ── Return Items ───────────────────────────────────────
+  addReturnItem() {
+    this.newReturn.update(r => ({
+      ...r,
+      items: [...(r.items ?? []), { product_id: '', quantity: 1, reason: '', restock: false }],
+    }));
+  }
+
+  removeReturnItem(index: number) {
+    this.newReturn.update(r => ({
+      ...r,
+      items: r.items.filter((_, i) => i !== index),
+    }));
+  }
+
+  updateReturnItem(index: number, field: string, value: any) {
+    this.newReturn.update(r => ({
+      ...r,
+      items: r.items.map((item, i) => i === index ? { ...item, [field]: value } : item),
+    }));
+  }
+
+  // ── Submit ─────────────────────────────────────────────
   submitNewReturn() {
     const r = this.newReturn();
     if (!r.order_id || !r.reason) return;
     this.saving.set(true);
-    this.returnService.createReturn(r as any).subscribe({
+    const payload: any = {
+      order_id: r.order_id,
+      reason: r.reason,
+      reason_detail: r.reason_detail,
+      refund_method: r.refund_method,
+      refund_amount: r.refund_amount,
+    };
+    if (r.items && r.items.length > 0) {
+      payload.items = r.items.map(item => ({
+        product_id: item.product_id || undefined,
+        quantity: item.quantity,
+        reason: item.reason || undefined,
+        restock: item.restock,
+      }));
+    }
+    this.returnService.createReturn(payload).subscribe({
       next: () => {
         this.saving.set(false);
         this.closeModal();
@@ -98,6 +150,16 @@ export class Returns implements OnInit {
     });
   }
 
+  // ── Detail Panel ───────────────────────────────────────
+  openDetail(ret: Return) {
+    this.selectedReturn.set(ret);
+  }
+
+  closeDetail() {
+    this.selectedReturn.set(null);
+  }
+
+  // ── Actions ────────────────────────────────────────────
   approve(id: string) {
     this.processing.set(id);
     this.returnService.approveReturn(id).subscribe({

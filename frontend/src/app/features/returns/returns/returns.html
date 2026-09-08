@@ -22,19 +22,31 @@
   <!-- ── Stat Cards ── -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
-      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-0.5 sm:mb-1 truncate">Total Returns</p>
+      <div class="flex items-center gap-1.5 text-zinc-400 mb-1">
+        <span class="material-symbols-outlined !text-[16px]">assignment_return</span>
+        <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider truncate">Total Returns</p>
+      </div>
       <p class="text-sm sm:text-base md:text-lg font-black text-zinc-900 dark:text-white truncate">{{ returnService.returns().length }}</p>
     </div>
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
-      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-amber-500 mb-0.5 sm:mb-1 truncate">Pending</p>
+      <div class="flex items-center gap-1.5 text-amber-500 mb-1">
+        <span class="material-symbols-outlined !text-[16px]">hourglass_empty</span>
+        <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-amber-500 truncate">Pending</p>
+      </div>
       <p class="text-sm sm:text-base md:text-lg font-black text-amber-500 truncate">{{ pendingCount() }}</p>
     </div>
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
-      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 mb-0.5 sm:mb-1 truncate">Completed</p>
+      <div class="flex items-center gap-1.5 text-emerald-500 mb-1">
+        <span class="material-symbols-outlined !text-[16px]">check_circle</span>
+        <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-emerald-500 truncate">Completed</p>
+      </div>
       <p class="text-sm sm:text-base md:text-lg font-black text-emerald-500 truncate">{{ completedCount() }}</p>
     </div>
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-5 shadow-sm min-w-0">
-      <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 mb-0.5 sm:mb-1 truncate">Total Refunded</p>
+      <div class="flex items-center gap-1.5 text-rose-500 mb-1">
+        <span class="material-symbols-outlined !text-[16px]">payments</span>
+        <p class="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-rose-500 truncate">Total Refunded</p>
+      </div>
       <p class="text-xs sm:text-sm md:text-base font-black text-rose-500 truncate">{{ totalRefunded() | appCurrency }}</p>
     </div>
   </div>
@@ -74,13 +86,14 @@
   @if (!returnService.loading()) {
     <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm whitespace-nowrap min-w-[600px]">
+        <table class="w-full text-left text-sm whitespace-nowrap min-w-[680px]">
           <thead class="text-[10px] sm:text-xs uppercase bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
             <tr>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">RMA ID</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Order</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Reason</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Refund</th>
+              <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold hidden sm:table-cell">Method</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold">Status</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold hidden sm:table-cell">Date</th>
               <th class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-right">Actions</th>
@@ -88,7 +101,10 @@
           </thead>
           <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
             @for (ret of filteredReturns(); track ret.id) {
-              <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+              <tr
+                (click)="openDetail(ret)"
+                class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer group"
+              >
                 <td class="px-4 sm:px-6 py-3 sm:py-4 font-mono font-bold text-rose-500 dark:text-rose-400 text-xs sm:text-sm">
                   #{{ ret.id | slice: 0 : 8 }}
                 </td>
@@ -104,6 +120,13 @@
                 <td class="px-4 sm:px-6 py-3 sm:py-4 font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">
                   {{ ret.total_refund | appCurrency }}
                 </td>
+                <td class="px-4 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                  @if (ret.refund_method) {
+                    <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 capitalize">{{ ret.refund_method | titlecase }}</span>
+                  } @else {
+                    <span class="text-xs text-zinc-300 dark:text-zinc-600">—</span>
+                  }
+                </td>
                 <td class="px-4 sm:px-6 py-3 sm:py-4">
                   <span
                     class="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full uppercase"
@@ -115,7 +138,7 @@
                 <td class="px-4 sm:px-6 py-3 sm:py-4 text-zinc-500 text-xs hidden sm:table-cell">
                   {{ ret.created_at | date: 'mediumDate' }}
                 </td>
-                <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                <td class="px-4 sm:px-6 py-3 sm:py-4 text-right" (click)="$event.stopPropagation()">
                   @if (ret.status === 'pending') {
                     <div class="flex justify-end gap-1.5 sm:gap-2">
                       <button
@@ -140,7 +163,7 @@
                       [disabled]="processing() === ret.id"
                       class="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-rose-500 text-white text-[10px] sm:text-xs font-bold rounded-lg hover:bg-rose-600 transition-colors disabled:opacity-50"
                     >
-                      Refund
+                      {{ processing() === ret.id ? 'Processing...' : 'Refund' }}
                     </button>
                   }
                   @if (ret.status === 'completed' || ret.status === 'rejected') {
@@ -151,9 +174,10 @@
             }
             @if (filteredReturns().length === 0) {
               <tr>
-                <td colspan="7" class="px-6 py-16 sm:py-20 text-center">
+                <td colspan="8" class="px-6 py-16 sm:py-20 text-center">
                   <span class="material-symbols-outlined !text-[48px] sm:!text-[56px] text-zinc-300 dark:text-zinc-700 block mb-3">assignment_return</span>
                   <p class="font-bold text-zinc-500">No returns found</p>
+                  <p class="text-xs text-zinc-400 mt-1">Try adjusting your search or filter.</p>
                 </td>
               </tr>
             }
@@ -233,6 +257,66 @@
               />
             </div>
           </div>
+
+          <!-- ── Return Items ── -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-bold text-zinc-500 uppercase">Return Items <span class="text-zinc-400 font-normal normal-case">(optional)</span></label>
+              <button
+                type="button"
+                (click)="addReturnItem()"
+                class="flex items-center gap-1 text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
+              >
+                <span class="material-symbols-outlined !text-[14px]">add</span>
+                Add Item
+              </button>
+            </div>
+            @if (newReturn().items && newReturn().items!.length > 0) {
+              <div class="space-y-2">
+                @for (item of newReturn().items!; track $index; let i = $index) {
+                  <div class="flex items-center gap-2 p-2.5 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                    <input
+                      type="text"
+                      [ngModel]="item.product_id"
+                      (ngModelChange)="updateReturnItem(i, 'product_id', $event)"
+                      placeholder="Product ID"
+                      class="flex-1 p-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                    />
+                    <input
+                      type="number"
+                      [ngModel]="item.quantity"
+                      (ngModelChange)="updateReturnItem(i, 'quantity', +$event)"
+                      placeholder="Qty"
+                      min="1"
+                      class="w-16 p-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-xs text-center focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                    />
+                    <label class="flex items-center gap-1 text-xs text-zinc-500 cursor-pointer whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        [ngModel]="item.restock"
+                        (ngModelChange)="updateReturnItem(i, 'restock', $event)"
+                        class="accent-rose-500"
+                      />
+                      Restock
+                    </label>
+                    <button
+                      type="button"
+                      (click)="removeReturnItem(i)"
+                      class="w-6 h-6 flex items-center justify-center rounded-md text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors shrink-0"
+                    >
+                      <span class="material-symbols-outlined !text-[14px]">close</span>
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 text-zinc-400 text-xs">
+                <span class="material-symbols-outlined !text-[16px]">inventory_2</span>
+                No items added — the whole order refund amount will be used.
+              </div>
+            }
+          </div>
+
           <button
             (click)="submitNewReturn()"
             [disabled]="saving()"
@@ -242,6 +326,178 @@
           </button>
         </div>
       </div>
+    </div>
+  }
+
+  <!-- ── Return Detail Slide-Over ── -->
+  @if (selectedReturn()) {
+    <!-- Backdrop -->
+    <div
+      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+      (click)="closeDetail()"
+    ></div>
+
+    <!-- Panel -->
+    <div class="fixed inset-y-0 right-0 z-50 w-full max-w-md flex flex-col bg-white dark:bg-zinc-900 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-rose-50 dark:bg-rose-900/10 shrink-0">
+        <div>
+          <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Return Details</p>
+          <h2 class="text-base font-black text-zinc-900 dark:text-white font-mono">
+            #{{ selectedReturn()!.id | slice: 0 : 8 }}
+          </h2>
+        </div>
+        <button
+          (click)="closeDetail()"
+          class="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-colors"
+        >
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-5">
+
+        <!-- Status + Date row -->
+        <div class="flex items-center justify-between">
+          <span
+            class="px-3 py-1 text-xs font-bold rounded-full uppercase"
+            [class]="getStatusClass(selectedReturn()!.status)"
+          >
+            {{ selectedReturn()!.status }}
+          </span>
+          <span class="text-xs text-zinc-400">{{ selectedReturn()!.created_at | date: 'medium' }}</span>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Order ID</p>
+            <p class="font-mono font-bold text-zinc-900 dark:text-white text-sm truncate">
+              #{{ selectedReturn()!.order_id | slice: 0 : 8 }}
+            </p>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Refund Amount</p>
+            <p class="font-black text-rose-500 text-sm">{{ selectedReturn()!.total_refund | appCurrency }}</p>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Refund Method</p>
+            <p class="font-semibold text-zinc-900 dark:text-white text-sm capitalize">
+              {{ selectedReturn()!.refund_method || '—' }}
+            </p>
+          </div>
+          <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">RMA ID</p>
+            <p class="font-mono font-bold text-zinc-500 text-xs truncate">{{ selectedReturn()!.id }}</p>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="bg-zinc-50 dark:bg-zinc-800 rounded-xl p-4">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2">Return Reason</p>
+          <p class="font-semibold text-zinc-900 dark:text-white text-sm capitalize">{{ selectedReturn()!.reason }}</p>
+          @if (selectedReturn()!.reason_detail) {
+            <p class="text-xs text-zinc-500 mt-1.5 leading-relaxed">{{ selectedReturn()!.reason_detail }}</p>
+          }
+        </div>
+
+        <!-- Items (if present) -->
+        @if (selectedReturn()!.items && selectedReturn()!.items!.length > 0) {
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2">Returned Items</p>
+            <div class="space-y-2">
+              @for (item of selectedReturn()!.items!; track $index) {
+                <div class="flex items-center justify-between bg-zinc-50 dark:bg-zinc-800 rounded-xl px-4 py-3">
+                  <div>
+                    <p class="font-mono font-semibold text-xs text-zinc-900 dark:text-white truncate max-w-[180px]">{{ item.product_id || 'N/A' }}</p>
+                    @if (item.reason) {
+                      <p class="text-[10px] text-zinc-400 mt-0.5">{{ item.reason }}</p>
+                    }
+                  </div>
+                  <div class="text-right shrink-0">
+                    <p class="font-bold text-sm text-zinc-900 dark:text-white">×{{ item.quantity }}</p>
+                    @if (item.restock) {
+                      <p class="text-[10px] text-emerald-500 font-bold uppercase">Restock</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Timeline -->
+        <div>
+          <p class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-3">Timeline</p>
+          <div class="relative pl-5 space-y-4">
+            <!-- Created -->
+            <div class="relative">
+              <span class="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600 border-2 border-white dark:border-zinc-900"></span>
+              <p class="text-xs font-bold text-zinc-700 dark:text-zinc-200">Return Requested</p>
+              <p class="text-[10px] text-zinc-400 mt-0.5">{{ selectedReturn()!.created_at | date: 'medium' }}</p>
+            </div>
+            @if (selectedReturn()!.status === 'approved' || selectedReturn()!.status === 'completed') {
+              <div class="relative">
+                <span class="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-blue-400 border-2 border-white dark:border-zinc-900"></span>
+                <p class="text-xs font-bold text-zinc-700 dark:text-zinc-200">Approved</p>
+                <p class="text-[10px] text-zinc-400 mt-0.5">Return approved for refund</p>
+              </div>
+            }
+            @if (selectedReturn()!.status === 'rejected') {
+              <div class="relative">
+                <span class="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-red-400 border-2 border-white dark:border-zinc-900"></span>
+                <p class="text-xs font-bold text-red-500">Rejected</p>
+                <p class="text-[10px] text-zinc-400 mt-0.5">Return request was rejected</p>
+              </div>
+            }
+            @if (selectedReturn()!.status === 'completed') {
+              <div class="relative">
+                <span class="absolute -left-5 top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-900"></span>
+                <p class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Refund Completed</p>
+                <p class="text-[10px] text-zinc-400 mt-0.5">{{ selectedReturn()!.total_refund | appCurrency }} refunded</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      @if (selectedReturn()!.status === 'pending' || selectedReturn()!.status === 'approved') {
+        <div class="shrink-0 px-5 py-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+          @if (selectedReturn()!.status === 'pending') {
+            <div class="flex gap-3">
+              <button
+                (click)="approve(selectedReturn()!.id); closeDetail()"
+                [disabled]="processing() === selectedReturn()!.id"
+                class="flex-1 py-2.5 bg-emerald-500 text-white text-sm font-bold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50"
+              >
+                <span class="material-symbols-outlined !text-[16px] align-middle mr-1">check_circle</span>
+                Approve
+              </button>
+              <button
+                (click)="reject(selectedReturn()!.id); closeDetail()"
+                [disabled]="processing() === selectedReturn()!.id"
+                class="flex-1 py-2.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-sm font-bold rounded-xl hover:bg-zinc-200 transition-colors disabled:opacity-50"
+              >
+                <span class="material-symbols-outlined !text-[16px] align-middle mr-1">cancel</span>
+                Reject
+              </button>
+            </div>
+          }
+          @if (selectedReturn()!.status === 'approved') {
+            <button
+              (click)="processRefund(selectedReturn()!.id); closeDetail()"
+              [disabled]="processing() === selectedReturn()!.id"
+              class="w-full py-2.5 bg-rose-500 text-white text-sm font-bold rounded-xl hover:bg-rose-600 transition-colors disabled:opacity-50 shadow-lg shadow-rose-500/25"
+            >
+              <span class="material-symbols-outlined !text-[16px] align-middle mr-1">payments</span>
+              {{ processing() === selectedReturn()!.id ? 'Processing Refund...' : 'Process Refund' }}
+            </button>
+          }
+        </div>
+      }
     </div>
   }
 

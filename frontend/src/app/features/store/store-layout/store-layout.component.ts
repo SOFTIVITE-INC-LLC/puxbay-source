@@ -22,7 +22,8 @@ import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
   selector: 'app-store-layout',
   standalone: true,
   imports: [CommonModule, RouterModule, ToastComponent, FormsModule, SearchOverlayComponent, MiniCartComponent, SocialProofComponent, WelcomeDiscountComponent, AppCurrencyPipe, ImageUrlPipe],
-  templateUrl: './store-layout.component.html'
+  templateUrl: './store-layout.component.html',
+  styleUrl: './store-theme.css'
 })
 export class StoreLayoutComponent implements OnInit {
   cartService = inject(CartService);
@@ -38,6 +39,7 @@ export class StoreLayoutComponent implements OnInit {
   mobileMenuOpen = false;
   searchOpen = false;
   miniCartOpen = false;
+  currencyOpen = false;
   currentYear = new Date().getFullYear();
 
   newsletterEmail = '';

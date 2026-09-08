@@ -1,365 +1,525 @@
-<div class="min-h-screen transition-colors duration-300" [class.dark]="darkMode()" [style.font-family]="'Outfit, sans-serif'">
-  <div class="min-h-screen bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-  
-  <!-- Navbar -->
-  <nav class="bg-white dark:bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-slate-200 dark:border-zinc-800 sticky top-0 z-40 transition-colors" [style.border-bottom-color]="$any(storefrontService.settings())?.primary_color">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center gap-4">
-          <div class="font-black text-2xl" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
-            {{ $any(storefrontService.settings())?.store_name || 'My Store' }}
-          </div>
+<!-- ════════════════════════════════════════════════════
+     PUBLIC STOREFRONT — MultiShop Template Layout
+     ════════════════════════════════════════════════════ -->
+
+<div
+  class="storefront-root"
+  [class.sf-dark]="darkMode()"
+  [style.--sf-primary]="$any(storefrontService.settings())?.primary_color || '#FFD333'"
+  [style.--sf-secondary]="$any(storefrontService.settings())?.secondary_color || '#3D464D'"
+  [style.--sf-accent]="$any(storefrontService.settings())?.accent_color || '#FFD333'"
+  [style.--sf-bg]="$any(storefrontService.settings())?.background_color || '#F5F5F5'"
+  [style.--sf-card-radius]="$any(storefrontService.settings())?.card_radius || '0px'"
+  [style.--sf-btn-radius]="$any(storefrontService.settings())?.button_radius || '0px'"
+  [style.--sf-font-family]="($any(storefrontService.settings())?.font_family || 'Roboto') + ', sans-serif'"
+>
+
+  <!-- ── Topbar ── -->
+  <div class="sf-topbar">
+    <div class="sf-topbar-inner">
+      <div class="sf-topbar-left">
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Help</a>
+        <a href="#">FAQs</a>
+      </div>
+      <div class="sf-topbar-right">
+        <button class="sf-topbar-btn" (click)="isCartOpen.set(true)">
+          Cart
+          @if (cart().length > 0) {
+            <span class="sf-topbar-badge">{{ cart().length }}</span>
+          }
+        </button>
+        <button class="sf-topbar-btn" (click)="darkMode.set(!darkMode())">
+          {{ darkMode() ? 'Light' : 'Dark' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Header ── -->
+  <div class="sf-header">
+    <div class="sf-header-inner">
+      <a class="sf-logo" href="#">
+        @if ($any(storefrontService.settings())?.store_name) {
+          <span class="sf-logo-a" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">
+            {{ ($any(storefrontService.settings())?.store_name || 'S')[0] }}
+          </span><span class="sf-logo-b">{{ ($any(storefrontService.settings())?.store_name || 'Store').slice(1) }}</span>
+        } @else {
+          <span class="sf-logo-a" style="background:#333">P</span><span class="sf-logo-b">uxbay</span>
+        }
+      </a>
+      <form class="sf-search-form" (submit)="$event.preventDefault()">
+        <div class="sf-search-wrap">
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Search for products..."
+            class="sf-search-input"
+          />
+          <button type="submit" class="sf-search-btn" [style.background]="$any(storefrontService.settings())?.primary_color || '#444'">&#128269;</button>
         </div>
-        <div class="flex items-center gap-4">
-          <div class="relative hidden md:block">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 dark:text-zinc-400 material-symbols-outlined !text-[18px]">search</span>
-            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Search products..." class="pl-10 pr-4 py-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-full bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 focus:bg-white dark:focus:bg-white dark:bg-zinc-900 focus:ring-2 outline-none w-64 transition-all">
-          </div>
-          <button (click)="darkMode.set(!darkMode())" class="p-2 text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:text-black dark:hover:text-slate-900 dark:text-white transition-colors">
-            <span class="material-symbols-outlined !text-[24px]">{{ darkMode() ? 'light_mode' : 'dark_mode' }}</span>
-          </button>
-          <button (click)="isCartOpen.set(true)" class="relative p-2 text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:text-black dark:hover:text-slate-900 dark:text-white transition-colors">
-            <span class="material-symbols-outlined !text-[28px]">shopping_cart</span>
-            @if (cart().length > 0) {
-              <span class="absolute top-0 right-0 bg-red-500 text-slate-900 dark:text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white dark:border-zinc-900">{{ cart().length }}</span>
+      </form>
+      <button class="sf-header-cart" (click)="isCartOpen.set(true)" [style.color]="$any(storefrontService.settings())?.primary_color || '#444'">
+        &#128722;
+        @if (cart().length > 0) {
+          <span class="sf-header-cart-badge" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">{{ cart().length }}</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Navbar ── -->
+  <nav class="sf-nav" [style.background]="$any(storefrontService.settings())?.primary_color || '#343a40'">
+    <div class="sf-nav-inner">
+      <div class="sf-categories-dropdown" [class.open]="catMenuOpen()">
+        <button class="sf-categories-btn" (click)="catMenuOpen.set(!catMenuOpen())">
+          &#9776; Categories &#8964;
+        </button>
+        @if (catMenuOpen()) {
+          <div class="sf-categories-menu">
+            @for (cat of categories(); track cat) {
+              <button class="sf-categories-item" (click)="selectedCategory.set(cat); scrollToProducts(); catMenuOpen.set(false)">
+                {{ cat }}
+              </button>
             }
-          </button>
-        </div>
+          </div>
+        }
+      </div>
+      <div class="sf-nav-links">
+        <button class="sf-nav-link" (click)="scrollToTop()">Home</button>
+        <button class="sf-nav-link" (click)="scrollToProducts()">Shop</button>
+        <button class="sf-nav-link" (click)="isCartOpen.set(true)">Cart</button>
+        <button class="sf-nav-link" (click)="startCheckout()">Checkout</button>
+      </div>
+      <div class="sf-nav-right">
+        <button class="sf-nav-icon-btn" (click)="showWishlistOnly.set(!showWishlistOnly())" title="Wishlist">
+          &#9825;
+          @if (wishlist().size > 0) { <span class="sf-nav-badge">{{ wishlist().size }}</span> }
+        </button>
+        <button class="sf-nav-icon-btn" (click)="isCartOpen.set(true)" title="Cart">
+          &#128722;
+          @if (cart().length > 0) { <span class="sf-nav-badge">{{ cart().length }}</span> }
+        </button>
       </div>
     </div>
   </nav>
 
-  <!-- Banner -->
-  <div class="bg-white dark:bg-zinc-900 text-slate-900 dark:text-white py-12 px-4 text-center">
-    <h1 class="text-4xl font-black mb-4">{{ $any(storefrontService.settings())?.welcome_message || 'Welcome to our store' }}</h1>
-    <p class="text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto">{{ $any(storefrontService.settings())?.about_text || 'Browse our catalog below.' }}</p>
+  <!-- ── Hero Carousel ── -->
+  <div class="sf-hero">
+    <div class="sf-carousel">
+      <div class="sf-carousel-track" [style]="'transform: translateX(-' + (heroSlide() * 100) + '%)'">
+        <div class="sf-slide sf-slide-1">
+          <div class="sf-slide-content">
+            <h1>{{ $any(storefrontService.settings())?.welcome_message || 'Welcome to Our Store' }}</h1>
+            <p>{{ $any(storefrontService.settings())?.about_text || 'Discover amazing products at unbeatable prices.' }}</p>
+            <button class="sf-slide-btn" (click)="scrollToProducts()">Shop Now</button>
+          </div>
+        </div>
+        <div class="sf-slide sf-slide-2">
+          <div class="sf-slide-content">
+            <h1>New Arrivals</h1>
+            <p>Fresh picks added every week. Be the first to grab what's new.</p>
+            <button class="sf-slide-btn" (click)="sortBy.set('newest'); scrollToProducts()">Explore New</button>
+          </div>
+        </div>
+        <div class="sf-slide sf-slide-3">
+          <div class="sf-slide-content">
+            <h1>Best Sellers</h1>
+            <p>Top-rated products loved by our customers. Don't miss out.</p>
+            <button class="sf-slide-btn" (click)="scrollToProducts()">Shop Best Sellers</button>
+          </div>
+        </div>
+      </div>
+      <div class="sf-carousel-dots">
+        @for (i of [0,1,2]; track i) {
+          <button class="sf-dot" [class.active]="heroSlide() === i" (click)="heroSlide.set(i)"></button>
+        }
+      </div>
+      <button class="sf-carousel-prev" (click)="heroSlide.set((heroSlide() + 2) % 3)">&#8249;</button>
+      <button class="sf-carousel-next" (click)="heroSlide.set((heroSlide() + 1) % 3)">&#8250;</button>
+    </div>
+    <div class="sf-offer-banners">
+      <div class="sf-offer-banner sf-offer-banner-1">
+        <div class="sf-offer-text">
+          <span class="sf-offer-tag">Top Deals</span>
+          <strong>Special Offer</strong>
+          <button (click)="scrollToProducts()">Shop Now</button>
+        </div>
+      </div>
+      <div class="sf-offer-banner sf-offer-banner-2">
+        <div class="sf-offer-text">
+          <span class="sf-offer-tag">New Arrivals</span>
+          <strong>Fresh Stock</strong>
+          <button (click)="sortBy.set('newest'); scrollToProducts()">Shop Now</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
-    
-    <!-- Sidebar -->
-    <aside class="w-full md:w-64 shrink-0">
-      <div class="sticky top-24">
-        <h2 class="font-bold text-lg mb-4">Categories</h2>
-        <div class="space-y-1 mb-8">
-          @for (cat of categories(); track cat) {
-            <button (click)="selectedCategory.set(cat)"
-                    [class.bg-zinc-100]="selectedCategory() === cat" 
-                    [class.dark:bg-slate-100 dark:bg-zinc-800]="selectedCategory() === cat"
-                    [class.font-bold]="selectedCategory() === cat"
-                    class="w-full text-left px-4 py-2 rounded-xl text-zinc-600 dark:text-slate-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-slate-100 dark:bg-zinc-800 transition-colors">
-              {{ cat }}
-            </button>
-          }
-        </div>
-        
-        <h2 class="font-bold text-lg mb-4">Filters</h2>
-        <div class="space-y-6">
-          
-          <!-- My Wishlist Toggle -->
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <div class="relative flex-shrink-0">
-              <input type="checkbox" [ngModel]="showWishlistOnly()" (ngModelChange)="showWishlistOnly.set($event)" class="sr-only">
-              <div class="w-10 h-6 bg-zinc-200 dark:bg-zinc-700 rounded-full transition-colors" [class.bg-rose-500]="showWishlistOnly()"></div>
-              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" [class.translate-x-4]="showWishlistOnly()"></div>
-            </div>
-            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-slate-900 dark:text-white transition-colors flex items-center gap-1.5">
-              <span class="material-symbols-outlined !text-[16px]" [class.text-rose-500]="showWishlistOnly()">favorite</span>
-              My Wishlist
-            </span>
-          </label>
-          
-          <!-- In Stock Toggle -->
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <div class="relative">
-              <input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event)" class="sr-only">
-              <div class="w-10 h-6 bg-zinc-200 dark:bg-zinc-700 rounded-full transition-colors" [class.bg-indigo-500]="inStockOnly()"></div>
-              <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform" [class.translate-x-4]="inStockOnly()"></div>
-            </div>
-            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 group-hover:text-black dark:group-hover:text-slate-900 dark:text-white transition-colors">In Stock Only</span>
-          </label>
-          
-          <!-- Price Range -->
-          <div>
-            <span class="text-sm font-bold text-zinc-600 dark:text-slate-600 dark:text-zinc-300 block mb-3">Price Range</span>
-            <div class="flex items-center gap-2">
-              <input type="number" placeholder="Min" 
-                     [ngModel]="priceRange().min || null" 
-                     (ngModelChange)="priceRange.update(r => ({...r, min: $event || 0}))"
-                     class="w-full p-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 text-sm focus:bg-white dark:focus:bg-white dark:bg-zinc-900 outline-none transition-colors">
-              <span class="text-slate-500 dark:text-zinc-400">-</span>
-              <input type="number" placeholder="Max" 
-                     [ngModel]="priceRange().max" 
-                     (ngModelChange)="priceRange.update(r => ({...r, max: $event || null}))"
-                     class="w-full p-2 border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 text-sm focus:bg-white dark:focus:bg-white dark:bg-zinc-900 outline-none transition-colors">
-            </div>
-          </div>
-          
-        </div>
+  <!-- ── Feature Strip ── -->
+  <div class="sf-features">
+    <div class="sf-features-inner">
+      <div class="sf-feature">
+        <span class="sf-feature-icon" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">&#10003;</span>
+        <span class="sf-feature-label">Quality Products</span>
       </div>
-    </aside>
+      <div class="sf-feature">
+        <span class="sf-feature-icon" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">&#128666;</span>
+        <span class="sf-feature-label">Fast Delivery</span>
+      </div>
+      <div class="sf-feature">
+        <span class="sf-feature-icon" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">&#8635;</span>
+        <span class="sf-feature-label">Easy Returns</span>
+      </div>
+      <div class="sf-feature">
+        <span class="sf-feature-icon" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">&#128222;</span>
+        <span class="sf-feature-label">24/7 Support</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Product Grid -->
-    <main class="flex-1">
-      <div class="flex justify-between items-center mb-6">
-        <p class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">{{ filteredProducts().length }} product(s)</p>
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">Sort by:</span>
-          <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)" 
-                  class="bg-transparent border-none text-sm font-black focus:ring-0 outline-none cursor-pointer">
-            <option value="newest">Newest Arrivals</option>
-            <option value="price_low_high">Price: Low to High</option>
-            <option value="price_high_low">Price: High to Low</option>
-          </select>
-        </div>
+  <!-- ── Categories Section ── -->
+  @if (categories().length > 1) {
+    <div class="sf-section">
+      <h2 class="sf-section-title">
+        <span [style.background]="$any(storefrontService.settings())?.primary_color || '#f8f8f8'">Categories</span>
+      </h2>
+      <div class="sf-categories-grid">
+        @for (cat of categories().slice(1); track cat) {
+          <button
+            class="sf-cat-tile"
+            [class.active]="selectedCategory() === cat"
+            (click)="selectedCategory.set(cat); scrollToProducts()"
+          >
+            <div class="sf-cat-icon">
+              <span class="material-symbols-outlined !text-[32px]" [style.color]="$any(storefrontService.settings())?.primary_color || '#555'">category</span>
+            </div>
+            <div class="sf-cat-info">
+              <h6>{{ cat }}</h6>
+              <small>{{ productCountByCategory(cat) }} Products</small>
+            </div>
+          </button>
+        }
       </div>
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (p of filteredProducts(); track p.id) {
-          <div class="bg-white dark:bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-sm border border-zinc-100 dark:border-slate-200 dark:border-zinc-800 group hover:shadow-xl transition-shadow flex flex-col relative">
-            <div class="aspect-square bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
-              @if (p.images && p.images.length > 0) {
-                <img [src]="p.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500">
-              } @else {
-                <span class="material-symbols-outlined !text-[48px] text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
-              }
-              
-              <!-- Quick View Button Overlay -->
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button (click)="openQuickView(p)" class="px-4 py-2 bg-white text-black font-bold rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
-                  <span class="material-symbols-outlined !text-[18px]">visibility</span>
-                  Quick View
-                </button>
+    </div>
+  }
+
+  <!-- ── Filter Bar ── -->
+  <div class="sf-filter-bar" id="sf-products">
+    <div class="sf-filter-bar-inner">
+      @if (selectedCategory() !== 'All') {
+        <button class="sf-filter-pill" (click)="selectedCategory.set('All')" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">
+          {{ selectedCategory() }} &#10005;
+        </button>
+      } @else {
+        <span class="sf-filter-results">{{ filteredProducts().length }} products</span>
+      }
+      <div class="sf-filter-controls">
+        <label class="sf-toggle-label">
+          <div class="sf-toggle" [class.on]="inStockOnly()" (click)="inStockOnly.set(!inStockOnly())" [style.background]="inStockOnly() ? ($any(storefrontService.settings())?.primary_color || '#333') : ''">
+            <span class="sf-toggle-knob"></span>
+          </div>
+          In Stock
+        </label>
+        <label class="sf-toggle-label">
+          <div class="sf-toggle" [class.on]="showWishlistOnly()" (click)="showWishlistOnly.set(!showWishlistOnly())" [style.background]="showWishlistOnly() ? '#ef4444' : ''">
+            <span class="sf-toggle-knob"></span>
+          </div>
+          Wishlist
+        </label>
+        <select class="sf-sort-select" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+          <option value="newest">Newest</option>
+          <option value="price_low_high">Price &#8593;</option>
+          <option value="price_high_low">Price &#8595;</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Featured Products ── -->
+  <div class="sf-section">
+    <h2 class="sf-section-title">
+      <span [style.background]="$any(storefrontService.settings())?.primary_color || '#f8f8f8'">
+        {{ selectedCategory() === 'All' ? 'Featured Products' : selectedCategory() }}
+      </span>
+    </h2>
+    <div class="sf-product-grid">
+      @for (p of filteredProducts(); track p.id) {
+        <div class="sf-product-card">
+          <div class="sf-product-img">
+            @if (p.images && p.images.length > 0) {
+              <img [src]="p.images[0]" [alt]="p.name" />
+            } @else {
+              <div class="sf-product-img-placeholder">
+                <span class="material-symbols-outlined !text-[40px] text-zinc-400">inventory_2</span>
               </div>
-              
-              <!-- Wishlist Heart Overlay -->
-              <button (click)="toggleWishlist(p.id)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm dark:bg-white dark:bg-zinc-900/90 shadow-sm flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
-                <span class="material-symbols-outlined font-bold" [ngClass]="wishlist().has(p.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
+            }
+            <div class="sf-product-actions">
+              <button class="sf-product-action-btn sf-cart-btn" (click)="addToCart(p)" title="Add to Cart" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">
+                <span class="material-symbols-outlined !text-[16px]">add_shopping_cart</span>
+              </button>
+              <button class="sf-product-action-btn" (click)="toggleWishlist(p.id)" title="Wishlist" [class.active]="wishlist().has(p.id)">
+                <span class="material-symbols-outlined !text-[16px]" [class.fill-icon]="wishlist().has(p.id)">favorite</span>
+              </button>
+              <button class="sf-product-action-btn" (click)="openQuickView(p)" title="Quick View">
+                <span class="material-symbols-outlined !text-[16px]">visibility</span>
               </button>
             </div>
-            <div class="flex-1">
-              <p class="text-xs font-bold text-slate-500 dark:text-zinc-400 mb-1 uppercase tracking-wider">{{ p.category || 'Uncategorized' }}</p>
-              <h3 class="font-bold text-lg leading-tight mb-2">{{ p.name }}</h3>
-              <p class="text-xl font-black" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
-                {{ p.selling_price | appCurrency }}
-              </p>
-            </div>
-            <button (click)="addToCart(p)" 
-                    class="mt-4 w-full py-2.5 rounded-xl font-bold text-slate-900 dark:text-white shadow-lg transition-transform active:scale-95"
-                    [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
-              Add to Cart
-            </button>
           </div>
-        }
-        @if (filteredProducts().length === 0) {
-          <div class="col-span-full py-20 text-center text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">
-            <span class="material-symbols-outlined !text-[48px] mb-4">search_off</span>
-            <p class="font-bold text-lg">No products found</p>
-          </div>
-        }
-      </div>
-    </main>
-  </div>
-  
-  <!-- Recently Viewed Section -->
-  @if (recentlyViewedProducts().length > 0) {
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-zinc-200 dark:border-slate-200 dark:border-zinc-800">
-      <h2 class="text-2xl font-black mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
-        <span class="material-symbols-outlined text-indigo-500">history</span>
-        Recently Viewed
-      </h2>
-      <div class="flex gap-6 overflow-x-auto pb-6 snap-x">
-        @for (rp of recentlyViewedProducts(); track rp.id) {
-          <div class="min-w-[160px] md:min-w-[220px] shrink-0 bg-white dark:bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-100 dark:border-slate-200 dark:border-zinc-800 cursor-pointer hover:shadow-xl dark:hover:shadow-indigo-500/10 transition-all snap-start group relative"
-               (click)="openQuickView(rp)">
-            <!-- Wishlist Heart Overlay -->
-            <button (click)="toggleWishlist(rp.id); $event.stopPropagation()" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm dark:bg-slate-100 dark:bg-zinc-800/90 shadow flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
-              <span class="material-symbols-outlined !text-[16px] font-bold" [ngClass]="wishlist().has(rp.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
-            </button>
-            <div class="aspect-square bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-              @if (rp.images && rp.images.length > 0) {
-                <img [src]="rp.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform">
-              } @else {
-                <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+          <div class="sf-product-info">
+            <p class="sf-product-category">{{ p.category?.name || p.category || 'Uncategorized' }}</p>
+            <h3 class="sf-product-name">{{ p.name }}</h3>
+            <div class="sf-product-price-row">
+              <span class="sf-product-price" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ p.selling_price | appCurrency }}</span>
+              @if (p.compare_price && p.compare_price > p.selling_price) {
+                <span class="sf-product-compare"><del>{{ p.compare_price | appCurrency }}</del></span>
               }
             </div>
-            <h4 class="font-bold text-sm leading-tight mb-1 truncate text-zinc-900 dark:text-zinc-100">{{ rp.name }}</h4>
-            <p class="text-sm font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
+          </div>
+        </div>
+      }
+      @if (filteredProducts().length === 0) {
+        <div class="sf-empty">
+          <span class="material-symbols-outlined !text-[48px] text-zinc-300">search_off</span>
+          <p>No products found</p>
+          <button (click)="searchQuery.set(''); selectedCategory.set('All')" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">Clear filters</button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Mid-page Offer Banners ── -->
+  <div class="sf-mid-banners">
+    <div class="sf-mid-banner sf-mid-banner-1">
+      <div class="sf-mid-banner-content">
+        <span>Limited Time</span>
+        <strong>Special Offer</strong>
+        <button (click)="scrollToProducts()" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">Shop Now</button>
+      </div>
+    </div>
+    <div class="sf-mid-banner sf-mid-banner-2">
+      <div class="sf-mid-banner-content">
+        <span>New In</span>
+        <strong>Fresh Arrivals</strong>
+        <button (click)="sortBy.set('newest'); scrollToProducts()" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">Shop Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Recently Viewed ── -->
+  @if (recentlyViewedProducts().length > 0) {
+    <div class="sf-section">
+      <h2 class="sf-section-title">
+        <span [style.background]="$any(storefrontService.settings())?.primary_color || '#f8f8f8'">Recently Viewed</span>
+      </h2>
+      <div class="sf-recent-scroll">
+        @for (rp of recentlyViewedProducts(); track rp.id) {
+          <div class="sf-product-card sf-product-card-sm" (click)="openQuickView(rp)">
+            <div class="sf-product-img">
+              @if (rp.images && rp.images.length > 0) {
+                <img [src]="rp.images[0]" [alt]="rp.name" />
+              } @else {
+                <div class="sf-product-img-placeholder">
+                  <span class="material-symbols-outlined !text-[32px] text-zinc-400">inventory_2</span>
+                </div>
+              }
+              <button class="sf-wishlist-overlay" (click)="toggleWishlist(rp.id); $event.stopPropagation()" [class.active]="wishlist().has(rp.id)">
+                <span class="material-symbols-outlined !text-[14px]" [class.fill-icon]="wishlist().has(rp.id)">favorite</span>
+              </button>
+            </div>
+            <div class="sf-product-info">
+              <h3 class="sf-product-name">{{ rp.name }}</h3>
+              <span class="sf-product-price" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ rp.selling_price | appCurrency }}</span>
+            </div>
           </div>
         }
       </div>
     </div>
   }
-  
-  <!-- Sticky Cart Bar -->
+
+  <!-- ── Sticky Cart Bar ── -->
   @if (cart().length > 0 && !isCartOpen() && !isCheckoutOpen()) {
-    <div class="fixed bottom-0 left-0 w-full z-30 p-4 animate-slide-up">
-      <div class="max-w-2xl mx-auto bg-white dark:bg-slate-100 dark:bg-zinc-800 rounded-2xl shadow-2xl border border-zinc-200 dark:border-slate-300 dark:border-zinc-700 p-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-            <span class="material-symbols-outlined">shopping_cart</span>
-          </div>
+    <div class="sf-sticky-cart">
+      <div class="sf-sticky-cart-inner">
+        <div class="sf-sticky-cart-info">
+          <span class="material-symbols-outlined" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">shopping_cart</span>
           <div>
-            <p class="text-sm font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">{{ cart().length }} item(s) in cart</p>
-            <p class="text-lg font-black">{{ cartTotal() | appCurrency }}</p>
+            <p class="sf-sticky-cart-count">{{ cart().length }} item(s)</p>
+            <p class="sf-sticky-cart-total">{{ cartTotal() | appCurrency }}</p>
           </div>
         </div>
-        <button (click)="isCartOpen.set(true)" class="px-6 py-3 rounded-xl font-black text-slate-900 dark:text-white shadow-lg transition-transform active:scale-95"
-                [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
-          View Cart
-        </button>
+        <button class="sf-sticky-cart-btn" (click)="isCartOpen.set(true)" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">View Cart</button>
       </div>
     </div>
   }
-  
-</div>
-</div>
 
-<!-- Cart Drawer -->
+  <!-- ── Footer ── -->
+  <footer class="sf-footer">
+    <div class="sf-footer-inner">
+      <div class="sf-footer-col">
+        <h5 class="sf-footer-heading">Get In Touch</h5>
+        <p class="sf-footer-desc">{{ $any(storefrontService.settings())?.about_text || 'We are here to serve you. Reach out anytime.' }}</p>
+        @if ($any(storefrontService.settings())?.contact_email) {
+          <p class="sf-footer-contact">
+            <span class="material-symbols-outlined !text-[14px]" [style.color]="$any(storefrontService.settings())?.primary_color || '#888'">mail</span>
+            {{ $any(storefrontService.settings())?.contact_email }}
+          </p>
+        }
+        @if ($any(storefrontService.settings())?.contact_phone) {
+          <p class="sf-footer-contact">
+            <span class="material-symbols-outlined !text-[14px]" [style.color]="$any(storefrontService.settings())?.primary_color || '#888'">phone</span>
+            {{ $any(storefrontService.settings())?.contact_phone }}
+          </p>
+        }
+      </div>
+      <div class="sf-footer-col">
+        <h5 class="sf-footer-heading">Quick Shop</h5>
+        <div class="sf-footer-links">
+          <button (click)="scrollToTop()">&#8250; Home</button>
+          <button (click)="scrollToProducts()">&#8250; Shop</button>
+          <button (click)="isCartOpen.set(true)">&#8250; Shopping Cart</button>
+          <button (click)="startCheckout()">&#8250; Checkout</button>
+        </div>
+      </div>
+      <div class="sf-footer-col">
+        <h5 class="sf-footer-heading">Categories</h5>
+        <div class="sf-footer-links">
+          @for (cat of categories().slice(0, 6); track cat) {
+            <button (click)="selectedCategory.set(cat); scrollToProducts()">&#8250; {{ cat }}</button>
+          }
+        </div>
+      </div>
+      <div class="sf-footer-col">
+        <h5 class="sf-footer-heading">Newsletter</h5>
+        <p class="sf-footer-desc">Stay updated with our latest products and offers.</p>
+        <div class="sf-newsletter">
+          <input type="email" placeholder="Your email address" class="sf-newsletter-input" />
+          <button class="sf-newsletter-btn" [style.background]="$any(storefrontService.settings())?.primary_color || '#555'">Subscribe</button>
+        </div>
+      </div>
+    </div>
+    <div class="sf-footer-bottom">
+      <p>&#169; {{ $any(storefrontService.settings())?.store_name || 'Store' }} {{ currentYear() }}. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+</div><!-- end storefront-root -->
+
+
+<!-- ══ CART DRAWER ══ -->
 @if (isCartOpen()) {
-<div class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm transition-colors duration-300" [class.dark]="darkMode()">
-  <div class="w-full max-w-md bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 h-full shadow-2xl flex flex-col animate-slide-in-right">
-    <div class="p-6 border-b border-zinc-200 dark:border-slate-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950">
+<div class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
+  <div class="w-full max-w-md bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 h-full shadow-2xl flex flex-col">
+    <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-950">
       <h2 class="text-2xl font-black">Your Cart</h2>
-      <button (click)="isCartOpen.set(false)" class="p-2 hover:bg-zinc-200 dark:hover:bg-slate-100 dark:bg-zinc-800 rounded-full transition-colors">
+      <button (click)="isCartOpen.set(false)" class="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
-    
     <div class="flex-1 overflow-y-auto p-6 space-y-6">
       @for (item of cart(); track item.product.id) {
         <div class="flex gap-4">
-          <div class="w-20 h-20 bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+          <div class="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+            @if (item.product.images && item.product.images.length > 0) {
+              <img [src]="item.product.images[0]" class="w-full h-full object-cover" />
+            } @else {
+              <span class="material-symbols-outlined text-zinc-400">inventory_2</span>
+            }
           </div>
           <div class="flex-1 flex flex-col justify-center">
             <h4 class="font-bold leading-tight line-clamp-2 mb-1">{{ item.product.name }}</h4>
-            <p class="font-black text-indigo-600 dark:text-indigo-400 mb-2">{{ item.product.selling_price | appCurrency }}</p>
+            <p class="font-black mb-2" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ item.product.selling_price | appCurrency }}</p>
             <div class="flex items-center gap-3">
-              <button (click)="updateQty(item.product.id, -1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold">-</button>
+              <button (click)="updateQty(item.product.id, -1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 flex items-center justify-center font-bold text-lg">-</button>
               <span class="font-bold w-4 text-center">{{ item.qty }}</span>
-              <button (click)="updateQty(item.product.id, 1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center font-bold">+</button>
+              <button (click)="updateQty(item.product.id, 1)" class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 flex items-center justify-center font-bold text-lg">+</button>
             </div>
           </div>
         </div>
       }
       @if (cart().length === 0) {
-        <div class="text-center py-20 text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">
-          <span class="material-symbols-outlined !text-[48px] mb-4 opacity-50">shopping_cart</span>
+        <div class="text-center py-20 text-zinc-400">
+          <span class="material-symbols-outlined !text-[48px] mb-4 opacity-50 block">shopping_cart</span>
           <p class="font-bold">Your cart is empty</p>
         </div>
       }
     </div>
-
     @if (cart().length > 0) {
-      <div class="p-6 bg-zinc-50 dark:bg-slate-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-slate-200 dark:border-zinc-800">
+      <div class="p-6 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800">
         <div class="flex justify-between items-center mb-6">
-          <span class="text-lg font-bold text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400">Subtotal</span>
+          <span class="text-lg font-bold text-zinc-400">Subtotal</span>
           <span class="text-3xl font-black">{{ cartTotal() | appCurrency }}</span>
         </div>
-        <button (click)="startCheckout()" class="w-full py-4 rounded-xl font-black text-slate-900 dark:text-white text-lg bg-black dark:bg-zinc-100 dark:text-black hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-white transition-colors shadow-xl">
-          Checkout Now
-        </button>
+        <button (click)="startCheckout()" class="w-full py-4 rounded-xl font-black text-white text-lg shadow-xl" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">Checkout Now</button>
       </div>
     }
   </div>
 </div>
 }
 
-<!-- Checkout Modal -->
+
+<!-- ══ CHECKOUT MODAL ══ -->
 @if (isCheckoutOpen() && !orderPlaced()) {
-<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 transition-colors duration-300" [class.dark]="darkMode()">
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4">
   <div class="w-full max-w-2xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
     <div class="p-5 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-950">
       <div class="flex items-center gap-3">
         @if (checkoutStep() === 2) {
-          <button (click)="checkoutStep.set(1)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors">
+          <button (click)="checkoutStep.set(1)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800">
             <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
           </button>
         }
         <h2 class="text-lg sm:text-xl font-black">Checkout</h2>
       </div>
-      <button (click)="isCheckoutOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors text-zinc-500"><span class="material-symbols-outlined !text-[18px]">close</span></button>
+      <button (click)="isCheckoutOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500">
+        <span class="material-symbols-outlined !text-[18px]">close</span>
+      </button>
     </div>
     <div class="p-6 sm:p-8 overflow-y-auto">
       @if (checkoutError()) {
-        <div class="mb-5 p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 text-xs sm:text-sm font-bold flex items-center gap-2">
-          <span class="material-symbols-outlined !text-[18px] shrink-0">error</span>
-          {{ checkoutError() }}
-        </div>
+        <div class="mb-5 p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm font-bold">{{ checkoutError() }}</div>
       }
-
       @if (checkoutStep() === 1) {
         <div class="space-y-4 max-w-md mx-auto">
-          <h3 class="font-bold text-base sm:text-lg mb-2 text-center">Your Details</h3>
-          <div><input type="text" [ngModel]="guestDetails().name" (ngModelChange)="guestDetails.update(d => ({...d, name: $event}))" placeholder="Full Name *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"></div>
-          <div><input type="email" [ngModel]="guestDetails().email" (ngModelChange)="guestDetails.update(d => ({...d, email: $event}))" placeholder="Email Address *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"></div>
-          <div><input type="text" [ngModel]="guestDetails().phone" (ngModelChange)="guestDetails.update(d => ({...d, phone: $event}))" placeholder="Phone / Mobile Money Number *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"></div>
-          <div><textarea [ngModel]="guestDetails().address" (ngModelChange)="guestDetails.update(d => ({...d, address: $event}))" placeholder="Delivery Address (Optional for pickup)" rows="2" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500"></textarea></div>
-          <button (click)="checkoutStep.set(2)" class="w-full py-3 mt-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors text-xs sm:text-sm shadow-lg shadow-indigo-600/25">Continue to Payment</button>
+          <h3 class="font-bold text-lg mb-2 text-center">Your Details</h3>
+          <input type="text" [ngModel]="guestDetails().name" (ngModelChange)="guestDetails.update(d => ({...d, name: $event}))" placeholder="Full Name *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm outline-none" />
+          <input type="email" [ngModel]="guestDetails().email" (ngModelChange)="guestDetails.update(d => ({...d, email: $event}))" placeholder="Email Address *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm outline-none" />
+          <input type="text" [ngModel]="guestDetails().phone" (ngModelChange)="guestDetails.update(d => ({...d, phone: $event}))" placeholder="Phone / Mobile Money Number *" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm outline-none" />
+          <textarea [ngModel]="guestDetails().address" (ngModelChange)="guestDetails.update(d => ({...d, address: $event}))" placeholder="Delivery Address (Optional)" rows="2" class="w-full p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm outline-none resize-none"></textarea>
+          <button (click)="checkoutStep.set(2)" class="w-full py-3 mt-4 rounded-xl font-bold text-white text-sm shadow-lg" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">Continue to Payment</button>
         </div>
       }
       @if (checkoutStep() === 2) {
         <div class="max-w-md mx-auto space-y-5">
           <div class="text-center">
             <p class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Total Amount</p>
-            <p class="text-3xl sm:text-4xl font-black text-indigo-600 dark:text-indigo-400">{{ cartTotal() | appCurrency }}</p>
+            <p class="text-4xl font-black" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ cartTotal() | appCurrency }}</p>
           </div>
-
-          <!-- Payment Options -->
           <div class="space-y-3">
-            <label class="block p-4 rounded-2xl border-2 transition-all cursor-pointer"
-                   [class.border-indigo-600]="paymentMethod() === 'online'"
-                   [class.bg-indigo-50]="paymentMethod() === 'online'"
-                   [class.dark:bg-indigo-950/30]="paymentMethod() === 'online'"
-                   [class.border-zinc-200]="paymentMethod() !== 'online'"
-                   [class.dark:border-zinc-800]="paymentMethod() !== 'online'">
+            <label class="block p-4 rounded-2xl border-2 transition-all cursor-pointer" [class.border-zinc-200]="paymentMethod() !== 'online'" [style.border-color]="paymentMethod() === 'online' ? ($any(storefrontService.settings())?.primary_color || '#6366f1') : ''">
               <div class="flex items-center gap-3">
-                <input type="radio" name="publicPaymentMethod" value="online"
-                       [checked]="paymentMethod() === 'online'"
-                       (change)="paymentMethod.set('online')"
-                       class="accent-indigo-600">
-                <div class="flex-1 min-w-0">
-                  <p class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-white flex items-center gap-2">
-                    <span class="material-symbols-outlined !text-[18px] text-indigo-500">payments</span>
-                    Mobile Money &amp; Card
-                  </p>
-                  <p class="text-[11px] text-zinc-500 mt-0.5">MTN MoMo, Telecel Cash, AirtelTigo, Visa &amp; Mastercard</p>
+                <input type="radio" name="publicPaymentMethod" value="online" [checked]="paymentMethod() === 'online'" (change)="paymentMethod.set('online')" />
+                <div>
+                  <p class="font-bold text-sm">Mobile Money &amp; Card</p>
+                  <p class="text-xs text-zinc-500 mt-0.5">MTN MoMo, Telecel Cash, AirtelTigo, Visa &amp; Mastercard</p>
                 </div>
               </div>
             </label>
-
-            <label class="block p-4 rounded-2xl border-2 transition-all cursor-pointer"
-                   [class.border-indigo-600]="paymentMethod() === 'cash'"
-                   [class.bg-indigo-50]="paymentMethod() === 'cash'"
-                   [class.dark:bg-indigo-950/30]="paymentMethod() === 'cash'"
-                   [class.border-zinc-200]="paymentMethod() !== 'cash'"
-                   [class.dark:border-zinc-800]="paymentMethod() !== 'cash'">
+            <label class="block p-4 rounded-2xl border-2 transition-all cursor-pointer" [class.border-zinc-200]="paymentMethod() !== 'cash'" [style.border-color]="paymentMethod() === 'cash' ? ($any(storefrontService.settings())?.primary_color || '#6366f1') : ''">
               <div class="flex items-center gap-3">
-                <input type="radio" name="publicPaymentMethod" value="cash"
-                       [checked]="paymentMethod() === 'cash'"
-                       (change)="paymentMethod.set('cash')"
-                       class="accent-indigo-600">
-                <div class="flex-1 min-w-0">
-                  <p class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-white flex items-center gap-2">
-                    <span class="material-symbols-outlined !text-[18px] text-zinc-500">storefront</span>
-                    Pay on Delivery / Pickup
-                  </p>
-                  <p class="text-[11px] text-zinc-500 mt-0.5">Pay in cash or POS when order is received</p>
+                <input type="radio" name="publicPaymentMethod" value="cash" [checked]="paymentMethod() === 'cash'" (change)="paymentMethod.set('cash')" />
+                <div>
+                  <p class="font-bold text-sm">Pay on Delivery / Pickup</p>
+                  <p class="text-xs text-zinc-500 mt-0.5">Pay in cash or POS when order is received</p>
                 </div>
               </div>
             </label>
           </div>
-
-          <button (click)="submitOrder()" [disabled]="isProcessing()"
-                  class="w-full py-3.5 sm:py-4 rounded-2xl font-black text-white text-xs sm:text-sm bg-emerald-600 hover:opacity-95 transition-all shadow-xl shadow-emerald-600/25 disabled:opacity-50 flex items-center justify-center gap-2">
-            @if (isProcessing()) {
-              <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span>
-              Processing...
-            } @else {
-              <span class="material-symbols-outlined !text-[18px]">lock</span>
-              {{ paymentMethod() === 'online' ? 'Pay ' + (cartTotal() | appCurrency) + ' with Mobile Money' : 'Confirm Order' }}
-            }
+          <button (click)="submitOrder()" [disabled]="isProcessing()" class="w-full py-4 rounded-2xl font-black text-white text-sm bg-emerald-600 hover:opacity-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-xl">
+            @if (isProcessing()) { Processing... }
+            @else { {{ paymentMethod() === 'online' ? 'Pay ' + (cartTotal() | appCurrency) + ' with Mobile Money' : 'Confirm Order' }} }
           </button>
         </div>
       }
@@ -368,88 +528,70 @@
 </div>
 }
 
-<!-- Order Success (Tracking) -->
+
+<!-- ══ ORDER SUCCESS ══ -->
 @if (orderPlaced()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-emerald-500 p-4 transition-colors duration-300" [class.dark]="darkMode()">
-  <div class="w-full max-w-lg bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl p-10 text-center shadow-2xl animate-fade-in">
-    <div class="w-24 h-24 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-emerald-500 p-4">
+  <div class="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-3xl p-10 text-center shadow-2xl">
+    <div class="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
       <span class="material-symbols-outlined !text-[48px]">check_circle</span>
     </div>
     <h2 class="text-3xl font-black mb-2">Order Confirmed!</h2>
-    <p class="text-slate-400 dark:text-zinc-500 dark:text-slate-500 dark:text-zinc-400 mb-8">Thank you for shopping with us.</p>
-    
-    <div class="p-6 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-slate-200 dark:border-zinc-800 mb-8">
-      <p class="text-sm font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-2">Tracking Number</p>
-      <p class="font-mono text-3xl font-black text-black dark:text-slate-900 dark:text-white">{{ orderTrackingNumber() }}</p>
+    <p class="text-zinc-400 mb-8">Thank you for shopping with us.</p>
+    <div class="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 mb-8">
+      <p class="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-2">Tracking Number</p>
+      <p class="font-mono text-3xl font-black">{{ orderTrackingNumber() }}</p>
     </div>
-    
-    <button (click)="orderPlaced.set(false); isCheckoutOpen.set(false)" class="px-8 py-3 rounded-full font-bold text-slate-900 dark:text-white bg-black dark:bg-zinc-100 dark:text-black hover:bg-slate-100 dark:bg-zinc-800 dark:hover:bg-white transition-colors">
-      Continue Shopping
-    </button>
+    <button (click)="orderPlaced.set(false); isCheckoutOpen.set(false)" class="px-8 py-3 rounded-full font-bold text-white" [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">Continue Shopping</button>
   </div>
 </div>
 }
 
-<!-- Quick View Modal -->
+
+<!-- ══ QUICK VIEW MODAL ══ -->
 @if (quickViewProduct()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-colors duration-300" [class.dark]="darkMode()">
-  <div class="w-full max-w-4xl bg-white dark:bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl overflow-hidden shadow-2xl animate-fade-in flex flex-col md:flex-row relative">
-    <button (click)="quickViewProduct.set(null)" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" (click)="quickViewProduct.set(null)">
+  <div class="w-full max-w-4xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative" (click)="$event.stopPropagation()">
+    <button (click)="quickViewProduct.set(null)" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/10 hover:bg-black/20 rounded-full flex items-center justify-center">
       <span class="material-symbols-outlined">close</span>
     </button>
-    
-    <!-- Image Side -->
-    <div class="w-full md:w-1/2 bg-zinc-100 dark:bg-slate-100 dark:bg-zinc-800 flex items-center justify-center aspect-square md:aspect-auto relative p-8">
+    <div class="w-full md:w-1/2 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center aspect-square md:aspect-auto p-8">
       @if (quickViewProduct().images && quickViewProduct().images.length > 0) {
-        <img [src]="quickViewProduct().images[0]" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal drop-shadow-xl">
+        <img [src]="quickViewProduct().images[0]" class="w-full h-full object-contain drop-shadow-xl" />
       } @else {
-        <span class="material-symbols-outlined !text-[96px] text-slate-600 dark:text-zinc-300 dark:text-zinc-700">inventory_2</span>
+        <span class="material-symbols-outlined !text-[96px] text-zinc-300">inventory_2</span>
       }
     </div>
-    
-    <!-- Details Side -->
     <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-      <p class="text-sm font-bold text-slate-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">{{ quickViewProduct().category || 'Uncategorized' }}</p>
+      <p class="text-sm font-bold text-zinc-400 mb-2 uppercase tracking-wider">{{ quickViewProduct().category?.name || quickViewProduct().category || 'Uncategorized' }}</p>
       <h2 class="text-3xl font-black leading-tight mb-2">{{ quickViewProduct().name }}</h2>
-      <p class="text-4xl font-black mb-6" [style.color]="$any(storefrontService.settings())?.primary_color || '#000'">
-        {{ quickViewProduct().selling_price | appCurrency }}
-      </p>
-      
-      <p class="text-zinc-600 dark:text-slate-500 dark:text-zinc-400 mb-8 line-clamp-4 leading-relaxed">
-        {{ quickViewProduct().description || 'No description available for this product.' }}
-      </p>
-      
+      <p class="text-4xl font-black mb-6" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ quickViewProduct().selling_price | appCurrency }}</p>
+      <p class="text-zinc-500 dark:text-zinc-400 mb-8 line-clamp-4 leading-relaxed">{{ quickViewProduct().description || 'No description available.' }}</p>
       <div class="mt-auto">
-        <button (click)="addToCart(quickViewProduct()); quickViewProduct.set(null)" 
-                class="w-full py-4 rounded-xl font-black text-slate-900 dark:text-white text-lg shadow-lg shadow-black/10 transition-transform active:scale-95 flex items-center justify-center gap-2"
-                [style.background-color]="$any(storefrontService.settings())?.primary_color || '#000'">
+        <button (click)="addToCart(quickViewProduct()); quickViewProduct.set(null)"
+                class="w-full py-4 rounded-xl font-black text-white text-lg shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                [style.background]="$any(storefrontService.settings())?.primary_color || '#333'">
           <span class="material-symbols-outlined !text-[20px]">add_shopping_cart</span>
           Add to Cart
         </button>
       </div>
     </div>
   </div>
-  
-  <!-- Related Products Overlay / Attached inside Modal Wrapper -->
   @if (relatedProducts().length > 0) {
-    <div class="w-full max-w-4xl bg-white dark:bg-white dark:bg-zinc-900 mt-4 rounded-3xl p-6 shadow-2xl">
-      <h3 class="text-lg font-black mb-4 px-2 text-zinc-900 dark:text-slate-900 dark:text-white">You Might Also Like</h3>
+    <div class="w-full max-w-4xl bg-white dark:bg-zinc-900 mt-4 rounded-3xl p-6 shadow-2xl" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-black mb-4 text-zinc-900 dark:text-white">You Might Also Like</h3>
       <div class="flex gap-4 overflow-x-auto pb-4 snap-x">
         @for (rp of relatedProducts(); track rp.id) {
-          <div class="min-w-[160px] md:min-w-[200px] shrink-0 bg-zinc-50 dark:bg-slate-100 dark:bg-zinc-800 rounded-2xl p-3 border border-zinc-100 dark:border-slate-300 dark:border-zinc-700 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors snap-start relative group"
-               (click)="openQuickView(rp)">
-            <button (click)="toggleWishlist(rp.id); $event.stopPropagation()" class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 backdrop-blur-sm dark:bg-white dark:bg-zinc-900/90 shadow flex items-center justify-center hover:scale-110 transition-transform z-10 text-slate-500 dark:text-zinc-400 hover:text-rose-500">
-              <span class="material-symbols-outlined !text-[14px] font-bold" [ngClass]="wishlist().has(rp.id) ? 'fill-icon text-rose-500' : ''">favorite</span>
-            </button>
-            <div class="aspect-square bg-white dark:bg-white dark:bg-zinc-900 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+          <div class="min-w-[160px] md:min-w-[200px] shrink-0 bg-zinc-50 dark:bg-zinc-800 rounded-2xl p-3 border border-zinc-100 dark:border-zinc-700 cursor-pointer hover:border-zinc-300 snap-start" (click)="openQuickView(rp)">
+            <div class="aspect-square bg-white dark:bg-zinc-900 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
               @if (rp.images && rp.images.length > 0) {
-                <img [src]="rp.images[0]" class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal">
+                <img [src]="rp.images[0]" class="w-full h-full object-cover" />
               } @else {
-                <span class="material-symbols-outlined text-slate-600 dark:text-zinc-300 dark:text-zinc-600">inventory_2</span>
+                <span class="material-symbols-outlined text-zinc-300">inventory_2</span>
               }
             </div>
-            <h4 class="font-bold text-sm leading-tight mb-1 truncate text-zinc-900 dark:text-zinc-100">{{ rp.name }}</h4>
-            <p class="text-sm font-black text-zinc-900 dark:text-slate-900 dark:text-white">{{ rp.selling_price | appCurrency }}</p>
+            <h4 class="font-bold text-sm leading-tight mb-1 truncate">{{ rp.name }}</h4>
+            <p class="text-sm font-black" [style.color]="$any(storefrontService.settings())?.primary_color || '#333'">{{ rp.selling_price | appCurrency }}</p>
           </div>
         }
       </div>
