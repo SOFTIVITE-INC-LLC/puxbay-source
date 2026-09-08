@@ -1,41 +1,55 @@
-<div class="min-h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden relative">
-  <!-- Ambient background glow -->
-  <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-  <div class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="min-h-screen bg-slate-50 font-sans text-slate-800">
+  <!-- HERO SECTION -->
+  <section class="relative bg-slate-950 pt-36 pb-24 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
+    <!-- Ambient background glow -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/25 rounded-full blur-[140px]"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
+    </div>
 
-  <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-32 lg:py-40">
-    <!-- Header Section -->
-    <div class="text-center max-w-3xl mx-auto mb-20 space-y-6">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50/80 border border-indigo-200/50 text-indigo-700 text-xs font-black uppercase tracking-widest shadow-sm">
-        Transparent Pricing
+    <div class="relative z-10 max-w-4xl mx-auto px-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+        <span class="material-icons-round text-sm">sell</span>
+        <span>Transparent & Scalable Pricing</span>
       </div>
-      <h1 class="text-5xl lg:text-7xl font-black tracking-tight leading-tight text-slate-900">
-        Scaling with your <br/><span class="text-primary-600 dark:text-primary-400">Retail Success</span>
+
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+        Scaling with Your <br class="hidden sm:inline" />
+        <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Retail Success</span>
       </h1>
-      <p class="text-lg lg:text-xl text-zinc-500 font-medium leading-relaxed max-w-2xl mx-auto">
+
+      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed mb-10">
         Choose the perfect plan to automate your inventory, optimize your supply chain, and delight your customers with AI-driven insights.
       </p>
 
       <!-- Billing Toggle -->
-      <div class="flex items-center justify-center gap-4 mt-10">
-        <span class="text-sm font-bold transition-colors" [ngClass]="billingCycle() === 'monthly' ? 'text-zinc-900 ' : 'text-zinc-400 '">
-          Monthly
-        </span>
-        
-        <button (click)="toggleBilling()" class="relative w-14 h-8 rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 :ring-offset-zinc-950" [ngClass]="billingCycle() === 'yearly' ? 'bg-indigo-500' : 'bg-zinc-200 '">
-          <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ease-in-out" [ngClass]="billingCycle() === 'yearly' ? 'translate-x-6' : 'translate-x-0'"></span>
+      <div class="inline-flex items-center justify-center gap-4 p-2 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl">
+        <button
+          type="button"
+          (click)="billingCycle.set('monthly')"
+          class="px-5 py-2 rounded-xl text-sm font-bold transition-all"
+          [ngClass]="billingCycle() === 'monthly' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'"
+        >
+          Monthly Billing
         </button>
-
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-bold transition-colors" [ngClass]="billingCycle() === 'yearly' ? 'text-zinc-900 ' : 'text-zinc-400 '">
-            Yearly
-          </span>
-          <span class="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 rounded-md border border-emerald-100">
+        
+        <button
+          type="button"
+          (click)="billingCycle.set('yearly')"
+          class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold transition-all"
+          [ngClass]="billingCycle() === 'yearly' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'"
+        >
+          <span>Yearly Billing</span>
+          <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 rounded-full">
             Save 20%
           </span>
-        </div>
+        </button>
       </div>
     </div>
+  </section>
+
+  <main class="relative z-10 w-full max-w-7xl mx-auto px-6 py-16 lg:py-24">
 
     <!-- Pricing Cards Grid -->
     <div *ngIf="isLoading()" class="flex justify-center my-20">

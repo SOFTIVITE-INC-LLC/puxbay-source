@@ -1,11 +1,28 @@
 
 <div class="min-h-screen bg-slate-50 font-sans text-slate-700 selection:bg-indigo-500/30 overflow-x-hidden flex flex-col">
   <!-- NAVBAR -->
-  <header class="fixed top-4 left-4 right-4 lg:left-10 lg:right-10 z-50 transition-all duration-300">
-    <!-- Gradient border wrapper -->
-    <div class="p-px rounded-2xl bg-indigo-500/40 shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
-      <div class="bg-slate-950/95 backdrop-blur-2xl rounded-[15px] px-5 lg:px-7">
-        <div class="flex items-center justify-between h-[62px]">
+  <header
+    class="fixed z-50 transition-all duration-500 ease-out"
+    [ngClass]="scrolled()
+      ? 'top-4 left-4 right-4 lg:left-10 lg:right-10'
+      : 'top-0 left-0 right-0'"
+  >
+    <!-- Conditional wrapper: frosted pill when scrolled, transparent bar when at top -->
+    <div
+      class="transition-all duration-500"
+      [ngClass]="scrolled()
+        ? 'p-px rounded-2xl bg-indigo-500/40 shadow-[0_8px_40px_rgba(0,0,0,0.5)]'
+        : ''"
+    >
+      <div
+        class="transition-all duration-500"
+        [ngClass]="scrolled()
+          ? 'bg-slate-950/95 backdrop-blur-2xl rounded-[15px] px-5 lg:px-7'
+          : 'bg-transparent px-6 lg:px-12'"
+      >
+        <div class="flex items-center justify-between"
+          [ngClass]="scrolled() ? 'h-[62px]' : 'h-[76px]'"
+        >
 
           <!-- Logo -->
           <a routerLink="/" class="flex items-center gap-3 group shrink-0">
@@ -17,14 +34,19 @@
             </span>
           </a>
 
-          <!-- Divider -->
-          <div class="hidden md:block w-px h-6 bg-slate-700/70 mx-2"></div>
+          <!-- Divider (only when scrolled) -->
+          @if (scrolled()) {
+            <div class="hidden md:block w-px h-6 bg-slate-700/70 mx-2"></div>
+          }
 
           <!-- Desktop Nav -->
           <nav class="hidden md:flex items-center gap-1 h-full flex-1 px-2">
             <!-- Products Dropdown -->
             <div class="relative group h-full flex items-center">
-              <button class="flex items-center gap-1 text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+              <button
+                class="flex items-center gap-1 text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
+                [ngClass]="scrolled() ? 'text-slate-400 hover:text-white' : 'text-white/80 hover:text-white'"
+              >
                 Products
                 <span class="material-icons-round text-[15px] opacity-70 transition-transform duration-200 group-hover:rotate-180 group-hover:opacity-100">expand_more</span>
               </button>
@@ -85,12 +107,21 @@
               </div>
             </div>
 
-            <a routerLink="/solutions" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Solutions</a>
-            <a routerLink="/pricing" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">Pricing</a>
+            <a routerLink="/solutions"
+              class="text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
+              [ngClass]="scrolled() ? 'text-slate-400 hover:text-white' : 'text-white/80 hover:text-white'"
+            >Solutions</a>
+            <a routerLink="/pricing"
+              class="text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
+              [ngClass]="scrolled() ? 'text-slate-400 hover:text-white' : 'text-white/80 hover:text-white'"
+            >Pricing</a>
 
             <!-- Company Dropdown -->
             <div class="relative group h-full flex items-center">
-              <button class="flex items-center gap-1 text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+              <button
+                class="flex items-center gap-1 text-sm font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-white/10"
+                [ngClass]="scrolled() ? 'text-slate-400 hover:text-white' : 'text-white/80 hover:text-white'"
+              >
                 Company
                 <span class="material-icons-round text-[15px] opacity-70 transition-transform duration-200 group-hover:rotate-180 group-hover:opacity-100">expand_more</span>
               </button>
@@ -237,7 +268,8 @@
     </div>
   </header>
 
-  <main class="flex-grow pt-20">
+  <!-- No top padding needed — hero is full viewport height -->
+  <main class="flex-grow">
     <router-outlet></router-outlet>
   </main>
   <!-- FOOTER -->
@@ -291,6 +323,15 @@
             <li><a routerLink="/privacy-policy" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Privacy Policy</a></li>
             <li><a routerLink="/terms" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Terms of Service</a></li>
             <li><a routerLink="/cookie-policy" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">Cookie Policy</a></li>
+            <li>
+              <button
+                type="button"
+                (click)="cookieConsentService.openPreferences()"
+                class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors text-left cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Cookie Preferences</span>
+              </button>
+            </li>
           </ul>
         </div>
 

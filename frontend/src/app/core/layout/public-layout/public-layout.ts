@@ -1,14 +1,15 @@
-import { Component, OnInit, OnDestroy, NgZone, Inject, PLATFORM_ID, afterNextRender, signal } from '@angular/core';
-import { isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, NgZone, Inject, PLATFORM_ID, afterNextRender, signal, HostListener } from '@angular/core';
+import { isPlatformBrowser, DOCUMENT, NgClass } from '@angular/common';
 import { RouterModule, Router, NavigationStart } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { CookieConsentService } from '../../services/cookie-consent.service';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, NgClass],
   templateUrl: './public-layout.html',
 })
 export class PublicLayout implements OnInit, OnDestroy {
@@ -17,13 +18,15 @@ export class PublicLayout implements OnInit, OnDestroy {
   private routerSub: Subscription | null = null;
 
   mobileMenuOpen = signal(false);
+  scrolled = signal(false);
 
   constructor(
     private ngZone: NgZone,
     private router: Router,
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platformId: Object,
-    public authService: AuthService
+    public authService: AuthService,
+    public cookieConsentService: CookieConsentService
   ) {
     afterNextRender(() => {
       this.initObserver();
@@ -39,6 +42,13 @@ export class PublicLayout implements OnInit, OnDestroy {
     this.routerSub = this.router.events
       .pipe(filter(e => e instanceof NavigationStart))
       .subscribe(() => this.mobileMenuOpen.set(false));
+  }
+
+  @HostListener('window:scroll', [])
+  onScroll() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.scrolled.set(window.scrollY > 60);
+    }
   }
 
   toggleMobileMenu() {

@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PrivacyService } from '../../../core/services/privacy.service';
+import { CookieConsentService } from '../../../core/services/cookie-consent.service';
 
 @Component({
   selector: 'app-privacy',
@@ -20,6 +21,7 @@ import { PrivacyService } from '../../../core/services/privacy.service';
 })
 export class Privacy implements OnInit {
   privacyService = inject(PrivacyService);
+  cookieConsentService = inject(CookieConsentService);
 
   ngOnInit() {
     this.privacyService.getRequests().subscribe();

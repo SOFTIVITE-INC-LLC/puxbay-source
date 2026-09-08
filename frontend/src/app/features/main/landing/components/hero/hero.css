@@ -1,0 +1,388 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   HERO CAROUSEL — Puxbay Public Landing
+────────────────────────────────────────────────────────────────────────── */
+
+/* Hero wrapper */
+.hero-carousel {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 620px;
+  overflow: hidden;
+  background: #011f4b;
+}
+
+/* Individual Slides */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Background image */
+.hero-slide-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  transform: scale(1.05);
+  transition: transform 8s ease-out;
+}
+
+.hero-slide.active .hero-slide-bg {
+  transform: scale(1);
+}
+
+/* Overlay gradient */
+.hero-slide-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+/* Noise texture overlay for premium feel */
+.hero-slide-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Slide Content */
+.hero-slide-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 100px 24px 160px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Badge pill */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b3cde0;
+  box-shadow: 0 0 8px rgba(179,205,224,0.8);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+/* Headline */
+.hero-headline {
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 32px rgba(0,0,0,0.4);
+}
+
+.hero-headline-accent {
+  display: block;
+  background: linear-gradient(135deg, #b3cde0 0%, #6497b1 50%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtext */
+.hero-subtext {
+  color: rgba(255,255,255,0.78);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 500;
+  line-height: 1.7;
+  max-width: 620px;
+  margin: 0 auto 40px;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+
+/* CTA Buttons */
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: #005b96;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 6px 24px rgba(0,91,150,0.5), 0 1px 0 rgba(255,255,255,0.15) inset;
+  border: none;
+  cursor: pointer;
+}
+
+.hero-btn-primary:hover {
+  background: #03396c;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0,91,150,0.55);
+}
+
+.hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.92);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+  background-clip: padding-box;
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.4);
+}
+
+/* Stats bar */
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-top: 52px;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 28px;
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+
+.hero-stat:last-child {
+  border-right: none;
+}
+
+.hero-stat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── CAROUSEL CONTROLS ── */
+.carousel-controls {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Dot indicators */
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.35);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.carousel-dot.active {
+  width: 32px;
+  background: #ffffff;
+}
+
+/* Prev / Next arrows */
+.carousel-arrows {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.carousel-arrow {
+  pointer-events: all;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+
+.carousel-arrow:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: rgba(255,255,255,0.4);
+  transform: scale(1.08);
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.6;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
+/* Bottom gradient vignette to blend into page */
+.hero-bottom-vignette {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, rgba(248,250,252,0.95));
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Slide content entrance animation */
+.hero-slide.active .hero-slide-content > * {
+  animation: heroContentIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hero-slide.active .hero-badge { animation-delay: 0.1s; }
+.hero-slide.active .hero-headline { animation-delay: 0.2s; }
+.hero-slide.active .hero-subtext { animation-delay: 0.3s; }
+.hero-slide.active .hero-cta-group { animation-delay: 0.4s; }
+.hero-slide.active .hero-stats { animation-delay: 0.5s; }
+
+@keyframes heroContentIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hero-slide-content {
+    padding: 90px 20px 140px;
+  }
+  .hero-stats {
+    margin-top: 32px;
+  }
+  .hero-stat {
+    padding: 0 16px;
+  }
+  .hero-stat-value {
+    font-size: 1.25rem;
+  }
+  .carousel-arrows {
+    display: none;
+  }
+  .carousel-controls {
+    bottom: 28px;
+  }
+}
+
+/* ── NAVBAR TRANSPARENCY ── */
+
+/* When at top of page, the public layout header becomes transparent */
+:host-context(.scrolled-past) header {
+  background: rgba(15,23,42,0.95);
+}

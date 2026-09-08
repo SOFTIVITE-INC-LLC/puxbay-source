@@ -1,10 +1,11 @@
 import { Component, HostListener, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AlertComponent } from './core/layout/alert/alert';
+import { CookieConsentComponent } from './core/layout/cookie-consent/cookie-consent.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, AlertComponent],
+  imports: [RouterOutlet, AlertComponent, CookieConsentComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
