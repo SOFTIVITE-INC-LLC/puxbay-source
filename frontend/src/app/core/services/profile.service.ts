@@ -75,7 +75,7 @@ export class ProfileService {
   setPosPin(pin: string): Observable<any> {
     this.saving.set(true);
     this.error.set(null);
-    return this.api.put<any>('/profiles/pos-pin', { pos_pin: pin }).pipe(
+    return this.api.put<any>('/profiles/pos-pin', { pin: pin }).pipe(
       tap({
         next: () => this.saving.set(false),
         error: (err) => {
