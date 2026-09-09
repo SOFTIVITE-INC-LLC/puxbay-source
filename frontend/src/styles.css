@@ -201,13 +201,13 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(0, 91, 150, 0.25);
 }
 
-html.dark input[type="text"],
-html.dark input[type="email"],
-html.dark input[type="number"],
-html.dark input[type="password"],
-html.dark input[type="date"],
-html.dark select,
-html.dark textarea {
+html.dark input[type="text"]:not(.auth-input),
+html.dark input[type="email"]:not(.auth-input),
+html.dark input[type="number"]:not(.auth-input),
+html.dark input[type="password"]:not(.auth-input),
+html.dark input[type="date"]:not(.auth-input),
+html.dark select:not(.auth-input),
+html.dark textarea:not(.auth-input) {
     background-color: #0f172a !important;
     /* slate-900 */
     border-color: #334155 !important;

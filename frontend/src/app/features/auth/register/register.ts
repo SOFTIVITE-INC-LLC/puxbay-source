@@ -26,6 +26,11 @@ export class Register {
   step = signal(1);
   errorMessage = signal('');
   isLoading = signal(false);
+  showPassword = signal(false);
+
+  togglePasswordVisibility() {
+    this.showPassword.update(v => !v);
+  }
 
   registerForm = this.fb.group({
     first_name: ['', Validators.required],

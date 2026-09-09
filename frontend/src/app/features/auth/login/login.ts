@@ -16,6 +16,11 @@ export class Login {
   loginForm: FormGroup;
   errorMessage = signal<string | null>(null);
   isLoading = signal(false);
+  showPassword = signal(false);
+
+  togglePasswordVisibility() {
+    this.showPassword.update(v => !v);
+  }
 
   constructor(
     private fb: FormBuilder,

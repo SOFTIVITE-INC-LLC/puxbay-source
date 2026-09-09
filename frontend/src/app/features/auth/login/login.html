@@ -47,28 +47,67 @@
   .auth-input {
     width: 100%;
     padding: 14px 16px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 500;
-    color: #0f172a;
+    color: #0f172a !important;
     outline: none;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .auth-input::placeholder {
-    color: #94a3b8;
+    color: #94a3b8 !important;
   }
 
   .auth-input:focus {
-    border-color: #005b96;
-    box-shadow: 0 0 0 3px rgba(0, 91, 150, 0.2);
+    background: #ffffff !important;
+    border-color: #005b96 !important;
+    box-shadow: 0 0 0 4px rgba(0, 91, 150, 0.12) !important;
   }
 
   .auth-input.error {
-    border-color: #f43f5e;
-    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.12) !important;
+  }
+
+  .password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .password-wrap .auth-input {
+    padding-right: 48px;
+  }
+
+  .password-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .password-toggle-btn:hover {
+    color: #005b96;
+    background: rgba(0, 91, 150, 0.08);
+  }
+
+  .password-toggle-btn:focus-visible {
+    outline: 2px solid #005b96;
+    outline-offset: 1px;
   }
 
   .input-wrap {
@@ -292,7 +331,25 @@
 
         <div>
           <label for="password" class="auth-label">Password</label>
-          <input id="password" formControlName="password" type="password" autocomplete="current-password" required class="auth-input" placeholder="Enter password">
+          <div class="password-wrap">
+            <input id="password"
+                   formControlName="password"
+                   [type]="showPassword() ? 'text' : 'password'"
+                   autocomplete="current-password"
+                   required
+                   class="auth-input"
+                   placeholder="Enter password">
+            <button type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="password-toggle-btn"
+                    tabindex="-1"
+                    [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                    title="{{ showPassword() ? 'Hide password' : 'Show password' }}">
+              <span class="material-icons-round" style="font-size:20px; line-height:1;">
+                {{ showPassword() ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:-4px;">
