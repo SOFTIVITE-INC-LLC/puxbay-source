@@ -43,12 +43,14 @@ export class Contact {
   }
 
   loadContactInfo() {
-    try {
-      const saved = localStorage.getItem('puxbay_platform_contact');
-      if (saved) {
-        this.contactInfo.update(curr => ({ ...curr, ...JSON.parse(saved) }));
-      }
-    } catch (_) {}
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('puxbay_platform_contact');
+        if (saved) {
+          this.contactInfo.update(curr => ({ ...curr, ...JSON.parse(saved) }));
+        }
+      } catch (_) {}
+    }
 
     this.http.get<PlatformContact>('/api/v1/public/contact-info').subscribe({
       next: (res) => {

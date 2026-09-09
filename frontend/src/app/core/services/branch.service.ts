@@ -41,6 +41,7 @@ export class BranchService {
   activeBranch = signal<Branch | null>(this.restoreActiveBranch());
 
   private restoreActiveBranch(): Branch | null {
+    if (typeof localStorage === 'undefined') return null;
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       return raw ? (JSON.parse(raw) as Branch) : null;
@@ -51,10 +52,12 @@ export class BranchService {
 
   setActiveBranch(branch: Branch | null) {
     this.activeBranch.set(branch);
-    if (branch) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(branch));
-    } else {
-      localStorage.removeItem(this.STORAGE_KEY);
+    if (typeof localStorage !== 'undefined') {
+      if (branch) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(branch));
+      } else {
+        localStorage.removeItem(this.STORAGE_KEY);
+      }
     }
   }
 

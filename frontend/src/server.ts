@@ -44,7 +44,27 @@ app.use((req, res, next) => {
   angularApp
     .handle(req)
     .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
-    .catch(next);
+    .catch((err) => {
+      console.error('SSR render error, falling back to CSR:', err);
+      next();
+    });
+});
+
+/**
+ * Fallback to static SPA index.html for unhandled client routes or SSR recovery
+ */
+app.use((req, res) => {
+  const indexHtml = join(browserDistFolder, 'index.csr.html');
+  const fallbackIndex = join(browserDistFolder, 'index.html');
+  res.sendFile(indexHtml, (err) => {
+    if (err) {
+      res.sendFile(fallbackIndex, (err2) => {
+        if (err2) {
+          res.status(404).send('Page not found');
+        }
+      });
+    }
+  });
 });
 
 /**

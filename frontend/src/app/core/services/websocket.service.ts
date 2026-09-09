@@ -25,11 +25,14 @@ export class WebsocketService {
   public messages$ = new Subject<WebSocketMessage>();
 
   constructor() {
-    this.connect();
+    if (typeof window !== 'undefined') {
+      this.connect();
+    }
   }
 
   private connect() {
-    if (!window.localStorage.getItem('token')) {
+    if (typeof window === 'undefined') return;
+    if (!localStorage.getItem('token')) {
       return; // Only connect if authenticated
     }
 
@@ -45,87 +48,91 @@ export class WebsocketService {
       wsUrl = `${wsProtocol}//${window.location.host}${apiUrl}/ws`;
     }
 
-    this.socket = new WebSocket(wsUrl);
+    try {
+      this.socket = new WebSocket(wsUrl);
 
-    this.socket.onopen = () => {
-      console.log('[WebSocket] Connected');
-      this.reconnectAttempts = 0; // Reset on success
-      // Send auth token to upgrade connection if required by custom hub logic
-      const token = localStorage.getItem('token');
-      this.socket?.send(JSON.stringify({ type: 'auth', token }));
-    };
+      this.socket.onopen = () => {
+        console.log('[WebSocket] Connected');
+        this.reconnectAttempts = 0; // Reset on success
+        // Send auth token to upgrade connection if required by custom hub logic
+        const token = localStorage.getItem('token');
+        this.socket?.send(JSON.stringify({ type: 'auth', token }));
+      };
 
-    this.socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.messages$.next(data);
+      this.socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          this.messages$.next(data);
 
-        // Real-time Push Notification & Sound Playback
-        if (data.type === 'notification') {
-          // 1. Play synthesized acoustic sound chime based on sound_type / category
-          const soundType = data.sound_type || data.category || data.notif_type || 'general';
-          this.soundService.play(soundType);
+          // Real-time Push Notification & Sound Playback
+          if (data.type === 'notification') {
+            // 1. Play synthesized acoustic sound chime based on sound_type / category
+            const soundType = data.sound_type || data.category || data.notif_type || 'general';
+            this.soundService.play(soundType);
 
-          // 2. Update Notification State
-          this.notificationService.unreadCount.update(c => c + 1);
-          const newNotif = {
-            id: data.id || 'notif-' + Date.now(),
-            user_id: '',
-            type: data.notif_type || data.category || 'info',
-            title: data.title || 'New Notification',
-            message: data.message || '',
-            is_read: false,
-            link: data.link || '',
-            created_at: new Date().toISOString()
-          };
-          this.notificationService.notifications.update(list => [newNotif, ...list]);
-          this.notificationService.latestNotifications.update(list => [newNotif, ...list.slice(0, 4)]);
+            // 2. Update Notification State
+            this.notificationService.unreadCount.update(c => c + 1);
+            const newNotif = {
+              id: data.id || 'notif-' + Date.now(),
+              user_id: '',
+              type: data.notif_type || data.category || 'info',
+              title: data.title || 'New Notification',
+              message: data.message || '',
+              is_read: false,
+              link: data.link || '',
+              created_at: new Date().toISOString()
+            };
+            this.notificationService.notifications.update(list => [newNotif, ...list]);
+            this.notificationService.latestNotifications.update(list => [newNotif, ...list.slice(0, 4)]);
 
-          // 3. Show In-App Floating Toast
-          if (data.title || data.message) {
-            const toastMsg = data.title ? `${data.title} — ${data.message}` : data.message;
-            if (soundType === 'low_stock') {
-              this.toastService.showWarning(toastMsg);
-            } else if (soundType === 'anomaly') {
-              this.toastService.showError(toastMsg);
-            } else {
-              this.toastService.showSuccess(toastMsg);
+            // 3. Show In-App Floating Toast
+            if (data.title || data.message) {
+              const toastMsg = data.title ? `${data.title} — ${data.message}` : data.message;
+              if (soundType === 'low_stock') {
+                this.toastService.showWarning(toastMsg);
+              } else if (soundType === 'anomaly') {
+                this.toastService.showError(toastMsg);
+              } else {
+                this.toastService.showSuccess(toastMsg);
+              }
+            }
+
+            // 4. Native Browser Push Notification (if permission granted)
+            if ('Notification' in window && Notification.permission === 'granted') {
+              try {
+                new Notification(data.title || 'Puxbay Notification', {
+                  body: data.message,
+                  icon: '/assets/icons/icon-192x192.png',
+                });
+              } catch (_) {}
             }
           }
-
-          // 4. Native Browser Push Notification (if permission granted)
-          if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-              new Notification(data.title || 'Puxbay Notification', {
-                body: data.message,
-                icon: '/assets/icons/icon-192x192.png',
-              });
-            } catch (_) {}
-          }
+        } catch (e) {
+          console.error('[WebSocket] Failed to parse message', e);
         }
-      } catch (e) {
-        console.error('[WebSocket] Failed to parse message', e);
-      }
-    };
+      };
 
-    this.socket.onclose = () => {
-      // Exponential backoff with jitter: 3s, 6s, 12s, max 30s
-      let delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
-      if (delay > 30000) delay = 30000;
-      
-      // Add jitter (-500ms to +500ms)
-      delay += (Math.random() * 1000) - 500;
-      
-      console.log(`[WebSocket] Disconnected. Reconnecting in ${Math.round(delay)}ms... (Attempt ${this.reconnectAttempts + 1})`);
-      
-      this.reconnectAttempts++;
-      setTimeout(() => this.connect(), delay);
-    };
+      this.socket.onclose = () => {
+        // Exponential backoff with jitter: 3s, 6s, 12s, max 30s
+        let delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts);
+        if (delay > 30000) delay = 30000;
+        
+        // Add jitter (-500ms to +500ms)
+        delay += (Math.random() * 1000) - 500;
+        
+        console.log(`[WebSocket] Disconnected. Reconnecting in ${Math.round(delay)}ms... (Attempt ${this.reconnectAttempts + 1})`);
+        
+        this.reconnectAttempts++;
+        setTimeout(() => this.connect(), delay);
+      };
 
-    this.socket.onerror = (error) => {
-      console.error('[WebSocket] Error', error);
-      this.socket?.close();
-    };
+      this.socket.onerror = (error) => {
+        console.error('[WebSocket] Error', error);
+        this.socket?.close();
+      };
+    } catch (e) {
+      console.warn('[WebSocket] Init failed', e);
+    }
   }
 
   public sendMessage(msg: WebSocketMessage) {

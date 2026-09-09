@@ -16,16 +16,20 @@ export class NotificationSoundService {
   public soundEnabled = signal<boolean>(true);
 
   constructor() {
-    // Load persisted sound preference
-    const saved = localStorage.getItem('notifications_sound_enabled');
-    if (saved !== null) {
-      this.soundEnabled.set(saved === 'true');
+    // Load persisted sound preference safely
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('notifications_sound_enabled');
+      if (saved !== null) {
+        this.soundEnabled.set(saved === 'true');
+      }
     }
   }
 
   public setSoundEnabled(enabled: boolean) {
     this.soundEnabled.set(enabled);
-    localStorage.setItem('notifications_sound_enabled', enabled ? 'true' : 'false');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('notifications_sound_enabled', enabled ? 'true' : 'false');
+    }
   }
 
   private getAudioContext(): AudioContext | null {
