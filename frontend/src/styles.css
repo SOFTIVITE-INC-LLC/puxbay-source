@@ -232,9 +232,9 @@ html.dark input::placeholder {
 }
 
 .sidebar-obsidian {
-    background: #011f4b;
-    /* Premium Deep Dark Navy */
-    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    background: #060810 !important;
+    /* Deep Obsidian Dark */
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     width: var(--sidebar-width);
     transition: var(--sidebar-transition);
     z-index: 50;
@@ -404,8 +404,8 @@ body.sidebar-is-collapsed .section-label-premium {
 }
 
 .sidebar-header-glass {
-    background: #011f4b !important;
-    /* Solid Dark Navy */
+    background: #060810 !important;
+    /* Deep Obsidian Dark */
     padding: 2rem 1.5rem !important;
     width: 100% !important;
     display: flex !important;
