@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, NgZone, Inject, PLATFORM_ID, afterNextRender, signal, HostListener } from '@angular/core';
 import { isPlatformBrowser, DOCUMENT, NgClass } from '@angular/common';
-import { RouterModule, Router, NavigationStart } from '@angular/router';
+import { RouterModule, Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
@@ -67,19 +67,36 @@ export class PublicLayout implements OnInit, OnDestroy {
           this.observer?.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.1 });
+    }, { 
+      threshold: 0.08,
+      rootMargin: '0px 0px -40px 0px'
+    });
 
     this.observeElements();
 
+    // Re-observe on route transitions
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        setTimeout(() => this.observeElements(), 50);
+      });
+
     this.ngZone.runOutsideAngular(() => {
-      this.intervalId = setInterval(() => this.observeElements(), 1000);
+      this.intervalId = setInterval(() => this.observeElements(), 800);
     });
   }
 
   observeElements() {
     if (!this.observer) return;
-    this.document.querySelectorAll('.reveal:not(.active)').forEach(el => {
-      this.observer?.observe(el);
+    const selector = '.reveal:not(.active), .reveal-up:not(.active), .reveal-down:not(.active), .reveal-left:not(.active), .reveal-right:not(.active), .reveal-scale:not(.active), .reveal-rotate-left:not(.active), .reveal-rotate-right:not(.active)';
+    this.document.querySelectorAll(selector).forEach(el => {
+      // If already in top viewport, activate directly with smooth entrance
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('active');
+      } else {
+        this.observer?.observe(el);
+      }
     });
   }
 

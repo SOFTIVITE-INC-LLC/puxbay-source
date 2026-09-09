@@ -4,15 +4,15 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-emerald-600/25 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-emerald-600/25 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-6">
       <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-        <div class="flex-1 text-center lg:text-left">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+        <div class="flex-1 text-center lg:text-left reveal-left">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
             <span class="material-icons-round text-sm">auto_graph</span>
             <span>AI Analytics & Predictive Insights</span>
           </div>
@@ -24,19 +24,19 @@
             Harness predictive ML models to forecast inventory velocity, monitor real-time gross margins across stores, and automate financial reports.
           </p>
           <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-            <a routerLink="/login" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-500/30 hover:-translate-y-0.5">
+            <a routerLink="/login" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-500/30 hover-lift">
               <span>Start Free Trial</span>
               <span class="material-icons-round text-base">arrow_forward</span>
             </a>
-            <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+            <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover-lift">
               <span class="material-icons-round text-base">insights</span>
               <span>View Sample Reports</span>
             </a>
           </div>
         </div>
         
-        <div class="flex-1 w-full max-w-lg">
-          <div class="bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-black/60 border border-slate-800 rounded-3xl p-6 relative overflow-hidden">
+        <div class="flex-1 w-full max-w-lg reveal-right delay-200">
+          <div class="bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-black/60 border border-slate-800 rounded-3xl p-6 relative overflow-hidden hover-lift">
             <!-- Mock Analytics Overview -->
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-800">
               <div class="flex items-center gap-3">
@@ -55,7 +55,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 mb-3">
-              <div class="p-3.5 rounded-xl bg-slate-800/70 border border-slate-700/60">
+              <div class="p-3.5 rounded-xl bg-slate-800/70 border border-slate-700/60 hover:bg-slate-800 transition-colors">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Today's Revenue</p>
                 <p class="text-xl font-black text-white">$24,850.00</p>
                 <p class="text-[11px] text-emerald-400 font-bold mt-1 flex items-center gap-0.5">
@@ -63,7 +63,7 @@
                 </p>
               </div>
 
-              <div class="p-3.5 rounded-xl bg-slate-800/70 border border-slate-700/60">
+              <div class="p-3.5 rounded-xl bg-slate-800/70 border border-slate-700/60 hover:bg-slate-800 transition-colors">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Gross Margin</p>
                 <p class="text-xl font-black text-white">41.2%</p>
                 <p class="text-[11px] text-emerald-400 font-bold mt-1 flex items-center gap-0.5">
@@ -91,42 +91,42 @@
   <div class="max-w-7xl mx-auto px-6 py-20">
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-left delay-100">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">monitoring</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Live Dashboard</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Watch sales come in globally as they happen. Monitor gross margin, net revenue, and transaction volume by the minute.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-up delay-200">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">trending_up</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">AI Forecasting</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Our machine learning models predict future sales trends based on historical data, seasonality, and local events, helping you optimize purchasing.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-right delay-300">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">star</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Top Performers</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Instantly identify your best-selling products and most profitable categories. Double down on what works and discount what doesn't.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-left delay-100">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">badge</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Staff Analytics</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Track individual cashier performance. See who processes transactions fastest, who up-sells the most, and who handles the most voids.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-up delay-200">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">map</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Multi-Store Comparison</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Compare performance across different retail locations side-by-side. Spot regional trends and optimize inventory distribution.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-right delay-300">
         <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">picture_as_pdf</span>
         </div>
@@ -135,7 +135,7 @@
       </div>
     </div>
     
-    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal">
+    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal-up">
       <h2 class="text-3xl font-black text-slate-900 mb-8">Frequently Asked Questions</h2>
       <div class="space-y-6">
         <div>
@@ -154,7 +154,7 @@
     </div>
   </div>
   
-  <div class="reveal pb-20">
+  <div class="reveal-up pb-20">
     <app-testimonials></app-testimonials>
   </div>
 </div>

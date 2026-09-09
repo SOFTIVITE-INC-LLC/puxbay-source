@@ -4,15 +4,15 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-600/25 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-pink-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-600/25 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-pink-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-7xl mx-auto px-6">
       <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-        <div class="flex-1 text-center lg:text-left">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+        <div class="flex-1 text-center lg:text-left reveal-left">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
             <span class="material-icons-round text-sm">storefront</span>
             <span>Digital Storefront & E-Commerce</span>
           </div>
@@ -24,19 +24,19 @@
             Launch a zero-setup, lightning-fast digital storefront and contactless QR-table menu synchronized live with your in-store catalog and POS.
           </p>
           <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-            <a routerLink="/login" class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:-translate-y-0.5">
+            <a routerLink="/login" class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover-lift">
               <span>Launch Storefront</span>
               <span class="material-icons-round text-base">arrow_forward</span>
             </a>
-            <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+            <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover-lift">
               <span class="material-icons-round text-base">qr_code_2</span>
               <span>Test Interactive QR</span>
             </a>
           </div>
         </div>
         
-        <div class="flex-1 w-full max-w-lg">
-          <div (mouseenter)="isScanning.set(true)" (mouseleave)="isScanning.set(false)" class="aspect-video bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-black/60 border border-slate-800 rounded-3xl relative overflow-hidden flex items-center justify-center group cursor-pointer">
+        <div class="flex-1 w-full max-w-lg reveal-right delay-200">
+          <div (mouseenter)="isScanning.set(true)" (mouseleave)="isScanning.set(false)" class="aspect-video bg-slate-900/90 backdrop-blur-2xl shadow-2xl shadow-black/60 border border-slate-800 rounded-3xl relative overflow-hidden flex items-center justify-center group cursor-pointer hover-lift">
             <div class="absolute inset-0 bg-cyan-500/10 transition-opacity duration-500" [ngClass]="isScanning() ? 'opacity-0' : 'opacity-100'"></div>
             
             <!-- Default State: QR Code -->
@@ -85,7 +85,7 @@
                 </div>
               </div>
               
-              <button class="w-full mt-3 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs shadow-md shadow-cyan-500/20">
+              <button class="w-full mt-3 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition-transform">
                 Place Order ({{ settingsService.currencySymbol() }}8.00)
               </button>
             </div>
@@ -99,42 +99,42 @@
   <div class="max-w-7xl mx-auto px-6 py-20">
     
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-left delay-100">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">rocket_launch</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Zero Setup Online Store</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Flip a switch and your POS products instantly appear on a beautiful, mobile-optimized ecommerce website.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-up delay-200">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">qr_code_2</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Contactless QR Ordering</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Generate QR codes for tables or shelves. Customers scan, browse, and pay on their phones—no app needed.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-right delay-300">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">credit_card</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Integrated Payments</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Built-in integration with local payment gateways enables you to securely accept credit cards and mobile money online immediately.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-left delay-100">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">local_shipping</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Delivery Management</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Set custom delivery zones, flat rates, or pickup options. Track dispatch status directly from your dashboard.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .05s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-up delay-200">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">brush</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 mb-3">Custom Branding</h3>
         <p class="text-slate-600 text-sm leading-relaxed">Match the storefront to your brand with custom colors, logos, and typography to build customer trust.</p>
       </div>
-      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover:-translate-y-2 transition-transform reveal" style="transition-delay: .1s;">
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 p-8 rounded-3xl group hover-lift reveal-right delay-300">
         <div class="w-12 h-12 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
           <span class="material-icons-round">sell</span>
         </div>
@@ -143,7 +143,7 @@
       </div>
     </div>
     
-    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal">
+    <div class="bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-3xl p-10 mb-20 shadow-xl shadow-slate-200/40 reveal-up">
       <h2 class="text-3xl font-black text-slate-900 mb-8">Frequently Asked Questions</h2>
       <div class="space-y-6">
         <div>
@@ -162,7 +162,7 @@
     </div>
   </div>
   
-  <div class="reveal pb-20">
+  <div class="reveal-up pb-20">
     <app-testimonials></app-testimonials>
   </div>
 </div>

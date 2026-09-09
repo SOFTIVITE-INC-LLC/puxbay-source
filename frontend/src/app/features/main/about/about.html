@@ -67,16 +67,6 @@
     overflow: hidden;
   }
 
-  .team-cta::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    /* background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 50%); pointer-events: none; */
-  }
-
   @media(max-width: 900px) {
     .team-cta {
       flex-direction: column;
@@ -116,12 +106,12 @@
     justify-content: center;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.2s;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
   }
 
   .perk-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-6px) scale(1.02);
+    background: rgba(255, 255, 255, 0.18);
   }
 
   .perk-icon {
@@ -181,21 +171,21 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/25 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-sky-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/25 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-sky-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-4xl mx-auto px-6">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
         <span class="material-icons-round text-sm">flag</span>
         <span>Established 2024 &bull; Softivite Inc LLC</span>
       </div>
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 reveal-up delay-100">
         Modernizing Commerce for the <br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Digital Frontier.</span>
       </h1>
-      <p class="text-lg md:text-xl text-slate-400 font-normal leading-relaxed max-w-2xl mx-auto">
+      <p class="text-lg md:text-xl text-slate-400 font-normal leading-relaxed max-w-2xl mx-auto reveal-up delay-200">
         Puxbay is the architectural backbone for the next generation of retailers. We bridge the gap between traditional operations and industrial-grade digital efficiency.
       </p>
     </div>
@@ -207,7 +197,7 @@
   <section style="max-width:1200px; margin:0 auto; padding:0 24px 100px;">
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:24px;">
       <!-- Left Card -->
-      <div
+      <div class="reveal-left hover-lift"
         style="background:#fff; border-radius:24px; padding:48px; border:1px solid #f1f5f9; box-shadow:0 10px 40px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:center;">
         <h2 style="font-size:24px; font-weight:900; color:#0f172a; margin-bottom:16px;">Driving Large-Scale Commerce
         </h2>
@@ -227,7 +217,7 @@
         </div>
       </div>
       <!-- Right Card (Image) -->
-      <div style="border-radius:24px; overflow:hidden; position:relative; min-height:360px;">
+      <div class="reveal-right delay-200 hover-lift" style="border-radius:24px; overflow:hidden; position:relative; min-height:360px;">
         <img
           src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
           style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="Industrial Park">
@@ -236,9 +226,9 @@
         </div>
         <div style="position:absolute; bottom:40px; left:40px;">
           <div
-            style="font-size:10px; font-weight:800; color:#475569; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px;">
+            style="font-size:10px; font-weight:800; color:#e2e8f0; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:8px;">
             Our Footprint</div>
-          <div style="font-size:24px; font-weight:800; color:#0f172a;">Empowering Local Markets</div>
+          <div style="font-size:24px; font-weight:800; color:#ffffff;">Empowering Local Markets</div>
         </div>
       </div>
     </div>
@@ -249,9 +239,9 @@
     <div
       style="display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:64px; align-items:center;">
       <!-- Left -->
-      <div>
+      <div class="reveal-left">
         <div
-          style="width:48px; height:48px; background:#005b96; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#0f172a; margin-bottom:24px;">
+          style="width:48px; height:48px; background:#005b96; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#ffffff; margin-bottom:24px;">
           <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
@@ -290,34 +280,34 @@
         </div>
       </div>
       <!-- Right (Images) -->
-      <div style="display:flex; gap:16px; align-items:center;">
+      <div class="reveal-right delay-200" style="display:flex; gap:16px; align-items:center;">
         <img
           src="https://images.unsplash.com/photo-1556740749-887f6717d7e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
           style="width:50%; height:400px; object-fit:cover; border-radius:24px; margin-top:-40px; box-shadow:0 20px 40px rgba(0,0,0,0.1);"
-          alt="Store manager">
+          alt="Store manager" class="hover-lift">
         <img
           src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
           style="width:50%; height:400px; object-fit:cover; border-radius:24px; margin-top:40px; box-shadow:0 20px 40px rgba(0,0,0,0.1);"
-          alt="POS terminal">
+          alt="POS terminal" class="hover-lift">
       </div>
     </div>
   </section>
 
   <!-- The Origins -->
   <section class="dark-section">
-    <div style="max-width:800px; margin:0 auto; position:relative; z-index:10;">
+    <div class="reveal-up" style="max-width:800px; margin:0 auto; position:relative; z-index:10; text-align:center;">
       <div
-        style="font-size:11px; font-weight:900; color:#005b96; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:16px;">
+        style="font-size:11px; font-weight:900; color:#93c5fd; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:16px;">
         The Origins</div>
       <h2
-        style="font-size:clamp(2.5rem, 5vw, 3.5rem); font-weight:900; margin-bottom:32px; letter-spacing:-0.03em; color:#0f172a;">
-        The Story of Softvite Inc</h2>
-      <p style="font-size:16px; color:#475569; font-weight:500; line-height:1.8; margin-bottom:24px;">
-        Puxbay wasn't built in a vacuum. It is the flagship product of Softvite Inc, a technology collective founded on
+        style="font-size:clamp(2.5rem, 5vw, 3.5rem); font-weight:900; margin-bottom:32px; letter-spacing:-0.03em; color:#ffffff;">
+        The Story of Softivite Inc</h2>
+      <p style="font-size:16px; color:#dbeafe; font-weight:500; line-height:1.8; margin-bottom:24px;">
+        Puxbay wasn't built in a vacuum. It is the flagship product of Softivite Inc, a technology collective founded on
         the principle that African businesses deserve software built for their unique economic landscape.
       </p>
-      <p style="font-size:16px; color:#475569; font-weight:500; line-height:1.8;">
-        Starting with a small team of engineers in Accra, Softvite Inc has grown into a regional leader in enterprise
+      <p style="font-size:16px; color:#dbeafe; font-weight:500; line-height:1.8;">
+        Starting with a small team of engineers in Accra, Softivite Inc has grown into a regional leader in enterprise
         SaaS. We recognized early on that the retail sector was fragmented—operating with outdated systems that couldn't
         keep pace with modern consumer demands. Puxbay was our answer: a unified operating system for commerce.
       </p>
@@ -326,8 +316,8 @@
 
   <!-- Join Team CTA -->
   <section style="padding:0 24px;">
-    <div class="team-cta">
-      <div class="team-cta-left relative z-10">
+    <div class="team-cta reveal-scale">
+      <div class="team-cta-left relative z-10 reveal-left delay-100">
         <h2 style="font-size:clamp(2.5rem, 5vw, 3.5rem); font-weight:900; margin-bottom:16px; letter-spacing:-0.03em;">
           Join the Puxbay Team</h2>
         <p
@@ -336,32 +326,32 @@
           merchants.
         </p>
         <div style="display:flex; gap:16px; flex-wrap:wrap;">
-          <a href="#" class="btn-white shadow-lg shadow-black/10">View Open Roles</a>
-          <a href="#" class="btn-outline-white text-white border-white/50 hover:bg-white/10">Our Values</a>
+          <a routerLink="/careers" class="btn-white shadow-lg shadow-black/10 hover-lift">View Open Roles</a>
+          <a routerLink="/about" class="btn-outline-white text-white border-white/50 hover:bg-white/10 hover-lift">Our Values</a>
         </div>
       </div>
       <div class="team-cta-right relative z-10">
-        <div class="perk-card">
+        <div class="perk-card reveal-up delay-100">
           <svg class="perk-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           <div class="perk-title">Inclusive Culture</div>
         </div>
-        <div class="perk-card">
+        <div class="perk-card reveal-up delay-200">
           <svg class="perk-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           <div class="perk-title">Remote Friendly</div>
         </div>
-        <div class="perk-card">
+        <div class="perk-card reveal-up delay-300">
           <svg class="perk-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <div class="perk-title">Innovation First</div>
         </div>
-        <div class="perk-card">
+        <div class="perk-card reveal-up delay-400">
           <svg class="perk-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

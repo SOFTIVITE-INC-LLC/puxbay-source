@@ -3,23 +3,23 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-600/20 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-600/20 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-4xl mx-auto px-6">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
         <span class="material-icons-round text-sm">article</span>
         <span>Puxbay Insights & Engineering</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 reveal-up delay-100">
         Perspectives on Modern <br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Retail & Software.</span>
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed">
+      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed reveal-up delay-200">
         Deep dives into retail operations, distributed systems, offline architecture, and practical playbooks from our engineering and product teams.
       </p>
     </div>
@@ -46,7 +46,7 @@
   }
 
   @if (hasError() && !isLoading()) {
-    <div class="text-center py-20">
+    <div class="text-center py-20 reveal-up">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4">
         <span class="material-icons-round text-3xl">error_outline</span>
       </div>
@@ -56,7 +56,7 @@
   }
 
   @if (!isLoading() && !hasError() && posts().length === 0) {
-    <div class="text-center py-20">
+    <div class="text-center py-20 reveal-up">
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
         <span class="material-icons-round text-3xl">article</span>
       </div>
@@ -67,10 +67,15 @@
 
   @if (!isLoading() && !hasError() && posts().length > 0) {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      @for (post of posts(); track post.id) {
-        <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden hover:-translate-y-1 transition-transform group cursor-pointer">
+      @for (post of posts(); track post.id; let idx = $index) {
+        <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group cursor-pointer hover-lift"
+             [ngClass]="{
+               'reveal-left delay-100': idx % 3 === 0,
+               'reveal-up delay-200': idx % 3 === 1,
+               'reveal-right delay-300': idx % 3 === 2
+             }">
           <div class="h-48 bg-slate-100 relative overflow-hidden">
-            <div class="absolute inset-0 flex items-center justify-center text-slate-600 group-hover:text-slate-500 transition-colors">
+            <div class="absolute inset-0 flex items-center justify-center text-slate-600 group-hover:text-slate-500 group-hover:scale-110 transition-all duration-500">
               <span class="material-icons-round text-6xl">image</span>
             </div>
           </div>
@@ -84,7 +89,7 @@
                   }">
               {{ post.category }}
             </span>
-            <h3 class="text-xl font-bold text-slate-900 mb-3">{{ post.title }}</h3>
+            <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-cyan-600 transition-colors">{{ post.title }}</h3>
             <p class="text-slate-600 text-sm leading-relaxed mb-6">{{ post.excerpt }}</p>
             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ formatDate(post.published_at) }}</p>
           </div>

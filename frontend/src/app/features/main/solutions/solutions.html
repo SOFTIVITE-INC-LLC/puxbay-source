@@ -4,32 +4,32 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-5xl mx-auto px-6">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
         <span class="material-icons-round text-sm">category</span>
         <span>Tailored Solutions</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 reveal-up delay-100">
         Engineered for Your <br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Specific Industry</span>
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-3xl mx-auto leading-relaxed mb-10">
+      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-3xl mx-auto leading-relaxed mb-10 reveal-up delay-200">
         Whether you operate an agile boutique, high-volume grocery chain, modern cafe, or national enterprise network — Puxbay adapts seamlessly to your unique workflows.
       </p>
 
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <a routerLink="/login" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover:-translate-y-0.5">
+      <div class="flex flex-wrap items-center justify-center gap-4 reveal-up delay-300">
+        <a routerLink="/login" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover-lift">
           <span>Get Started Free</span>
           <span class="material-icons-round text-base">arrow_forward</span>
         </a>
-        <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+        <a routerLink="/contact" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover-lift">
           <span class="material-icons-round text-base">support_agent</span>
           <span>Talk to a Specialist</span>
         </a>
@@ -38,40 +38,86 @@
   </section>
 
   <!-- CONTENT SECTION -->
-  <div class="py-20 max-w-7xl mx-auto px-6">
-    <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group">
-      <div class="h-48 bg-slate-100 relative overflow-hidden">
-        <div class="absolute inset-0 bg-indigo-600/40 z-10"></div>
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Retail">
-      </div>
-      <div class="p-8">
-        <h3 class="text-2xl font-black text-slate-900 mb-4">Retail Boutiques</h3>
-        <p class="text-slate-600 mb-6">Manage variants like sizes and colors easily. Connect your physical racks to your online storefront instantly.</p>
-        <a href="#" class="text-indigo-400 font-bold flex items-center gap-2 hover:text-indigo-300 transition-colors">Learn more <span class="material-icons-round text-sm">arrow_forward</span></a>
-      </div>
+  <div class="py-24 max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal-up">
+      <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-4">Select Your Industry</h2>
+      <p class="text-slate-600 font-medium max-w-xl mx-auto">Discover custom-built feature sets optimized for your vertical's daily operations.</p>
     </div>
-    
-    <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group">
-      <div class="h-48 bg-slate-100 relative overflow-hidden">
-        <div class="absolute inset-0 bg-cyan-600/40 z-10"></div>
-        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Cafe">
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Card 1: Retail -->
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group hover-lift reveal-left delay-100">
+        <div class="h-52 bg-slate-100 relative overflow-hidden">
+          <div class="absolute inset-0 bg-indigo-600/30 z-10"></div>
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Retail">
+          <div class="absolute top-4 left-4 z-20 px-3 py-1 bg-slate-900/80 backdrop-blur-md rounded-full text-white text-xs font-bold flex items-center gap-1.5">
+            <span class="material-icons-round text-sm text-indigo-400">checkroom</span>
+            <span>Fashion & Boutiques</span>
+          </div>
+        </div>
+        <div class="p-8">
+          <h3 class="text-2xl font-black text-slate-900 mb-3">Retail Boutiques</h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-6">Manage variants like sizes, colors, and cuts easily. Connect your physical racks to your online storefront instantly with real-time sync.</p>
+          <ul class="space-y-2.5 mb-8 text-xs font-semibold text-slate-600">
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-indigo-500">check_circle</span> Multi-variant matrix SKU grid</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-indigo-500">check_circle</span> Barcode label printing & scanning</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-indigo-500">check_circle</span> Integrated customer loyalty points</li>
+          </ul>
+          <a routerLink="/products/pos" class="text-indigo-600 font-bold flex items-center gap-2 hover:text-indigo-700 transition-colors text-sm">
+            <span>Explore Boutique Features</span>
+            <span class="material-icons-round text-sm">arrow_forward</span>
+          </a>
+        </div>
       </div>
-      <div class="p-8">
-        <h3 class="text-2xl font-black text-slate-900 mb-4">Cafes & F&B</h3>
-        <p class="text-slate-600 mb-6">QR code ordering, kitchen display systems, and ingredient-level inventory tracking for fast-paced environments.</p>
-        <a href="#" class="text-cyan-400 font-bold flex items-center gap-2 hover:text-cyan-300 transition-colors">Learn more <span class="material-icons-round text-sm">arrow_forward</span></a>
+      
+      <!-- Card 2: Cafe & F&B -->
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group hover-lift reveal-up delay-200">
+        <div class="h-52 bg-slate-100 relative overflow-hidden">
+          <div class="absolute inset-0 bg-cyan-600/30 z-10"></div>
+          <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Cafe">
+          <div class="absolute top-4 left-4 z-20 px-3 py-1 bg-slate-900/80 backdrop-blur-md rounded-full text-white text-xs font-bold flex items-center gap-1.5">
+            <span class="material-icons-round text-sm text-cyan-400">local_cafe</span>
+            <span>Food & Beverage</span>
+          </div>
+        </div>
+        <div class="p-8">
+          <h3 class="text-2xl font-black text-slate-900 mb-3">Cafes & Restaurants</h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-6">Contactless QR code ordering, digital kitchen display tickets, and ingredient-level inventory tracking engineered for high table turnover.</p>
+          <ul class="space-y-2.5 mb-8 text-xs font-semibold text-slate-600">
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-cyan-500">check_circle</span> Table QR digital menu & pay</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-cyan-500">check_circle</span> Modifier & recipe ingredient deductions</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-cyan-500">check_circle</span> Kitchen order tickets (KOT) printing</li>
+          </ul>
+          <a routerLink="/products/storefront" class="text-cyan-600 font-bold flex items-center gap-2 hover:text-cyan-700 transition-colors text-sm">
+            <span>Explore F&B Features</span>
+            <span class="material-icons-round text-sm">arrow_forward</span>
+          </a>
+        </div>
       </div>
-    </div>
-    
-    <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group">
-      <div class="h-48 bg-slate-100 relative overflow-hidden">
-        <div class="absolute inset-0 bg-purple-600/40 z-10"></div>
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Enterprise">
-      </div>
-      <div class="p-8">
-        <h3 class="text-2xl font-black text-slate-900 mb-4">Enterprise</h3>
-        <p class="text-slate-600 mb-6">Centralized control for multi-branch operations. Advanced permissions and cross-store analytics.</p>
-        <a href="#" class="text-purple-400 font-bold flex items-center gap-2 hover:text-purple-300 transition-colors">Learn more <span class="material-icons-round text-sm">arrow_forward</span></a>
+      
+      <!-- Card 3: Enterprise -->
+      <div class="bg-white/70 backdrop-blur-xl shadow-xl shadow-slate-200/40 border border-slate-200/50 rounded-3xl overflow-hidden group hover-lift reveal-right delay-300">
+        <div class="h-52 bg-slate-100 relative overflow-hidden">
+          <div class="absolute inset-0 bg-purple-600/30 z-10"></div>
+          <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Enterprise">
+          <div class="absolute top-4 left-4 z-20 px-3 py-1 bg-slate-900/80 backdrop-blur-md rounded-full text-white text-xs font-bold flex items-center gap-1.5">
+            <span class="material-icons-round text-sm text-purple-400">corporate_fare</span>
+            <span>Multi-Branch Chains</span>
+          </div>
+        </div>
+        <div class="p-8">
+          <h3 class="text-2xl font-black text-slate-900 mb-3">Enterprise Chains</h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-6">Centralized administration for regional store networks. Enterprise-tier permissions, inter-warehouse stock routing, and cross-store BI analytics.</p>
+          <ul class="space-y-2.5 mb-8 text-xs font-semibold text-slate-600">
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-purple-500">check_circle</span> Consolidated multi-store dashboards</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-purple-500">check_circle</span> Automated purchase order requisitions</li>
+            <li class="flex items-center gap-2"><span class="material-icons-round text-sm text-purple-500">check_circle</span> REST API webhooks for ERP pipelines</li>
+          </ul>
+          <a routerLink="/products/analytics" class="text-purple-600 font-bold flex items-center gap-2 hover:text-purple-700 transition-colors text-sm">
+            <span>Explore Enterprise Features</span>
+            <span class="material-icons-round text-sm">arrow_forward</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>

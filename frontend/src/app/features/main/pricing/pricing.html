@@ -3,28 +3,28 @@
   <section class="relative bg-slate-950 pt-36 pb-24 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
     <!-- Ambient background glow -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/25 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/25 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-4xl mx-auto px-6">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
         <span class="material-icons-round text-sm">sell</span>
         <span>Transparent & Scalable Pricing</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 reveal-up delay-100">
         Scaling with Your <br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Retail Success</span>
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed mb-10">
+      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed mb-10 reveal-up delay-200">
         Choose the perfect plan to automate your inventory, optimize your supply chain, and delight your customers with AI-driven insights.
       </p>
 
       <!-- Billing Toggle -->
-      <div class="inline-flex items-center justify-center gap-4 p-2 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl">
+      <div class="inline-flex items-center justify-center gap-4 p-2 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-xl shadow-xl reveal-up delay-300">
         <button
           type="button"
           (click)="billingCycle.set('monthly')"
@@ -57,11 +57,15 @@
     </div>
 
     <div *ngIf="!isLoading()" class="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center">
-      <ng-container *ngFor="let plan of plans()">
-        <div class="relative flex flex-col p-8 lg:p-10 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-slate-200/50 shadow-xl shadow-slate-200/40 group hover:-translate-y-2 transition-all duration-300"
-             [ngClass]="{'ring-4 ring-indigo-500/20 shadow-2xl shadow-indigo-500/20 lg:-translate-y-4 lg:hover:-translate-y-6': plan.is_popular}">
+      <ng-container *ngFor="let plan of plans(); let i = index">
+        <div class="relative flex flex-col p-8 lg:p-10 bg-white/70 backdrop-blur-xl rounded-[2.5rem] border border-slate-200/50 shadow-xl shadow-slate-200/40 group hover-lift transition-all duration-300"
+             [ngClass]="{
+               'ring-4 ring-indigo-500/20 shadow-2xl shadow-indigo-500/20 lg:-translate-y-4 reveal-scale delay-200': plan.is_popular,
+               'reveal-left delay-100': !plan.is_popular && i === 0,
+               'reveal-right delay-300': !plan.is_popular && i > 0
+             }">
           
-          <div *ngIf="plan.is_popular" class="absolute -top-4 inset-x-0 mx-auto w-max px-4 py-1.5 rounded-full bg-indigo-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30">
+          <div *ngIf="plan.is_popular" class="absolute -top-4 inset-x-0 mx-auto w-max px-4 py-1.5 rounded-full bg-indigo-500 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 animate-glow-pulse">
             Most Popular
           </div>
 
@@ -93,8 +97,8 @@
             </li>
           </ul>
 
-          <a (click)="selectPlan(plan)" class="cursor-pointer w-full py-4 px-6 rounded-2xl text-center text-sm font-black uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
-             [ngClass]="plan.is_popular ? 'bg-indigo-500 hover:from-indigo-600 hover: text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200'">
+          <a (click)="selectPlan(plan)" class="cursor-pointer w-full py-4 px-6 rounded-2xl text-center text-sm font-black uppercase tracking-wider transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 hover-lift"
+             [ngClass]="plan.is_popular ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30' : 'bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200'">
             {{ plan.button_text }}
             <span class="material-symbols-outlined !text-[18px]">arrow_forward</span>
           </a>
@@ -103,15 +107,15 @@
     </div>
 
     <!-- ROI Calculator Section -->
-    <div class="mt-32 max-w-4xl mx-auto bg-white/70 backdrop-blur-xl border border-indigo-200/50 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl shadow-indigo-500/10 reveal">
-      <div class="text-center mb-10">
+    <div class="mt-32 max-w-4xl mx-auto bg-white/70 backdrop-blur-xl border border-indigo-200/50 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl shadow-indigo-500/10 reveal-up">
+      <div class="text-center mb-10 reveal-up delay-100">
         <h2 class="text-3xl font-black text-slate-900 mb-4">Calculate Your ROI</h2>
         <p class="text-slate-600 font-medium">See how much you can save by switching from legacy hardware and manual inventory tracking.</p>
       </div>
 
       <div class="grid md:grid-cols-2 gap-12 items-center">
         <!-- Sliders -->
-        <div class="space-y-8">
+        <div class="space-y-8 reveal-left delay-200">
           <div>
             <div class="flex justify-between items-center mb-4">
               <label class="font-bold text-slate-700">Retail Locations</label>
@@ -132,7 +136,7 @@
         </div>
 
         <!-- Result -->
-        <div class="bg-indigo-50/50 border border-indigo-100 rounded-3xl p-8 text-center flex flex-col justify-center h-full">
+        <div class="bg-indigo-50/50 border border-indigo-100 rounded-3xl p-8 text-center flex flex-col justify-center h-full reveal-right delay-300">
           <p class="text-indigo-900/60 font-bold uppercase tracking-widest text-xs mb-4">Estimated Monthly Savings</p>
           <div class="text-5xl lg:text-6xl font-black text-indigo-600 mb-2">
             GH₵{{ estimatedSavings() | number:'1.0-0' }}
@@ -146,12 +150,14 @@
 
     <!-- Features Comparison Section -->
     <div class="mt-40 text-center">
-      <h2 class="text-3xl lg:text-4xl font-black tracking-tight mb-4">Compare Features</h2>
-      <p class="text-zinc-500 font-medium max-w-2xl mx-auto mb-16">
-        Everything you need to run your business efficiently, broken down by plan.
-      </p>
+      <div class="reveal-up">
+        <h2 class="text-3xl lg:text-4xl font-black tracking-tight mb-4">Compare Features</h2>
+        <p class="text-zinc-500 font-medium max-w-2xl mx-auto mb-16">
+          Everything you need to run your business efficiently, broken down by plan.
+        </p>
+      </div>
 
-      <div class="bg-white/50 backdrop-blur-xl border border-zinc-200/50 rounded-[2rem] overflow-hidden shadow-xl shadow-zinc-200/20">
+      <div class="bg-white/50 backdrop-blur-xl border border-zinc-200/50 rounded-[2rem] overflow-hidden shadow-xl shadow-zinc-200/20 reveal-scale delay-150">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse min-w-[800px]">
             <thead>
@@ -163,31 +169,31 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-zinc-200/50">
-              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+              <tr class="hover:bg-zinc-50/50 transition-colors">
                 <td class="p-6 text-sm font-semibold text-zinc-700">SKU Capacity</td>
                 <td class="p-6 text-sm font-medium text-center text-zinc-600">500</td>
                 <td class="p-6 text-sm font-bold text-center text-indigo-600">Unlimited</td>
                 <td class="p-6 text-sm font-medium text-center text-zinc-600">Custom</td>
               </tr>
-              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+              <tr class="hover:bg-zinc-50/50 transition-colors">
                 <td class="p-6 text-sm font-semibold text-zinc-700">AI Demand Forecasting</td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300">remove</span></td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
               </tr>
-              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+              <tr class="hover:bg-zinc-50/50 transition-colors">
                 <td class="p-6 text-sm font-semibold text-zinc-700">Inventory Reports</td>
                 <td class="p-6 text-sm font-medium text-center text-zinc-600">Basic</td>
                 <td class="p-6 text-sm font-bold text-center text-indigo-600">Advanced</td>
                 <td class="p-6 text-sm font-medium text-center text-zinc-600">Custom Real-time</td>
               </tr>
-              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+              <tr class="hover:bg-zinc-50/50 transition-colors">
                 <td class="p-6 text-sm font-semibold text-zinc-700">Multi-Warehouse</td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300">remove</span></td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-indigo-500">check</span></td>
               </tr>
-              <tr class="hover:bg-zinc-50/50 :bg-zinc-800/20 transition-colors">
+              <tr class="hover:bg-zinc-50/50 transition-colors">
                 <td class="p-6 text-sm font-semibold text-zinc-700">API Access</td>
                 <td class="p-6 text-center"><span class="material-symbols-outlined text-zinc-300">remove</span></td>
                 <td class="p-6 text-sm font-bold text-center text-indigo-600">Standard</td>

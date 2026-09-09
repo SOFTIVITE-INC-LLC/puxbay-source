@@ -8,32 +8,32 @@
   <section class="relative bg-slate-950 pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden text-center border-b border-slate-800/80">
     <!-- Ambient glow & grid overlay -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px]"></div>
-      <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px] animate-float-slow"></div>
+      <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] animate-float-reverse"></div>
       <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
     </div>
 
     <div class="relative z-10 max-w-5xl mx-auto px-6">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6 backdrop-blur-md reveal-down">
         <span class="material-icons-round text-sm">widgets</span>
         <span>Capabilities & Architecture</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 reveal-up delay-100">
         Powering Every Aspect of <br class="hidden sm:inline" />
         <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-indigo-200 bg-clip-text text-transparent">Your Retail Business</span>
       </h1>
 
-      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-3xl mx-auto leading-relaxed mb-10">
+      <p class="text-lg md:text-xl text-slate-400 font-normal max-w-3xl mx-auto leading-relaxed mb-10 reveal-up delay-200">
         From lightning-fast checkout to predictive inventory, omni-channel e-commerce, and enterprise analytics. Puxbay delivers the industrial-grade tools you need to operate and scale.
       </p>
 
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <a routerLink="/login" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover:-translate-y-0.5">
+      <div class="flex flex-wrap items-center justify-center gap-4 reveal-up delay-300">
+        <a routerLink="/login" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-600/30 hover-lift">
           <span>Explore Live Demo</span>
           <span class="material-icons-round text-base">arrow_forward</span>
         </a>
-        <a routerLink="/pricing" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5">
+        <a routerLink="/pricing" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all hover-lift">
           <span class="material-icons-round text-base">sell</span>
           <span>View Pricing Plans</span>
         </a>
@@ -42,7 +42,7 @@
   </section>
 
   <!-- STICKY NAVIGATION -->
-  <div class="features-nav-container">
+  <div class="features-nav-container reveal-down delay-150">
     <nav class="features-nav">
       @for (category of categories; track category.id) {
         <button class="nav-pill" (click)="scrollToCategory(category.id)">
@@ -54,17 +54,24 @@
 
   <!-- CATEGORIES & FEATURES -->
   <main class="features-container">
-    @for (category of categories; track category.id) {
+    @for (category of categories; track category.id; let catIndex = $index) {
       <section [id]="category.id" class="category-section">
         
-        <div class="category-header">
+        <div class="category-header reveal-left">
           <h2>{{ category.title }}</h2>
           <p>{{ category.subtitle }}</p>
         </div>
 
         <div class="feature-grid">
-          @for (feature of category.features; track feature.title) {
-            <div class="feature-card">
+          @for (feature of category.features; track feature.title; let fIndex = $index) {
+            <div class="feature-card hover-lift"
+                 [ngClass]="{
+                   'reveal-left': fIndex % 3 === 0,
+                   'reveal-up': fIndex % 3 === 1,
+                   'reveal-right': fIndex % 3 === 2,
+                   'delay-100': fIndex % 3 === 1,
+                   'delay-200': fIndex % 3 === 2
+                 }">
               <div class="feature-icon-wrapper">
                 <i [class]="feature.icon"></i>
               </div>
