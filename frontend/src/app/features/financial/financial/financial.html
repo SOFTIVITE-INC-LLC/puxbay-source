@@ -442,12 +442,12 @@
   @if (!financialService.loading() && activeTab() === 'tax') {
     <div class="animate-fade-in max-w-2xl mx-auto w-full">
       <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-        <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50 dark:from-zinc-800/30 dark:">
+        <div class="p-8 border-b border-zinc-100 dark:border-zinc-800/50 bg-zinc-50/80 dark:bg-zinc-800/40">
           <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
             <span class="material-symbols-outlined !text-[24px]">account_balance</span>
           </div>
-          <h2 class="text-2xl font-black tracking-tight mb-1">Tax Configuration</h2>
-          <p class="text-zinc-500">Configure global tax rates applied to all orders at checkout.</p>
+          <h2 class="text-2xl font-black tracking-tight text-zinc-900 dark:text-white mb-1">Tax Configuration</h2>
+          <p class="text-zinc-500 dark:text-zinc-400">Configure global tax rates applied to all orders at checkout.</p>
         </div>
 
         @if (financialService.taxConfig(); as config) {
@@ -456,7 +456,7 @@
             <div class="flex items-center justify-between p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-700">
               <div>
                 <h4 class="font-black text-zinc-900 dark:text-white">Enable Taxes</h4>
-                <p class="text-sm text-zinc-500 mt-0.5">Apply this tax calculation to all new orders.</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">Apply this tax calculation to all new orders.</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" [(ngModel)]="config.is_active" class="sr-only peer" />
@@ -465,29 +465,29 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Tax Type</label>
+              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Tax Type</label>
               <div class="relative">
-                <select [(ngModel)]="config.tax_type" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium appearance-none">
-                  <option value="none">No Tax</option>
-                  <option value="sales_tax">Sales Tax</option>
-                  <option value="vat">VAT (Value Added Tax)</option>
-                  <option value="gst">GST (Goods and Services Tax)</option>
+                <select [(ngModel)]="config.tax_type" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-medium appearance-none">
+                  <option value="none" class="dark:bg-zinc-900">No Tax</option>
+                  <option value="sales_tax" class="dark:bg-zinc-900">Sales Tax</option>
+                  <option value="vat" class="dark:bg-zinc-900">VAT (Value Added Tax)</option>
+                  <option value="gst" class="dark:bg-zinc-900">GST (Goods and Services Tax)</option>
                 </select>
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-zinc-400 pointer-events-none">expand_more</span>
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Tax Rate</label>
+              <label class="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Tax Rate</label>
               <div class="relative">
-                <input type="number" [(ngModel)]="config.tax_rate" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-bold font-mono text-lg" />
+                <input type="number" [(ngModel)]="config.tax_rate" class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all font-bold font-mono text-lg" />
                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 font-bold">%</span>
               </div>
-              <p class="text-xs text-zinc-500 mt-2">Example: Enter 8.5 for 8.5% tax rate.</p>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Example: Enter 8.5 for 8.5% tax rate.</p>
             </div>
 
             <div class="pt-6 border-t border-zinc-100 dark:border-zinc-800">
-              <button (click)="saveTaxConfig()" class="w-full py-3.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+              <button (click)="saveTaxConfig()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
                 Save Tax Settings
               </button>
             </div>

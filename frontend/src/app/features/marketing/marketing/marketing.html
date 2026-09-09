@@ -163,7 +163,7 @@
         @for (campaign of filteredCampaigns; track campaign.id) {
           <div class="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden relative group hover:shadow-xl transition-all duration-300 flex flex-col">
             <!-- Card Header -->
-            <div class="p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-fuchsia-50/50 dark:from-fuchsia-900/10">
+            <div class="p-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-start bg-fuchsia-50/50 ">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                   <span class="material-symbols-outlined !text-[20px]"
@@ -1054,7 +1054,7 @@
         </div>
 
         <!-- Calculated Summary Banner -->
-        <div class="p-4 rounded-2xl bg-purple-50 dark: dark:from-purple-950/60 dark: border border-purple-200 dark:border-purple-800/40 flex justify-between items-center">
+        <div class="p-4 rounded-2xl bg-purple-50dark:from-purple-950/60border border-purple-200 dark:border-purple-800/40 flex justify-between items-center">
           <div>
             <p class="text-xs font-bold text-purple-900 dark:text-purple-300">You Will Receive</p>
             <p class="text-[11px] text-purple-700 dark:text-zinc-400 mt-0.5">Rate: {{ smsService.currency() }} {{ (smsService.rate() || 0.20) | number:'1.2-2' }} / message</p>
@@ -1221,7 +1221,7 @@
         </div>
 
         <!-- Calculated Summary Banner -->
-        <div class="p-4 rounded-2xl bg-purple-50 dark: dark:from-purple-950/60 dark: border border-purple-200 dark:border-purple-800/40 flex justify-between items-center">
+        <div class="p-4 rounded-2xl bg-purple-50dark:from-purple-950/60border border-purple-200 dark:border-purple-800/40 flex justify-between items-center">
           <div>
             <p class="text-xs font-bold text-purple-900 dark:text-purple-300">You Will Receive</p>
             <p class="text-[11px] text-purple-700 dark:text-zinc-400 mt-0.5">Rate: {{ smsService.currency() }} {{ (smsService.rate() || 0.20) | number:'1.2-2' }} / message</p>
