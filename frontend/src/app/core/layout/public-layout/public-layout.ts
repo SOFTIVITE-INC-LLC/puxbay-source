@@ -41,7 +41,12 @@ export class PublicLayout implements OnInit, OnDestroy {
     // Close mobile menu on route change
     this.routerSub = this.router.events
       .pipe(filter(e => e instanceof NavigationStart))
-      .subscribe(() => this.mobileMenuOpen.set(false));
+      .subscribe(() => {
+        this.mobileMenuOpen.set(false);
+        if (isPlatformBrowser(this.platformId)) {
+          this.document.body.style.overflow = '';
+        }
+      });
   }
 
   @HostListener('window:scroll', [])
@@ -53,10 +58,16 @@ export class PublicLayout implements OnInit, OnDestroy {
 
   toggleMobileMenu() {
     this.mobileMenuOpen.update(v => !v);
+    if (isPlatformBrowser(this.platformId)) {
+      this.document.body.style.overflow = this.mobileMenuOpen() ? 'hidden' : '';
+    }
   }
 
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
+    if (isPlatformBrowser(this.platformId)) {
+      this.document.body.style.overflow = '';
+    }
   }
 
   initObserver() {
@@ -114,6 +125,7 @@ export class PublicLayout implements OnInit, OnDestroy {
     }
 
     if (isPlatformBrowser(this.platformId)) {
+      this.document.body.style.overflow = '';
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         this.document.documentElement.classList.add('dark');

@@ -712,6 +712,16 @@ app-supplier-portal-scorecard .tier-badge {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideDownDrawer {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .animate-float-slow {
   animation: floatSlow 5s ease-in-out infinite;
 }
