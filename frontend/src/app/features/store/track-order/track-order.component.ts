@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { OrderService } from '../../../core/store/services/order.service';
 import { ToastService } from '../../../core/store/services/toast.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-track-order',
@@ -16,6 +17,7 @@ export class TrackOrderComponent implements OnInit {
   orderService = inject(OrderService);
   toastService = inject(ToastService);
   route = inject(ActivatedRoute);
+  private seo = inject(SeoService);
 
   orderNumber = signal('');
   isTracking = signal(false);
@@ -24,6 +26,12 @@ export class TrackOrderComponent implements OnInit {
   copied = signal(false);
 
   ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Track Your Order | Puxbay Store',
+      description: 'Track your order status and delivery updates.',
+      noindex: true,
+    });
+
     this.route.queryParamMap.subscribe(params => {
       const code = params.get('code') || params.get('order_number') || params.get('tracking_code');
       if (code) {

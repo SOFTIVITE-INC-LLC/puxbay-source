@@ -7,6 +7,7 @@ import { CartService } from '../../../core/store/services/cart.service';
 import { CheckoutService } from '../../../core/store/services/checkout.service';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-checkout',
@@ -22,6 +23,7 @@ export class CheckoutComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   fb = inject(FormBuilder);
+  private seo = inject(SeoService);
 
   isLoading = signal(true);
   isProcessing = signal(false);
@@ -52,6 +54,12 @@ export class CheckoutComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Checkout | Puxbay Store',
+      description: 'Complete your purchase securely.',
+      noindex: true,
+    });
+
     this.cartService.loadCart();
     
     // Load Paystack Script

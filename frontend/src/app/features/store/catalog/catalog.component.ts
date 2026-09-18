@@ -11,6 +11,7 @@ import { StorefrontSettingsService } from '../../../core/store/services/storefro
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { Product, Category } from '../../../core/store/models/product.model';
 import { RecentlyViewedService } from '../../../core/store/services/recently-viewed.service';
+import { SeoService } from '../../../core/services/seo.service';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
@@ -30,6 +31,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   route = inject(ActivatedRoute);
   recentlyViewedService = inject(RecentlyViewedService);
   destroyRef = inject(DestroyRef);
+  private seo = inject(SeoService);
 
   branchId = signal<string | null>(null);
   products = signal<Product[]>([]);
@@ -99,6 +101,33 @@ export class CatalogComponent implements OnInit, OnDestroy {
   notifyEmail = signal('');
 
   ngOnInit() {
+    // SEO for catalog page
+    const settings = this.settingsService.settings();
+    const storeName = settings?.store_name || 'Store';
+    this.seo.setPageSeo({
+      title: `${storeName} — Shop Products Online | Puxbay`,
+      description: `Browse and shop products from ${storeName}. Fast delivery, secure checkout, and great prices on all items.`,
+      keywords: 'online store, shop, products, e-commerce, buy online',
+    });
+
+    this.seo.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      'name': `${storeName} — Product Catalog`,
+      'description': `Browse and shop products from ${storeName}.`,
+      'url': 'https://puxbay.com/store',
+      'isPartOf': {
+        '@type': 'WebSite',
+        'name': 'Puxbay',
+        'url': 'https://puxbay.com'
+      }
+    });
+
+    this.seo.setBreadcrumbJsonLd([
+      { name: 'Home', url: 'https://puxbay.com/' },
+      { name: 'Store', url: 'https://puxbay.com/store' }
+    ]);
+
     // Check both route params (:branchId) and query params (?branch_id=...)
     const paramBranch = this.route.snapshot.paramMap.get('branchId');
     const queryBranch = this.route.snapshot.queryParamMap.get('branch_id') || this.route.snapshot.queryParamMap.get('branchId');
@@ -137,6 +166,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.seo.removeJsonLd();
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }

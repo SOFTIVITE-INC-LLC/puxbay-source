@@ -6,6 +6,7 @@ import { CartService } from '../../../core/store/services/cart.service';
 import { ToastService } from '../../../core/store/services/toast.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { Product } from '../../../core/store/models/product.model';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -17,8 +18,15 @@ export class WishlistComponent implements OnInit {
   wishlistService = inject(WishlistService);
   cartService = inject(CartService);
   toastService = inject(ToastService);
+  private seo = inject(SeoService);
 
   ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Wishlist | Puxbay Store',
+      description: 'Your saved products wishlist.',
+      noindex: true,
+    });
+
     this.wishlistService.loadWishlistProducts();
   }
 

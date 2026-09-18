@@ -1,7 +1,8 @@
-import { Component, ViewEncapsulation, inject, signal } from '@angular/core';
+import { Component, ViewEncapsulation, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { SeoService } from '../../../core/services/seo.service';
 
 export interface PlatformContact {
   company_name: string;
@@ -21,9 +22,10 @@ export interface PlatformContact {
   templateUrl: './contact.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class Contact {
+export class Contact implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
   http = inject(HttpClient);
+  private seo = inject(SeoService);
   
   status = signal<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
@@ -40,6 +42,50 @@ export class Contact {
 
   constructor() {
     this.loadContactInfo();
+  }
+
+  ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Contact Us — Get in Touch with Puxbay',
+      description: 'Have questions? Reach out to the Puxbay team for sales inquiries, technical support, or partnership opportunities.',
+      keywords: 'contact Puxbay, Puxbay support, sales inquiry, customer support, partnership',
+    });
+
+    this.seo.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      'name': 'Contact Puxbay',
+      'url': 'https://puxbay.com/contact',
+      'mainEntity': {
+        '@type': 'Organization',
+        'name': 'Puxbay',
+        'email': 'support@puxbay.com',
+        'telephone': '+233 (0) 30 123 4567',
+        'address': {
+          '@type': 'PostalAddress',
+          'streetAddress': 'No. 12 Independence Avenue, Ridge',
+          'addressLocality': 'Accra',
+          'addressCountry': 'GH'
+        },
+        'contactPoint': [
+          {
+            '@type': 'ContactPoint',
+            'contactType': 'sales',
+            'email': 'sales@puxbay.com'
+          },
+          {
+            '@type': 'ContactPoint',
+            'contactType': 'customer support',
+            'email': 'support@puxbay.com',
+            'telephone': '+233 (0) 50 123 4567'
+          }
+        ]
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.seo.removeJsonLd();
   }
 
   loadContactInfo() {

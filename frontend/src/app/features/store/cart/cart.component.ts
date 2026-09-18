@@ -7,6 +7,7 @@ import { CartService } from '../../../core/store/services/cart.service';
 import { ToastService } from '../../../core/store/services/toast.service';
 import { StorefrontSettingsService } from '../../../core/store/services/storefront-settings.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-cart',
@@ -21,6 +22,7 @@ export class CartComponent implements OnInit {
   router = inject(Router);
   route = inject(ActivatedRoute);
   http = inject(HttpClient);
+  private seo = inject(SeoService);
 
   isLoading = signal(true);
   couponCode = signal('');
@@ -31,7 +33,14 @@ export class CartComponent implements OnInit {
   copied = signal(false);
 
   ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Shopping Cart | Puxbay Store',
+      description: 'Review your shopping cart and proceed to checkout.',
+      noindex: true,
+    });
+
     this.cartService.loadCart();
+
 
     // Check for shared cart query param: ?shared_cart=id:qty,id:qty
     const shared = this.route.snapshot.queryParamMap.get('shared_cart');

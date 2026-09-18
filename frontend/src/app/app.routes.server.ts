@@ -16,6 +16,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'product/**', renderMode: RenderMode.Server },
   { path: 'storefront/**', renderMode: RenderMode.Server },
   { path: 'store/**', renderMode: RenderMode.Server },
+  { path: 'shop/**', renderMode: RenderMode.Server },
   // All internal dashboard, notifications, POS, auth, and protected routes use Client rendering
   {
     path: '**',

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { SeoService } from '../services/seo.service';
 
 @Component({
   selector: 'app-not-found',
@@ -19,4 +20,14 @@ import { RouterModule } from '@angular/router';
     </div>
   `
 })
-export class NotFoundComponent {}
+export class NotFoundComponent implements OnInit {
+  private seo = inject(SeoService);
+
+  ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Page Not Found | Puxbay',
+      description: 'The page you are looking for doesn\'t exist or has been moved.',
+      noindex: true,
+    });
+  }
+}

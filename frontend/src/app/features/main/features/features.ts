@@ -1,6 +1,7 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { SeoService } from '../../../core/services/seo.service';
 
 export interface FeatureItem {
   icon: string;
@@ -23,7 +24,9 @@ export interface FeatureCategory {
   styleUrls: ['./features.css'],
   encapsulation: ViewEncapsulation.None,
 })
-export class Features {
+export class Features implements OnInit, OnDestroy {
+  private seo = inject(SeoService);
+
   categories: FeatureCategory[] = [
     {
       id: 'pos',
@@ -87,6 +90,39 @@ export class Features {
     }
   ];
 
+  ngOnInit() {
+    this.seo.setPageSeo({
+      title: 'Features — POS, Inventory, Storefront & Analytics | Puxbay',
+      description: 'Explore Puxbay\'s full feature set: offline POS, multi-branch inventory, e-commerce storefront, CRM, and AI-powered analytics.',
+      keywords: 'POS features, inventory features, e-commerce features, CRM, analytics, barcode scanning, offline POS',
+    });
+
+    this.seo.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': 'Puxbay Platform Features',
+      'description': 'Complete feature set of the Puxbay commerce platform.',
+      'url': 'https://puxbay.com/features',
+      'numberOfItems': this.categories.length,
+      'itemListElement': this.categories.map((cat, i) => ({
+        '@type': 'ListItem',
+        'position': i + 1,
+        'name': cat.title,
+        'description': cat.subtitle,
+        'url': `https://puxbay.com/features#${cat.id}`
+      }))
+    });
+
+    this.seo.setBreadcrumbJsonLd([
+      { name: 'Home', url: 'https://puxbay.com/' },
+      { name: 'Features', url: 'https://puxbay.com/features' }
+    ]);
+  }
+
+  ngOnDestroy() {
+    this.seo.removeJsonLd();
+  }
+
   scrollToCategory(id: string) {
     const el = document.getElementById(id);
     if (el) {
@@ -94,3 +130,4 @@ export class Features {
     }
   }
 }
+

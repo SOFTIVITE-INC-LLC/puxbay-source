@@ -1,0 +1,77 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+
+# Public marketing pages — allow everything
+Allow: /
+Allow: /features
+Allow: /solutions
+Allow: /pricing
+Allow: /product/
+Allow: /about
+Allow: /careers
+Allow: /blog
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms
+Allow: /cookie-policy
+Allow: /store/
+Allow: /shop/
+
+# Internal application routes — disallow
+Disallow: /dashboard
+Disallow: /pos
+Disallow: /orders
+Disallow: /customers
+Disallow: /inventory
+Disallow: /financial
+Disallow: /reports
+Disallow: /branches
+Disallow: /suppliers
+Disallow: /billing
+Disallow: /checkout/
+Disallow: /staff
+Disallow: /hr
+Disallow: /settings
+Disallow: /security
+Disallow: /webhooks
+Disallow: /integration
+Disallow: /marketing
+Disallow: /intelligence
+Disallow: /enterprise
+Disallow: /terminal
+Disallow: /wallet
+Disallow: /returns
+Disallow: /notifications
+Disallow: /profile
+Disallow: /categories
+Disallow: /privacy
+Disallow: /cash-drawers
+Disallow: /gift-cards
+Disallow: /payment-methods
+Disallow: /content
+Disallow: /storefront
+Disallow: /fb
+Disallow: /b2b
+Disallow: /branch-settings
+Disallow: /qr-codes
+Disallow: /services
+Disallow: /feedback
+Disallow: /kiosk
+Disallow: /cds
+Disallow: /supplier-portal
+
+# Auth routes — disallow
+Disallow: /login
+Disallow: /register
+Disallow: /auth/
+Disallow: /verify-email
+Disallow: /two-factor
+Disallow: /verify-2fa
+Disallow: /force-change-password
+
+# API routes
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://puxbay.com/sitemap.xml

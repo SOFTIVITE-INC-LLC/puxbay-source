@@ -9,7 +9,7 @@ import { WishlistService } from '../../../core/store/services/wishlist.service';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { ImageUrlPipe } from '../../../core/pipes/image-url.pipe';
 import { Product, ProductReview } from '../../../core/store/models/product.model';
-import { Title, Meta } from '@angular/platform-browser';
+import { SeoService } from '../../../core/services/seo.service';
 
 import { FormsModule } from '@angular/forms';
 
@@ -29,8 +29,7 @@ export class ProductDetailComponent implements OnInit {
   toastService = inject(ToastService);
   recentlyViewedService = inject(RecentlyViewedService);
   wishlistService = inject(WishlistService);
-  titleService = inject(Title);
-  metaService = inject(Meta);
+  private seo = inject(SeoService);
 
   product = signal<Product | null>(null);
   images = signal<{ image_url: string }[]>([]);
@@ -126,6 +125,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.seo.removeJsonLd();
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', this.onWindowScroll);
     }
@@ -156,21 +156,69 @@ export class ProductDetailComponent implements OnInit {
         this.relatedProducts.set(res.related_products || []);
         this.isLoading.set(false);
         this.recentlyViewedService.addProduct(id);
-        this.updateSEO(res.product);
+        this.updateSEO(res.product, res.avg_rating || 0, (res.reviews || []).length);
       },
       error: () => this.isLoading.set(false)
     });
   }
 
-  updateSEO(product: Product) {
-    this.titleService.setTitle(`${product.name} | Puxbay`);
-    this.metaService.updateTag({ name: 'description', content: product.description || '' });
+  updateSEO(product: Product, avgRating: number, reviewCount: number) {
+    const productUrl = `https://puxbay.com/store/product/${product.id}`;
 
-    this.metaService.updateTag({ property: 'og:title', content: product.name });
-    this.metaService.updateTag({ property: 'og:description', content: product.description || '' });
+    this.seo.setPageSeo({
+      title: `${product.name} | Puxbay Store`,
+      description: product.description || `Buy ${product.name} online. Fast delivery and secure checkout.`,
+      image: product.image_url || undefined,
+      imageAlt: product.name,
+      url: productUrl,
+      type: 'product',
+      keywords: `${product.name}, ${product.category?.name || ''}, buy online, Puxbay store`.replace(', ,', ','),
+    });
+
+    // Product JSON-LD with offers and aggregate rating
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      'name': product.name,
+      'description': product.description || '',
+      'url': productUrl,
+      'sku': product.sku,
+      'offers': {
+        '@type': 'Offer',
+        'priceCurrency': 'USD',
+        'price': String(product.selling_price),
+        'availability': this.isOutOfStock(product)
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock',
+        'url': productUrl
+      }
+    };
+
     if (product.image_url) {
-      this.metaService.updateTag({ property: 'og:image', content: product.image_url });
+      jsonLd['image'] = product.image_url;
     }
+
+    if (product.category?.name) {
+      jsonLd['category'] = product.category.name;
+    }
+
+    if (reviewCount > 0) {
+      jsonLd['aggregateRating'] = {
+        '@type': 'AggregateRating',
+        'ratingValue': String(avgRating.toFixed(1)),
+        'reviewCount': String(reviewCount),
+        'bestRating': '5',
+        'worstRating': '1'
+      };
+    }
+
+    this.seo.setJsonLd(jsonLd);
+
+    this.seo.setBreadcrumbJsonLd([
+      { name: 'Home', url: 'https://puxbay.com/' },
+      { name: 'Store', url: 'https://puxbay.com/store' },
+      { name: product.name, url: productUrl }
+    ]);
   }
 
   isOutOfStock(p: Product | null): boolean {
