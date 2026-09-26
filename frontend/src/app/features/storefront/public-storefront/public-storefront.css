@@ -897,11 +897,125 @@
 }
 
 @media (max-width: 480px) {
-  .sf-features-inner { grid-template-columns: 1fr 1fr; }
+  .sf-features-inner { grid-template-columns: 1fr; }
   .sf-footer-inner { grid-template-columns: 1fr; }
   .sf-product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .sf-logo-a, .sf-logo-b {
     font-size: 1.1rem;
     padding: 1px 6px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   DARK MODE STYLES (.sf-dark / html.dark)
+   ══════════════════════════════════════════════════════════ */
+.storefront-root.sf-dark,
+html.dark .storefront-root {
+  background: #070B14 !important;
+  color: #F8FAFC !important;
+}
+
+.storefront-root.sf-dark .sf-topbar,
+html.dark .storefront-root .sf-topbar {
+  background: #050811;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.storefront-root.sf-dark .sf-topbar-left a,
+html.dark .storefront-root .sf-topbar-left a { color: #94A3B8; }
+.storefront-root.sf-dark .sf-topbar-left a:hover,
+html.dark .storefront-root .sf-topbar-left a:hover { color: #FFFFFF; }
+.storefront-root.sf-dark .sf-topbar-btn,
+html.dark .storefront-root .sf-topbar-btn {
+  background: #0D1424;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #E2E8F0;
+}
+
+.storefront-root.sf-dark .sf-header,
+html.dark .storefront-root .sf-header {
+  background: #080C14;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.storefront-root.sf-dark .sf-logo-b,
+html.dark .storefront-root .sf-logo-b {
+  background: #0D1424;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+.storefront-root.sf-dark .sf-search-input,
+html.dark .storefront-root .sf-search-input {
+  background: #0D1424;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+.storefront-root.sf-dark .sf-header-icon-btn,
+html.dark .storefront-root .sf-header-icon-btn {
+  background: #0D1424;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #CBD5E1;
+}
+
+.storefront-root.sf-dark .sf-nav,
+html.dark .storefront-root .sf-nav {
+  background: #0D1424;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.storefront-root.sf-dark .sf-feature-card,
+html.dark .storefront-root .sf-feature-card {
+  background: #0D1424;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.storefront-root.sf-dark .sf-feature-title,
+html.dark .storefront-root .sf-feature-title { color: #FFFFFF; }
+.storefront-root.sf-dark .sf-feature-desc,
+html.dark .storefront-root .sf-feature-desc { color: #94A3B8; }
+
+.storefront-root.sf-dark .sf-product-card,
+html.dark .storefront-root .sf-product-card {
+  background: #0D1424;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+.storefront-root.sf-dark .sf-product-card:hover,
+html.dark .storefront-root .sf-product-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+}
+.storefront-root.sf-dark .sf-product-img,
+html.dark .storefront-root .sf-product-img {
+  background: #080C14;
+}
+.storefront-root.sf-dark .sf-product-name,
+html.dark .storefront-root .sf-product-name { color: #F8FAFC; }
+.storefront-root.sf-dark .sf-product-category,
+html.dark .storefront-root .sf-product-category { color: #818CF8; }
+.storefront-root.sf-dark .sf-product-price,
+html.dark .storefront-root .sf-product-price { color: #818CF8; }
+
+.storefront-root.sf-dark .sf-cat-card,
+html.dark .storefront-root .sf-cat-card {
+  background: #0D1424;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.storefront-root.sf-dark .sf-cat-name,
+html.dark .storefront-root .sf-cat-name { color: #FFFFFF; }
+
+.storefront-root.sf-dark .sf-section-title,
+html.dark .storefront-root .sf-section-title {
+  color: #F8FAFC;
+}
+.storefront-root.sf-dark .sf-section-title::after,
+html.dark .storefront-root .sf-section-title::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+.storefront-root.sf-dark .sf-section-title span,
+html.dark .storefront-root .sf-section-title span {
+  background: #070B14;
+}
+
+.storefront-root.sf-dark .sf-footer,
+html.dark .storefront-root .sf-footer {
+  background: #050811;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }

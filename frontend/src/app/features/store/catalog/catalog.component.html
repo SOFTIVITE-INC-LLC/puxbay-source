@@ -1,69 +1,78 @@
 <div class="sf-page-container">
-<nav class="sf-breadcrumb" aria-label="Breadcrumb"><a routerLink="/store">Home</a> <span>&#8250;</span> <span>Shop</span></nav>
+<nav class="sf-breadcrumb" aria-label="Breadcrumb">
+  <a routerLink="/store">Home</a>
+  <span>&#8250;</span>
+  <span>Shop</span>
+  @if (selectedCategory()) {
+    <span>&#8250;</span>
+    <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ selectedCategory()?.name }}</span>
+  }
+</nav>
+
 <div class="space-y-8 animate-fade-in">
-  <!-- Flash Sale Banner (Phase 5) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── 24-HOUR FLASH SALE BANNER ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   <div
-    class="bg-rose-600 rounded-3xl p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl shadow-rose-500/20 relative overflow-hidden border border-slate-200 dark:border-white/10">
+    class="bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 rounded-3xl p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-2xl shadow-rose-900/20 relative overflow-hidden border border-white/20 text-white">
+    <!-- Subtle Animated Background Pattern -->
     <div
-      class="absolute inset-0 bg-white/5 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==')]">
+      class="absolute inset-0 bg-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.2)_0%,transparent_50%)] pointer-events-none">
     </div>
-    <div class="relative z-10 flex items-center gap-4">
+    
+    <div class="relative z-10 flex items-center gap-4 text-center sm:text-left">
       <div
-        class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
-        <span class="material-symbols-outlined text-slate-900 dark:text-white !text-[24px]">local_fire_department</span>
+        class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0 shadow-inner">
+        <span class="material-symbols-outlined text-white !text-[28px] animate-bounce">local_fire_department</span>
       </div>
       <div>
-        <h3 class="text-xl font-black text-slate-900 dark:text-white leading-tight">24-Hour Flash Sale</h3>
-        <p class="text-slate-900 dark:text-white/80 text-sm font-medium">Get up to 50% off select items!</p>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/20 text-[11px] font-black uppercase tracking-widest text-white/90 mb-1 border border-white/15">
+          Limited Time Offer
+        </div>
+        <h3 class="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">24-Hour Flash Sale</h3>
+        <p class="text-white/90 text-xs sm:text-sm font-semibold">Get up to 50% discount on top trending items!</p>
       </div>
     </div>
 
-    <div class="relative z-10 flex items-center gap-2 sm:gap-4">
+    <!-- Countdown Timer -->
+    <div class="relative z-10 flex items-center gap-2 sm:gap-3 shrink-0">
       <div
-        class="flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950/40 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl w-14 h-14 sm:w-16 sm:h-16">
-        <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ saleTimeLeft().hours | number:'2.0-0'
-          }}</span>
-        <span class="text-[9px] sm:text-[10px] text-slate-900 dark:text-white/70 font-bold uppercase tracking-wider">Hours</span>
+        class="flex flex-col items-center justify-center bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl w-14 h-14 sm:w-16 sm:h-16 shadow-lg">
+        <span class="text-xl sm:text-2xl font-black text-white tabular-nums">{{ saleTimeLeft().hours | number:'2.0-0' }}</span>
+        <span class="text-[9px] text-white/80 font-black uppercase tracking-wider">Hours</span>
       </div>
-      <span class="text-xl font-black text-slate-900 dark:text-white/50">:</span>
+      <span class="text-xl font-black text-white/80">:</span>
       <div
-        class="flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950/40 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl w-14 h-14 sm:w-16 sm:h-16">
-        <span class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ saleTimeLeft().minutes | number:'2.0-0'
-          }}</span>
-        <span class="text-[9px] sm:text-[10px] text-slate-900 dark:text-white/70 font-bold uppercase tracking-wider">Mins</span>
+        class="flex flex-col items-center justify-center bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl w-14 h-14 sm:w-16 sm:h-16 shadow-lg">
+        <span class="text-xl sm:text-2xl font-black text-white tabular-nums">{{ saleTimeLeft().minutes | number:'2.0-0' }}</span>
+        <span class="text-[9px] text-white/80 font-black uppercase tracking-wider">Mins</span>
       </div>
-      <span class="text-xl font-black text-slate-900 dark:text-white/50">:</span>
+      <span class="text-xl font-black text-white/80">:</span>
       <div
-        class="flex flex-col items-center justify-center bg-slate-50 dark:bg-zinc-950/40 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl w-14 h-14 sm:w-16 sm:h-16">
-        <span class="text-xl sm:text-2xl font-black text-rose-300 tabular-nums">{{ saleTimeLeft().seconds |
-          number:'2.0-0' }}</span>
-        <span class="text-[9px] sm:text-[10px] text-slate-900 dark:text-white/70 font-bold uppercase tracking-wider">Secs</span>
+        class="flex flex-col items-center justify-center bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl w-14 h-14 sm:w-16 sm:h-16 shadow-lg">
+        <span class="text-xl sm:text-2xl font-black text-amber-300 tabular-nums">{{ saleTimeLeft().seconds | number:'2.0-0' }}</span>
+        <span class="text-[9px] text-white/80 font-black uppercase tracking-wider">Secs</span>
       </div>
     </div>
   </div>
 
-  <div class="mb-2"></div>
-  <!-- Dynamic Hero Carousel -->
-  <div class="mb-2"></div>
-  <!-- Promotional Bento Grid -->
-
   <!-- Dynamic Category Landing Hero (when a category is selected) -->
   @if (selectedCategory()) {
-    <div class="bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-zinc-900/60 rounded-3xl p-6 sm:p-8 border border-indigo-500/20 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+    <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-900 rounded-3xl p-6 sm:p-8 border border-indigo-500/20 relative overflow-hidden shadow-2xl text-white">
       <div class="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
       <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div class="flex items-center gap-2 mb-2">
             <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Collection</span>
-            <span class="text-xs text-zinc-400 font-mono">{{ totalProducts() }} Products</span>
+            <span class="text-xs text-indigo-200 font-mono">{{ totalProducts() }} Products Available</span>
           </div>
           <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">{{ selectedCategory()?.name }}</h1>
-          <p class="text-xs sm:text-sm text-zinc-300 mt-1 max-w-xl">
-            Explore our curated selection of {{ selectedCategory()?.name }}. Fast delivery and premium quality guaranteed.
+          <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+            Explore our curated catalog for {{ selectedCategory()?.name }}. Quality guaranteed with fast dispatch.
           </p>
         </div>
         <button (click)="selectCategory(null)"
-                class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0">
+                class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 flex items-center gap-1.5 transition-all self-start sm:self-auto shrink-0 shadow-sm cursor-pointer">
           <span class="material-symbols-outlined !text-[16px]">close</span>
           View All Products
         </button>
@@ -71,19 +80,23 @@
     </div>
   }
 
-  <!-- Categories and Carousel Navigation -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+  <!-- Categories Scrollable Navigation Pills -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div class="flex-1 w-full overflow-hidden">
-      <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-2 snap-x">
+      <div class="flex items-center gap-2.5 overflow-x-auto hide-scrollbar pb-2 snap-x">
         <button (click)="selectCategory(null)"
-          class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all snap-start flex-shrink-0"
-          [ngClass]="!selectedCategoryId() ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
+          class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all snap-start flex-shrink-0 cursor-pointer"
+          [ngClass]="!selectedCategoryId() 
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-500/30' 
+            : 'bg-white dark:bg-[#0D1424] text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-[#131B30]'">
           All Products
         </button>
         @for (category of categories(); track category.id) {
         <button (click)="selectCategory(category.id)"
-          class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all snap-start flex-shrink-0"
-          [ngClass]="selectedCategoryId() === category.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-zinc-700'">
+          class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all snap-start flex-shrink-0 cursor-pointer"
+          [ngClass]="selectedCategoryId() === category.id 
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 ring-2 ring-indigo-500/30' 
+            : 'bg-white dark:bg-[#0D1424] text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-[#131B30]'">
           {{ category.name }}
         </button>
         }
@@ -91,46 +104,52 @@
     </div>
   </div>
 
-  <!-- Content Grid -->
+  <!-- Main Content Grid -->
   <div class="flex flex-col md:flex-row gap-8">
 
-    <!-- Mobile Filter Toggle -->
+    <!-- Mobile Filter Toggle Bar -->
     <div class="md:hidden flex justify-between items-center mb-2">
-      <span class="text-xs font-bold text-slate-500 dark:text-zinc-400">{{ totalProducts() }} products found</span>
+      <span class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ totalProducts() }} products found</span>
       <button (click)="isFiltersOpen.set(!isFiltersOpen())"
-        class="flex items-center gap-2 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:text-white bg-white dark:bg-zinc-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 font-bold text-xs shadow-sm">
+        class="flex items-center gap-2 text-slate-800 dark:text-white bg-white dark:bg-[#0D1424] px-4 py-2 rounded-xl border border-slate-200/80 dark:border-white/10 font-bold text-xs shadow-sm cursor-pointer">
         <span class="material-symbols-outlined !text-[18px]">tune</span>
-        Filters @if (activeFiltersCount() > 0) { <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center">{{ activeFiltersCount() }}</span> }
+        Filters @if (activeFiltersCount() > 0) { <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-black">{{ activeFiltersCount() }}</span> }
       </button>
     </div>
 
-    <!-- Sidebar Faceted Filters -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- ── SIDEBAR FACETED FILTERS ── -->
+    <!-- ══════════════════════════════════════════════════════════ -->
     <div class="w-full md:w-64 flex-shrink-0" [class.hidden]="!isFiltersOpen()">
-      <div class="bg-white dark:bg-zinc-900/70 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-zinc-800/80 sticky top-24 space-y-6 shadow-sm">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
+      <div class="bg-white dark:bg-[#0D1424] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-white/10 sticky top-24 space-y-6 shadow-sm dark:shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
           <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
             <span class="material-symbols-outlined text-indigo-500 !text-[20px]">filter_alt</span>
             Filters
           </h3>
           @if (activeFiltersCount() > 0) {
-            <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:text-rose-400 transition-colors">Reset All</button>
+            <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:text-rose-400 transition-colors cursor-pointer">Reset All</button>
           }
         </div>
 
         <!-- Categories Facet -->
         <div>
-          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2.5">Category</h4>
+          <h4 class="text-[11px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2.5">Category</h4>
           <div class="space-y-1 max-h-44 overflow-y-auto hide-scrollbar">
             <div (click)="selectCategory(null)"
-                 class="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors flex items-center justify-between"
-                 [ngClass]="!selectedCategoryId() ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50'">
+                 class="px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center justify-between"
+                 [ngClass]="!selectedCategoryId() 
+                  ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200/60 dark:border-indigo-500/30' 
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'">
               <span>All Categories</span>
               @if (!selectedCategoryId()) { <span class="material-symbols-outlined !text-[14px]">check</span> }
             </div>
             @for (cat of categories(); track cat.id) {
               <div (click)="selectCategory(cat.id)"
-                   class="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors flex items-center justify-between"
-                   [ngClass]="selectedCategoryId() === cat.id ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800/50'">
+                   class="px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center justify-between"
+                   [ngClass]="selectedCategoryId() === cat.id 
+                    ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200/60 dark:border-indigo-500/30' 
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'">
                 <span class="truncate">{{ cat.name }}</span>
                 @if (selectedCategoryId() === cat.id) { <span class="material-symbols-outlined !text-[14px]">check</span> }
               </div>
@@ -138,76 +157,78 @@
           </div>
         </div>
 
-        <!-- Price Range Facet with Presets -->
+        <!-- Price Range Facet with Quick Presets -->
         <div>
-          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2.5">Price</h4>
+          <h4 class="text-[11px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2.5">Price Range</h4>
           <div class="grid grid-cols-2 gap-1.5 mb-3">
-            <button (click)="setPricePreset(0, 50)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">Under 50</button>
-            <button (click)="setPricePreset(50, 150)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">50 to 150</button>
-            <button (click)="setPricePreset(150, 300)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">150 to 300</button>
-            <button (click)="setPricePreset(300, null)" class="py-1.5 px-2 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 hover:border-indigo-400 hover:text-indigo-500 transition-all">300+</button>
+            <button (click)="setPricePreset(0, 50)" class="py-1.5 px-2 rounded-xl text-[11px] font-bold border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-[#080C14] text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer">Under 50</button>
+            <button (click)="setPricePreset(50, 150)" class="py-1.5 px-2 rounded-xl text-[11px] font-bold border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-[#080C14] text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer">50 to 150</button>
+            <button (click)="setPricePreset(150, 300)" class="py-1.5 px-2 rounded-xl text-[11px] font-bold border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-[#080C14] text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer">150 to 300</button>
+            <button (click)="setPricePreset(300, null)" class="py-1.5 px-2 rounded-xl text-[11px] font-bold border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-[#080C14] text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer">300+</button>
           </div>
           <div class="flex items-center gap-2">
             <input type="number" [ngModel]="minPrice()" (ngModelChange)="minPrice.set($event)" placeholder="Min"
-              class="w-full bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
-            <span class="text-slate-400 dark:text-zinc-500 text-xs">-</span>
+              class="w-full bg-slate-50 dark:bg-[#080C14] border border-slate-200/80 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
+            <span class="text-slate-400 dark:text-slate-500 text-xs">-</span>
             <input type="number" [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event)" placeholder="Max"
-              class="w-full bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
+              class="w-full bg-slate-50 dark:bg-[#080C14] border border-slate-200/80 dark:border-white/10 rounded-xl px-2.5 py-1.5 text-slate-900 dark:text-white text-xs outline-none focus:border-indigo-500">
           </div>
         </div>
 
         <!-- Rating Filter Facet -->
         <div>
-          <h4 class="text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-2">Customer Rating</h4>
+          <h4 class="text-[11px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Customer Rating</h4>
           <div class="space-y-1.5">
-            <div (click)="setMinRating(4)" class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors" [class.bg-indigo-50]="minRating() === 4" [class.dark:bg-indigo-500/10]="minRating() === 4">
-              <span class="text-amber-400 text-xs flex">★★★★<span class="text-slate-300 dark:text-zinc-600">★</span></span>
-              <span class="text-xs font-medium text-slate-600 dark:text-zinc-400">& 4★ and above</span>
+            <div (click)="setMinRating(4)" class="flex items-center gap-2 cursor-pointer p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" [class.bg-indigo-50]="minRating() === 4" [class.dark:bg-indigo-500/15]="minRating() === 4">
+              <span class="text-amber-400 text-xs flex">★★★★<span class="text-slate-300 dark:text-slate-600">★</span></span>
+              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">& 4★ and above</span>
             </div>
-            <div (click)="setMinRating(3)" class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800/40 transition-colors" [class.bg-indigo-50]="minRating() === 3" [class.dark:bg-indigo-500/10]="minRating() === 3">
-              <span class="text-amber-400 text-xs flex">★★★<span class="text-slate-300 dark:text-zinc-600">★★</span></span>
-              <span class="text-xs font-medium text-slate-600 dark:text-zinc-400">& 3★ and above</span>
+            <div (click)="setMinRating(3)" class="flex items-center gap-2 cursor-pointer p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" [class.bg-indigo-50]="minRating() === 3" [class.dark:bg-indigo-500/15]="minRating() === 3">
+              <span class="text-amber-400 text-xs flex">★★★<span class="text-slate-300 dark:text-slate-600">★★</span></span>
+              <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">& 3★ and above</span>
             </div>
           </div>
         </div>
 
         <!-- Availability Facet -->
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800">
+        <div class="pt-2 border-t border-slate-100 dark:border-white/10">
           <label class="flex items-center gap-2.5 cursor-pointer group">
             <input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event)"
-              class="w-4 h-4 rounded border-slate-300 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-indigo-600 focus:ring-indigo-500">
-            <span class="text-xs font-bold text-slate-700 dark:text-zinc-300 group-hover:text-indigo-500 transition-colors">In Stock Only</span>
+              class="w-4 h-4 rounded border-slate-300 dark:border-white/20 bg-slate-100 dark:bg-[#080C14] text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-indigo-500 transition-colors">In Stock Only</span>
           </label>
         </div>
 
         <button (click)="applyFilters()"
-          class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-all shadow-md shadow-indigo-500/20">
+          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-500/25 cursor-pointer">
           Apply Filters
         </button>
       </div>
     </div>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 min-w-0 space-y-4">
-      <!-- Toolbar -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- ── MAIN PRODUCTS AREA ── -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div class="flex-1 min-w-0 space-y-5">
+      <!-- Search & Sort Toolbar -->
       <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900/50 p-3 rounded-2xl border border-slate-200 dark:border-zinc-800/60 backdrop-blur-sm">
-        <!-- Search -->
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0D1424] p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-sm">
+        <!-- Search Input -->
         <div class="relative flex-1 max-w-md">
-          <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 dark:text-zinc-500">
+          <span class="absolute inset-y-0 left-3 flex items-center text-slate-400 dark:text-slate-500">
             <span class="material-symbols-outlined !text-[18px]">search</span>
           </span>
           <input type="text" [ngModel]="searchQuery()" (ngModelChange)="onSearch($event)"
             placeholder="Search products in catalog..."
-            class="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/50 rounded-xl text-xs text-slate-900 dark:text-white placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all" />
+            class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-[#080C14] border border-slate-200/80 dark:border-white/10 rounded-xl text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-indigo-500 outline-none transition-all" />
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Rich Sort Dropdown -->
+        <div class="flex items-center gap-3">
+          <!-- Sort Dropdown -->
           <div class="relative flex items-center">
-            <span class="text-xs text-slate-400 dark:text-zinc-500 mr-2 font-bold hidden sm:inline">Sort:</span>
+            <span class="text-xs text-slate-400 dark:text-slate-400 mr-2 font-bold hidden sm:inline">Sort:</span>
             <select [ngModel]="sortBy()" (ngModelChange)="onSortChange($event)"
-              class="px-3 py-2 bg-slate-100 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700/50 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+              class="px-3.5 py-2.5 bg-slate-50 dark:bg-[#080C14] border border-slate-200/80 dark:border-white/10 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-indigo-500 cursor-pointer">
               <option value="latest">Newest Arrivals</option>
               <option value="popularity">Popular / Best Sellers</option>
               <option value="price_asc">Price: Low → High</option>
@@ -219,15 +240,15 @@
           </div>
 
           <!-- View Mode Toggle -->
-          <div class="hidden sm:flex items-center border border-slate-200 dark:border-zinc-700/50 rounded-xl overflow-hidden">
+          <div class="hidden sm:flex items-center border border-slate-200/80 dark:border-white/10 rounded-xl overflow-hidden bg-slate-50 dark:bg-[#080C14]">
             <button (click)="viewMode.set('grid')"
-              [class]="viewMode() === 'grid' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
-              class="w-8 h-8 flex items-center justify-center transition-colors">
+              [class]="viewMode() === 'grid' ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="w-8 h-8 flex items-center justify-center transition-colors cursor-pointer">
               <span class="material-symbols-outlined !text-[18px]">grid_view</span>
             </button>
             <button (click)="viewMode.set('list')"
-              [class]="viewMode() === 'list' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-zinc-800/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'"
-              class="w-8 h-8 flex items-center justify-center transition-colors">
+              [class]="viewMode() === 'list' ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="w-8 h-8 flex items-center justify-center transition-colors cursor-pointer">
               <span class="material-symbols-outlined !text-[18px]">view_list</span>
             </button>
           </div>
@@ -237,46 +258,46 @@
       <!-- Active Filter Tags -->
       @if (activeFiltersCount() > 0) {
         <div class="flex flex-wrap items-center gap-2 pt-1">
-          <span class="text-xs font-bold text-slate-400 dark:text-zinc-500">Active Filters:</span>
+          <span class="text-xs font-bold text-slate-400 dark:text-slate-500">Active Filters:</span>
           @if (selectedCategory()) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-500/30">
               Category: {{ selectedCategory()?.name }}
-              <button (click)="clearFilter('category')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+              <button (click)="clearFilter('category')" class="hover:text-rose-500 cursor-pointer"><span class="material-symbols-outlined !text-[14px]">close</span></button>
             </span>
           }
           @if (minPrice() !== null || maxPrice() !== null) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-500/30">
               Price: {{ minPrice() || 0 }} - {{ maxPrice() || '∞' }}
-              <button (click)="clearFilter('price')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+              <button (click)="clearFilter('price')" class="hover:text-rose-500 cursor-pointer"><span class="material-symbols-outlined !text-[14px]">close</span></button>
             </span>
           }
           @if (minRating() !== null) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-500/30">
               Rating: {{ minRating() }}★+
-              <button (click)="clearFilter('rating')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+              <button (click)="clearFilter('rating')" class="hover:text-rose-500 cursor-pointer"><span class="material-symbols-outlined !text-[14px]">close</span></button>
             </span>
           }
           @if (inStockOnly()) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-500/30">
               In Stock Only
-              <button (click)="clearFilter('stock')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+              <button (click)="clearFilter('stock')" class="hover:text-rose-500 cursor-pointer"><span class="material-symbols-outlined !text-[14px]">close</span></button>
             </span>
           }
           @if (searchQuery()) {
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-500/30">
               "{{ searchQuery() }}"
-              <button (click)="clearFilter('search')" class="hover:text-rose-500"><span class="material-symbols-outlined !text-[14px]">close</span></button>
+              <button (click)="clearFilter('search')" class="hover:text-rose-500 cursor-pointer"><span class="material-symbols-outlined !text-[14px]">close</span></button>
             </span>
           }
-          <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:underline ml-1">Clear all</button>
+          <button (click)="resetFilters()" class="text-xs font-bold text-rose-500 hover:underline ml-1 cursor-pointer">Clear all</button>
         </div>
       }
 
-      <!-- Product count -->
+      <!-- Products count indicator -->
       @if (!isLoading()) {
-      <p class="text-xs text-slate-400 dark:text-zinc-500 font-medium">
-        Showing <span class="text-slate-900 dark:text-white font-bold">{{ products().length }}</span> of <span
-          class="text-slate-900 dark:text-white font-bold">{{ totalProducts() }}</span> products
+      <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+        Showing <span class="text-slate-900 dark:text-white font-black">{{ products().length }}</span> of <span
+          class="text-slate-900 dark:text-white font-black">{{ totalProducts() }}</span> products
       </p>
       }
 
@@ -284,514 +305,522 @@
       @if (isLoading()) {
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         @for (i of [1,2,3,4,5,6,7,8]; track i) {
-        <div class="bg-white dark:bg-zinc-900/80 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-zinc-800/60 animate-pulse">
-          <div class="w-full aspect-square bg-slate-100 dark:bg-zinc-800 rounded-xl mb-4"></div>
-          <div class="h-5 bg-slate-100 dark:bg-zinc-800 rounded-lg w-3/4 mb-2"></div>
-          <div class="h-4 bg-slate-100 dark:bg-zinc-800 rounded-lg w-1/2 mb-4"></div>
-          <div class="h-10 bg-slate-100 dark:bg-zinc-800 rounded-xl w-full"></div>
+        <div class="bg-white dark:bg-[#0D1424] rounded-2xl p-4 border border-slate-200/80 dark:border-white/10 animate-pulse">
+          <div class="w-full aspect-square bg-slate-100 dark:bg-[#080C14] rounded-xl mb-4"></div>
+          <div class="h-4 bg-slate-100 dark:bg-white/10 rounded-lg w-3/4 mb-2"></div>
+          <div class="h-3 bg-slate-100 dark:bg-white/10 rounded-lg w-1/2 mb-4"></div>
+          <div class="h-9 bg-slate-100 dark:bg-white/10 rounded-xl w-full"></div>
         </div>
         }
       </div>
       }
 
-      <!-- Products Grid -->
+      <!-- ══════════════════════════════════════════════════════════ -->
+      <!-- ── PRODUCTS DISPLAY (GRID / LIST) ── -->
+      <!-- ══════════════════════════════════════════════════════════ -->
       @if (!isLoading() && products().length > 0) {
       <div [ngClass]="viewMode() === 'grid'
           ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6'
           : 'flex flex-col gap-4'">
         @for (product of products(); track product.id) {
-        <!-- Grid Card -->
-        @if (viewMode() === 'grid') {
-        <div (click)="navigateToProduct(product.id)"
-          class="group glass-card rounded-2xl p-3 sm:p-4 flex flex-col relative overflow-hidden cursor-pointer">
+          <!-- ─── GRID CARD ─── -->
+          @if (viewMode() === 'grid') {
+          <div (click)="navigateToProduct(product.id)"
+            class="group bg-white dark:bg-[#0D1424] rounded-2xl p-3 sm:p-4 flex flex-col relative overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 shadow-sm hover:shadow-xl dark:shadow-none dark:hover:shadow-indigo-500/10 transition-all duration-300 hover:-translate-y-1">
 
-          <!-- Actions -->
-          <div
-            class="absolute top-4 right-4 z-10 flex flex-col gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-            <button
-              (click)="wishlistService.toggleWishlist(product.id); $event.preventDefault(); $event.stopPropagation()"
-              class="w-9 h-9 rounded-full bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-md flex items-center justify-center transition-all border border-slate-200 dark:border-white/5"
-              [ngClass]="wishlistService.isSaved(product.id) ? 'text-rose-500' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800'">
-              <span class="material-symbols-outlined !text-[18px]">{{ wishlistService.isSaved(product.id) ? 'favorite' :
-                'favorite_border' }}</span>
-            </button>
-
-            <button (click)="openQuickView(product, $event)"
-              class="w-9 h-9 rounded-full bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-md flex items-center justify-center transition-all text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-white/5">
-              <span class="material-symbols-outlined !text-[18px]">visibility</span>
-            </button>
-
-            <button (click)="toggleCompare(product, $event)"
-              class="w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all border border-slate-200 dark:border-white/5"
-              [ngClass]="compareProducts().includes(product) ? 'bg-indigo-600 text-slate-900 dark:text-white' : 'bg-slate-50 dark:bg-zinc-950/80 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800'">
-              <span class="material-symbols-outlined !text-[18px]">compare_arrows</span>
-            </button>
-          </div>
-
-          <div
-            class="w-full aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-4 overflow-hidden flex items-center justify-center relative shadow-inner">
-            @if (product.image_url) {
-            <img [src]="product.image_url" [alt]="product.name"
-              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
-            } @else {
-            <span class="material-symbols-outlined !text-[56px] text-zinc-700">inventory_2</span>
-            }
-            <!-- gradient overlay on hover -->
+            <!-- Hover Quick Action Badges -->
             <div
-              class="absolute inset-0 bg-slate-50 dark:from-slate-50/80 dark:from-zinc-950/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              class="absolute top-3 right-3 z-10 flex flex-col gap-1.5 translate-x-3 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+              <button
+                (click)="wishlistService.toggleWishlist(product.id); $event.preventDefault(); $event.stopPropagation()"
+                class="w-8 h-8 rounded-full bg-white/95 dark:bg-[#080C14]/90 backdrop-blur-md flex items-center justify-center transition-all border border-slate-200/80 dark:border-white/10 shadow-md cursor-pointer"
+                [ngClass]="wishlistService.isSaved(product.id) ? 'text-rose-500' : 'text-slate-600 dark:text-slate-300 hover:text-rose-500 dark:hover:text-rose-400'">
+                <span class="material-symbols-outlined !text-[16px]">{{ wishlistService.isSaved(product.id) ? 'favorite' : 'favorite_border' }}</span>
+              </button>
+
+              <button (click)="openQuickView(product, $event)"
+                class="w-8 h-8 rounded-full bg-white/95 dark:bg-[#080C14]/90 backdrop-blur-md flex items-center justify-center transition-all text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white border border-slate-200/80 dark:border-white/10 shadow-md cursor-pointer">
+                <span class="material-symbols-outlined !text-[16px]">visibility</span>
+              </button>
+
+              <button (click)="toggleCompare(product, $event)"
+                class="w-8 h-8 rounded-full bg-white/95 dark:bg-[#080C14]/90 backdrop-blur-md flex items-center justify-center transition-all border border-slate-200/80 dark:border-white/10 shadow-md cursor-pointer"
+                [ngClass]="compareProducts().includes(product) ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'">
+                <span class="material-symbols-outlined !text-[16px]">compare_arrows</span>
+              </button>
             </div>
 
-            @if (isOutOfStock(product)) { <div
-              class="absolute inset-0 bg-slate-50 dark:bg-zinc-950/70 flex items-center justify-center backdrop-blur-sm">
-              <span
-                class="px-3 py-1 bg-rose-500/90 text-white text-xs font-bold rounded-full border border-rose-400/30 shadow-lg">Out
-                of Stock</span>
+            <!-- Product Image -->
+            <div
+              class="w-full aspect-square bg-slate-50 dark:bg-[#080C14] rounded-xl mb-3.5 overflow-hidden flex items-center justify-center relative">
+              @if (product.image_url) {
+                <img [src]="product.image_url" [alt]="product.name"
+                  class="w-full h-full object-contain p-2 group-hover:scale-108 transition-transform duration-500 ease-out">
+              } @else {
+                <span class="material-symbols-outlined !text-[48px] text-slate-300 dark:text-slate-700">inventory_2</span>
+              }
+
+              @if (isOutOfStock(product)) {
+                <div
+                  class="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+                  <span
+                    class="px-2.5 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-wider rounded-full border border-rose-400/30 shadow-lg">
+                    Out of Stock
+                  </span>
+                </div>
+              }
+            </div>
+
+            <!-- Product Details -->
+            <div class="flex-1 flex flex-col relative z-10">
+              @if (getStockQty(product) > 0 && getStockQty(product) <= 5) {
+                <div class="mb-1 flex items-center gap-1.5 animate-pulse">
+                  <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                  <span class="text-[10px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }} left!</span>
+                </div>
+              }
+
+              <h3
+                class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
+                {{ product.name }}
+              </h3>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mb-2">{{ product.description || '' }}</p>
+              
+              <div class="mb-2.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold border border-amber-500/20">
+                  <span class="material-symbols-outlined !text-[12px] text-amber-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Pts
+                </span>
+              </div>
+
+              <!-- Price & Add to Cart Action -->
+              <div class="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
+                <p class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400">{{ product.selling_price | appCurrency }}</p>
+                <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed shadow-md cursor-pointer"
+                  [ngClass]="addingProductId() === product.id
+                    ? 'bg-emerald-500 text-white scale-110 shadow-emerald-500/30'
+                    : 'bg-slate-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-white hover:scale-105 shadow-indigo-500/20'">
+                  <span class="material-symbols-outlined !text-[18px]">
+                    {{ addingProductId() === product.id ? 'check' : 'add_shopping_cart' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- ─── LIST CARD ─── -->
+          @if (viewMode() === 'list') {
+          <div (click)="navigateToProduct(product.id)"
+            class="group bg-white dark:bg-[#0D1424] rounded-2xl p-4 border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/50 transition-all flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative cursor-pointer shadow-sm">
+            <div
+              class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-50 dark:bg-[#080C14] rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+              @if (product.image_url) {
+                <img [src]="product.image_url" [alt]="product.name" class="w-full h-full object-contain p-2">
+              } @else {
+                <span class="material-symbols-outlined !text-[32px] text-slate-300 dark:text-slate-700">inventory_2</span>
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              @if (getStockQty(product) > 0 && getStockQty(product) <= 5) {
+                <div class="mb-1 flex items-center gap-1.5 animate-pulse">
+                  <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                  <span class="text-[10px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }} left!</span>
+                </div>
+              }
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                {{ product.name }}
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{{ product.description || '' }}</p>
+              <div class="mt-2">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold border border-amber-500/20">
+                  <span class="material-symbols-outlined !text-[12px] text-amber-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Pts
+                </span>
+              </div>
+              <p class="text-base sm:text-lg font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ product.selling_price | appCurrency }}</p>
+            </div>
+
+            <div class="flex items-center gap-2 self-end sm:self-center">
+              <button (click)="toggleCompare(product, $event)"
+                class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all border border-slate-200/80 dark:border-white/10 cursor-pointer"
+                [ngClass]="compareProducts().includes(product) ? 'bg-indigo-600 text-white' : 'bg-slate-50 dark:bg-[#080C14] text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white'">
+                <span class="material-symbols-outlined !text-[18px]">compare_arrows</span>
+              </button>
+
+              <button (click)="wishlistService.toggleWishlist(product.id); $event.preventDefault(); $event.stopPropagation()"
+                class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all bg-slate-50 dark:bg-[#080C14] border border-slate-200/80 dark:border-white/10 cursor-pointer"
+                [ngClass]="wishlistService.isSaved(product.id) ? 'text-rose-500' : 'text-slate-600 dark:text-slate-300 hover:text-rose-500'">
+                <span class="material-symbols-outlined !text-[18px]">{{ wishlistService.isSaved(product.id) ? 'favorite' : 'favorite_border' }}</span>
+              </button>
+
+              <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
+                class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-30 cursor-pointer"
+                [ngClass]="addingProductId() === product.id
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-slate-900 dark:bg-indigo-600 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-white'">
+                <span class="material-symbols-outlined !text-[18px]">
+                  {{ addingProductId() === product.id ? 'check' : 'add_shopping_cart' }}
+                </span>
+              </button>
+            </div>
+          </div>
+          }
+        }
+      </div>
+      }
+
+      <!-- Empty state -->
+      @if (!isLoading() && products().length === 0) {
+      <div class="bg-white dark:bg-[#0D1424] rounded-3xl p-10 border border-slate-200/80 dark:border-white/10 text-center">
+        <app-empty-state
+          icon="search_off"
+          title="No products found"
+          description="Try adjusting your search query or reset your filters.">
+        </app-empty-state>
+      </div>
+      }
+
+      <!-- Load More Button -->
+      @if (currentPage() < totalPages()) {
+      <div class="flex justify-center pt-8 pb-4">
+        <button (click)="loadMore()" [disabled]="isLoading()"
+          class="px-8 py-3.5 bg-white dark:bg-[#0D1424] border border-slate-300 dark:border-white/10 hover:border-indigo-500 text-slate-900 dark:text-white rounded-full font-bold text-xs transition-all disabled:opacity-50 flex items-center gap-2 shadow-md cursor-pointer">
+          @if (isLoading()) {
+            <span class="material-symbols-outlined animate-spin !text-[18px]">progress_activity</span>
+            Loading...
+          } @else {
+            Load More Products
+            <span class="material-symbols-outlined !text-[18px]">expand_more</span>
+          }
+        </button>
+      </div>
+      }
+
+      <!-- Recently Viewed Section -->
+      @if (recentlyViewedProducts().length > 0) {
+      <div class="mt-16 pt-8 border-t border-slate-200/80 dark:border-white/10 w-full animate-fade-in">
+        <h2 class="text-lg font-black text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500">history</span>
+          Recently Viewed
+        </h2>
+        <div class="flex gap-4 sm:gap-6 overflow-x-auto pb-4 snap-x hide-scrollbar">
+          @for (rp of recentlyViewedProducts(); track rp.id) {
+          <div
+            class="min-w-[170px] sm:min-w-[200px] shrink-0 bg-white dark:bg-[#0D1424] rounded-2xl p-3.5 border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-indigo-500/50 transition-all snap-start group relative shadow-sm"
+            (click)="navigateToProduct(rp.id)">
+            <!-- Wishlist Heart Overlay -->
+            <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
+              class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 dark:bg-[#080C14]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10 cursor-pointer"
+              [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-500 dark:text-slate-400 hover:text-rose-500'">
+              <span class="material-symbols-outlined !text-[15px]"
+                [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
+            </button>
+            <div
+              class="aspect-square bg-slate-50 dark:bg-[#080C14] rounded-xl mb-3 flex items-center justify-center overflow-hidden relative p-2">
+              @if (rp.image_url) {
+                <img [src]="rp.image_url" [alt]="rp.name"
+                  class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
+              } @else {
+                <span class="material-symbols-outlined text-slate-300 dark:text-slate-700">inventory_2</span>
+              }
+            </div>
+            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white leading-tight mb-1 truncate">{{ rp.name }}</h4>
+            <p class="text-xs sm:text-sm font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
           </div>
           }
         </div>
-        <div class="flex-1 flex flex-col relative z-10">
-          @if (getStockQty(product) > 0 && getStockQty(product) <= 5) { <div
-            class="mb-1 flex items-center gap-1.5 animate-pulse">
-            <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-            <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }}
-              left in stock!</span>
-        </div>
-        }
-        <h3
-          class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight mb-1 group-hover:text-indigo-400 transition-colors line-clamp-2">
-          {{ product.name }}</h3>
-          <p class="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mb-3">{{ product.description || '' }}</p>
-          <div class="mb-3">
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold border border-amber-500/20">
-              <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Points
-            </span>
+      </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── STICKY COMPARE DRAWER ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (compareProducts().length > 0) {
+  <div class="fixed bottom-0 left-0 right-0 z-40 p-4 animate-slide-up pointer-events-none">
+    <div class="container mx-auto max-w-5xl">
+      <div class="bg-white/95 dark:bg-[#0D1424]/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl p-4 shadow-2xl shadow-indigo-950/30 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
+        <div class="flex items-center gap-4 w-full sm:w-auto">
+          <h4 class="font-black text-slate-900 dark:text-white text-sm whitespace-nowrap">Compare ({{ compareProducts().length }}/3)</h4>
+          <div class="flex gap-2 flex-1 sm:flex-none">
+            @for (p of compareProducts(); track p.id) {
+            <div class="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#080C14] border border-slate-200 dark:border-white/10 relative group overflow-hidden p-1">
+              @if (p.image_url) {
+                <img [src]="p.image_url" [alt]="p.name" class="w-full h-full object-contain">
+              }
+              <button (click)="removeCompareProduct(p.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <span class="material-symbols-outlined text-white !text-[16px]">close</span>
+              </button>
+            </div>
+            }
+            @for (i of [1,2,3].slice(compareProducts().length); track i) {
+            <div class="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#080C14]/50 border border-dashed border-slate-300 dark:border-white/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-slate-400 dark:text-slate-600 !text-[18px]">add</span>
+            </div>
+            }
           </div>
-          <div class="mt-auto flex items-center justify-between gap-2">
-          <p class="text-lg font-black text-indigo-300">{{ product.selling_price | appCurrency }}</p>
-          <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
-            class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-200 dark:border-white/5 shadow-lg shadow-indigo-500/10"
-            [ngClass]="addingProductId() === product.id
-                          ? 'bg-emerald-500 text-slate-900 dark:text-white scale-110 border-emerald-400 shadow-emerald-500/20'
-                          : 'bg-slate-100 dark:bg-zinc-800 text-indigo-400 hover:bg-indigo-600 hover:text-slate-900 dark:text-white hover:border-indigo-500 hover:scale-105 hover:-translate-y-1'">
-            <span class="material-symbols-outlined !text-[20px]">
-              {{ addingProductId() === product.id ? 'check' : 'add_shopping_cart' }}
-            </span>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <button (click)="compareProducts.set([])" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold text-xs transition-colors cursor-pointer">Clear</button>
+          <button (click)="openCompareModal()" [disabled]="compareProducts().length < 2"
+            class="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 cursor-pointer">
+            <span class="material-symbols-outlined !text-[18px]">compare</span>
+            Compare Now
           </button>
         </div>
       </div>
     </div>
-    }
-
-    <!-- List Card -->
-    @if (viewMode() === 'list') {
-    <div (click)="navigateToProduct(product.id)"
-      class="group bg-white dark:bg-zinc-900/80 rounded-2xl p-4 border border-slate-200 dark:border-zinc-800/60 hover:border-indigo-500/40 transition-all flex items-center gap-4 sm:gap-6 relative cursor-pointer">
-      <div
-        class="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 dark:bg-zinc-800/50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-        @if (product.image_url) {
-        <img [src]="product.image_url" [alt]="product.name" class="w-full h-full object-cover">
-        } @else {
-        <span class="material-symbols-outlined !text-[36px] text-zinc-700">inventory_2</span>
-        }
-      </div>
-      <div class="flex-1 min-w-0">
-        @if (getStockQty(product) > 0 && getStockQty(product) <= 5) { <div
-          class="mb-1 flex items-center gap-1.5 animate-pulse">
-          <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-          <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Only {{ getStockQty(product) }}
-            left!</span>
-      </div>
-      }
-      <h3 class="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-400 transition-colors truncate">{{
-        product.name }}</h3>
-      <p class="text-sm text-slate-400 dark:text-zinc-500 line-clamp-1 mt-0.5">{{ product.description || '' }}</p>
-      <div class="mt-2">
-        <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 text-amber-500 text-[10px] font-bold border border-amber-500/20">
-          <span class="material-symbols-outlined !text-[14px] inline-block align-middle mr-1 text-primary-500">toll</span> Earn {{ calculatePoints(product.selling_price) }} Points
-        </span>
-      </div>
-      <p class="text-lg font-black text-indigo-400 mt-1">{{ product.selling_price | appCurrency }}</p>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <button (click)="toggleCompare(product, $event)"
-        class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center transition-all border border-slate-200 dark:border-white/5"
-        [ngClass]="compareProducts().includes(product) ? 'bg-indigo-600 text-slate-900 dark:text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-100 dark:bg-zinc-800/50 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800'">
-        <span class="material-symbols-outlined !text-[20px]">compare_arrows</span>
-      </button>
-
-      <button (click)="wishlistService.toggleWishlist(product.id); $event.preventDefault(); $event.stopPropagation()"
-        class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center transition-all bg-slate-100 dark:bg-zinc-800/50"
-        [ngClass]="wishlistService.isSaved(product.id) ? 'text-rose-500' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white'">
-        <span class="material-symbols-outlined !text-[20px]">{{ wishlistService.isSaved(product.id) ? 'favorite' :
-          'favorite_border' }}</span>
-      </button>
-
-      <button (click)="quickAddToCart(product, $event)" [disabled]="isOutOfStock(product)"
-        class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center transition-all disabled:opacity-30"
-        [ngClass]="addingProductId() === product.id
-                        ? 'bg-emerald-500 text-slate-900 dark:text-white'
-                        : 'bg-slate-100 dark:bg-zinc-800 text-indigo-400 hover:bg-indigo-600 hover:text-slate-900 dark:text-white'">
-        <span class="material-symbols-outlined !text-[20px]">
-          {{ addingProductId() === product.id ? 'check' : 'add_shopping_cart' }}
-        </span>
-      </button>
-    </div>
   </div>
   }
-  }
-</div>
-}
 
-<!-- Empty state -->
-@if (!isLoading() && products().length === 0) {
-<app-empty-state
-  icon="search_off"
-  title="No products found"
-  description="Try adjusting your search or filters."
-></app-empty-state>
-}
-
-<!-- Load More -->
-@if (currentPage() < totalPages()) {
-<div class="flex justify-center pt-8 pb-4">
-  <button (click)="loadMore()" [disabled]="isLoading()"
-    class="px-8 py-3 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700/50 hover:bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-full font-bold transition-all disabled:opacity-50 flex items-center gap-2">
-    @if (isLoading()) {
-      <span class="material-symbols-outlined animate-spin !text-[20px]">progress_activity</span>
-      Loading...
-    } @else {
-      Load More Products
-      <span class="material-symbols-outlined !text-[20px]">expand_more</span>
-    }
-  </button>
-</div>
-}
-<!-- Recently Viewed Section -->
-@if (recentlyViewedProducts().length > 0) {
-<div class="mt-16 pt-8 border-t border-slate-200 dark:border-zinc-800/60 w-full animate-fade-in">
-  <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-    <span class="material-symbols-outlined text-indigo-400">history</span>
-    Recently Viewed
-  </h2>
-  <div class="flex gap-4 sm:gap-6 overflow-x-auto pb-6 snap-x hide-scrollbar">
-    @for (rp of recentlyViewedProducts(); track rp.id) {
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── QUICK VIEW MODAL ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @defer (when quickViewProduct()) {
+    @if (quickViewProduct()) {
     <div
-      class="min-w-[160px] sm:min-w-[200px] shrink-0 bg-white dark:bg-zinc-900/80 rounded-2xl p-3 border border-slate-200 dark:border-zinc-800/60 cursor-pointer hover:border-indigo-500/40 transition-all snap-start group relative"
-      (click)="navigateToProduct(rp.id)">
-      <!-- Wishlist Heart Overlay -->
-      <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
-        class="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-50 dark:bg-zinc-950/80 backdrop-blur-md border border-slate-200 dark:border-white/5 shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-10"
-        [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-zinc-800'">
-        <span class="material-symbols-outlined !text-[16px]"
-          [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
-      </button>
-      <div
-        class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-3 flex items-center justify-center overflow-hidden relative">
-        @if (rp.image_url) {
-        <img [src]="rp.image_url"
-          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-        } @else {
-        <span class="material-symbols-outlined text-zinc-700">inventory_2</span>
-        }
-      </div>
-      <h4 class="font-bold text-sm text-slate-900 dark:text-white leading-tight mb-1 truncate">{{ rp.name }}</h4>
-      <p class="text-sm font-black text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
-    </div>
-    }
-  </div>
-</div>
-}
-
-</div>
-</div>
-
-<!-- Sticky Compare Drawer -->
-@if (compareProducts().length > 0) {
-<div class="fixed bottom-0 left-0 right-0 z-40 p-4 animate-slide-up pointer-events-none">
-  <div class="container mx-auto max-w-5xl">
-    <div class="bg-white dark:bg-zinc-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl p-4 shadow-2xl shadow-indigo-900/20 flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-auto">
-      <div class="flex items-center gap-4 w-full sm:w-auto">
-        <h4 class="font-bold text-slate-900 dark:text-white whitespace-nowrap">Compare ({{ compareProducts().length }}/3)</h4>
-        <div class="flex gap-2 flex-1 sm:flex-none">
-          @for (p of compareProducts(); track p.id) {
-          <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 relative group overflow-hidden">
-            @if (p.image_url) {
-            <img [src]="p.image_url" class="w-full h-full object-cover">
-            }
-            <button (click)="removeCompareProduct(p.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <span class="material-symbols-outlined text-slate-900 dark:text-white !text-[16px]">close</span>
-            </button>
-          </div>
-          }
-          @for (i of [1,2,3].slice(compareProducts().length); track i) {
-          <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-zinc-800/50 border border-slate-300 dark:border-zinc-700/50 border-dashed flex items-center justify-center">
-            <span class="material-symbols-outlined text-zinc-600 !text-[20px]">add</span>
-          </div>
-          }
-        </div>
-      </div>
-      <div class="flex items-center gap-3 w-full sm:w-auto">
-        <button (click)="compareProducts.set([])" class="px-4 py-2 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white font-bold text-sm transition-colors">Clear</button>
-        <button (click)="openCompareModal()" [disabled]="compareProducts().length < 2"
-          class="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-100 dark:bg-zinc-800 disabled:text-slate-400 dark:text-zinc-500 text-slate-900 dark:text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-          <span class="material-symbols-outlined !text-[18px]">compare</span>
-          Compare Now
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-}
-
-<!-- Quick View Modal -->
-@defer (when quickViewProduct()) {
-  @if (quickViewProduct()) {
-  <div
-    class="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in"
-    (click)="closeQuickView()">
-    
-    <div
-      class="relative w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#0f1422] border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-2xl shadow-black/60 overflow-hidden flex flex-col"
-      (click)="$event.stopPropagation()">
+      class="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+      (click)="closeQuickView()">
       
-      <!-- Close Button -->
-      <button (click)="closeQuickView()"
-        class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/80 hover:bg-white dark:bg-white/10 dark:hover:bg-white/20 backdrop-blur-md border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-md cursor-pointer">
-        <span class="material-symbols-outlined !text-[20px]">close</span>
-      </button>
+      <div
+        class="relative w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#0D1424] border border-slate-200/80 dark:border-white/10 rounded-[2rem] shadow-2xl shadow-black/70 overflow-hidden flex flex-col"
+        (click)="$event.stopPropagation()">
+        
+        <!-- Close Button -->
+        <button (click)="closeQuickView()"
+          class="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-white/80 hover:bg-white dark:bg-white/10 dark:hover:bg-white/20 backdrop-blur-md border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all shadow-md cursor-pointer">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
 
-      <!-- Scrollable Main Container -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- 2-Column Product Showcase -->
-        <div class="grid grid-cols-1 md:grid-cols-2">
-          
-          <!-- Left: Product Image -->
-          <div class="relative bg-slate-50 dark:bg-zinc-900/60 p-6 sm:p-10 flex items-center justify-center min-h-[300px] sm:min-h-[380px] border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/[0.06]">
-            <!-- Category Badge -->
-            @if (quickViewProduct()!.category) {
-              <span class="absolute top-4 left-4 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-wider">
-                {{ quickViewProduct()!.category!.name }}
-              </span>
-            }
-
-            @if (quickViewProduct()!.image_url) {
-              <img [src]="quickViewProduct()!.image_url" [alt]="quickViewProduct()!.name" class="max-h-[280px] sm:max-h-[340px] w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300">
-            } @else {
-              <div class="flex flex-col items-center justify-center text-slate-300 dark:text-zinc-700 gap-2">
-                <span class="material-symbols-outlined !text-[80px]">inventory_2</span>
-                <span class="text-xs font-semibold">No Image Available</span>
-              </div>
-            }
-          </div>
-
-          <!-- Right: Details & Action Controls -->
-          <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6">
-            <div class="space-y-4">
-              <!-- Title -->
-              <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
-                {{ quickViewProduct()!.name }}
-              </h2>
-
-              <!-- Price & Points -->
-              <div class="flex items-center gap-3 flex-wrap">
-                <p class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                  {{ quickViewProduct()!.selling_price | appCurrency }}
-                </p>
-                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-500/20">
-                  <span class="material-symbols-outlined !text-[14px] text-amber-500">toll</span>
-                  Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
+        <!-- Scrollable Modal Content -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2">
+            
+            <!-- Left: Product Image -->
+            <div class="relative bg-slate-50 dark:bg-[#080C14] p-6 sm:p-10 flex items-center justify-center min-h-[300px] sm:min-h-[380px] border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/[0.06]">
+              @if (quickViewProduct()!.category) {
+                <span class="absolute top-4 left-4 px-3 py-1 bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-wider">
+                  {{ quickViewProduct()!.category!.name }}
                 </span>
-              </div>
+              }
 
-              <!-- Description -->
-              <div class="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed max-h-32 overflow-y-auto">
-                <p>{{ quickViewProduct()!.description || 'Premium quality product curated for your satisfaction. Explore full specifications in details.' }}</p>
-              </div>
-            </div>
-
-            <!-- Stock & Actions -->
-            <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-white/[0.06]">
-              @if (!isOutOfStock(quickViewProduct()!)) {
-                @if (getStockQty(quickViewProduct()!) <= 5) {
-                  <div class="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
-                    <span class="material-symbols-outlined text-rose-500 !text-[18px] animate-pulse">local_fire_department</span>
-                    <p class="text-xs font-bold text-rose-600 dark:text-rose-400">
-                      High demand! Only {{ getStockQty(quickViewProduct()!) }} items left in stock.
-                    </p>
-                  </div>
-                }
-
-                <!-- Add to Cart Button -->
-                <button (click)="quickAddToCart(quickViewProduct()!, $event); closeQuickView()"
-                  class="w-full py-3.5 px-6 rounded-2xl font-black text-white flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
-                  [ngClass]="addingProductId() === quickViewProduct()!.id 
-                    ? 'bg-emerald-500 shadow-emerald-500/30' 
-                    : 'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]'">
-                  <span class="material-symbols-outlined !text-[20px]">
-                    {{ addingProductId() === quickViewProduct()!.id ? 'check' : 'shopping_cart' }}
-                  </span>
-                  <span>{{ addingProductId() === quickViewProduct()!.id ? 'Added to Cart!' : 'Add to Cart' }}</span>
-                </button>
+              @if (quickViewProduct()!.image_url) {
+                <img [src]="quickViewProduct()!.image_url" [alt]="quickViewProduct()!.name" class="max-h-[280px] sm:max-h-[340px] w-auto max-w-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-300">
               } @else {
-                <!-- Out of Stock Notification Form -->
-                <div class="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-4 rounded-2xl space-y-2.5">
-                  <div class="flex items-center gap-2 text-rose-500">
-                    <span class="material-symbols-outlined !text-[18px]">inventory</span>
-                    <h4 class="text-xs font-black uppercase tracking-wider">Currently Out of Stock</h4>
-                  </div>
-                  <p class="text-xs text-slate-500 dark:text-zinc-400">Get notified the moment this item is restocked:</p>
-                  <div class="flex gap-2">
-                    <input type="email" [ngModel]="notifyEmail()" (ngModelChange)="notifyEmail.set($event)"
-                      placeholder="Enter your email"
-                      class="flex-1 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500">
-                    <button (click)="submitNotify()"
-                      class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-colors whitespace-nowrap cursor-pointer">
-                      Notify Me
-                    </button>
-                  </div>
-                </div>
-              }
-
-              <!-- View Full Details Link -->
-              <a [routerLink]="['/store/product', quickViewProduct()!.id]" (click)="closeQuickView()"
-                class="w-full py-3 rounded-2xl font-bold text-xs text-slate-700 dark:text-zinc-300 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center gap-1.5 transition-all">
-                <span>View Full Product Details</span>
-                <span class="material-symbols-outlined !text-[16px]">arrow_forward</span>
-              </a>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Bottom: Related Products Carousel -->
-        @if (relatedProducts().length > 0) {
-          <div class="border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/70 dark:bg-white/[0.02] p-5 sm:p-6">
-            <div class="flex items-center justify-between mb-3.5">
-              <h3 class="text-xs font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-                <span class="material-symbols-outlined !text-[16px] text-indigo-500">auto_awesome</span>
-                You Might Also Like
-              </h3>
-            </div>
-            <div class="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
-              @for (rp of relatedProducts(); track rp.id) {
-                <div
-                  class="min-w-[140px] sm:min-w-[160px] max-w-[160px] shrink-0 bg-white dark:bg-zinc-900/80 rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/[0.06] hover:border-indigo-500/40 transition-all snap-start relative group cursor-pointer shadow-sm hover:shadow-md"
-                  (click)="openQuickView(rp, $event)">
-                  <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
-                    class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 dark:bg-zinc-950/80 backdrop-blur-md border border-slate-200 dark:border-white/10 flex items-center justify-center hover:scale-110 transition-transform z-10"
-                    [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-400 hover:text-slate-700 dark:hover:text-white'">
-                    <span class="material-symbols-outlined !text-[14px]"
-                      [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
-                  </button>
-                  <div class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-2 flex items-center justify-center overflow-hidden p-2">
-                    @if (rp.image_url) {
-                      <img [src]="rp.image_url" [alt]="rp.name" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300">
-                    } @else {
-                      <span class="material-symbols-outlined text-zinc-600 !text-[28px]">inventory_2</span>
-                    }
-                  </div>
-                  <h4 class="font-bold text-xs text-slate-900 dark:text-white leading-tight mb-1 truncate">{{ rp.name }}</h4>
-                  <p class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
+                <div class="flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 gap-2">
+                  <span class="material-symbols-outlined !text-[80px]">inventory_2</span>
+                  <span class="text-xs font-semibold">No Image Available</span>
                 </div>
               }
             </div>
-          </div>
-        }
-      </div>
 
-    </div>
-  </div>
-  }
-}
+            <!-- Right: Product Information & Add to Cart -->
+            <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6">
+              <div class="space-y-4">
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
+                  {{ quickViewProduct()!.name }}
+                </h2>
 
-<!-- Compare Modal -->
-@defer (when isCompareModalOpen()) {
-  @if (isCompareModalOpen()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-zinc-950/90 backdrop-blur-md animate-fade-in" (click)="closeCompareModal()">
-    <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl relative" (click)="$event.stopPropagation()">
-      
-      <div class="p-6 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900/50 sticky top-0 z-20">
-        <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-          <span class="material-symbols-outlined text-indigo-400">compare_arrows</span>
-          Product Comparison
-        </h2>
-        <button (click)="closeCompareModal()" class="w-10 h-10 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:text-white transition-colors">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <div class="overflow-x-auto p-6 flex-1">
-        <div class="min-w-[800px]">
-          <table class="w-full text-left">
-            <thead>
-              <tr>
-                <th class="w-1/4 p-4 border-b border-slate-200 dark:border-zinc-800"></th>
-                @for (p of compareProducts(); track p.id) {
-                <th class="w-1/4 p-4 border-b border-slate-200 dark:border-zinc-800 align-top relative">
-                  <button (click)="removeCompareProduct(p.id)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors">
-                    <span class="material-symbols-outlined !text-[16px]">delete</span>
-                  </button>
-                  <div class="aspect-square bg-slate-50 dark:bg-zinc-950/50 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
-                    @if (p.image_url) {
-                    <img [src]="p.image_url" class="w-full h-full object-cover">
-                    } @else {
-                    <span class="material-symbols-outlined !text-[48px] text-zinc-700">inventory_2</span>
-                    }
-                  </div>
-                  <h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight mb-2">{{ p.name }}</h3>
-                  <p class="text-2xl font-black text-indigo-400">{{ p.selling_price | appCurrency }}</p>
-                  <button (click)="quickAddToCart(p, $event)" [disabled]="isOutOfStock(p)"
-                    class="mt-4 w-full py-2.5 rounded-lg font-bold text-slate-900 dark:text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                    [ngClass]="addingProductId() === p.id ? 'bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-700'">
-                    <span class="material-symbols-outlined !text-[18px]">{{ addingProductId() === p.id ? 'check' : 'add_shopping_cart' }}</span>
-                    {{ addingProductId() === p.id ? 'Added' : 'Add to Cart' }}
-                  </button>
-                </th>
-                }
-              </tr>
-            </thead>
-            <tbody class="text-sm">
-              <tr>
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Availability</td>
-                @for (p of compareProducts(); track p.id) {
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white">
-                  @if (!isOutOfStock(p)) {
-                  <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> In Stock ({{ getStockQty(p) }})
+                <div class="flex items-center gap-3 flex-wrap">
+                  <p class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">
+                    {{ quickViewProduct()!.selling_price | appCurrency }}
+                  </p>
+                  <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold border border-amber-500/20">
+                    <span class="material-symbols-outlined !text-[14px] text-amber-500">toll</span>
+                    Earn {{ calculatePoints(quickViewProduct()!.selling_price) }} Points
                   </span>
-                  } @else {
-                  <span class="inline-flex items-center gap-1.5 text-rose-400 font-medium">
-                    <span class="w-2 h-2 rounded-full bg-rose-400"></span> Out of Stock
-                  </span>
+                </div>
+
+                <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-h-32 overflow-y-auto">
+                  <p>{{ quickViewProduct()!.description || 'Premium product designed to elevate your everyday experience. Verified quality.' }}</p>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-white/[0.06]">
+                @if (!isOutOfStock(quickViewProduct()!)) {
+                  @if (getStockQty(quickViewProduct()!) <= 5) {
+                    <div class="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                      <span class="material-symbols-outlined text-rose-500 !text-[18px] animate-pulse">local_fire_department</span>
+                      <p class="text-xs font-bold text-rose-600 dark:text-rose-400">
+                        High demand! Only {{ getStockQty(quickViewProduct()!) }} items left.
+                      </p>
+                    </div>
                   }
-                </td>
+
+                  <button (click)="quickAddToCart(quickViewProduct()!, $event); closeQuickView()"
+                    class="w-full py-3.5 px-6 rounded-2xl font-black text-white flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+                    [ngClass]="addingProductId() === quickViewProduct()!.id 
+                      ? 'bg-emerald-500 shadow-emerald-500/30' 
+                      : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]'">
+                    <span class="material-symbols-outlined !text-[20px]">
+                      {{ addingProductId() === quickViewProduct()!.id ? 'check' : 'shopping_cart' }}
+                    </span>
+                    <span>{{ addingProductId() === quickViewProduct()!.id ? 'Added to Cart!' : 'Add to Cart' }}</span>
+                  </button>
+                } @else {
+                  <div class="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-4 rounded-2xl space-y-2.5">
+                    <div class="flex items-center gap-2 text-rose-500">
+                      <span class="material-symbols-outlined !text-[18px]">inventory</span>
+                      <h4 class="text-xs font-black uppercase tracking-wider">Currently Out of Stock</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Get notified the moment this item is restocked:</p>
+                    <div class="flex gap-2">
+                      <input type="email" [ngModel]="notifyEmail()" (ngModelChange)="notifyEmail.set($event)"
+                        placeholder="Enter your email"
+                        class="flex-1 bg-white dark:bg-[#080C14] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500">
+                      <button (click)="submitNotify()"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs transition-colors whitespace-nowrap cursor-pointer">
+                        Notify Me
+                      </button>
+                    </div>
+                  </div>
                 }
-              </tr>
-              <tr>
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider align-top">Description</td>
-                @for (p of compareProducts(); track p.id) {
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 align-top line-clamp-4">{{ p.description || '-' }}</td>
+
+                <a [routerLink]="['/store/product', quickViewProduct()!.id]" (click)="closeQuickView()"
+                  class="w-full py-3 rounded-2xl font-bold text-xs text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center gap-1.5 transition-all">
+                  <span>View Full Product Details</span>
+                  <span class="material-symbols-outlined !text-[16px]">arrow_forward</span>
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottom: Related Products -->
+          @if (relatedProducts().length > 0) {
+            <div class="border-t border-slate-100 dark:border-white/[0.06] bg-slate-50/70 dark:bg-[#080C14]/50 p-5 sm:p-6">
+              <div class="flex items-center justify-between mb-3.5">
+                <h3 class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span class="material-symbols-outlined !text-[16px] text-indigo-500">auto_awesome</span>
+                  You Might Also Like
+                </h3>
+              </div>
+              <div class="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
+                @for (rp of relatedProducts(); track rp.id) {
+                  <div
+                    class="min-w-[140px] sm:min-w-[160px] max-w-[160px] shrink-0 bg-white dark:bg-[#0D1424] rounded-2xl p-2.5 border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/50 transition-all snap-start relative group cursor-pointer shadow-sm hover:shadow-md"
+                    (click)="openQuickView(rp, $event)">
+                    <button (click)="wishlistService.toggleWishlist(rp.id); $event.stopPropagation()"
+                      class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 dark:bg-[#080C14]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 flex items-center justify-center hover:scale-110 transition-transform z-10 cursor-pointer"
+                      [ngClass]="wishlistService.isSaved(rp.id) ? 'text-rose-500' : 'text-slate-400 hover:text-slate-700 dark:hover:text-white'">
+                      <span class="material-symbols-outlined !text-[14px]"
+                        [class.fill-icon]="wishlistService.isSaved(rp.id)">favorite</span>
+                    </button>
+                    <div class="aspect-square bg-slate-50 dark:bg-[#080C14] rounded-xl mb-2 flex items-center justify-center overflow-hidden p-2">
+                      @if (rp.image_url) {
+                        <img [src]="rp.image_url" [alt]="rp.name" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300">
+                      } @else {
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-700 !text-[28px]">inventory_2</span>
+                      }
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900 dark:text-white leading-tight mb-1 truncate">{{ rp.name }}</h4>
+                    <p class="text-xs font-black text-indigo-600 dark:text-indigo-400">{{ rp.selling_price | appCurrency }}</p>
+                  </div>
                 }
-              </tr>
-              <tr>
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Category</td>
-                @for (p of compareProducts(); track p.id) {
-                <td class="p-4 border-b border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300">{{ p.category?.name || '-' }}</td>
-                }
-              </tr>
-              <tr>
-                <td class="p-4 font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">Barcode</td>
-                @for (p of compareProducts(); track p.id) {
-                <td class="p-4 text-slate-400 dark:text-zinc-500 font-mono text-xs">{{ p.barcode || '-' }}</td>
-                }
-              </tr>
-            </tbody>
-          </table>
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+    }
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── FULL COMPARE MODAL ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @defer (when isCompareModalOpen()) {
+    @if (isCompareModalOpen()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in" (click)="closeCompareModal()">
+      <div class="bg-white dark:bg-[#0D1424] border border-slate-200/80 dark:border-white/10 rounded-3xl overflow-hidden w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl relative" (click)="$event.stopPropagation()">
+        
+        <div class="p-6 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between bg-white/90 dark:bg-[#0D1424]/90 sticky top-0 z-20">
+          <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-500">compare_arrows</span>
+            Product Comparison
+          </h2>
+          <button (click)="closeCompareModal()" class="w-10 h-10 bg-slate-100 dark:bg-white/10 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto p-6 flex-1">
+          <div class="min-w-[800px]">
+            <table class="w-full text-left">
+              <thead>
+                <tr>
+                  <th class="w-1/4 p-4 border-b border-slate-200/80 dark:border-white/10"></th>
+                  @for (p of compareProducts(); track p.id) {
+                  <th class="w-1/4 p-4 border-b border-slate-200/80 dark:border-white/10 align-top relative">
+                    <button (click)="removeCompareProduct(p.id)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer">
+                      <span class="material-symbols-outlined !text-[16px]">delete</span>
+                    </button>
+                    <div class="aspect-square bg-slate-50 dark:bg-[#080C14] rounded-xl mb-4 overflow-hidden flex items-center justify-center p-3">
+                      @if (p.image_url) {
+                        <img [src]="p.image_url" [alt]="p.name" class="w-full h-full object-contain">
+                      } @else {
+                        <span class="material-symbols-outlined !text-[48px] text-slate-300 dark:text-slate-700">inventory_2</span>
+                      }
+                    </div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight mb-2">{{ p.name }}</h3>
+                    <p class="text-xl font-black text-indigo-600 dark:text-indigo-400">{{ p.selling_price | appCurrency }}</p>
+                    <button (click)="quickAddToCart(p, $event)" [disabled]="isOutOfStock(p)"
+                      class="mt-4 w-full py-2.5 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                      [ngClass]="addingProductId() === p.id ? 'bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-500/20'">
+                      <span class="material-symbols-outlined !text-[18px]">{{ addingProductId() === p.id ? 'check' : 'add_shopping_cart' }}</span>
+                      {{ addingProductId() === p.id ? 'Added' : 'Add to Cart' }}
+                    </button>
+                  </th>
+                  }
+                </tr>
+              </thead>
+              <tbody class="text-sm">
+                <tr>
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Availability</td>
+                  @for (p of compareProducts(); track p.id) {
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white">
+                    @if (!isOutOfStock(p)) {
+                    <span class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span> In Stock ({{ getStockQty(p) }})
+                    </span>
+                    } @else {
+                    <span class="inline-flex items-center gap-1.5 text-rose-500 font-semibold text-xs">
+                      <span class="w-2 h-2 rounded-full bg-rose-500"></span> Out of Stock
+                    </span>
+                    }
+                  </td>
+                  }
+                </tr>
+                <tr>
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs align-top">Description</td>
+                  @for (p of compareProducts(); track p.id) {
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-slate-300 align-top line-clamp-4 text-xs">{{ p.description || '-' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Category</td>
+                  @for (p of compareProducts(); track p.id) {
+                  <td class="p-4 border-b border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-slate-300 text-xs font-semibold">{{ p.category?.name || '-' }}</td>
+                  }
+                </tr>
+                <tr>
+                  <td class="p-4 font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">Barcode</td>
+                  @for (p of compareProducts(); track p.id) {
+                  <td class="p-4 text-slate-500 dark:text-slate-400 font-mono text-xs">{{ p.barcode || '-' }}</td>
+                  }
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    }
   }
-}
-</div></div>
+
+</div>
+</div>

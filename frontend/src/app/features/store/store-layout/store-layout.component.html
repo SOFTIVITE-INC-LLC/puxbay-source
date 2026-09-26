@@ -4,13 +4,19 @@
 
 <div
   class="sf-theme-wrapper"
-  [style.--sf-primary]="settingsService.settings()?.primary_color || '#FFD333'"
-  [style.--sf-secondary]="settingsService.settings()?.secondary_color || '#3D464D'"
-  [style.--sf-accent]="settingsService.settings()?.accent_color || '#FFD333'"
-  [style.--sf-bg]="settingsService.settings()?.background_color || '#F5F5F5'"
-  [style.--sf-card-radius]="settingsService.settings()?.card_radius || '0px'"
-  [style.--sf-btn-radius]="settingsService.settings()?.button_radius || '0px'"
-  [style.--sf-font-family]="(settingsService.settings()?.font_family || 'Roboto') + ', sans-serif'"
+  [class.dark]="themeService.isDark()"
+  [style.--sf-primary]="settingsService.settings()?.primary_color || '#4F46E5'"
+  [style.--sf-secondary]="settingsService.settings()?.secondary_color || '#1E1B4B'"
+  [style.--sf-accent]="settingsService.settings()?.accent_color || '#6366F1'"
+  [style.--sf-bg]="themeService.isDark() ? '#070B14' : (settingsService.settings()?.background_color || '#F8FAFC')"
+  [style.--sf-surface]="themeService.isDark() ? '#0D1424' : '#FFFFFF'"
+  [style.--sf-surface-alt]="themeService.isDark() ? '#111A2E' : '#F1F5F9'"
+  [style.--sf-border]="themeService.isDark() ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0'"
+  [style.--sf-text]="themeService.isDark() ? '#F8FAFC' : '#0F172A'"
+  [style.--sf-text-muted]="themeService.isDark() ? '#94A3B8' : '#64748B'"
+  [style.--sf-card-radius]="settingsService.settings()?.card_radius || '16px'"
+  [style.--sf-btn-radius]="settingsService.settings()?.button_radius || '10px'"
+  [style.--sf-font-family]="(settingsService.settings()?.font_family || 'Outfit') + ', sans-serif'"
 >
   <!-- ── Announcement Bar (if configured) ── -->
   @if (settingsService.settings()?.announcement_text) {
