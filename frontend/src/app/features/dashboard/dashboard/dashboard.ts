@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { AppCurrencyPipe } from '../../../core/pipes/app-currency.pipe';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -6,6 +6,8 @@ import { DashboardService } from '../../../core/services/dashboard.service';
 import { BranchService } from '../../../core/services/branch.service';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { HrService } from '../../../core/services/hr.service';
+import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { SettingsService } from '../../../core/services/settings.service';
 
@@ -30,10 +32,30 @@ export class Dashboard implements OnInit {
   branchService = inject(BranchService);
   catalogService = inject(CatalogService);
   authService = inject(AuthService);
+  hrService = inject(HrService);
+  toastr = inject(ToastrService);
   router = inject(Router);
   settingsService = inject(SettingsService);
 
   readonly Math = Math;
+
+  isClockedIn = computed(() => this.hrService.myAttendance().is_clocked_in);
+  activeClockIn = computed(() => this.hrService.myAttendance().attendance);
+  todayHours = computed(() => this.hrService.myAttendance().today_hours);
+
+  clockIn() {
+    this.hrService.clockIn().subscribe({
+      next: () => this.toastr.success('Clocked in successfully! Shift started.'),
+      error: (e) => this.toastr.error(e?.error?.error || 'Clock in failed')
+    });
+  }
+
+  clockOut() {
+    this.hrService.clockOut().subscribe({
+      next: () => this.toastr.success('Clocked out successfully! Have a great rest.'),
+      error: (e) => this.toastr.error(e?.error?.error || 'Clock out failed')
+    });
+  }
 
   get tenantQuickActions() {
     const role = this.authService.currentUser()?.role?.toLowerCase();
@@ -97,6 +119,7 @@ export class Dashboard implements OnInit {
       
       this.dashboardService.getMetrics().subscribe();
     }
+    this.hrService.getMyAttendanceStatus().subscribe();
     this.catalogService.getProducts().subscribe();
   }
 

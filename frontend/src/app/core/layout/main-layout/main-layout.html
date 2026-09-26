@@ -16,7 +16,8 @@
       class="print:hidden flex-shrink-0 z-40 flex flex-col h-[calc(100dvh-24px)] fixed top-3 left-3 self-start rounded-2xl overflow-hidden shadow-xl dark:shadow-2xl dark:shadow-black/70 ring-1 ring-slate-200 dark:ring-white/[0.08] md:sticky md:left-auto md:translate-x-0 transition-transform duration-300"
       [class.-translate-x-[120%]]="isSidebarCollapsed" [class.translate-x-0]="!isSidebarCollapsed">
       <app-sidebar ngSkipHydration class="h-full" [isCollapsed]="isSidebarCollapsed"
-        (toggleCollapse)="toggleSidebar()"></app-sidebar>
+        (toggleCollapse)="toggleSidebar()"
+        (closeSidebar)="closeSidebar()"></app-sidebar>
     </div>
 
     <!-- ── Main Area (Flex Column) ── -->
@@ -59,4 +60,75 @@
     <app-command-palette></app-command-palette>
     <app-copilot></app-copilot>
   </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ── MANDATORY SHIFT CLOCK-IN GATEWAY (Full Focus Modal) ── -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  @if (isClockInRequired()) {
+    <div class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-2xl animate-fade-in font-sans">
+      <div class="relative w-full max-w-[500px] overflow-hidden rounded-[32px] bg-white dark:bg-[#0f172a] border border-indigo-500/30 shadow-[0_0_80px_-15px_rgba(79,70,229,0.35)] p-6 sm:p-8 flex flex-col items-center text-center">
+        
+        <!-- Ambient Glowing Orbs -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Biometric / Fingerprint Icon -->
+        <div class="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-xl shadow-indigo-500/30 mb-5">
+          <span class="material-symbols-outlined !text-[40px] animate-pulse">fingerprint</span>
+          <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 border-2 border-white dark:border-slate-900 flex items-center justify-center">
+            <span class="material-symbols-outlined !text-[14px] text-slate-950 font-black">lock</span>
+          </div>
+        </div>
+
+        <!-- Greeting & Name -->
+        <div class="space-y-1">
+          <span class="px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
+            Shift Punch Required
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white pt-2">
+            Welcome, {{ currentUser()?.first_name || currentUser()?.username || 'Team Member' }}!
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">
+            Please punch in to start your work shift. Workspace actions and store operations remain locked until you clock in.
+          </p>
+        </div>
+
+        <!-- Live Digital Clock & Date -->
+        <div class="w-full my-5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
+          <div class="text-left">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Local Clock Time</p>
+            <p class="text-lg font-black font-mono text-slate-900 dark:text-white">
+              {{ currentTime() | date:'hh:mm:ss a' }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</p>
+            <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              {{ currentTime() | date:'EEE, MMM d, y' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Clock-In Button CTA -->
+        <button (click)="clockInFromGateway()" [disabled]="isClockingIn()"
+                class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 active:scale-[0.98] text-white font-black text-base sm:text-lg shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2.5 transition-all cursor-pointer disabled:opacity-50">
+          @if (isClockingIn()) {
+            <span class="material-symbols-outlined !text-[22px] animate-spin">refresh</span>
+            Punching In...
+          } @else {
+            <span class="material-symbols-outlined !text-[24px]">login</span>
+            Clock In & Unlock Workspace
+          }
+        </button>
+
+        <!-- Logout fallback -->
+        <div class="mt-4 pt-3 flex items-center justify-center gap-2">
+          <button (click)="logout()" class="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[16px]">logout</span> Sign out instead
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
 </div>

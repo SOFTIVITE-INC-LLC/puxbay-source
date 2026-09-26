@@ -1,213 +1,257 @@
-<div class="h-full flex flex-col p-4 sm:p-6 space-y-4 sm:space-y-8 max-w-[1400px] mx-auto text-zinc-900 dark:text-white font-sans" style="font-family: 'Outfit', sans-serif;">
+<div class="h-full flex flex-col p-4 sm:p-6 lg:p-8 space-y-5 sm:space-y-8 max-w-[1440px] mx-auto text-zinc-900 dark:text-white font-sans" style="font-family: 'Outfit', sans-serif;">
 
-  <!-- ── Header ── -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
+  <!-- ── Header & Action Bar ── -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent p-4 sm:p-6 rounded-3xl border border-indigo-500/10 shadow-sm">
     <div>
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-primary-600 dark:text-primary-400 animated-gradient-text">
-        Team & Workspace
+      <div class="flex items-center gap-2.5 mb-1">
+        <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/30">
+          <span class="material-symbols-outlined !text-[20px]">badge</span>
+        </div>
+        <span class="text-xs font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Enterprise HR & People Ops</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-zinc-900 dark:text-white">
+        Human Resources & Workforce
       </h1>
-      <p class="text-zinc-500 dark:text-zinc-400 mt-0.5 sm:mt-1 font-medium text-xs sm:text-base md:text-lg">Manage staff, track attendance, and process payroll gracefully.</p>
+      <p class="text-zinc-500 dark:text-zinc-400 mt-1 font-medium text-xs sm:text-sm md:text-base">
+        Manage staff profiles, automated payroll calculations, timesheets, shifts, leaves, and commissions.
+      </p>
     </div>
-    <div class="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
+
+    <!-- Quick Action Context Buttons -->
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
       @if (activeTab() === 'staff') {
-        <button (click)="openStaffModal()" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-orange-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30 flex items-center gap-2 text-xs sm:text-sm">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">person_add</span>
-          Add Team Member
+        <button (click)="openStaffModal()" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">person_add</span>
+          Add Employee
         </button>
       }
       @if (activeTab() === 'leaves') {
-        <button (click)="isLeaveModalOpen.set(true)" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/20 text-zinc-800 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/20 active:scale-95 transition-all flex items-center gap-2 shadow-lg text-xs sm:text-sm">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">edit_calendar</span>
+        <button (click)="isLeaveModalOpen.set(true)" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">edit_calendar</span>
           Request Leave
         </button>
       }
       @if (activeTab() === 'payroll') {
-        <button (click)="isPayrollPeriodModalOpen.set(true)" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-emerald-500 text-white font-bold hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30 flex items-center gap-2 text-xs sm:text-sm">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">add_task</span>
-          New Payroll Period
+        <button (click)="isPayrollPeriodModalOpen.set(true)" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">add_circle</span>
+          New Payroll Cycle
+        </button>
+      }
+      @if (activeTab() === 'roster') {
+        <button (click)="isShiftModalOpen.set(true)" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-teal-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">more_time</span>
+          Schedule Shift
+        </button>
+      }
+      @if (activeTab() === 'shift_swaps') {
+        <button (click)="openShiftSwapModal()" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">swap_horiz</span>
+          Request Shift Swap
+        </button>
+      }
+      @if (activeTab() === 'commissions') {
+        <button (click)="openCommissionRuleModal()" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">add_task</span>
+          New Commission Rule
+        </button>
+      }
+      @if (activeTab() === 'achievements') {
+        <button (click)="openAchievementModal()" class="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined !text-[20px]">military_tech</span>
+          Award Badge
         </button>
       }
     </div>
   </div>
 
-  <!-- ── Quick Overview Cards ── -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-5">
-    <div class="glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 card-hover relative overflow-hidden group min-w-0">
-      <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all pointer-events-none"></div>
-      <div class="flex items-center justify-between mb-2 sm:mb-4 relative z-10">
-        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">group</span>
+  <!-- ── Top KPI Metrics Strip ── -->
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+    <div class="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-5 card-hover relative overflow-hidden group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined !text-[22px]">groups</span>
         </div>
+        <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 rounded-lg">Active</span>
       </div>
-      <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Total Team</p>
-      <h2 class="text-xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white truncate">{{ hrService.staff().length }}</h2>
+      <p class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Total Workforce</p>
+      <h2 class="text-xl sm:text-3xl font-black text-zinc-900 dark:text-white">{{ hrService.staff().length }}</h2>
     </div>
 
-    <div class="glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 card-hover relative overflow-hidden group min-w-0">
-      <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none"></div>
-      <div class="flex items-center justify-between mb-2 sm:mb-4 relative z-10">
-        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-inner">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">how_to_reg</span>
+    <div class="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-5 card-hover relative overflow-hidden group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined !text-[22px]">how_to_reg</span>
         </div>
-        <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-lg">Live</span>
+        <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-lg flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live
+        </span>
       </div>
-      <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Present Today</p>
-      <h2 class="text-xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white truncate">{{ todayPresent() }}</h2>
+      <p class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Clocked In Now</p>
+      <h2 class="text-xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">{{ todayPresent() }}</h2>
     </div>
 
-    <div class="glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 card-hover relative overflow-hidden group min-w-0">
-      <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all pointer-events-none"></div>
-      <div class="flex items-center justify-between mb-2 sm:mb-4 relative z-10">
-        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">flight_takeoff</span>
+    <div class="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-5 card-hover relative overflow-hidden group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined !text-[22px]">flight_takeoff</span>
         </div>
       </div>
-      <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">On Leave</p>
-      <h2 class="text-xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white truncate">{{ onLeave() }}</h2>
+      <p class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest mb-0.5">On Leave Today</p>
+      <h2 class="text-xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">{{ onLeave() }}</h2>
     </div>
 
-    <div class="glass-panel rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 card-hover relative overflow-hidden group min-w-0">
-      <div class="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all pointer-events-none"></div>
-      <div class="flex items-center justify-between mb-2 sm:mb-4 relative z-10">
-        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shadow-inner">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">hourglass_empty</span>
+    <div class="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-5 card-hover relative overflow-hidden group">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined !text-[22px]">pending_actions</span>
         </div>
-        @if (pendingLeaves() > 0) {
-          <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+        @if (pendingLeaves() > 0 || pendingShiftSwaps() > 0) {
+          <span class="px-2 py-0.5 text-[10px] font-black bg-rose-500 text-white rounded-full animate-pulse">Action Required</span>
         }
       </div>
-      <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider sm:tracking-[0.2em] mb-0.5 sm:mb-1 truncate">Pending Approvals</p>
-      <h2 class="text-xl sm:text-3xl lg:text-4xl font-black truncate" [ngClass]="pendingLeaves() > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-900 dark:text-white'">{{ pendingLeaves() }}</h2>
+      <p class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest mb-0.5">Pending Approvals</p>
+      <h2 class="text-xl sm:text-3xl font-black" [ngClass]="pendingLeaves() + pendingShiftSwaps() > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-900 dark:text-white'">
+        {{ pendingLeaves() + pendingShiftSwaps() }}
+      </h2>
     </div>
   </div>
 
-  <!-- ── Gamification: Top Performers ── -->
-  @if (intelligence.leaderboard().length > 0) {
-    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 bg-amber-500/10 border border-amber-500/20 shadow-lg">
-      <div class="absolute -right-20 -top-20 w-64 h-64 bg-amber-400/20 rounded-full blur-[80px]"></div>
-      
-      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between mb-4 sm:mb-6">
-        <div class="flex items-center gap-3 sm:gap-4">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 shrink-0">
-            <span class="material-symbols-outlined !text-[24px] sm:!text-[28px]">emoji_events</span>
-          </div>
-          <div>
-            <h2 class="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-500 tracking-tight">Top Performers</h2>
-            <p class="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm font-medium">Staff leaderboard based on recent sales velocity</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 relative z-10">
-        @for (entry of intelligence.leaderboard(); track entry.cashier_id; let i = $index) {
-          <div class="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-amber-500/20 relative overflow-hidden">
-            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black flex items-center justify-center text-sm shrink-0">
-              #{{ i + 1 }}
-            </div>
-            <div class="min-w-0 flex-1">
-              <h4 class="font-bold text-sm text-zinc-900 dark:text-white truncate">{{ entry.first_name }} {{ entry.last_name }}</h4>
-              <p class="text-xs text-amber-600 dark:text-amber-400 font-semibold">{{ entry.order_count }} orders · {{ entry.total_sales | appCurrency }}</p>
-            </div>
-            @if (i === 0) {
-              <span class="material-symbols-outlined text-yellow-500 !text-[20px] shrink-0">star</span>
-            }
-          </div>
-        }
-      </div>
+  <!-- ── Time Clock Terminal Banner ── -->
+  <div class="relative overflow-hidden rounded-3xl bg-zinc-900 dark:bg-black shadow-2xl p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-zinc-800">
+    <div class="absolute inset-0 opacity-30 pointer-events-none">
+      <div class="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500 rounded-full blur-[80px]"></div>
+      <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-500 rounded-full blur-[80px]"></div>
     </div>
-  }
-
-  <!-- ── Time Clock Banner ── -->
-  <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-zinc-900 dark:bg-black shadow-2xl p-4 sm:p-6 lg:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 border border-zinc-800">
-    <div class="absolute inset-0 opacity-40 pointer-events-none">
-      <div class="absolute -left-20 top-1/2 -translate-y-1/2 w-64 h-64 bg-orange-500 rounded-full blur-[80px]"></div>
-      <div class="absolute right-0 top-0 w-64 h-64 bg-rose-500 rounded-full blur-[80px]"></div>
-    </div>
-    <div class="relative z-10 flex items-center gap-3 sm:gap-5">
-      <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-lg shrink-0">
-        <span class="material-symbols-outlined !text-[24px] sm:!text-[32px]">fingerprint</span>
+    <div class="relative z-10 flex items-center gap-4">
+      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-lg shrink-0">
+        <span class="material-symbols-outlined !text-[28px] text-emerald-400">fingerprint</span>
       </div>
       <div>
-        <h3 class="text-lg sm:text-2xl font-black text-white tracking-tight">Time & Attendance</h3>
-        <p class="text-zinc-400 text-xs sm:text-sm font-medium">Log your shift securely via the terminal.</p>
+        <h3 class="text-lg sm:text-xl font-black text-white tracking-tight">Time & Attendance Punch Clock</h3>
+        <p class="text-zinc-400 text-xs sm:text-sm font-medium">Record work shifts, track active floor hours and calculate precise payroll snapshots.</p>
       </div>
     </div>
-    <div class="relative z-10 flex gap-2 sm:gap-3 w-full sm:w-auto">
-      <button (click)="clockIn()" class="flex-1 sm:flex-none justify-center px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] flex items-center gap-1.5 sm:gap-2">
-        <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">login</span> Clock In
+    <div class="relative z-10 flex gap-2.5 w-full sm:w-auto">
+      <button (click)="clockIn()" class="flex-1 sm:flex-none px-5 py-3 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-[0_0_25px_-5px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">login</span> Punch In
       </button>
-      <button (click)="clockOut()" class="flex-1 sm:flex-none justify-center px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-[0_0_20px_-5px_rgba(244,63,94,0.5)] flex items-center gap-1.5 sm:gap-2">
-        <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">logout</span> Clock Out
+      <button (click)="clockOut()" class="flex-1 sm:flex-none px-5 py-3 rounded-xl sm:rounded-2xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-[0_0_25px_-5px_rgba(244,63,94,0.5)] flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined !text-[18px]">logout</span> Punch Out
       </button>
     </div>
   </div>
 
-  <!-- ── Floating Glass Tabs ── -->
-  <div class="flex gap-1.5 sm:gap-2 p-1.5 bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-2xl w-full sm:w-fit shadow-sm overflow-x-auto no-scrollbar">
-    @for (tab of [{id: 'staff', label: 'Directory', icon: 'badge'}, {id: 'attendance', label: 'Timesheets', icon: 'schedule'}, {id: 'leaves', label: 'Time Off', icon: 'flight_takeoff'}, {id: 'payroll', label: 'Payroll', icon: 'account_balance_wallet'}, {id: 'roster', label: 'Roster', icon: 'calendar_month'}]; track tab.id) {
+  <!-- ── Dynamic Navigation Tabs ── -->
+  <div class="flex gap-1.5 sm:gap-2 p-1.5 bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl w-full sm:w-fit shadow-sm overflow-x-auto no-scrollbar">
+    @for (tab of [
+      {id: 'staff', label: 'Directory', icon: 'badge'},
+      {id: 'attendance', label: 'Timesheets', icon: 'schedule'},
+      {id: 'leaves', label: 'Time Off', icon: 'flight_takeoff', badge: pendingLeaves()},
+      {id: 'payroll', label: 'Payroll Engine', icon: 'account_balance_wallet'},
+      {id: 'roster', label: 'Shift Roster', icon: 'calendar_month'},
+      {id: 'shift_swaps', label: 'Shift Swaps', icon: 'swap_horiz', badge: pendingShiftSwaps()},
+      {id: 'commissions', label: 'Commissions', icon: 'percent'},
+      {id: 'achievements', label: 'Recognition', icon: 'emoji_events'}
+    ]; track tab.id) {
       <button (click)="activeTab.set($any(tab.id)); loadActiveTabData()"
-              class="px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap shrink-0 flex items-center gap-1.5 sm:gap-2 transition-all duration-200"
+              class="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap shrink-0 flex items-center gap-2 transition-all duration-200"
               [ngClass]="activeTab() === tab.id 
-                ? 'bg-white dark:bg-zinc-800 text-orange-600 dark:text-orange-400 shadow-md' 
-                : 'text-zinc-500 hover:bg-white/50 dark:hover:bg-white/5'">
-        <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">{{ tab.icon }}</span>
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
+                : 'text-zinc-600 dark:text-zinc-400 hover:bg-white/80 dark:hover:bg-white/5'">
+        <span class="material-symbols-outlined !text-[17px]">{{ tab.icon }}</span>
         {{ tab.label }}
+        @if (tab.badge && tab.badge > 0) {
+          <span class="px-1.5 py-0.2 text-[10px] font-black rounded-full bg-rose-500 text-white ml-0.5">{{ tab.badge }}</span>
+        }
       </button>
     }
   </div>
 
-  <!-- ── STAFF DIRECTORY ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 1: STAFF DIRECTORY ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'staff') {
     <div class="space-y-6">
-      <div class="relative max-w-md group">
-        <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-orange-500 transition-colors">
-          <span class="material-symbols-outlined !text-[20px]">search</span>
+      <!-- Search and Filter Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+          <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400">
+            <span class="material-symbols-outlined !text-[20px]">search</span>
+          </div>
+          <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+                 placeholder="Search by name, role, email or department..." 
+                 class="w-full pl-12 pr-4 py-3.5 rounded-2xl glass-panel text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-sm transition-all shadow-sm">
         </div>
-        <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
-               placeholder="Search by name or role..." 
-               class="w-full pl-12 pr-4 py-4 rounded-2xl glass-panel text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium text-sm transition-all shadow-sm">
+
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          @for (role of ['all', 'cashier', 'manager', 'admin', 'supervisor', 'warehouse']; track role) {
+            <button (click)="staffRoleFilter.set(role)"
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold capitalize transition-all shrink-0"
+                    [ngClass]="staffRoleFilter() === role ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-md' : 'bg-white/50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-700'">
+              {{ role === 'all' ? 'All Roles' : role }}
+            </button>
+          }
+        </div>
       </div>
-      
+
       @if (filteredStaff.length === 0) {
-        <div class="flex flex-col items-center justify-center py-24 text-zinc-400 glass-panel rounded-3xl border-dashed">
-          <span class="material-symbols-outlined !text-[64px] mb-4 text-zinc-300 dark:text-zinc-700">group_off</span>
-          <h3 class="text-xl font-black text-zinc-500 dark:text-zinc-400">No matching staff</h3>
-          <p class="text-sm mt-1">Try adjusting your search criteria.</p>
+        <div class="flex flex-col items-center justify-center py-20 text-zinc-400 glass-panel rounded-3xl border-dashed">
+          <span class="material-symbols-outlined !text-[54px] mb-3 text-zinc-300 dark:text-zinc-700">group_off</span>
+          <h3 class="text-lg font-black text-zinc-600 dark:text-zinc-400">No matching employees found</h3>
+          <p class="text-xs mt-1">Try clearing your search query or filter.</p>
         </div>
       }
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Staff Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         @for (s of filteredStaff; track s.id) {
-          <div class="glass-panel rounded-3xl p-1 relative overflow-hidden group cursor-pointer hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10"
-               (click)="openStaffModal(s)">
-            <!-- Top Banner -->
-            <div class="h-24 w-full rounded-t-[22px] bg-orange-400 opacity-80 group-hover:opacity-100 transition-opacity"></div>
-            
-            <div class="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
-              <!-- Avatar -->
-              <div class="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl flex items-center justify-center text-2xl font-black text-primary-600 dark:text-primary-400 -mt-10 mb-4 border-[4px] border-white dark:border-[#1a1a1a]">
-                {{ s.first_name?.[0] || '' }}{{ s.last_name?.[0] || '' }}
-              </div>
-              
-              <h3 class="font-black text-xl text-zinc-900 dark:text-white">{{ s.first_name }} {{ s.last_name }}</h3>
-              <p class="text-xs font-bold text-orange-500 dark:text-orange-400 uppercase tracking-widest mt-1">{{ s.role }}</p>
-              
-              <div class="mt-5 w-full space-y-2">
-                @if (s.phone) {
-                  <div class="flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 bg-black/5 dark:bg-white/5 py-2 rounded-xl">
-                    <span class="material-symbols-outlined !text-[16px]">call</span> {{ s.phone }}
-                  </div>
-                }
-                <div class="flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 bg-black/5 dark:bg-white/5 py-2 rounded-xl font-mono">
-                  <span class="material-symbols-outlined !text-[16px]">dialpad</span>
-                  {{ s.pin_code ? 'PIN SET' : 'NO PIN' }}
+          <div class="glass-panel rounded-3xl p-5 card-hover relative flex flex-col justify-between group border border-zinc-200/60 dark:border-zinc-800">
+            <div>
+              <div class="flex items-start justify-between mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-indigo-500/20">
+                  {{ staffInitials(s.id) }}
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full" [ngClass]="s.is_active !== false ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                  <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg"
+                        [ngClass]="s.is_active !== false ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400'">
+                    {{ s.is_active !== false ? 'Active' : 'Inactive' }}
+                  </span>
                 </div>
               </div>
 
-              <div class="absolute top-4 right-4">
-                <div class="w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm"
-                     [ngClass]="s.is_active ? 'bg-emerald-400' : 'bg-rose-400'"></div>
+              <h3 class="font-black text-lg text-zinc-900 dark:text-white leading-tight">{{ s.first_name }} {{ s.last_name }}</h3>
+              <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mt-0.5">{{ s.role }}</p>
+
+              <div class="mt-4 space-y-2 text-xs">
+                @if (s.email) {
+                  <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 truncate">
+                    <span class="material-symbols-outlined !text-[16px] text-zinc-400">mail</span>
+                    <span class="truncate">{{ s.email }}</span>
+                  </div>
+                }
+                @if (s.phone) {
+                  <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+                    <span class="material-symbols-outlined !text-[16px] text-zinc-400">call</span>
+                    <span>{{ s.phone }}</span>
+                  </div>
+                }
+                <div class="flex items-center justify-between pt-2 border-t border-zinc-200/50 dark:border-zinc-800">
+                  <span class="text-[11px] font-bold text-zinc-400 uppercase">Base / Hourly</span>
+                  <span class="font-black text-zinc-900 dark:text-white font-mono">
+                    {{ (s.base_salary || 0) | appCurrency }}
+                    @if (s.hourly_rate) {
+                      <span class="text-[10px] text-zinc-400">({{ s.hourly_rate | appCurrency }}/h)</span>
+                    }
+                  </span>
+                </div>
               </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-zinc-200/50 dark:border-zinc-800 flex items-center justify-end gap-2">
+              <button (click)="openStaffModal(s)" class="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 font-bold text-xs flex items-center gap-1 transition-all">
+                <span class="material-symbols-outlined !text-[16px]">edit</span> Edit
+              </button>
             </div>
           </div>
         }
@@ -215,136 +259,134 @@
     </div>
   }
 
-  <!-- ── TIMESHEETS TAB ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 2: TIMESHEETS & ATTENDANCE ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'attendance') {
-    <div class="space-y-4 sm:space-y-6">
-      
+    <div class="space-y-5">
       <!-- Analytics Strip -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-4">
-        <div class="glass-panel p-2.5 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-4 min-w-0">
-          <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
-            <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">schedule</span>
+      <div class="grid grid-cols-3 gap-3 sm:gap-5">
+        <div class="glass-panel p-3.5 sm:p-5 rounded-2xl flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[22px]">timer</span>
           </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-[8px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider truncate">Total Hours</p>
-            <h3 class="text-xs sm:text-xl md:text-2xl font-black text-zinc-900 dark:text-white truncate">{{ totalFilteredHours.toFixed(1) }}h</h3>
-          </div>
-        </div>
-        <div class="glass-panel p-2.5 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-4 min-w-0">
-          <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-            <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">analytics</span>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-[8px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider truncate">Avg per Shift</p>
-            <h3 class="text-xs sm:text-xl md:text-2xl font-black text-zinc-900 dark:text-white truncate">{{ averageFilteredHours.toFixed(1) }}h</h3>
+          <div>
+            <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">Total Hours Logged</p>
+            <h3 class="text-sm sm:text-2xl font-black text-zinc-900 dark:text-white">{{ totalFilteredHours.toFixed(1) }}h</h3>
           </div>
         </div>
-        <div class="glass-panel p-2.5 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-4 min-w-0">
-          <div class="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
-            <span class="material-symbols-outlined !text-[18px] sm:!text-[24px]">groups</span>
+
+        <div class="glass-panel p-3.5 sm:p-5 rounded-2xl flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[22px]">avg_pace</span>
           </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-[8px] sm:text-xs font-bold text-zinc-500 uppercase tracking-wider truncate">Active Shifts</p>
-            <h3 class="text-xs sm:text-xl md:text-2xl font-black text-zinc-900 dark:text-white truncate">{{ activeShifts }}</h3>
+          <div>
+            <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">Avg Shift Length</p>
+            <h3 class="text-sm sm:text-2xl font-black text-zinc-900 dark:text-white">{{ averageFilteredHours.toFixed(1) }}h</h3>
+          </div>
+        </div>
+
+        <div class="glass-panel p-3.5 sm:p-5 rounded-2xl flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined !text-[22px]">badge</span>
+          </div>
+          <div>
+            <p class="text-[9px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">Active Floor Shifts</p>
+            <h3 class="text-sm sm:text-2xl font-black text-zinc-900 dark:text-white">{{ activeShifts }}</h3>
           </div>
         </div>
       </div>
 
-      <div class="glass-panel rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl">
-        <div class="p-3.5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white/40 dark:bg-black/20 gap-3 sm:gap-4">
-          <h2 class="text-base sm:text-xl font-black">Daily Timesheets</h2>
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-            <div class="flex items-center gap-1.5 sm:gap-2">
-              <input type="date" [ngModel]="attendanceFilters().date_from" (ngModelChange)="attendanceFilters.update(f => ({...f, date_from: $event}))"
-                     class="flex-1 min-w-0 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 text-xs sm:text-sm font-medium">
-              <span class="text-zinc-400 text-xs">→</span>
-              <input type="date" [ngModel]="attendanceFilters().date_to" (ngModelChange)="attendanceFilters.update(f => ({...f, date_to: $event}))"
-                     class="flex-1 min-w-0 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 text-xs sm:text-sm font-medium">
-            </div>
-            <div class="flex items-center gap-1.5 sm:gap-2">
-              <select [ngModel]="attendanceFilters().staff_id" (ngModelChange)="attendanceFilters.update(f => ({...f, staff_id: $event}))"
-                      class="flex-1 min-w-0 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 text-xs sm:text-sm font-medium">
-                <option value="">All Staff</option>
-                @for (s of hrService.staff(); track s.id) {
-                  <option [value]="s.id">{{ s.first_name }} {{ s.last_name }}</option>
-                }
-              </select>
-              <button (click)="applyFilters()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all">Apply</button>
-              <button (click)="clearFilters()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white font-bold text-xs sm:text-sm transition-colors">Clear</button>
-              <button (click)="exportTimesheets()" class="w-8 h-8 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:scale-105 active:scale-95 transition-transform" title="Export CSV">
-                <span class="material-symbols-outlined !text-[16px] sm:!text-[18px]">download</span>
-              </button>
-            </div>
+      <!-- Filters & Timesheet Table -->
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
+        <div class="p-4 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white/40 dark:bg-black/20 gap-3">
+          <h2 class="text-base sm:text-xl font-black">Daily Timesheets & Shifts</h2>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
+            <input type="date" [ngModel]="attendanceFilters().date_from" (ngModelChange)="attendanceFilters.update(f => ({...f, date_from: $event}))"
+                   class="px-3 py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 text-xs font-medium">
+            <span class="text-zinc-400 text-xs">→</span>
+            <input type="date" [ngModel]="attendanceFilters().date_to" (ngModelChange)="attendanceFilters.update(f => ({...f, date_to: $event}))"
+                   class="px-3 py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 text-xs font-medium">
+            <select [ngModel]="attendanceFilters().staff_id" (ngModelChange)="attendanceFilters.update(f => ({...f, staff_id: $event}))"
+                    class="px-3 py-2 rounded-xl bg-white/50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-700 text-xs font-medium">
+              <option value="">All Employees</option>
+              @for (s of hrService.staff(); track s.id) {
+                <option [value]="s.id">{{ s.first_name }} {{ s.last_name }}</option>
+              }
+            </select>
+            <button (click)="applyFilters()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs">Filter</button>
+            <button (click)="clearFilters()" class="px-3 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold text-xs">Reset</button>
+            <button (click)="exportTimesheets()" class="px-3.5 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-xs flex items-center gap-1.5" title="Export CSV">
+              <span class="material-symbols-outlined !text-[16px]">download</span> Export CSV
+            </button>
           </div>
         </div>
+
         <div class="overflow-x-auto">
-          <table class="w-full text-xs sm:text-sm text-left min-w-[620px]">
-            <thead class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
+          <table class="w-full text-xs sm:text-sm text-left min-w-[700px]">
+            <thead class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
               <tr>
-                <th class="px-4 sm:px-6 py-3 sm:py-5">Team Member</th>
-                <th class="px-4 sm:px-6 py-3 sm:py-5">Time In</th>
-                <th class="px-4 sm:px-6 py-3 sm:py-5">Time Out</th>
-                <th class="px-4 sm:px-6 py-3 sm:py-5 min-w-[160px] sm:min-w-[200px]">Duration (8h Target)</th>
-                <th class="px-4 sm:px-6 py-3 sm:py-5 text-right">Status</th>
-                <th class="px-3 sm:px-4 py-3 sm:py-5 w-12"></th>
+                <th class="px-6 py-4">Employee</th>
+                <th class="px-6 py-4">Clock In</th>
+                <th class="px-6 py-4">Clock Out</th>
+                <th class="px-6 py-4 min-w-[180px]">Hours (8h Target)</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
-              @for (a of hrService.attendances(); track a.clock_in) {
+              @for (a of hrService.attendances(); track a.id || a.clock_in) {
                 <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors group">
-                  <td class="px-4 sm:px-6 py-3 sm:py-4">
-                    <div class="flex items-center gap-2.5 sm:gap-4">
-                      <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-100 dark:from-indigo-900/40flex items-center justify-center text-xs sm:text-sm font-black text-indigo-700 dark:text-indigo-400 shadow-inner group-hover:scale-110 transition-transform shrink-0">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0">
                         {{ staffInitials(a.staff_id) }}
                       </div>
-                      <span class="font-bold text-zinc-900 dark:text-white truncate text-xs sm:text-sm">{{ staffName(a.staff_id) }}</span>
+                      <span class="font-bold text-zinc-900 dark:text-white">{{ staffName(a.staff_id) }}</span>
                     </div>
                   </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap text-xs sm:text-sm">
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                      <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-emerald-500">login</span>
+                  <td class="px-6 py-4 font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
+                    <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                      <span class="material-symbols-outlined !text-[16px]">login</span>
                       {{ a.clock_in | date:'MMM d, h:mm a' }}
                     </div>
                   </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap text-xs sm:text-sm">
-                    <div class="flex items-center gap-1.5 sm:gap-2">
-                      <span class="material-symbols-outlined !text-[15px] sm:!text-[16px] text-rose-500">logout</span>
-                      {{ a.clock_out ? (a.clock_out | date:'MMM d, h:mm a') : '—' }}
-                    </div>
+                  <td class="px-6 py-4 font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
+                    @if (a.clock_out) {
+                      <div class="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
+                        <span class="material-symbols-outlined !text-[16px]">logout</span>
+                        {{ a.clock_out | date:'MMM d, h:mm a' }}
+                      </div>
+                    } @else {
+                      <span class="text-zinc-400 font-mono italic">Still Active</span>
+                    }
                   </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4">
+                  <td class="px-6 py-4">
                     <div class="flex flex-col gap-1">
-                      <span class="font-mono font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">{{ hoursWorkedFormatted(a.clock_in, a.clock_out) }}</span>
+                      <span class="font-mono font-bold text-zinc-900 dark:text-white text-xs">
+                        {{ hoursWorkedFormatted(a.clock_in, a.clock_out, a.hours_worked) }}
+                      </span>
                       <div class="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-1000"
-                             [ngClass]="hoursWorked(a.clock_in, a.clock_out) > 8 ? 'bg-orange-500' : 'bg-emerald-500'"
-                             [style.width]="progressWidth(a.clock_in, a.clock_out)"></div>
+                        <div class="h-full rounded-full transition-all duration-700"
+                             [ngClass]="(a.hours_worked || hoursWorked(a.clock_in, a.clock_out)) > 8 ? 'bg-amber-500' : 'bg-emerald-500'"
+                             [style.width]="progressWidth(a.clock_in, a.clock_out, a.hours_worked)"></div>
                       </div>
                     </div>
                   </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-4 text-right">
-                    <span class="px-2.5 py-1 text-[9px] sm:text-[10px] font-black tracking-wider rounded-lg uppercase inline-flex items-center gap-1"
-                          [class.bg-emerald-100]="a.status === 'completed' || a.status === 'present' || a.clock_out"
-                          [class.text-emerald-700]="a.status === 'completed' || a.status === 'present' || a.clock_out"
-                          [class.dark:bg-emerald-500/20]="a.status === 'completed' || a.status === 'present' || a.clock_out"
-                          [class.dark:text-emerald-400]="a.status === 'completed' || a.status === 'present' || a.clock_out"
-                          [class.bg-amber-100]="a.status === 'active' && !a.clock_out"
-                          [class.text-amber-700]="a.status === 'active' && !a.clock_out"
-                          [class.dark:bg-amber-500/20]="a.status === 'active' && !a.clock_out"
-                          [class.dark:text-amber-400]="a.status === 'active' && !a.clock_out">
+                  <td class="px-6 py-4">
+                    <span class="px-2.5 py-1 text-[10px] font-black tracking-wider rounded-lg uppercase inline-flex items-center gap-1"
+                          [ngClass]="a.clock_out ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'">
                       <span class="w-1.5 h-1.5 rounded-full" [ngClass]="a.clock_out ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'"></span>
-                      {{ a.clock_out ? 'Completed' : 'Active' }}
+                      {{ a.clock_out ? 'Completed' : 'Active Shift' }}
                     </span>
                   </td>
-                  <td class="px-3 sm:px-4 py-3 sm:py-4 text-right relative">
-                    <div class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      @if (!a.clock_out) {
-                        <button (click)="manualCorrect(a)" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-orange-100 hover:text-orange-600 text-zinc-400 transition-colors" title="Force Clock-Out">
-                          <span class="material-symbols-outlined !text-[15px] sm:!text-[16px]">timer_off</span>
-                        </button>
-                      }
-                      <button (click)="deleteAttendance(a)" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg hover:bg-rose-100 hover:text-rose-600 text-zinc-400 transition-colors" title="Delete Record">
-                        <span class="material-symbols-outlined !text-[15px] sm:!text-[16px]">delete</span>
+                  <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button (click)="openAttendanceCorrectionModal(a)" class="w-8 h-8 rounded-lg hover:bg-indigo-100 hover:text-indigo-600 text-zinc-400 flex items-center justify-center transition-colors" title="Adjust / Correct Time">
+                        <span class="material-symbols-outlined !text-[16px]">edit_calendar</span>
+                      </button>
+                      <button (click)="deleteAttendance(a)" class="w-8 h-8 rounded-lg hover:bg-rose-100 hover:text-rose-600 text-zinc-400 flex items-center justify-center transition-colors" title="Delete Record">
+                        <span class="material-symbols-outlined !text-[16px]">delete</span>
                       </button>
                     </div>
                   </td>
@@ -352,9 +394,9 @@
               }
               @if (hrService.attendances().length === 0) {
                 <tr>
-                  <td colspan="6" class="px-4 sm:px-6 py-16 sm:py-20 text-center">
-                    <span class="material-symbols-outlined !text-[40px] sm:!text-[48px] text-zinc-300 dark:text-zinc-700 mb-3 sm:mb-4 block">pending_actions</span>
-                    <p class="text-zinc-500 font-bold text-base sm:text-lg">No timesheets recorded.</p>
+                  <td colspan="6" class="px-6 py-16 text-center text-zinc-400">
+                    <span class="material-symbols-outlined !text-[44px] mb-2 text-zinc-300 dark:text-zinc-700 block">schedule</span>
+                    No timesheets recorded for this period.
                   </td>
                 </tr>
               }
@@ -365,170 +407,284 @@
     </div>
   }
 
-  <!-- ── LEAVES TAB ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 3: LEAVES & TIME OFF ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'leaves') {
-    <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
-      <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
-        <h2 class="text-xl font-black">Time Off Requests</h2>
+    <div class="space-y-6">
+      <!-- Leave Quota Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        <div class="glass-panel p-4 sm:p-5 rounded-2xl">
+          <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Annual Entitlement</p>
+          <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ hrService.leaveSummary().total_quota }} Days</h3>
+        </div>
+        <div class="glass-panel p-4 sm:p-5 rounded-2xl">
+          <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Days Used</p>
+          <h3 class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ hrService.leaveSummary().used_days }} Days</h3>
+        </div>
+        <div class="glass-panel p-4 sm:p-5 rounded-2xl">
+          <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pending Requests</p>
+          <h3 class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ hrService.leaveSummary().pending_days }} Days</h3>
+        </div>
+        <div class="glass-panel p-4 sm:p-5 rounded-2xl">
+          <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Remaining Balance</p>
+          <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ hrService.leaveSummary().remaining_days }} Days</h3>
+        </div>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-          <thead class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
-            <tr>
-              <th class="px-6 py-5">Team Member</th>
-              <th class="px-6 py-5">Type & Duration</th>
-              <th class="px-6 py-5">Reason</th>
-              <th class="px-6 py-5">Status</th>
-              <th class="px-6 py-5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
-            @for (l of hrService.leaveRequests(); track l.start_date) {
-              <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors group">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-sm font-black text-amber-700 dark:text-amber-400 shadow-inner group-hover:scale-110 transition-transform">
-                      {{ staffInitials(l.staff_id) }}
-                    </div>
-                    <span class="font-bold text-zinc-900 dark:text-white">{{ staffName(l.staff_id) }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <p class="font-bold capitalize text-zinc-900 dark:text-white mb-1">{{ l.leave_type }}</p>
-                  <p class="text-xs font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md inline-block">
-                    {{ l.start_date | date:'MMM d' }} → {{ l.end_date | date:'MMM d, y' }}
-                  </p>
-                </td>
-                <td class="px-6 py-4">
-                  <p class="text-xs text-zinc-600 dark:text-zinc-400 max-w-[200px] truncate bg-white/50 dark:bg-black/20 p-2 rounded-lg border border-zinc-200/50 dark:border-zinc-700/50">
-                    {{ l.reason || 'No reason provided' }}
-                  </p>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="px-3 py-1.5 text-[10px] font-black tracking-widest rounded-lg uppercase inline-flex items-center gap-1"
-                        [class.bg-amber-100]="l.status === 'pending'" [class.text-amber-700]="l.status === 'pending'"
-                        [class.dark:bg-amber-500/20]="l.status === 'pending'" [class.dark:text-amber-400]="l.status === 'pending'"
-                        [class.bg-emerald-100]="l.status === 'approved'" [class.text-emerald-700]="l.status === 'approved'"
-                        [class.dark:bg-emerald-500/20]="l.status === 'approved'" [class.dark:text-emerald-400]="l.status === 'approved'"
-                        [class.bg-rose-100]="l.status === 'rejected'" [class.text-rose-700]="l.status === 'rejected'"
-                        [class.dark:bg-rose-500/20]="l.status === 'rejected'" [class.dark:text-rose-400]="l.status === 'rejected'">
-                    {{ l.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  @if (l.status === 'pending') {
-                    <div class="flex justify-end gap-2">
-                      <button (click)="approveLeave(l.id)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-emerald-100 hover:bg-emerald-500 text-emerald-600 hover:text-white transition-all shadow-sm">
-                        <span class="material-symbols-outlined !text-[18px]">check</span>
-                      </button>
-                      <button (click)="rejectLeave(l.id)" class="w-9 h-9 flex items-center justify-center rounded-xl bg-rose-100 hover:bg-rose-500 text-rose-600 hover:text-white transition-all shadow-sm">
-                        <span class="material-symbols-outlined !text-[18px]">close</span>
-                      </button>
-                    </div>
-                  } @else {
-                    <span class="text-zinc-300 dark:text-zinc-700 font-black">—</span>
-                  }
-                </td>
-              </tr>
-            }
-            @if (hrService.leaveRequests().length === 0) {
+
+      <!-- Leave Requests Table -->
+      <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
+        <div class="p-4 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
+          <h2 class="text-lg sm:text-xl font-black">Time Off & Leave Requests</h2>
+          <button (click)="isLeaveModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-all flex items-center gap-1.5 shadow-md">
+            <span class="material-symbols-outlined !text-[18px]">add</span> Submit Request
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sm:text-sm text-left min-w-[700px]">
+            <thead class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
               <tr>
-                <td colspan="5" class="px-6 py-20 text-center">
-                  <span class="material-symbols-outlined !text-[48px] text-zinc-300 dark:text-zinc-700 mb-4 block">event_available</span>
-                  <p class="text-zinc-500 font-bold text-lg">No time off requests.</p>
-                </td>
+                <th class="px-6 py-4">Employee</th>
+                <th class="px-6 py-4">Type & Duration</th>
+                <th class="px-6 py-4">Reason</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+              @for (l of hrService.leaveRequests(); track l.id || l.start_date) {
+                <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-black text-xs flex items-center justify-center shrink-0">
+                        {{ staffInitials(l.staff_id) }}
+                      </div>
+                      <span class="font-bold text-zinc-900 dark:text-white">{{ staffName(l.staff_id) }}</span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-bold capitalize text-zinc-900 dark:text-white mb-0.5">{{ l.leave_type }} Leave</p>
+                    <p class="text-xs text-zinc-500 font-medium">
+                      {{ l.start_date | date:'MMM d' }} → {{ l.end_date | date:'MMM d, y' }}
+                      <span class="ml-1 font-bold text-indigo-600">({{ l.days_count || 1 }} days)</span>
+                    </p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="text-xs text-zinc-600 dark:text-zinc-400 max-w-[220px] truncate">
+                      {{ l.reason || 'No specific reason stated' }}
+                    </p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                          [ngClass]="{
+                            'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400': l.status === 'pending',
+                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400': l.status === 'approved',
+                            'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400': l.status === 'rejected'
+                          }">
+                      {{ l.status }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    @if (l.status === 'pending') {
+                      <div class="flex items-center justify-end gap-2">
+                        <button (click)="openLeaveActionModal(l, 'approve')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
+                          <span class="material-symbols-outlined !text-[16px]">check</span> Approve
+                        </button>
+                        <button (click)="openLeaveActionModal(l, 'reject')" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
+                          <span class="material-symbols-outlined !text-[16px]">close</span> Reject
+                        </button>
+                      </div>
+                    } @else {
+                      <span class="text-xs text-zinc-400">Reviewed</span>
+                    }
+                  </td>
+                </tr>
+              }
+              @if (hrService.leaveRequests().length === 0) {
+                <tr>
+                  <td colspan="5" class="px-6 py-16 text-center text-zinc-400">
+                    <span class="material-symbols-outlined !text-[44px] mb-2 text-zinc-300 dark:text-zinc-700 block">event_available</span>
+                    No leave requests on record.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }
 
-  <!-- ── PAYROLL TAB ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 4: ENTERPRISE PAYROLL ENGINE ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'payroll') {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      @for (p of payrollPeriods(); track p.id) {
-        <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
-          <div class="absolute inset-0 bg-white/40 dark:from-white/5 pointer-events-none"></div>
-          
-          <div class="flex justify-between items-start mb-8 relative z-10">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-inner">
-              <span class="material-symbols-outlined !text-[28px]">payments</span>
-            </div>
-            <span class="px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                  [class.bg-emerald-500]="p.is_processed" [class.text-white]="p.is_processed"
-                  [class.bg-zinc-200]="!p.is_processed" [class.text-zinc-600]="!p.is_processed"
-                  [class.dark:bg-zinc-700]="!p.is_processed" [class.dark:text-zinc-300]="!p.is_processed">
-              {{ p.is_processed ? 'Processed' : 'Draft' }}
-            </span>
-          </div>
-
-          <div class="relative z-10 mb-8">
-            <h3 class="font-black text-2xl text-zinc-900 dark:text-white mb-1">{{ p.name }}</h3>
-            <p class="text-xs font-bold text-zinc-500 bg-white/50 dark:bg-black/20 inline-block px-3 py-1.5 rounded-lg border border-zinc-200/50 dark:border-zinc-700/50">
-              {{ p.start_date | date:'MMM d' }} — {{ p.end_date | date:'MMM d, y' }}
-            </p>
-          </div>
-
-          <div class="relative z-10 flex items-center justify-between border-t border-zinc-200/50 dark:border-zinc-700/50 pt-5">
-            @if (p.processed_at) {
-              <div class="text-xs font-medium text-zinc-500">
-                Processed<br><strong class="text-zinc-900 dark:text-zinc-300">{{ p.processed_at | date:'MMM d, y' }}</strong>
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (p of hrService.payrollPeriods(); track p.id) {
+          <div class="glass-panel rounded-3xl p-6 card-hover flex flex-col justify-between border border-zinc-200/60 dark:border-zinc-800">
+            <div>
+              <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 flex items-center justify-center shadow-inner">
+                  <span class="material-symbols-outlined !text-[26px]">account_balance_wallet</span>
+                </div>
+                <span class="px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-xl"
+                      [ngClass]="p.is_processed ? 'bg-emerald-500 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'">
+                  {{ p.is_processed ? 'Finalized' : 'Draft' }}
+                </span>
               </div>
-            } @else {
-              <div class="text-xs font-medium text-zinc-500">Ready to run</div>
-              <button (click)="processPayroll(p.id)" class="px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-emerald-500 dark:hover:bg-emerald-500 hover:text-white font-black text-sm rounded-xl transition-all shadow-lg flex items-center gap-1 group-hover:scale-105">
-                Run Payroll <span class="material-symbols-outlined !text-[16px]">arrow_forward</span>
+
+              <h3 class="font-black text-xl text-zinc-900 dark:text-white">{{ p.name }}</h3>
+              <p class="text-xs font-semibold text-zinc-500 mt-1">
+                {{ p.start_date | date:'MMM d' }} — {{ p.end_date | date:'MMM d, y' }}
+              </p>
+
+              @if (p.is_processed) {
+                <div class="mt-4 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/50 dark:border-zinc-800 space-y-2 text-xs">
+                  <div class="flex justify-between">
+                    <span class="text-zinc-500 font-bold">Total Gross Pay</span>
+                    <span class="font-mono font-black text-zinc-900 dark:text-white">{{ (p.total_gross || 0) | appCurrency }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-zinc-500 font-bold">Total Net Pay</span>
+                    <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">{{ (p.total_net || 0) | appCurrency }}</span>
+                  </div>
+                  <div class="flex justify-between pt-1 border-t border-zinc-200/50 dark:border-zinc-800">
+                    <span class="text-zinc-500 font-bold">Staff Count</span>
+                    <span class="font-bold text-zinc-900 dark:text-white">{{ p.staff_count || 0 }} Members</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-zinc-200/50 dark:border-zinc-800 flex items-center justify-between gap-2">
+              <button (click)="viewPeriodBreakdown(p)" class="px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white font-bold text-xs flex items-center gap-1">
+                <span class="material-symbols-outlined !text-[16px]">receipt_long</span> Breakdown
               </button>
-            }
+              
+              <button (click)="processPayroll(p.id)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center gap-1 shadow-md shadow-emerald-600/30">
+                <span class="material-symbols-outlined !text-[16px]">calculate</span>
+                {{ p.is_processed ? 'Recalculate' : 'Run Payroll' }}
+              </button>
+            </div>
           </div>
-        </div>
-      }
-      @if (payrollPeriods().length === 0) {
-        <div class="col-span-full flex flex-col items-center justify-center py-24 glass-panel rounded-3xl border-dashed">
-          <span class="material-symbols-outlined !text-[64px] mb-4 text-zinc-300 dark:text-zinc-700">account_balance_wallet</span>
-          <h3 class="text-xl font-black text-zinc-500 dark:text-zinc-400">No Payroll Periods</h3>
-          <p class="text-sm mt-1">Create your first period to run payroll.</p>
+        }
+        @if (hrService.payrollPeriods().length === 0) {
+          <div class="col-span-full py-20 text-center glass-panel rounded-3xl border-dashed text-zinc-400">
+            <span class="material-symbols-outlined !text-[54px] mb-2 block text-zinc-300 dark:text-zinc-700">payments</span>
+            <h3 class="text-lg font-black text-zinc-600 dark:text-zinc-400">No payroll periods created</h3>
+            <p class="text-xs mt-1">Start by clicking "New Payroll Cycle" to define a pay period.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Selected Period Breakdown Table -->
+      @if (selectedPeriod()) {
+        <div class="glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl border border-indigo-500/20">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-zinc-200/50 dark:border-zinc-800">
+            <div>
+              <span class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400">Cycle Breakdown</span>
+              <h2 class="text-xl font-black text-zinc-900 dark:text-white">{{ selectedPeriod()?.name }}</h2>
+            </div>
+            <button (click)="selectedPeriod.set(null)" class="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 font-bold">
+              Close Breakdown ✕
+            </button>
+          </div>
+
+          <div class="overflow-x-auto mt-4">
+            <table class="w-full text-xs sm:text-sm text-left min-w-[700px]">
+              <thead class="text-[10px] font-black uppercase tracking-wider text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50">
+                <tr>
+                  <th class="px-4 py-3">Employee</th>
+                  <th class="px-4 py-3">Hours Logged</th>
+                  <th class="px-4 py-3">Sales Generated</th>
+                  <th class="px-4 py-3">Base Salary</th>
+                  <th class="px-4 py-3">Commissions</th>
+                  <th class="px-4 py-3">Net Pay</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800">
+                @for (r of selectedPeriod()?.records || []; track r.id) {
+                  <tr class="hover:bg-white/40 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 font-bold">{{ r.staff_name || staffName(r.staff_id) }}</td>
+                    <td class="px-4 py-3 font-mono">{{ r.hours_worked || 0 }}h</td>
+                    <td class="px-4 py-3 font-mono">{{ (r.sales_amount || 0) | appCurrency }}</td>
+                    <td class="px-4 py-3 font-mono">{{ r.base_salary_snapshot | appCurrency }}</td>
+                    <td class="px-4 py-3 font-mono text-indigo-600 dark:text-indigo-400 font-bold">+{{ r.total_commission | appCurrency }}</td>
+                    <td class="px-4 py-3 font-mono font-black text-emerald-600 dark:text-emerald-400">{{ r.net_pay | appCurrency }}</td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                            [ngClass]="r.is_paid ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'">
+                        {{ r.is_paid ? 'Paid' : 'Unpaid' }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <button (click)="openPayslipModal(r)" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1 ml-auto shadow-sm">
+                        <span class="material-symbols-outlined !text-[16px]">visibility</span> Payslip
+                      </button>
+                    </td>
+                  </tr>
+                }
+                @if ((selectedPeriod()?.records || []).length === 0) {
+                  <tr>
+                    <td colspan="8" class="px-4 py-8 text-center text-zinc-400">
+                      No payroll records generated yet. Click "Run Payroll" to compute calculations.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
       }
     </div>
   }
-  <!-- ── ROSTER TAB ── -->
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 5: SHIFT ROSTER ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
   @if (activeTab() === 'roster') {
     <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
-      <div class="p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
-        <h2 class="text-xl font-black">Staff Roster & Scheduling</h2>
-        <button (click)="isShiftModalOpen.set(true)" class="px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold shadow-lg hover:opacity-90">Schedule Shift</button>
+      <div class="p-4 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
+        <h2 class="text-lg sm:text-xl font-black">Staff Roster & Scheduled Shifts</h2>
+        <button (click)="isShiftModalOpen.set(true)" class="px-4 py-2 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-md">
+          <span class="material-symbols-outlined !text-[18px]">add</span> Schedule Shift
+        </button>
       </div>
+
       <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
+        <table class="w-full text-xs sm:text-sm text-left min-w-[650px]">
           <thead class="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200/50 dark:border-zinc-800/50">
             <tr>
-              <th class="px-6 py-5">Staff Member</th>
-              <th class="px-6 py-5">Role</th>
-              <th class="px-6 py-5">Date</th>
-              <th class="px-6 py-5">Time</th>
-              <th class="px-6 py-5">Status</th>
+              <th class="px-6 py-4">Employee</th>
+              <th class="px-6 py-4">Role Assignment</th>
+              <th class="px-6 py-4">Shift Date</th>
+              <th class="px-6 py-4">Time Window</th>
+              <th class="px-6 py-4">Status</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
             @for (shift of hrService.shifts(); track shift.id) {
               <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
-                <td class="px-6 py-4 font-bold">{{ staffName(shift.staff_id) }}</td>
-                <td class="px-6 py-4 font-bold text-orange-500">{{ shift.role }}</td>
+                <td class="px-6 py-4 font-bold text-zinc-900 dark:text-white">{{ staffName(shift.staff_id) }}</td>
+                <td class="px-6 py-4 font-bold text-teal-600 dark:text-teal-400">{{ shift.role || 'Cashier' }}</td>
                 <td class="px-6 py-4">{{ shift.start_time | date:'mediumDate' }}</td>
                 <td class="px-6 py-4 font-mono">{{ shift.start_time | date:'shortTime' }} - {{ shift.end_time | date:'shortTime' }}</td>
                 <td class="px-6 py-4">
-                  <span class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-bold">{{ shift.status }}</span>
+                  <span class="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-xs font-bold uppercase tracking-wider">
+                    {{ shift.status }}
+                  </span>
                 </td>
               </tr>
             }
             @if (hrService.shifts().length === 0) {
               <tr>
-                <td colspan="5" class="px-6 py-20 text-center text-zinc-500">
-                  <span class="material-symbols-outlined !text-[48px] block mb-2 opacity-50">calendar_month</span>
-                  No shifts scheduled.
+                <td colspan="5" class="px-6 py-16 text-center text-zinc-400">
+                  <span class="material-symbols-outlined !text-[44px] mb-2 text-zinc-300 dark:text-zinc-700 block">calendar_month</span>
+                  No shifts scheduled in this roster.
                 </td>
               </tr>
             }
@@ -537,193 +693,759 @@
       </div>
     </div>
   }
-</div>
 
-<!-- ── MODALS (Re-styled for Glassmorphism & Mobile Bottom-Sheet) ── -->
-
-<!-- Staff Modal -->
-@if (isStaffModalOpen()) {
-  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/50 backdrop-blur-md p-0 sm:p-4" (click)="isStaffModalOpen.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[540px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
-      <div class="p-4 sm:p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
-        <h2 class="text-lg sm:text-2xl font-black tracking-tight">{{ currentStaff().id ? 'Update' : 'Add' }} Team Member</h2>
-        <button (click)="isStaffModalOpen.set(false)" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">close</span>
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 6: SHIFT SWAP REQUESTS ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'shift_swaps') {
+    <div class="glass-panel rounded-3xl overflow-hidden shadow-xl">
+      <div class="p-4 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-white/40 dark:bg-black/20">
+        <h2 class="text-lg sm:text-xl font-black">Employee Shift Exchange Requests</h2>
+        <button (click)="openShiftSwapModal()" class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:bg-purple-700 transition-all flex items-center gap-1.5 shadow-md">
+          <span class="material-symbols-outlined !text-[18px]">add</span> Post Shift Swap
         </button>
       </div>
-      <div class="p-4 sm:p-6 md:p-8 space-y-3.5 sm:space-y-5 overflow-y-auto flex-1">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left min-w-[650px]">
+          <thead class="text-[10px] font-black uppercase tracking-wider text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/50">
+            <tr>
+              <th class="px-6 py-4">Requesting Staff</th>
+              <th class="px-6 py-4">Target Peer</th>
+              <th class="px-6 py-4">Notes / Reason</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-zinc-200/50 dark:divide-zinc-800/50">
+            @for (swap of hrService.shiftSwaps(); track swap.id) {
+              <tr class="hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 font-bold">{{ staffName(swap.requesting_staff_id) }}</td>
+                <td class="px-6 py-4">{{ swap.target_staff_id ? staffName(swap.target_staff_id) : 'Open to Anyone' }}</td>
+                <td class="px-6 py-4 text-xs text-zinc-500">{{ swap.notes || 'No notes provided' }}</td>
+                <td class="px-6 py-4">
+                  <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                        [ngClass]="{
+                          'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400': swap.status === 'pending',
+                          'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400': swap.status === 'approved',
+                          'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400': swap.status === 'rejected'
+                        }">
+                    {{ swap.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  @if (swap.status === 'pending') {
+                    <div class="flex items-center justify-end gap-2">
+                      <button (click)="approveShiftSwap(swap.id!)" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                        Approve
+                      </button>
+                      <button (click)="rejectShiftSwap(swap.id!)" class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-sm">
+                        Reject
+                      </button>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-zinc-400">Processed</span>
+                  }
+                </td>
+              </tr>
+            }
+            @if (hrService.shiftSwaps().length === 0) {
+              <tr>
+                <td colspan="5" class="px-6 py-16 text-center text-zinc-400">
+                  <span class="material-symbols-outlined !text-[44px] mb-2 text-zinc-300 dark:text-zinc-700 block">swap_horiz</span>
+                  No shift exchange requests found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 7: COMMISSION RULES & INCENTIVES ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'commissions') {
+    <div class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @for (rule of hrService.commissionRules(); track rule.id || rule.name) {
+          <div class="glass-panel rounded-3xl p-6 card-hover flex flex-col justify-between border border-zinc-200/60 dark:border-zinc-800">
+            <div>
+              <div class="flex justify-between items-start mb-3">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-500/20 text-blue-600 flex items-center justify-center shadow-inner">
+                  <span class="material-symbols-outlined !text-[24px]">percent</span>
+                </div>
+                <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                      [ngClass]="rule.is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-zinc-200 text-zinc-600'">
+                  {{ rule.is_active ? 'Active' : 'Disabled' }}
+                </span>
+              </div>
+
+              <h3 class="font-black text-xl text-zinc-900 dark:text-white">{{ rule.name }}</h3>
+
+              <div class="mt-4 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/50 dark:border-zinc-800 space-y-2 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-zinc-500 font-bold">Min Sales Threshold</span>
+                  <span class="font-mono font-black text-zinc-900 dark:text-white">{{ rule.min_sales_amount | appCurrency }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-zinc-500 font-bold">Commission Rate</span>
+                  <span class="font-mono font-black text-indigo-600 dark:text-indigo-400">{{ rule.commission_percentage }}%</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-zinc-500 font-bold">Flat Bonus</span>
+                  <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">{{ rule.flat_bonus | appCurrency }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-zinc-200/50 dark:border-zinc-800 flex justify-end">
+              <button (click)="deleteCommissionRule(rule.id!)" class="px-3 py-1.5 rounded-xl hover:bg-rose-100 hover:text-rose-600 text-zinc-400 font-bold text-xs flex items-center gap-1 transition-colors">
+                <span class="material-symbols-outlined !text-[16px]">delete</span> Remove
+              </button>
+            </div>
+          </div>
+        }
+        @if (hrService.commissionRules().length === 0) {
+          <div class="col-span-full py-20 text-center glass-panel rounded-3xl border-dashed text-zinc-400">
+            <span class="material-symbols-outlined !text-[54px] mb-2 block text-zinc-300 dark:text-zinc-700">trending_up</span>
+            <h3 class="text-lg font-black text-zinc-600 dark:text-zinc-400">No commission rules configured</h3>
+            <p class="text-xs mt-1">Create incentive tiers to automatically reward staff sales volume during payroll runs.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── TAB 8: GAMIFICATION & RECOGNITION ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  @if (activeTab() === 'achievements') {
+    <div class="space-y-6">
+      <!-- Top Performers Leaderboard -->
+      @if (intelligence.leaderboard().length > 0) {
+        <div class="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-500/30 shadow-lg">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <span class="material-symbols-outlined !text-[24px]">emoji_events</span>
+            </div>
+            <div>
+              <h2 class="text-xl font-black text-amber-600 dark:text-amber-400">Sales Leaderboard</h2>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Top performers based on recent sales transactions</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (entry of intelligence.leaderboard(); track entry.cashier_id; let i = $index) {
+              <div class="glass-panel p-4 rounded-2xl flex items-center gap-3 border border-amber-500/20">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 font-black flex items-center justify-center text-sm shrink-0">
+                  #{{ i + 1 }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-bold text-sm text-zinc-900 dark:text-white truncate">{{ entry.first_name }} {{ entry.last_name }}</h4>
+                  <p class="text-xs text-amber-600 dark:text-amber-400 font-bold">{{ entry.order_count }} orders · {{ entry.total_sales | appCurrency }}</p>
+                </div>
+                @if (i === 0) {
+                  <span class="material-symbols-outlined text-yellow-500 !text-[24px]">star</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Achievements Feed -->
+      <div class="glass-panel rounded-3xl p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-black">Staff Recognitions & Badges</h2>
+          <button (click)="openAchievementModal()" class="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition-all flex items-center gap-1.5 shadow-md">
+            <span class="material-symbols-outlined !text-[18px]">add</span> Award Badge
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (a of hrService.achievements(); track a.id || a.badge_name) {
+            <div class="p-4 rounded-2xl bg-white/50 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-zinc-800 flex items-start gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined !text-[26px]">{{ a.badge_icon || 'stars' }}</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-black text-sm text-zinc-900 dark:text-white">{{ a.badge_name }}</h4>
+                <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400">{{ staffName(a.staff_id) }}</p>
+                @if (a.description) {
+                  <p class="text-xs text-zinc-500 mt-1 line-clamp-2">{{ a.description }}</p>
+                }
+                <div class="flex items-center justify-between mt-3 pt-2 border-t border-zinc-200/40 dark:border-zinc-800 text-[10px] text-zinc-400">
+                  <span>{{ a.awarded_at | date:'mediumDate' }}</span>
+                  <button (click)="deleteAchievement(a.id!)" class="hover:text-rose-500 font-bold">Remove</button>
+                </div>
+              </div>
+            </div>
+          }
+          @if (hrService.achievements().length === 0) {
+            <div class="col-span-full py-16 text-center text-zinc-400">
+              <span class="material-symbols-outlined !text-[44px] mb-2 block text-zinc-300 dark:text-zinc-700">military_tech</span>
+              No employee achievement badges awarded yet.
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- ── MODALS SECTION ── -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+
+<!-- 1. Staff Profile Modal -->
+@if (isStaffModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isStaffModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[580px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">{{ currentStaff().id ? 'Edit Employee Profile' : 'New Employee Onboarding' }}</h2>
+        <button (click)="isStaffModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">First Name</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">First Name</label>
             <input [ngModel]="currentStaff().first_name" (ngModelChange)="currentStaff.update(s => ({...s, first_name: $event}))"
-                   placeholder="John" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   placeholder="e.g. Sarah" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Last Name</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Last Name</label>
             <input [ngModel]="currentStaff().last_name" (ngModelChange)="currentStaff.update(s => ({...s, last_name: $event}))"
-                   placeholder="Doe" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   placeholder="e.g. Jenkins" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
           </div>
         </div>
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Assigned Role</label>
-          <select [ngModel]="currentStaff().role" (ngModelChange)="currentStaff.update(s => ({...s, role: $event}))"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm appearance-none cursor-pointer">
-            <option value="cashier">Cashier</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Administrator</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="warehouse">Warehouse Staff</option>
-          </select>
+
+        @if (!currentStaff().id) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Username / Login ID</label>
+              <input [ngModel]="currentStaff().username" (ngModelChange)="currentStaff.update(s => ({...s, username: $event}))"
+                     placeholder="e.g. sarah.j" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Email Address</label>
+              <input [ngModel]="currentStaff().email" (ngModelChange)="currentStaff.update(s => ({...s, email: $event}))"
+                     type="email" placeholder="sarah@company.com" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
+            </div>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">System Role</label>
+            <select [ngModel]="currentStaff().role" (ngModelChange)="currentStaff.update(s => ({...s, role: $event}))"
+                    class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
+              <option value="cashier">Cashier</option>
+              <option value="manager">Store Manager</option>
+              <option value="admin">Administrator</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="warehouse">Warehouse Staff</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Phone Number</label>
+            <input [ngModel]="currentStaff().phone" (ngModelChange)="currentStaff.update(s => ({...s, phone: $event}))"
+                   placeholder="+1 (555) 000-0000" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs sm:text-sm font-bold focus:outline-none focus:border-indigo-500">
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Phone Number</label>
-          <input [ngModel]="currentStaff().phone" (ngModelChange)="currentStaff.update(s => ({...s, phone: $event}))"
-                 placeholder="+1 (555) 000-0000" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+
+        <!-- Compensation Details -->
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-500/20 space-y-3">
+          <h4 class="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Compensation & Payroll</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-zinc-500 mb-1">Base Monthly Salary</label>
+              <input type="number" [ngModel]="currentStaff().base_salary" (ngModelChange)="currentStaff.update(s => ({...s, base_salary: $event}))"
+                     placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs font-mono font-bold">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-zinc-500 mb-1">Hourly Overtime Rate</label>
+              <input type="number" [ngModel]="currentStaff().hourly_rate" (ngModelChange)="currentStaff.update(s => ({...s, hourly_rate: $event}))"
+                     placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs font-mono font-bold">
+            </div>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Login PIN (4 Digits)</label>
-          <input type="password" maxlength="4" [ngModel]="currentStaff().pin_code"
-                 (ngModelChange)="currentStaff.update(s => ({...s, pin_code: $event}))"
-                 placeholder="••••"
-                 class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-mono text-center tracking-[1em] text-xl sm:text-2xl focus:outline-none focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-500/20 font-bold transition-all shadow-sm">
-        </div>
-        <div class="flex items-center gap-3 p-3 sm:p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/50 dark:border-zinc-700/50">
-          <input type="checkbox" id="active" [ngModel]="currentStaff().is_active"
-                 (ngModelChange)="currentStaff.update(s => ({...s, is_active: $event}))"
-                 class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg accent-orange-500 cursor-pointer">
-          <label for="active" class="text-xs sm:text-sm font-black cursor-pointer">Employee Account is Active</label>
-        </div>
-        <button (click)="saveStaff()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-orange-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-orange-500/30">
-          Save Profile
+
+        <button (click)="saveStaff()" class="w-full mt-2 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all">
+          {{ currentStaff().id ? 'Update Profile' : 'Create Employee Profile' }}
         </button>
       </div>
     </div>
   </div>
 }
 
-<!-- Leave Request Modal -->
+<!-- 2. Leave Request Modal -->
 @if (isLeaveModalOpen()) {
-  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/50 backdrop-blur-md p-0 sm:p-4" (click)="isLeaveModalOpen.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[480px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
-      <div class="p-4 sm:p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
-        <h2 class="text-lg sm:text-2xl font-black tracking-tight">Request Time Off</h2>
-        <button (click)="isLeaveModalOpen.set(false)" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">close</span>
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isLeaveModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[480px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">Request Time Off</h2>
+        <button (click)="isLeaveModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
         </button>
       </div>
-      <div class="p-4 sm:p-6 md:p-8 space-y-3.5 sm:space-y-5 overflow-y-auto flex-1">
+
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Type of Leave</label>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Type of Leave</label>
           <select [ngModel]="newLeave().leave_type" (ngModelChange)="newLeave.update(l => ({...l, leave_type: $event}))"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm appearance-none cursor-pointer">
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
             <option value="annual">Annual Leave (Vacation)</option>
             <option value="sick">Sick Leave</option>
-            <option value="maternity">Parental / Maternity Leave</option>
+            <option value="maternity">Maternity / Parental Leave</option>
+            <option value="emergency">Emergency / Personal</option>
             <option value="unpaid">Unpaid Leave</option>
             <option value="other">Other Reason</option>
           </select>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">From Date</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Start Date</label>
             <input type="date" [ngModel]="newLeave().start_date" (ngModelChange)="newLeave.update(l => ({...l, start_date: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
           </div>
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">To Date</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">End Date</label>
             <input type="date" [ngModel]="newLeave().end_date" (ngModelChange)="newLeave.update(l => ({...l, end_date: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-amber-500 focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
           </div>
         </div>
+
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Additional Details <span class="text-zinc-400 font-medium">(optional)</span></label>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Reason / Notes</label>
           <textarea [ngModel]="newLeave().reason" (ngModelChange)="newLeave.update(l => ({...l, reason: $event}))"
-                    rows="3" placeholder="Provide any necessary context..."
-                    class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 resize-none focus:outline-none focus:border-amber-500 focus:ring-2 sm:focus:ring-4 focus:ring-amber-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm"></textarea>
+                    rows="3" placeholder="Provide notes or context for the approver..."
+                    class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 resize-none font-medium text-xs sm:text-sm"></textarea>
         </div>
-        <button (click)="submitLeave()" class="w-full mt-2 py-3 sm:py-4 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl">
-          Submit Request
+
+        <button (click)="submitLeave()" class="w-full mt-2 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm sm:text-base shadow-xl shadow-amber-500/30 transition-all">
+          Submit Leave Request
         </button>
       </div>
     </div>
   </div>
 }
 
-<!-- Payroll Period Modal -->
+<!-- 3. Leave Review / Action Modal -->
+@if (isLeaveActionModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isLeaveActionModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[440px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-xl font-black capitalize">{{ leaveActionType() }} Leave Request</h2>
+        <button (click)="isLeaveActionModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4">
+        <p class="text-xs text-zinc-600 dark:text-zinc-400">
+          Confirming decision for <strong>{{ staffName(selectedLeaveForAction()?.staff_id) }}</strong>'s leave request.
+        </p>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Manager Feedback Notes (Optional)</label>
+          <textarea [ngModel]="managerLeaveNote()" (ngModelChange)="managerLeaveNote.set($event)"
+                    rows="3" placeholder="e.g. Approved. Covered by John on floor."
+                    class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 resize-none font-medium text-xs sm:text-sm"></textarea>
+        </div>
+
+        <button (click)="confirmLeaveAction()"
+                class="w-full py-3.5 rounded-2xl text-white font-black text-sm shadow-xl transition-all"
+                [ngClass]="leaveActionType() === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'">
+          Confirm {{ leaveActionType() }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 4. Payroll Period Modal -->
 @if (isPayrollPeriodModalOpen()) {
-  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/50 backdrop-blur-md p-0 sm:p-4" (click)="isPayrollPeriodModalOpen.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[440px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
-      <div class="p-4 sm:p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
-        <h2 class="text-lg sm:text-2xl font-black tracking-tight">New Payroll Cycle</h2>
-        <button (click)="isPayrollPeriodModalOpen.set(false)" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">close</span>
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isPayrollPeriodModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[460px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">New Payroll Cycle</h2>
+        <button (click)="isPayrollPeriodModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
         </button>
       </div>
-      <div class="p-4 sm:p-6 md:p-8 space-y-3.5 sm:space-y-5 overflow-y-auto flex-1">
+
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Cycle Name</label>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Cycle Name</label>
           <input [ngModel]="newPeriod().name" (ngModelChange)="newPeriod.update(p => ({...p, name: $event}))"
-                 placeholder="e.g. Q3 2026 - Sprint A" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                 placeholder="e.g. October 2026 Payroll Cycle"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Period Start</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Start Date</label>
             <input type="date" [ngModel]="newPeriod().start_date" (ngModelChange)="newPeriod.update(p => ({...p, start_date: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
           </div>
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Period End</label>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">End Date</label>
             <input type="date" [ngModel]="newPeriod().end_date" (ngModelChange)="newPeriod.update(p => ({...p, end_date: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
           </div>
         </div>
-        <button (click)="createPayrollPeriod()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-emerald-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
-          Create Cycle
+
+        <button (click)="createPayrollPeriod()" class="w-full mt-2 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all">
+          Create Payroll Period
         </button>
       </div>
     </div>
   </div>
 }
 
-<!-- Shift Schedule Modal -->
-@if (isShiftModalOpen()) {
-  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/50 backdrop-blur-md p-0 sm:p-4" (click)="isShiftModalOpen.set(false)">
-    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[440px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] sm:max-h-[90vh] flex flex-col" (click)="$event.stopPropagation()">
-      <div class="p-4 sm:p-6 md:p-8 border-b border-zinc-200/50 dark:border-zinc-800/50 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
-        <h2 class="text-lg sm:text-2xl font-black tracking-tight">Schedule Shift</h2>
-        <button (click)="isShiftModalOpen.set(false)" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
-          <span class="material-symbols-outlined !text-[18px] sm:!text-[20px]">close</span>
+<!-- 5. Interactive & Printable Payslip Modal -->
+@if (isPayslipModalOpen() && selectedPayslip()) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-900/70 backdrop-blur-md p-4" (click)="isPayslipModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-[32px] w-full max-w-[620px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <div>
+          <span class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Employee Compensation Slip</span>
+          <h2 class="text-xl font-black text-zinc-900 dark:text-white">{{ selectedPayslip()?.staff_name || staffName(selectedPayslip()!.staff_id) }}</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button (click)="printPayslip()" class="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-bold text-xs flex items-center gap-1">
+            <span class="material-symbols-outlined !text-[16px]">print</span> Print
+          </button>
+          <button (click)="isPayslipModalOpen.set(false)" class="w-8 h-8 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+            <span class="material-symbols-outlined !text-[18px]">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 space-y-5 overflow-y-auto flex-1">
+        <!-- Earnings Breakdown Card -->
+        <div class="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-800 space-y-3">
+          <div class="flex justify-between text-xs">
+            <span class="text-zinc-500 font-bold">Base Salary Snapshot</span>
+            <span class="font-mono font-bold text-zinc-900 dark:text-white">{{ selectedPayslip()?.base_salary_snapshot | appCurrency }}</span>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-zinc-500 font-bold">Sales Volume Generated</span>
+            <span class="font-mono font-bold text-zinc-900 dark:text-white">{{ (selectedPayslip()?.sales_amount || 0) | appCurrency }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-indigo-600 dark:text-indigo-400">
+            <span class="font-bold">Calculated Sales Commission</span>
+            <span class="font-mono font-bold">+{{ selectedPayslip()?.total_commission | appCurrency }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-emerald-600 dark:text-emerald-400">
+            <span class="font-bold">Performance Bonus</span>
+            <span class="font-mono font-bold">+{{ (selectedPayslip()?.bonus || 0) | appCurrency }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-rose-600 dark:text-rose-400">
+            <span class="font-bold">Deductions / Advances</span>
+            <span class="font-mono font-bold">-{{ (selectedPayslip()?.deductions || 0) | appCurrency }}</span>
+          </div>
+
+          <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-baseline">
+            <span class="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-wider">Net Payable</span>
+            <span class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+              {{ selectedPayslip()?.net_pay | appCurrency }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Payment Status & Form -->
+        <div class="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-500/20 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400">Payment Status</span>
+            <span class="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg"
+                  [ngClass]="selectedPayslip()?.is_paid ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'">
+              {{ selectedPayslip()?.is_paid ? 'Paid' : 'Unpaid Draft' }}
+            </span>
+          </div>
+
+          @if (!selectedPayslip()?.is_paid) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-[11px] font-bold text-zinc-500 mb-1">Disbursement Method</label>
+                <select [ngModel]="payPaymentMethod()" (ngModelChange)="payPaymentMethod.set($event)"
+                        class="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs font-bold">
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="mobile_money">Mobile Money (M-Pesa / MTN / Airtel)</option>
+                  <option value="cash">Cash Voucher</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-zinc-500 mb-1">Payment Reference #</label>
+                <input [ngModel]="payPaymentReference()" (ngModelChange)="payPaymentReference.set($event)"
+                       placeholder="e.g. TXN-892189"
+                       class="w-full px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 text-xs font-mono font-bold">
+              </div>
+            </div>
+
+            <button (click)="markPayslipPaid()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined !text-[18px]">verified</span> Mark as Paid & Disbursed
+            </button>
+          } @else {
+            <div class="text-xs space-y-1 text-zinc-500">
+              <p>Paid On: <strong class="text-zinc-900 dark:text-white">{{ selectedPayslip()?.paid_at | date:'medium' }}</strong></p>
+              @if (selectedPayslip()?.payment_reference) {
+                <p>Reference: <strong class="font-mono text-zinc-900 dark:text-white">{{ selectedPayslip()?.payment_reference }}</strong></p>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 6. Attendance Correction Modal -->
+@if (isAttendanceCorrectionModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isAttendanceCorrectionModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[440px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-xl font-black">Adjust Attendance Time</h2>
+        <button (click)="isAttendanceCorrectionModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
         </button>
       </div>
-      <div class="p-4 sm:p-6 md:p-8 space-y-3.5 sm:space-y-5 overflow-y-auto flex-1">
+
+      <div class="p-5 sm:p-6 space-y-4">
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Staff Member</label>
-          <select [ngModel]="shiftForm().staff_id" (ngModelChange)="shiftForm.update(s => ({...s, staff_id: $event}))" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
-            <option value="" disabled>Select Staff...</option>
-            @for (staff of hrService.staff(); track staff.id) {
-              <option [value]="staff.id">{{ staffName(staff.id) }}</option>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Set Clock-Out Time</label>
+          <input type="datetime-local" [ngModel]="correctionClockOut()" (ngModelChange)="correctionClockOut.set($event)"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Audit Reason / Note</label>
+          <input type="text" [ngModel]="correctionNotes()" (ngModelChange)="correctionNotes.set($event)"
+                 placeholder="e.g. Employee forgot to punch out at closing"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+        </div>
+
+        <button (click)="submitAttendanceCorrection()" class="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-xl transition-all">
+          Save Correction
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 7. Commission Rule Modal -->
+@if (isCommissionRuleModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isCommissionRuleModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[460px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">New Commission Rule</h2>
+        <button (click)="isCommissionRuleModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Rule Name</label>
+          <input [ngModel]="newCommissionRule().name" (ngModelChange)="newCommissionRule.update(r => ({...r, name: $event}))"
+                 placeholder="e.g. Cashier Tier 1 (5% Over $1,000)"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Min Sales Threshold</label>
+            <input type="number" [ngModel]="newCommissionRule().min_sales_amount" (ngModelChange)="newCommissionRule.update(r => ({...r, min_sales_amount: $event}))"
+                   placeholder="1000" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold font-mono text-xs sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Commission %</label>
+            <input type="number" [ngModel]="newCommissionRule().commission_percentage" (ngModelChange)="newCommissionRule.update(r => ({...r, commission_percentage: $event}))"
+                   placeholder="5" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold font-mono text-xs sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Flat Bonus (Optional)</label>
+          <input type="number" [ngModel]="newCommissionRule().flat_bonus" (ngModelChange)="newCommissionRule.update(r => ({...r, flat_bonus: $event}))"
+                 placeholder="0.00" class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold font-mono text-xs sm:text-sm">
+        </div>
+
+        <button (click)="saveCommissionRule()" class="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm sm:text-base shadow-xl shadow-blue-600/30 transition-all">
+          Save Commission Rule
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 8. Award Badge Modal -->
+@if (isAchievementModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isAchievementModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[460px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">Award Achievement Badge</h2>
+        <button (click)="isAchievementModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Select Employee</label>
+          <select [ngModel]="newAchievement().staff_id" (ngModelChange)="newAchievement.update(a => ({...a, staff_id: $event}))"
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+            @for (s of hrService.staff(); track s.id) {
+              <option [value]="s.id">{{ s.first_name }} {{ s.last_name }} ({{ s.role }})</option>
             }
           </select>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Start Time</label>
-            <input type="datetime-local" [ngModel]="shiftForm().start_time" (ngModelChange)="shiftForm.update(s => ({...s, start_time: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Badge Title</label>
+            <input [ngModel]="newAchievement().badge_name" (ngModelChange)="newAchievement.update(a => ({...a, badge_name: $event}))"
+                   placeholder="e.g. Sales Master"
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
           </div>
           <div>
-            <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">End Time</label>
-            <input type="datetime-local" [ngModel]="shiftForm().end_time" (ngModelChange)="shiftForm.update(s => ({...s, end_time: $event}))"
-                   class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Badge Icon</label>
+            <select [ngModel]="newAchievement().badge_icon" (ngModelChange)="newAchievement.update(a => ({...a, badge_icon: $event}))"
+                    class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+              <option value="emoji_events">Trophy (emoji_events)</option>
+              <option value="stars">Star (stars)</option>
+              <option value="military_tech">Medal (military_tech)</option>
+              <option value="workspace_premium">Diamond (workspace_premium)</option>
+              <option value="bolt">Speed / Bolt (bolt)</option>
+            </select>
           </div>
         </div>
+
         <div>
-          <label class="block text-xs font-black uppercase tracking-wider text-zinc-500 mb-1.5 sm:mb-2">Role/Assignment</label>
-          <input [ngModel]="shiftForm().role" (ngModelChange)="shiftForm.update(s => ({...s, role: $event}))"
-                 placeholder="e.g. Closing Manager" class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 focus:outline-none focus:border-emerald-500 focus:ring-2 sm:focus:ring-4 focus:ring-emerald-500/20 font-bold text-xs sm:text-sm transition-all shadow-sm">
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Praise / Recognition Note</label>
+          <textarea [ngModel]="newAchievement().description" (ngModelChange)="newAchievement.update(a => ({...a, description: $event}))"
+                    rows="3" placeholder="Why is this staff member receiving this badge?"
+                    class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 resize-none font-medium text-xs sm:text-sm"></textarea>
         </div>
-        <button (click)="saveShift()" class="w-full mt-2 sm:mt-4 py-3 sm:py-4 rounded-2xl bg-emerald-500 text-white font-black text-sm sm:text-lg hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-emerald-500/30">
-          Save Shift
+
+        <button (click)="saveAchievement()" class="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm sm:text-base shadow-xl shadow-amber-500/30 transition-all">
+          Award Recognition Badge
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 9. Shift Schedule Modal -->
+@if (isShiftModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isShiftModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[460px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">Schedule Staff Shift</h2>
+        <button (click)="isShiftModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Employee</label>
+          <select [ngModel]="shiftForm().staff_id" (ngModelChange)="shiftForm.update(s => ({...s, staff_id: $event}))"
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+            <option value="" disabled>Select Employee...</option>
+            @for (staff of hrService.staff(); track staff.id) {
+              <option [value]="staff.id">{{ staffName(staff.id) }} ({{ staff.role }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Shift Start</label>
+            <input type="datetime-local" [ngModel]="shiftForm().start_time" (ngModelChange)="shiftForm.update(s => ({...s, start_time: $event}))"
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Shift End</label>
+            <input type="datetime-local" [ngModel]="shiftForm().end_time" (ngModelChange)="shiftForm.update(s => ({...s, end_time: $event}))"
+                   class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Assigned Role</label>
+          <input [ngModel]="shiftForm().role" (ngModelChange)="shiftForm.update(s => ({...s, role: $event}))"
+                 placeholder="e.g. Lead Cashier / Shift Supervisor"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+        </div>
+
+        <button (click)="saveShift()" class="w-full mt-2 py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-black text-sm sm:text-base shadow-xl shadow-teal-600/30 transition-all">
+          Save Scheduled Shift
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 10. Shift Swap Request Modal -->
+@if (isShiftSwapModalOpen()) {
+  <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-zinc-900/60 backdrop-blur-md p-0 sm:p-4" (click)="isShiftSwapModalOpen.set(false)">
+    <div class="bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-[32px] w-full max-w-[460px] overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-700 max-h-[92vh] flex flex-col" (click)="$event.stopPropagation()">
+      <div class="p-5 sm:p-6 border-b border-zinc-200/50 dark:border-zinc-800 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900 shrink-0">
+        <h2 class="text-lg sm:text-2xl font-black">Request Shift Exchange</h2>
+        <button (click)="isShiftSwapModalOpen.set(false)" class="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 hover:bg-rose-100 hover:text-rose-600 transition-colors">
+          <span class="material-symbols-outlined !text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Requesting Staff</label>
+          <select [ngModel]="newShiftSwap().requesting_staff_id" (ngModelChange)="newShiftSwap.update(s => ({...s, requesting_staff_id: $event}))"
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+            @for (s of hrService.staff(); track s.id) {
+              <option [value]="s.id">{{ s.first_name }} {{ s.last_name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Target Peer (Optional)</label>
+          <select [ngModel]="newShiftSwap().target_staff_id" (ngModelChange)="newShiftSwap.update(s => ({...s, target_staff_id: $event}))"
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+            <option value="">Open to Any Peer</option>
+            @for (s of hrService.staff(); track s.id) {
+              <option [value]="s.id">{{ s.first_name }} {{ s.last_name }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Select Shift to Swap</label>
+          <select [ngModel]="newShiftSwap().original_shift_id" (ngModelChange)="newShiftSwap.update(s => ({...s, original_shift_id: $event}))"
+                  class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+            <option value="" disabled>Select Shift...</option>
+            @for (shift of hrService.shifts(); track shift.id) {
+              <option [value]="shift.id">{{ shift.role || 'Shift' }} ({{ shift.start_time | date:'short' }})</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black uppercase text-zinc-500 mb-1">Reason / Notes</label>
+          <input type="text" [ngModel]="newShiftSwap().notes" (ngModelChange)="newShiftSwap.update(s => ({...s, notes: $event}))"
+                 placeholder="e.g. Doctor appointment conflict"
+                 class="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-bold text-xs sm:text-sm">
+        </div>
+
+        <button (click)="submitShiftSwap()" class="w-full py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-sm sm:text-base shadow-xl shadow-purple-600/30 transition-all">
+          Post Shift Swap Request
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { SupplierPortalService, SupplierProfile } from '../services/supplier-portal.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -39,6 +40,12 @@ export class SupplierPortalLayoutComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.closeSidebar();
+    });
+
     this.portalService.currentSupplier$.subscribe(s => {
       if (s) {
         this.currentSupplier.set(s);
@@ -52,6 +59,12 @@ export class SupplierPortalLayoutComponent implements OnInit {
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  closeSidebar() {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      this.isSidebarCollapsed = true;
+    }
   }
 
   toggleTheme() {

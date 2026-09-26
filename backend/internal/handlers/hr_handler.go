@@ -25,7 +25,6 @@ func (h *HRHandler) service(c *gin.Context) *services.HRService {
 }
 
 func (h *HRHandler) getProfileID(c *gin.Context) uuid.UUID {
-	// Use user_id from JWT claims to look up the UserProfile for this tenant
 	userIDRaw, exists := c.Get(middleware.ContextKeyUserID)
 	if !exists {
 		return uuid.Nil
@@ -46,10 +45,26 @@ func (h *HRHandler) getProfileID(c *gin.Context) uuid.UUID {
 
 	var profile models.UserProfile
 	if err := h.db.Where("user_id = ? AND tenant_id = ?", userID, tenantID).First(&profile).Error; err != nil {
-		// Fallback: use the user ID directly as the staff identifier
 		return userID
 	}
 	return profile.ID
+}
+
+// --- Attendance Handlers ---
+
+func (h *HRHandler) GetMyAttendance(c *gin.Context) {
+	profileID := h.getProfileID(c)
+	attendance, todayHours, err := h.service(c).GetMyAttendance(profileID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch attendance status"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"is_clocked_in": attendance != nil,
+		"attendance":    attendance,
+		"today_hours":   todayHours,
+	})
 }
 
 func (h *HRHandler) ListAttendance(c *gin.Context) {
@@ -66,7 +81,6 @@ func (h *HRHandler) ListAttendance(c *gin.Context) {
 	c.JSON(http.StatusOK, attendances)
 }
 
-// ClockIn matches Django's clock_in action
 func (h *HRHandler) ClockIn(c *gin.Context) {
 	profileID := h.getProfileID(c)
 
@@ -83,7 +97,6 @@ func (h *HRHandler) ClockIn(c *gin.Context) {
 	c.JSON(http.StatusCreated, attendance)
 }
 
-// ClockOut matches Django's clock_out action
 func (h *HRHandler) ClockOut(c *gin.Context) {
 	profileID := h.getProfileID(c)
 
@@ -100,6 +113,49 @@ func (h *HRHandler) ClockOut(c *gin.Context) {
 	c.JSON(http.StatusOK, attendance)
 }
 
+func (h *HRHandler) CorrectAttendance(c *gin.Context) {
+	id := c.Param("id")
+
+	var body struct {
+		ClockOut string `json:"clock_out" binding:"required"`
+		Notes    string `json:"notes"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clock_out is required (ISO 8601 format)"})
+		return
+	}
+
+	clockOut, err := time.Parse(time.RFC3339, body.ClockOut)
+	if err != nil {
+		clockOut, err = time.Parse("2006-01-02T15:04", body.ClockOut)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid clock_out format. Use ISO 8601 or YYYY-MM-DDTHH:mm."})
+			return
+		}
+	}
+
+	attendance, err := h.service(c).CorrectAttendance(id, clockOut, body.Notes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, attendance)
+}
+
+func (h *HRHandler) DeleteAttendance(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := h.service(c).DeleteAttendance(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete attendance record"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Attendance record deleted"})
+}
+
+// --- Leave Handlers ---
+
 func (h *HRHandler) ListLeaveRequests(c *gin.Context) {
 	leaves, err := h.service(c).ListLeaveRequests()
 	if err != nil {
@@ -110,6 +166,7 @@ func (h *HRHandler) ListLeaveRequests(c *gin.Context) {
 }
 
 type LeaveCreateRequest struct {
+	StaffID   string `json:"staff_id"`
 	LeaveType string `json:"leave_type" binding:"required"`
 	StartDate string `json:"start_date" binding:"required"`
 	EndDate   string `json:"end_date" binding:"required"`
@@ -125,8 +182,15 @@ func (h *HRHandler) CreateLeaveRequest(c *gin.Context) {
 		return
 	}
 
+	staffID := profileID
+	if req.StaffID != "" {
+		if parsed, err := uuid.Parse(req.StaffID); err == nil {
+			staffID = parsed
+		}
+	}
+
 	input := services.LeaveCreateInput{
-		StaffID:   profileID,
+		StaffID:   staffID,
 		LeaveType: req.LeaveType,
 		StartDate: req.StartDate,
 		EndDate:   req.EndDate,
@@ -135,21 +199,23 @@ func (h *HRHandler) CreateLeaveRequest(c *gin.Context) {
 
 	leave, err := h.service(c).CreateLeaveRequest(input)
 	if err != nil {
-		if err.Error() == "invalid start date format" || err.Error() == "invalid end date format" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create leave request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, leave)
 }
+
 func (h *HRHandler) ApproveLeaveRequest(c *gin.Context) {
 	id := c.Param("id")
 	profileID := h.getProfileID(c)
 
-	if err := h.service(c).ApproveLeaveRequest(id, profileID); err != nil {
+	var body struct {
+		ManagerNotes string `json:"manager_notes"`
+	}
+	_ = c.ShouldBindJSON(&body)
+
+	if err := h.service(c).ApproveLeaveRequest(id, profileID, body.ManagerNotes); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to approve leave request"})
 		return
 	}
@@ -160,67 +226,111 @@ func (h *HRHandler) RejectLeaveRequest(c *gin.Context) {
 	id := c.Param("id")
 	profileID := h.getProfileID(c)
 
-	if err := h.service(c).RejectLeaveRequest(id, profileID); err != nil {
+	var body struct {
+		ManagerNotes string `json:"manager_notes"`
+	}
+	_ = c.ShouldBindJSON(&body)
+
+	if err := h.service(c).RejectLeaveRequest(id, profileID, body.ManagerNotes); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reject leave request"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "rejected"})
 }
+
+func (h *HRHandler) GetLeaveSummary(c *gin.Context) {
+	staffID := c.Query("staff_id")
+	summary := h.service(c).GetLeaveSummary(staffID)
+	c.JSON(http.StatusOK, summary)
+}
+
+// --- Payroll Handlers ---
+
 func (h *HRHandler) ListPayrollPeriods(c *gin.Context) {
-	var periods []models.PayrollPeriod
-	if err := getDB(c, h.db).Order("start_date desc").Find(&periods).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Failed to fetch payroll periods"})
+	periods, err := h.service(c).ListPayrollPeriods()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch payroll periods"})
 		return
 	}
-	c.JSON(200, gin.H{"periods": periods})
+	c.JSON(http.StatusOK, gin.H{"periods": periods})
+}
+
+type CreatePayrollPeriodRequest struct {
+	Name      string `json:"name" binding:"required"`
+	StartDate string `json:"start_date" binding:"required"`
+	EndDate   string `json:"end_date" binding:"required"`
+}
+
+func (h *HRHandler) CreatePayrollPeriod(c *gin.Context) {
+	var req CreatePayrollPeriodRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	period, err := h.service(c).CreatePayrollPeriod(req.Name, req.StartDate, req.EndDate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, period)
 }
 
 func (h *HRHandler) GetPayrollPeriod(c *gin.Context) {
 	id := c.Param("id")
-	var period models.PayrollPeriod
-	if err := getDB(c, h.db).Where("id = ?", id).First(&period).Error; err != nil {
-		c.JSON(404, gin.H{"error": "Payroll period not found"})
+	period, err := h.service(c).GetPayrollPeriod(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Payroll period not found"})
 		return
 	}
-	c.JSON(200, period)
+	c.JSON(http.StatusOK, period)
 }
 
 func (h *HRHandler) ProcessPayroll(c *gin.Context) {
 	id := c.Param("id")
-	var period models.PayrollPeriod
-
-	err := getDB(c, h.db).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("id = ?", id).First(&period).Error; err != nil {
-			return err
-		}
-		period.IsProcessed = true
-		now := time.Now()
-		period.ProcessedAt = &now
-		return tx.Save(&period).Error
-	})
-
+	period, err := h.service(c).ProcessPayroll(id)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to process payroll"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process payroll: " + err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"status": "processed", "period": period})
+	c.JSON(http.StatusOK, gin.H{"status": "processed", "period": period})
 }
 
 func (h *HRHandler) GetPayslip(c *gin.Context) {
-	id := c.Param("id") // PayrollRecord ID
-	var record models.PayrollRecord
-	if err := getDB(c, h.db).Where("id = ?", id).First(&record).Error; err != nil {
-		c.JSON(404, gin.H{"error": "Payslip not found"})
+	id := c.Param("id")
+	record, err := h.service(c).GetPayslip(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Payslip not found"})
 		return
 	}
-	c.JSON(200, record)
+	c.JSON(http.StatusOK, record)
 }
 
+type PayPayslipRequest struct {
+	PaymentMethod    string `json:"payment_method"`
+	PaymentReference string `json:"payment_reference"`
+}
+
+func (h *HRHandler) MarkPayslipPaid(c *gin.Context) {
+	id := c.Param("id")
+	var req PayPayslipRequest
+	_ = c.ShouldBindJSON(&req)
+
+	record, err := h.service(c).MarkPayslipPaid(id, req.PaymentMethod, req.PaymentReference)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update payslip status: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, record)
+}
+
+// --- Commission Rules Handlers ---
+
 func (h *HRHandler) ListCommissionRules(c *gin.Context) {
-	tenantID, _ := c.Get(middleware.ContextKeyTenantID)
-	var rules []models.CommissionRule
-	if err := getDB(c, h.db).Where("tenant_id = ?", tenantID).Find(&rules).Error; err != nil {
+	rules, err := h.service(c).ListCommissionRules()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch commission rules"})
 		return
 	}
@@ -234,16 +344,28 @@ func (h *HRHandler) CreateCommissionRule(c *gin.Context) {
 		return
 	}
 
-	if err := getDB(c, h.db).Create(&req).Error; err != nil {
+	rule, err := h.service(c).CreateCommissionRule(&req)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create commission rule"})
 		return
 	}
-	c.JSON(http.StatusCreated, req)
+	c.JSON(http.StatusCreated, rule)
 }
 
+func (h *HRHandler) DeleteCommissionRule(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.service(c).DeleteCommissionRule(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete commission rule"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Commission rule deleted"})
+}
+
+// --- Staff Achievements Handlers ---
+
 func (h *HRHandler) ListStaffAchievements(c *gin.Context) {
-	var achievements []models.StaffAchievement
-	if err := getDB(c, h.db).Find(&achievements).Error; err != nil {
+	achievements, err := h.service(c).ListStaffAchievements()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch staff achievements"})
 		return
 	}
@@ -257,16 +379,28 @@ func (h *HRHandler) CreateStaffAchievement(c *gin.Context) {
 		return
 	}
 
-	if err := getDB(c, h.db).Create(&req).Error; err != nil {
+	achievement, err := h.service(c).CreateStaffAchievement(&req)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create staff achievement"})
 		return
 	}
-	c.JSON(http.StatusCreated, req)
+	c.JSON(http.StatusCreated, achievement)
 }
 
+func (h *HRHandler) DeleteStaffAchievement(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.service(c).DeleteStaffAchievement(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete staff achievement"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Staff achievement deleted"})
+}
+
+// --- Shift Swap Handlers ---
+
 func (h *HRHandler) ListShiftSwapRequests(c *gin.Context) {
-	var requests []models.ShiftSwapRequest
-	if err := getDB(c, h.db).Find(&requests).Error; err != nil {
+	requests, err := h.service(c).ListShiftSwaps()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch shift swap requests"})
 		return
 	}
@@ -280,58 +414,29 @@ func (h *HRHandler) CreateShiftSwapRequest(c *gin.Context) {
 		return
 	}
 
-	if err := getDB(c, h.db).Create(&req).Error; err != nil {
+	swap, err := h.service(c).CreateShiftSwap(&req)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create shift swap request"})
 		return
 	}
-	c.JSON(http.StatusCreated, req)
+	c.JSON(http.StatusCreated, swap)
 }
 
-// CorrectAttendance allows a manager to manually set a clock_out time on an attendance record
-func (h *HRHandler) CorrectAttendance(c *gin.Context) {
+func (h *HRHandler) ApproveShiftSwap(c *gin.Context) {
 	id := c.Param("id")
-
-	var body struct {
-		ClockOut string `json:"clock_out" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "clock_out is required (ISO 8601 format)"})
+	if err := h.service(c).ApproveShiftSwap(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to approve shift swap"})
 		return
 	}
-
-	clockOut, err := time.Parse(time.RFC3339, body.ClockOut)
-	if err != nil {
-		// Try a simpler format
-		clockOut, err = time.Parse("2006-01-02T15:04", body.ClockOut)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid clock_out format. Use ISO 8601."})
-			return
-		}
-	}
-
-	var attendance models.Attendance
-	if err := getDB(c, h.db).Where("id = ?", id).First(&attendance).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Attendance record not found"})
-		return
-	}
-
-	attendance.ClockOut = &clockOut
-	if err := getDB(c, h.db).Save(&attendance).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update attendance"})
-		return
-	}
-
-	c.JSON(http.StatusOK, attendance)
+	c.JSON(http.StatusOK, gin.H{"status": "approved"})
 }
 
-// DeleteAttendance allows a manager to remove a ghost/erroneous attendance record
-func (h *HRHandler) DeleteAttendance(c *gin.Context) {
+func (h *HRHandler) RejectShiftSwap(c *gin.Context) {
 	id := c.Param("id")
-
-	if err := getDB(c, h.db).Where("id = ?", id).Delete(&models.Attendance{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete attendance record"})
+	if err := h.service(c).RejectShiftSwap(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reject shift swap"})
 		return
 	}
-
-	c.JSON(http.StatusNoContent, nil)
+	c.JSON(http.StatusOK, gin.H{"status": "rejected"})
 }
+

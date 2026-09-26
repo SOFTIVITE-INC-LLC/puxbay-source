@@ -36,6 +36,53 @@
       </div>
     </div>
 
+    <!-- ── Live Shift & Attendance Punch Widget (Branch) ── -->
+    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-zinc-900/60 dark:from-[#0f172a] dark:to-[#020617] border border-indigo-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5 sm:gap-4 z-10">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0"
+             [ngClass]="isClockedIn() ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-rose-500 shadow-rose-500/30'">
+          <span class="material-symbols-outlined !text-[28px] sm:!text-[32px]">
+            {{ isClockedIn() ? 'how_to_reg' : 'person_off' }}
+          </span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="text-xs font-black uppercase tracking-wider text-indigo-400">Shift & Attendance</span>
+            <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md flex items-center gap-1"
+                  [ngClass]="isClockedIn() ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isClockedIn() ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'"></span>
+              {{ isClockedIn() ? 'On Duty' : 'Off Duty' }}
+            </span>
+          </div>
+          <h3 class="text-base sm:text-lg font-black text-white">
+            @if (isClockedIn()) {
+              Shift Active · Clocked in at {{ activeClockIn()?.clock_in | date:'shortTime' }}
+            } @else {
+              You are currently off duty. Clock in to begin recording shift actions.
+            }
+          </h3>
+          <p class="text-xs text-zinc-400">
+            Today's Logged Floor Time: <strong class="text-white font-mono">{{ todayHours() }}h</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 w-full sm:w-auto z-10">
+        @if (!isClockedIn()) {
+          <button (click)="clockIn()" class="flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/40 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined !text-[20px]">login</span> Punch In Now
+          </button>
+        } @else {
+          <button (click)="clockOut()" class="flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-rose-500/40 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined !text-[20px]">logout</span> Punch Out
+          </button>
+        }
+        <a routerLink="/hr" class="px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined !text-[18px]">badge</span> HR Suite
+        </a>
+      </div>
+    </div>
+
     <!-- ── Branch KPI Cards ── -->
     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-4">
 
@@ -311,6 +358,53 @@
         <a routerLink="/branches" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95 transition-all">
           <span class="material-symbols-outlined !text-[18px]">store</span>
           Manage Branches
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Live Shift & Attendance Punch Widget (Global) ── -->
+    <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-zinc-900/60 dark:from-[#0f172a] dark:to-[#020617] border border-indigo-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5 sm:gap-4 z-10">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0"
+             [ngClass]="isClockedIn() ? 'bg-emerald-500 shadow-emerald-500/30' : 'bg-rose-500 shadow-rose-500/30'">
+          <span class="material-symbols-outlined !text-[28px] sm:!text-[32px]">
+            {{ isClockedIn() ? 'how_to_reg' : 'person_off' }}
+          </span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="text-xs font-black uppercase tracking-wider text-indigo-400">Shift & Attendance</span>
+            <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md flex items-center gap-1"
+                  [ngClass]="isClockedIn() ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'">
+              <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isClockedIn() ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'"></span>
+              {{ isClockedIn() ? 'On Duty' : 'Off Duty' }}
+            </span>
+          </div>
+          <h3 class="text-base sm:text-lg font-black text-white">
+            @if (isClockedIn()) {
+              Shift Active · Clocked in at {{ activeClockIn()?.clock_in | date:'shortTime' }}
+            } @else {
+              You are currently off duty. Clock in to begin recording shift actions.
+            }
+          </h3>
+          <p class="text-xs text-zinc-400">
+            Today's Logged Floor Time: <strong class="text-white font-mono">{{ todayHours() }}h</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 w-full sm:w-auto z-10">
+        @if (!isClockedIn()) {
+          <button (click)="clockIn()" class="flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/40 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined !text-[20px]">login</span> Punch In Now
+          </button>
+        } @else {
+          <button (click)="clockOut()" class="flex-1 sm:flex-none px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-rose-500 hover:bg-rose-400 active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-lg shadow-rose-500/40 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined !text-[20px]">logout</span> Punch Out
+          </button>
+        }
+        <a routerLink="/hr" class="px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined !text-[18px]">badge</span> HR Suite
         </a>
       </div>
     </div>

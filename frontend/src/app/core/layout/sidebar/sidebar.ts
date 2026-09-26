@@ -44,9 +44,18 @@ export class Sidebar implements OnInit {
   }
 
   @Output() toggleCollapse = new EventEmitter<void>();
+  @Output() closeSidebar = new EventEmitter<void>();
 
   onToggle() {
     this.toggleCollapse.emit();
+  }
+
+  onNavClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const link = target.closest('a');
+    if (link && typeof window !== 'undefined' && window.innerWidth < 768) {
+      this.closeSidebar.emit();
+    }
   }
 
   logout() {

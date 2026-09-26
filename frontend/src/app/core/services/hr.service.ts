@@ -1,9 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable, map, tap } from 'rxjs';
-import { Staff, Attendance, LeaveRequest } from '../models/hr.models';
+import { Staff, Attendance, LeaveRequest, PayrollPeriod, PayrollRecord, CommissionRule, StaffAchievement, ShiftSwapRequest, StaffShift, LeaveSummary } from '../models/hr.models';
 
 export interface LeaveCreateInput {
+  staff_id?: string;
   leave_type: string;
   start_date: string;
   end_date: string;
@@ -17,12 +18,37 @@ export class HrService {
   private api = inject(ApiService);
   
   attendances = signal<Attendance[]>([]);
+  myAttendance = signal<{ is_clocked_in: boolean; attendance?: Attendance; today_hours: number }>({ is_clocked_in: false, today_hours: 0 });
   leaveRequests = signal<LeaveRequest[]>([]);
+  leaveSummary = signal<LeaveSummary>({ total_quota: 21, used_days: 0, pending_days: 0, remaining_days: 21 });
   loading = signal<boolean>(false);
   staff = signal<Staff[]>([]);
-  getStaff(): Observable<Staff[]> { return this.api.get<Staff[]>('/staff').pipe(tap(res => this.staff.set(res || []))); }
+  payrollPeriods = signal<PayrollPeriod[]>([]);
+  commissionRules = signal<CommissionRule[]>([]);
+  achievements = signal<StaffAchievement[]>([]);
+  shiftSwaps = signal<ShiftSwapRequest[]>([]);
+  shifts = signal<StaffShift[]>([]);
+
+  // --- Staff Directory ---
+  getStaff(branchId?: string): Observable<Staff[]> { 
+    return this.api.get<Staff[]>('/staff', { params: branchId ? { branch_id: branchId } : undefined }).pipe(
+      tap(res => this.staff.set(res || []))
+    ); 
+  }
   createStaff(s: any): Observable<any> { return this.api.post('/staff', s); }
-  updateStaff(id: string, s: any): Observable<any> { return this.api.put('/staff/'+id, s); }
+  updateStaff(id: string, s: any): Observable<any> { return this.api.put('/staff/' + id, s); }
+  deleteStaff(id: string): Observable<any> { return this.api.delete('/staff/' + id); }
+
+  // --- Attendance & Timesheets ---
+  getMyAttendanceStatus(): Observable<{ is_clocked_in: boolean; attendance?: Attendance; today_hours: number }> {
+    return this.api.get<{ is_clocked_in: boolean; attendance?: Attendance; today_hours: number }>('/hr/attendance/my-status').pipe(
+      tap(res => {
+        if (res) {
+          this.myAttendance.set(res);
+        }
+      })
+    );
+  }
 
   listAttendance(params?: { date_from?: string; date_to?: string; staff_id?: string }): Observable<Attendance[]> {
     this.loading.set(true);
@@ -36,29 +62,35 @@ export class HrService {
 
   clockIn(): Observable<Attendance> {
     return this.api.post<Attendance>('/hr/attendance/clock_in', {}).pipe(
-      tap(a => this.attendances.update(list => [a, ...list]))
+      tap(a => {
+        this.attendances.update(list => [a, ...list]);
+        this.myAttendance.update(prev => ({ ...prev, is_clocked_in: true, attendance: a }));
+      })
     );
   }
 
   clockOut(): Observable<Attendance> {
     return this.api.post<Attendance>('/hr/attendance/clock_out', {}).pipe(
-      tap(a => this.attendances.update(list => list.map(item => item.staff_id === a.staff_id ? a : item)))
+      tap(a => {
+        this.attendances.update(list => list.map(item => item.staff_id === a.staff_id && !item.clock_out ? a : item));
+        this.myAttendance.update(prev => ({ ...prev, is_clocked_in: false, attendance: undefined }));
+      })
     );
   }
 
-  correctAttendance(id: string, clockOut: string): Observable<Attendance> {
-    return this.api.patch<Attendance>(`/hr/attendance/${id}/correct`, { clock_out: clockOut }).pipe(
+  correctAttendance(id: string, clockOut: string, notes?: string): Observable<Attendance> {
+    return this.api.patch<Attendance>(`/hr/attendance/${id}/correct`, { clock_out: clockOut, notes }).pipe(
       tap(a => this.attendances.update(list => list.map(item => item.id === a.id ? a : item)))
     );
   }
 
-  deleteAttendance(id: string): Observable<void> {
-    return this.api.delete<void>(`/hr/attendance/${id}`).pipe(
+  deleteAttendance(id: string): Observable<any> {
+    return this.api.delete<any>(`/hr/attendance/${id}`).pipe(
       tap(() => this.attendances.update(list => list.filter(item => item.id !== id)))
     );
   }
 
-
+  // --- Leaves & Time Off ---
   listLeaveRequests(): Observable<LeaveRequest[]> {
     this.loading.set(true);
     return this.api.get<LeaveRequest[]>('/hr/leave-requests').pipe(
@@ -69,72 +101,128 @@ export class HrService {
     );
   }
 
+  getLeaveSummary(staffId?: string): Observable<LeaveSummary> {
+    return this.api.get<LeaveSummary>('/hr/leaves/summary', { params: staffId ? { staff_id: staffId } : undefined }).pipe(
+      tap(res => {
+        if (res) this.leaveSummary.set(res);
+      })
+    );
+  }
+
   createLeaveRequest(input: LeaveCreateInput): Observable<LeaveRequest> {
     return this.api.post<LeaveRequest>('/hr/leave-requests', input).pipe(
       tap(l => this.leaveRequests.update(list => [l, ...list]))
     );
   }
 
-  approveLeaveRequest(id: string): Observable<any> { return this.api.put(`/hr/leave-requests/${id}/approve`, {}); }
-  rejectLeaveRequest(id: string): Observable<any> { return this.api.put(`/hr/leave-requests/${id}/reject`, {}); }
+  approveLeaveRequest(id: string, managerNotes?: string): Observable<any> { 
+    return this.api.put(`/hr/leave-requests/${id}/approve`, { manager_notes: managerNotes }); 
+  }
 
-  listPayrollPeriods(): Observable<any[]> {
-    return this.api.get<{ periods: any[] }>('/hr/payroll/periods').pipe(
-      map(res => res?.periods || [])
+  rejectLeaveRequest(id: string, managerNotes?: string): Observable<any> { 
+    return this.api.put(`/hr/leave-requests/${id}/reject`, { manager_notes: managerNotes }); 
+  }
+
+  // --- Payroll Cycles & Payslips ---
+  listPayrollPeriods(): Observable<PayrollPeriod[]> {
+    return this.api.get<{ periods: PayrollPeriod[] }>('/hr/payroll/periods').pipe(
+      map(res => res?.periods || []),
+      tap(periods => this.payrollPeriods.set(periods))
     );
   }
-  getPayrollPeriod(id: string): Observable<any> { return this.api.get<any>(`/hr/payroll/periods/${id}`); }
-  processPayroll(id: string): Observable<any> { return this.api.post<any>(`/hr/payroll/periods/${id}/process`, {}); }
-  getPayslip(id: string): Observable<any> { return this.api.get<any>(`/hr/payslips/${id}`); }
+
+  createPayrollPeriod(period: { name: string; start_date: string; end_date: string }): Observable<PayrollPeriod> {
+    return this.api.post<PayrollPeriod>('/hr/payroll/periods', period).pipe(
+      tap(p => this.payrollPeriods.update(list => [p, ...list]))
+    );
+  }
+
+  getPayrollPeriod(id: string): Observable<PayrollPeriod> { 
+    return this.api.get<PayrollPeriod>(`/hr/payroll/periods/${id}`); 
+  }
+
+  processPayroll(id: string): Observable<{ status: string; period: PayrollPeriod }> { 
+    return this.api.post<{ status: string; period: PayrollPeriod }>(`/hr/payroll/periods/${id}/process`, {}); 
+  }
+
+  getPayslip(id: string): Observable<PayrollRecord> { 
+    return this.api.get<PayrollRecord>(`/hr/payslips/${id}`); 
+  }
+
+  markPayslipPaid(id: string, paymentMethod: string, paymentReference: string): Observable<PayrollRecord> {
+    return this.api.post<PayrollRecord>(`/hr/payslips/${id}/pay`, { payment_method: paymentMethod, payment_reference: paymentReference });
+  }
 
   // --- Commission Rules ---
-  commissionRules = signal<any[]>([]);
-  listCommissionRules(): Observable<any[]> {
-    return this.api.get<any[]>('/hr/commission-rules').pipe(
+  listCommissionRules(): Observable<CommissionRule[]> {
+    return this.api.get<CommissionRule[]>('/hr/commission-rules').pipe(
       tap(res => this.commissionRules.set(res || []))
     );
   }
-  createCommissionRule(rule: any): Observable<any> {
-    return this.api.post<any>('/hr/commission-rules', rule).pipe(
+
+  createCommissionRule(rule: CommissionRule): Observable<CommissionRule> {
+    return this.api.post<CommissionRule>('/hr/commission-rules', rule).pipe(
       tap(r => this.commissionRules.update(list => [r, ...list]))
     );
   }
 
-  // --- Staff Achievements ---
-  achievements = signal<any[]>([]);
-  listAchievements(): Observable<any[]> {
-    return this.api.get<any[]>('/hr/achievements').pipe(
+  deleteCommissionRule(id: string): Observable<any> {
+    return this.api.delete<any>(`/hr/commission-rules/${id}`).pipe(
+      tap(() => this.commissionRules.update(list => list.filter(r => r.id !== id)))
+    );
+  }
+
+  // --- Staff Achievements & Gamification ---
+  listAchievements(): Observable<StaffAchievement[]> {
+    return this.api.get<StaffAchievement[]>('/hr/achievements').pipe(
       tap(res => this.achievements.set(res || []))
     );
   }
-  createAchievement(a: any): Observable<any> {
-    return this.api.post<any>('/hr/achievements', a).pipe(
+
+  createAchievement(a: StaffAchievement): Observable<StaffAchievement> {
+    return this.api.post<StaffAchievement>('/hr/achievements', a).pipe(
       tap(r => this.achievements.update(list => [r, ...list]))
     );
   }
 
-  // --- Shift Swap Requests ---
-  shiftSwaps = signal<any[]>([]);
-  listShiftSwaps(): Observable<any[]> {
-    return this.api.get<any[]>('/hr/shift-swaps').pipe(
+  deleteAchievement(id: string): Observable<any> {
+    return this.api.delete<any>(`/hr/achievements/${id}`).pipe(
+      tap(() => this.achievements.update(list => list.filter(a => a.id !== id)))
+    );
+  }
+
+  // --- Shift Swapping ---
+  listShiftSwaps(): Observable<ShiftSwapRequest[]> {
+    return this.api.get<ShiftSwapRequest[]>('/hr/shift-swaps').pipe(
       tap(res => this.shiftSwaps.set(res || []))
     );
   }
-  createShiftSwap(swap: any): Observable<any> {
-    return this.api.post<any>('/hr/shift-swaps', swap).pipe(
+
+  createShiftSwap(swap: ShiftSwapRequest): Observable<ShiftSwapRequest> {
+    return this.api.post<ShiftSwapRequest>('/hr/shift-swaps', swap).pipe(
       tap(r => this.shiftSwaps.update(list => [r, ...list]))
     );
   }
+
+  approveShiftSwap(id: string): Observable<any> {
+    return this.api.put(`/hr/shift-swaps/${id}/approve`, {});
+  }
+
+  rejectShiftSwap(id: string): Observable<any> {
+    return this.api.put(`/hr/shift-swaps/${id}/reject`, {});
+  }
+
   // --- Shift Roster ---
-  shifts = signal<any[]>([]);
-  listShifts(): Observable<any[]> {
-    return this.api.get<any[]>('/hr/roster').pipe(
+  listShifts(): Observable<StaffShift[]> {
+    return this.api.get<StaffShift[]>('/hr/roster').pipe(
       tap(res => this.shifts.set(res || []))
     );
   }
-  createShift(shift: any): Observable<any> {
-    return this.api.post<any>('/hr/roster', shift).pipe(
+
+  createShift(shift: StaffShift): Observable<StaffShift> {
+    return this.api.post<StaffShift>('/hr/roster', shift).pipe(
       tap(r => this.shifts.update(list => [...list, r]))
     );
   }
 }
+

@@ -566,10 +566,15 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			hrGeneral := api.Group("/hr")
 			{
 				hrGeneral.GET("/attendance", hrHandler.ListAttendance)
+				hrGeneral.GET("/attendance/my-status", hrHandler.GetMyAttendance)
 				hrGeneral.POST("/attendance/clock_in", hrHandler.ClockIn)
 				hrGeneral.POST("/attendance/clock_out", hrHandler.ClockOut)
 				hrGeneral.GET("/leave-requests", hrHandler.ListLeaveRequests)
 				hrGeneral.POST("/leave-requests", hrHandler.CreateLeaveRequest)
+				hrGeneral.GET("/leaves/summary", hrHandler.GetLeaveSummary)
+				hrGeneral.GET("/shift-swaps", hrHandler.ListShiftSwapRequests)
+				hrGeneral.POST("/shift-swaps", hrHandler.CreateShiftSwapRequest)
+				hrGeneral.GET("/achievements", hrHandler.ListStaffAchievements)
 			}
 
 			// HR (admin/manager only)
@@ -581,16 +586,19 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 				hrRoutes.PUT("/leave-requests/:id/approve", hrHandler.ApproveLeaveRequest)
 				hrRoutes.PUT("/leave-requests/:id/reject", hrHandler.RejectLeaveRequest)
 				hrRoutes.GET("/payroll/periods", hrHandler.ListPayrollPeriods)
+				hrRoutes.POST("/payroll/periods", hrHandler.CreatePayrollPeriod)
 				hrRoutes.GET("/payroll/periods/:id", hrHandler.GetPayrollPeriod)
 				hrRoutes.POST("/payroll/periods/:id/process", hrHandler.ProcessPayroll)
 				hrRoutes.GET("/payslips/:id", hrHandler.GetPayslip)
+				hrRoutes.POST("/payslips/:id/pay", hrHandler.MarkPayslipPaid)
 
 				hrRoutes.GET("/commission-rules", hrHandler.ListCommissionRules)
 				hrRoutes.POST("/commission-rules", hrHandler.CreateCommissionRule)
-				hrRoutes.GET("/achievements", hrHandler.ListStaffAchievements)
+				hrRoutes.DELETE("/commission-rules/:id", hrHandler.DeleteCommissionRule)
 				hrRoutes.POST("/achievements", hrHandler.CreateStaffAchievement)
-				hrRoutes.GET("/shift-swaps", hrHandler.ListShiftSwapRequests)
-				hrRoutes.POST("/shift-swaps", hrHandler.CreateShiftSwapRequest)
+				hrRoutes.DELETE("/achievements/:id", hrHandler.DeleteStaffAchievement)
+				hrRoutes.PUT("/shift-swaps/:id/approve", hrHandler.ApproveShiftSwap)
+				hrRoutes.PUT("/shift-swaps/:id/reject", hrHandler.RejectShiftSwap)
 
 				hrRoutes.GET("/roster", scheduleHandler.ListShifts)
 				hrRoutes.POST("/roster", scheduleHandler.CreateShift)
