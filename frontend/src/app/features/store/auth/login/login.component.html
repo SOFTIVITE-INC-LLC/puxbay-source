@@ -1,40 +1,52 @@
 <div class="min-h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-slate-50 dark:bg-zinc-950">
-  <div class="w-full max-w-5xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] p-3 sm:p-4 shadow-2xl flex flex-col md:flex-row gap-6 md:gap-12 animate-fade-in relative overflow-hidden">
-    
+  <div
+    class="w-full max-w-5xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-[2.5rem] p-3 sm:p-4 shadow-2xl flex flex-col md:flex-row gap-6 md:gap-12 animate-fade-in relative overflow-hidden">
+
     <!-- Left Hero Side -->
-    <div class="hidden md:flex flex-col justify-between w-1/2 bg-slate-100 dark:bg-zinc-950 rounded-[2rem] p-10 relative overflow-hidden group">
+    <div
+      class="hidden md:flex flex-col justify-between w-1/2 bg-slate-100 dark:bg-zinc-950 rounded-[2rem] p-10 relative overflow-hidden group">
       <!-- Background Image -->
-      <img src="/images/auth_hero.png" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-80 dark:opacity-60 mix-blend-multiply dark:mix-blend-lighten group-hover:scale-105 transition-transform duration-1000 ease-in-out">
-      
+      <img src="/images/auth_hero.png" alt="Hero"
+        class="absolute inset-0 w-full h-full object-cover opacity-80 dark:opacity-60 mix-blend-multiply dark:mix-blend-lighten group-hover:scale-105 transition-transform duration-1000 ease-in-out">
+
       <!-- Overlays -->
       <div class="absolute inset-0 bg-indigo-900/90 "></div>
-      
+
       <!-- Content -->
       <div class="relative z-10">
-        <a routerLink="/store" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-sm transition-colors">
+        <a routerLink="/store"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-sm transition-colors">
           <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
           Back to Store
         </a>
       </div>
-      
+
       <div class="relative z-10 mt-auto">
-        <h2 class="text-4xl font-black text-white mb-4 leading-tight tracking-tight">Experience premium shopping like never before.</h2>
-        <p class="text-indigo-100 dark:text-zinc-300 font-medium max-w-md">Join thousands of customers who trust us for the best deals, fastest shipping, and highest quality products.</p>
-        
+        <h2 class="text-4xl font-black text-white mb-4 leading-tight tracking-tight">Experience premium shopping like
+          never before.</h2>
+        <p class="text-indigo-100 dark:text-zinc-300 font-medium max-w-md">Join thousands of customers who trust us for
+          the best deals, fastest shipping, and highest quality products.</p>
+
         <div class="flex -space-x-3 mt-8">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sam" class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
-          <div class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">+10k</div>
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+            class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka"
+            class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sam"
+            class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white">
+          <div
+            class="w-10 h-10 rounded-full border-2 border-indigo-900 bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">
+            +10k</div>
         </div>
       </div>
     </div>
-    
+
     <!-- Right Form Side -->
     <div class="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12 lg:px-16">
-      
+
       <!-- Mobile back button -->
-      <a routerLink="/store" class="md:hidden inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white font-bold text-sm transition-colors mb-8 self-start">
+      <a routerLink="/store"
+        class="md:hidden inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white font-bold text-sm transition-colors mb-8 self-start">
         <span class="material-symbols-outlined !text-[18px]">arrow_back</span>
         Back
       </a>
@@ -43,52 +55,58 @@
         <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Welcome back</h1>
         <p class="text-slate-500 dark:text-zinc-400 font-medium">Please enter your details to sign in.</p>
       </div>
-      
+
       <form (ngSubmit)="onSubmit()" class="space-y-5">
-        
+
         <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider pl-1">Email Address</label>
+          <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider pl-1">Email
+            Address</label>
           <div class="relative group">
-            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+            <span
+              class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
               <span class="material-symbols-outlined !text-[20px]">mail</span>
             </span>
             <input type="email" [(ngModel)]="email" name="email" required
-                   class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
-                   placeholder="you@example.com">
+              class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
+              placeholder="you@example.com">
           </div>
         </div>
-        
+
         <div class="space-y-1">
           <div class="flex justify-between items-end pl-1">
-            <label class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">Password</label>
+            <label
+              class="block text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">Password</label>
             <a href="#" class="text-xs font-bold text-indigo-500 hover:text-indigo-600 transition-colors">Forgot?</a>
           </div>
           <div class="relative group">
-            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
+            <span
+              class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400 dark:text-zinc-500 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
               <span class="material-symbols-outlined !text-[20px]">lock</span>
             </span>
             <input type="password" [(ngModel)]="password" name="password" required
-                   class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
-                   placeholder="••••••••">
+              class="w-full bg-slate-50 dark:bg-zinc-950/50 border border-slate-200 dark:border-zinc-800 rounded-2xl pl-11 pr-4 py-3.5 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-600"
+              placeholder="••••••••">
           </div>
         </div>
-        
+
         <button type="submit" [disabled]="isLoading || !email || !password"
-                class="w-full py-4 mt-8 rounded-2xl font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+          class="w-full py-4 mt-8 rounded-2xl font-black text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
           @if (isLoading) {
-            <span class="material-symbols-outlined animate-spin !text-[20px]">progress_activity</span>
-            Signing in...
+          <span class="material-symbols-outlined animate-spin !text-[20px]">progress_activity</span>
+          Signing in...
           } @else {
-            Sign In
-            <span class="material-symbols-outlined !text-[20px]">arrow_forward</span>
+          Sign In
+          <span class="material-symbols-outlined !text-[20px]">arrow_forward</span>
           }
         </button>
       </form>
-      
-      
+
+
       <p class="text-center text-slate-500 dark:text-zinc-400 mt-10 font-medium">
-        Don't have an account? 
-        <a routerLink="/store/register" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-black transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">Create one</a>
+        Don't have an account?
+        <a routerLink="/store/register"
+          class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-black transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">Create
+          one</a>
       </p>
     </div>
   </div>
