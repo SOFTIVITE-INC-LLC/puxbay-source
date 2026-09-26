@@ -12,6 +12,7 @@ import { OfflineDbService } from '../../core/services/offline-db.service';
 import { PrinterService } from '../../core/services/printer.service';
 import { GiftCardService } from '../../core/services/gift-card.service';
 import { NotificationSoundService } from '../../core/services/notification-sound.service';
+import { PaymentMethodService } from '../../core/services/payment-method.service';
 
 @Injectable({ providedIn: 'root' })
 export class PosFacade {
@@ -26,6 +27,7 @@ export class PosFacade {
   private giftCardService = inject(GiftCardService);
   private storefrontSettings = inject(StorefrontSettingsService);
   private soundService = inject(NotificationSoundService);
+  private paymentMethodService = inject(PaymentMethodService);
 
   // --- CORE STATE ---
   searchQuery = signal('');
@@ -52,10 +54,17 @@ export class PosFacade {
   isCheckoutLoading = signal(false);
   paymentAmountInput = signal<number | null>(null);
 
-  // QR Pay
+  // QR Pay (Hosted Checkout linked to Tenant Subaccount)
   isQRModalOpen = signal(false);
-  qrPaymentData = signal<{ reference: string; amount: number; qrUrl: string } | null>(null);
+  isQRLoading = signal(false);
+  qrPaymentData = signal<{ reference: string; amount: number; qrUrl: string; access_code?: string } | null>(null);
   private qrPollTimer: any = null;
+
+  // Paystack Digital Terminal / POS Terminal
+  isTerminalModalOpen = signal(false);
+  isTerminalLoading = signal(false);
+  terminalPaymentData = signal<{ reference: string; amount: number; type: string; authorization_url?: string; terminal_id?: string } | null>(null);
+  private terminalPollTimer: any = null;
 
   // --- ADVANCED STATE ---
   parkedSales = signal<{ cart: any[], customer: any, time: Date }[]>([]);
@@ -556,13 +565,43 @@ export class PosFacade {
     // Generate a unique reference for this transaction
     const reference = `POS-QR-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     const email = this.selectedCustomer()?.email || 'pos-qr@puxbay.com';
-    const amountInPesewas = Math.round(remaining * 100);
-    const qrUrl = `https://paystack.com/pay/?key=${encodeURIComponent(pubKey)}&email=${encodeURIComponent(email)}&amount=${amountInPesewas}&currency=GHS&ref=${reference}${
-      settings?.paystack_subaccount_code ? `&subaccount=${settings.paystack_subaccount_code}` : ''
-    }`;
-    this.qrPaymentData.set({ reference, amount: remaining, qrUrl });
+
+    this.isQRLoading.set(true);
     this.isQRModalOpen.set(true);
-    // Poll for payment every 4 seconds (max 75 polls = 5 mins)
+    this.qrPaymentData.set({ reference, amount: remaining, qrUrl: '' });
+
+    // Initialize Paystack hosted checkout session tied directly to tenant subaccount
+    this.paymentMethodService.initializePaystackCheckout({
+      amount: remaining,
+      email,
+      reference,
+      currency: 'GHS',
+      subaccount_code: settings?.paystack_subaccount_code,
+      channels: ['card', 'mobile_money', 'bank', 'ussd', 'qr', 'bank_transfer']
+    }).subscribe({
+      next: (res) => {
+        this.isQRLoading.set(false);
+        const qrUrl = res.authorization_url || `https://checkout.paystack.com/${res.access_code}`;
+        this.qrPaymentData.set({ reference: res.reference || reference, amount: remaining, qrUrl, access_code: res.access_code });
+        this.startQRPaymentPolling(res.reference || reference, remaining);
+      },
+      error: (err) => {
+        this.isQRLoading.set(false);
+        console.warn('Backend Paystack init error, falling back to popup:', err);
+        const amountInPesewas = Math.round(remaining * 100);
+        const fallbackUrl = `https://checkout.paystack.com/checkout?key=${encodeURIComponent(pubKey)}&email=${encodeURIComponent(email)}&amount=${amountInPesewas}&currency=GHS&ref=${reference}${
+          settings?.paystack_subaccount_code ? `&subaccount=${settings.paystack_subaccount_code}` : ''
+        }`;
+        this.qrPaymentData.set({ reference, amount: remaining, qrUrl: fallbackUrl });
+        this.startQRPaymentPolling(reference, remaining);
+      }
+    });
+  }
+
+  private startQRPaymentPolling(reference: string, amount: number) {
+    if (this.qrPollTimer) {
+      clearInterval(this.qrPollTimer);
+    }
     let polls = 0;
     this.qrPollTimer = setInterval(() => {
       polls++;
@@ -572,18 +611,17 @@ export class PosFacade {
         this.isQRModalOpen.set(false);
         return;
       }
-      // Check Paystack transaction status via backend verify endpoint
       fetch(`/api/v1/pos/verify-payment?reference=${reference}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}` }
       })
         .then(r => r.json())
         .then(data => {
-          if (data?.status === 'success' || data?.data?.status === 'success') {
+          if (data?.status === 'success' || data?.data?.status === 'success' || (data?.status === true && data?.data?.status === 'success')) {
             clearInterval(this.qrPollTimer);
             this.isQRModalOpen.set(false);
             this.payments.update(p => [
               ...p,
-              { method: 'qr', amount: remaining, code: reference }
+              { method: 'qr', amount, code: reference }
             ]);
             this.toastr.success(`QR payment confirmed!`);
             if (this.remainingBalance() <= 0) {
@@ -591,8 +629,8 @@ export class PosFacade {
             }
           }
         })
-        .catch(() => {}); // silently ignore network errors
-    }, 4000);
+        .catch(() => {});
+    }, 3500);
   }
 
   closeQRModal() {
@@ -601,7 +639,92 @@ export class PosFacade {
       this.qrPollTimer = null;
     }
     this.isQRModalOpen.set(false);
+    this.isQRLoading.set(false);
     this.qrPaymentData.set(null);
+  }
+
+  // ── PAYSTACK DIGITAL TERMINAL ──────────────────────────────────────
+  openDigitalTerminalModal() {
+    const remaining = this.remainingBalance();
+    if (remaining <= 0) {
+      this.toastr.info('No remaining balance to charge.');
+      return;
+    }
+    const settings = this.storefrontSettings.settings();
+    const reference = `POS-TRM-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+    this.isTerminalLoading.set(true);
+    this.isTerminalModalOpen.set(true);
+    this.terminalPaymentData.set({ reference, amount: remaining, type: 'digital_terminal' });
+
+    this.paymentMethodService.sendTerminalPayment({
+      amount: remaining,
+      reference,
+      subaccount_code: settings?.paystack_subaccount_code,
+      currency: 'GHS'
+    }).subscribe({
+      next: (res) => {
+        this.isTerminalLoading.set(false);
+        this.terminalPaymentData.set({
+          reference: res.reference || reference,
+          amount: remaining,
+          type: res.type || 'digital_terminal',
+          authorization_url: res.authorization_url,
+          terminal_id: res.terminal_id
+        });
+        this.startTerminalPolling(res.reference || reference, remaining);
+      },
+      error: (err) => {
+        this.isTerminalLoading.set(false);
+        this.toastr.error('Could not initialize Digital Terminal session.');
+        this.closeDigitalTerminalModal();
+      }
+    });
+  }
+
+  private startTerminalPolling(reference: string, amount: number) {
+    if (this.terminalPollTimer) {
+      clearInterval(this.terminalPollTimer);
+    }
+    let polls = 0;
+    this.terminalPollTimer = setInterval(() => {
+      polls++;
+      if (polls > 75) {
+        clearInterval(this.terminalPollTimer);
+        this.toastr.warning('Terminal payment session expired.');
+        this.isTerminalModalOpen.set(false);
+        return;
+      }
+      fetch(`/api/v1/pos/verify-payment?reference=${reference}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token') || ''}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data?.status === 'success' || data?.data?.status === 'success' || (data?.status === true && data?.data?.status === 'success')) {
+            clearInterval(this.terminalPollTimer);
+            this.isTerminalModalOpen.set(false);
+            this.payments.update(p => [
+              ...p,
+              { method: 'terminal', amount, code: reference }
+            ]);
+            this.toastr.success(`Digital Terminal payment confirmed!`);
+            if (this.remainingBalance() <= 0) {
+              this.processCheckout();
+            }
+          }
+        })
+        .catch(() => {});
+    }, 3500);
+  }
+
+  closeDigitalTerminalModal() {
+    if (this.terminalPollTimer) {
+      clearInterval(this.terminalPollTimer);
+      this.terminalPollTimer = null;
+    }
+    this.isTerminalModalOpen.set(false);
+    this.isTerminalLoading.set(false);
+    this.terminalPaymentData.set(null);
   }
 
 

@@ -179,6 +179,55 @@ export class PaymentMethodService {
     );
   }
 
+  // ── Hosted Checkout & Digital Terminal ──────────────────────────────────
+
+  /** Initialize a Paystack hosted checkout session tied to subaccount */
+  initializePaystackCheckout(payload: {
+    amount: number;
+    email?: string;
+    reference?: string;
+    subaccount_code?: string;
+    currency?: string;
+    channels?: string[];
+  }): Observable<{
+    status: boolean;
+    message: string;
+    authorization_url: string;
+    access_code: string;
+    reference: string;
+    subaccount_code?: string;
+    amount: number;
+    currency: string;
+  }> {
+    return this.api.post<any>('/payment-methods/paystack/initialize-checkout', payload);
+  }
+
+  /** Fetch available Paystack hardware / digital terminals */
+  getPaystackTerminals(): Observable<{ status: boolean; data: any[] }> {
+    return this.api.get<any>('/payment-methods/paystack/terminals', undefined, true);
+  }
+
+  /** Send a terminal charge request or digital terminal session */
+  sendTerminalPayment(payload: {
+    terminal_id?: string;
+    amount: number;
+    reference?: string;
+    subaccount_code?: string;
+    currency?: string;
+  }): Observable<{
+    status: boolean;
+    type: 'hardware_terminal' | 'digital_terminal';
+    terminal_id?: string;
+    authorization_url?: string;
+    access_code?: string;
+    reference: string;
+    subaccount_code?: string;
+    amount: number;
+    currency: string;
+  }> {
+    return this.api.post<any>('/payment-methods/paystack/terminal/charge', payload);
+  }
+
   // ── Legacy helpers (kept for edit/list subaccounts flow) ─────────────────
 
   getPaystackSubaccounts(): Observable<{ subaccounts: PaystackSubaccount[] }> {
@@ -191,3 +240,4 @@ export class PaymentMethodService {
     );
   }
 }
+

@@ -510,3 +510,303 @@ func (h *PaymentMethodHandler) VerifyTransaction(c *gin.Context) {
 
 	c.JSON(resp.StatusCode, paystackResp)
 }
+
+// InitializeCheckout initializes a Paystack transaction session routed to a subaccount.
+// POST /api/v1/payment-methods/paystack/initialize-checkout or /api/v1/pos/initiate-paystack-checkout
+func (h *PaymentMethodHandler) InitializeCheckout(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured on the server. Please check PAYSTACK_SECRET_KEY."})
+		return
+	}
+
+	var req struct {
+		Amount         float64  `json:"amount" binding:"required"` // In main currency units, e.g. 15.50
+		Email          string   `json:"email"`
+		Reference      string   `json:"reference"`
+		SubaccountCode string   `json:"subaccount_code"`
+		Currency       string   `json:"currency"`
+		Channels       []string `json:"channels"`
+		CallbackURL    string   `json:"callback_url"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Email == "" {
+		req.Email = "pos-checkout@puxbay.com"
+	}
+	if req.Currency == "" {
+		req.Currency = "GHS"
+	}
+	if req.Reference == "" {
+		req.Reference = fmt.Sprintf("POS-%d-%s", time.Now().UnixNano()/1e6, uuid.New().String()[:6])
+	}
+
+	// If no subaccount explicitly provided, look for tenant's active Paystack subaccount
+	subaccountCode := strings.TrimSpace(req.SubaccountCode)
+	if subaccountCode == "" {
+		var activeSubaccount models.PaymentMethod
+		if err := h.getDB(c).Where("provider = ? AND is_active = ? AND paystack_subaccount_code IS NOT NULL AND paystack_subaccount_code <> ''", "paystack_subaccount", true).Order("created_at DESC").First(&activeSubaccount).Error; err == nil && activeSubaccount.PaystackSubaccountCode != nil {
+			subaccountCode = *activeSubaccount.PaystackSubaccountCode
+		}
+	}
+
+	amountInSubunits := int64(req.Amount * 100)
+	if amountInSubunits <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Amount must be greater than zero"})
+		return
+	}
+
+	payload := map[string]interface{}{
+		"email":     req.Email,
+		"amount":    amountInSubunits,
+		"reference": req.Reference,
+		"currency":  req.Currency,
+	}
+
+	if subaccountCode != "" {
+		payload["subaccount"] = subaccountCode
+		payload["bearer"] = "subaccount"
+	}
+
+	if len(req.Channels) > 0 {
+		payload["channels"] = req.Channels
+	}
+	if req.CallbackURL != "" {
+		payload["callback_url"] = req.CallbackURL
+	}
+
+	payloadBytes, _ := json.Marshal(payload)
+	reqHttp, err := http.NewRequestWithContext(c.Request.Context(), "POST", "https://api.paystack.co/transaction/initialize", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request: " + err.Error()})
+		return
+	}
+
+	secretKey := h.paystackCfg.SecretKey
+	if secretKey == "" {
+		secretKey = os.Getenv("PAYSTACK_SECRET_KEY")
+	}
+
+	reqHttp.Header.Set("Authorization", "Bearer "+secretKey)
+	reqHttp.Header.Set("Content-Type", "application/json")
+
+	resp, err := h.httpClient.Do(reqHttp)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to contact Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var paystackResp struct {
+		Status  bool   `json:"status"`
+		Message string `json:"message"`
+		Data    struct {
+			AuthorizationURL string `json:"authorization_url"`
+			AccessCode       string `json:"access_code"`
+			Reference        string `json:"reference"`
+		} `json:"data"`
+	}
+
+	if err := json.Unmarshal(body, &paystackResp); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid response from Paystack"})
+		return
+	}
+
+	if !paystackResp.Status {
+		c.JSON(resp.StatusCode, gin.H{"error": paystackResp.Message, "status": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":            true,
+		"message":           paystackResp.Message,
+		"authorization_url": paystackResp.Data.AuthorizationURL,
+		"access_code":       paystackResp.Data.AccessCode,
+		"reference":         paystackResp.Data.Reference,
+		"subaccount_code":   subaccountCode,
+		"amount":            req.Amount,
+		"currency":          req.Currency,
+	})
+}
+
+// ListPaystackTerminals lists Paystack hardware/digital terminals.
+// GET /api/v1/payment-methods/paystack/terminals
+func (h *PaymentMethodHandler) ListPaystackTerminals(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+
+	secretKey := h.paystackCfg.SecretKey
+	if secretKey == "" {
+		secretKey = os.Getenv("PAYSTACK_SECRET_KEY")
+	}
+
+	reqHttp, err := http.NewRequestWithContext(c.Request.Context(), "GET", "https://api.paystack.co/terminal?perPage=50", nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+		return
+	}
+	reqHttp.Header.Set("Authorization", "Bearer "+secretKey)
+
+	resp, err := h.httpClient.Do(reqHttp)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to contact Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid response from Paystack"})
+		return
+	}
+
+	c.JSON(resp.StatusCode, result)
+}
+
+// SendTerminalPayment pushes a charge request to a Paystack Digital/Hardware Terminal or initializes a digital terminal session.
+// POST /api/v1/payment-methods/paystack/terminal/charge
+func (h *PaymentMethodHandler) SendTerminalPayment(c *gin.Context) {
+	if h.paystackCfg == nil || h.paystackCfg.SecretKey == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Paystack is not configured"})
+		return
+	}
+
+	var req struct {
+		TerminalID     string  `json:"terminal_id"`
+		Amount         float64 `json:"amount" binding:"required"`
+		Reference      string  `json:"reference"`
+		SubaccountCode string  `json:"subaccount_code"`
+		Currency       string  `json:"currency"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.Reference == "" {
+		req.Reference = fmt.Sprintf("TRM-%d-%s", time.Now().UnixNano()/1e6, uuid.New().String()[:6])
+	}
+	if req.Currency == "" {
+		req.Currency = "GHS"
+	}
+
+	subaccountCode := strings.TrimSpace(req.SubaccountCode)
+	if subaccountCode == "" {
+		var activeSubaccount models.PaymentMethod
+		if err := h.getDB(c).Where("provider = ? AND is_active = ? AND paystack_subaccount_code IS NOT NULL AND paystack_subaccount_code <> ''", "paystack_subaccount", true).Order("created_at DESC").First(&activeSubaccount).Error; err == nil && activeSubaccount.PaystackSubaccountCode != nil {
+			subaccountCode = *activeSubaccount.PaystackSubaccountCode
+		}
+	}
+
+	secretKey := h.paystackCfg.SecretKey
+	if secretKey == "" {
+		secretKey = os.Getenv("PAYSTACK_SECRET_KEY")
+	}
+
+	amountInSubunits := int64(req.Amount * 100)
+
+	// If a physical TerminalID is provided, push event to Paystack Terminal API
+	if strings.TrimSpace(req.TerminalID) != "" {
+		url := fmt.Sprintf("https://api.paystack.co/terminal/%s/event", req.TerminalID)
+		eventPayload := map[string]interface{}{
+			"type":   "invoice",
+			"action": "process",
+			"data": map[string]interface{}{
+				"id":        req.Reference,
+				"reference": req.Reference,
+				"amount":    amountInSubunits,
+			},
+		}
+		if subaccountCode != "" {
+			eventPayload["subaccount"] = subaccountCode
+		}
+
+		payloadBytes, _ := json.Marshal(eventPayload)
+		reqHttp, err := http.NewRequestWithContext(c.Request.Context(), "POST", url, bytes.NewBuffer(payloadBytes))
+		if err == nil {
+			reqHttp.Header.Set("Authorization", "Bearer "+secretKey)
+			reqHttp.Header.Set("Content-Type", "application/json")
+			resp, err := h.httpClient.Do(reqHttp)
+			if err == nil {
+				defer resp.Body.Close()
+				body, _ := io.ReadAll(resp.Body)
+				var terminalResp map[string]interface{}
+				if json.Unmarshal(body, &terminalResp) == nil && resp.StatusCode < 400 {
+					c.JSON(http.StatusOK, gin.H{
+						"status":          true,
+						"type":            "hardware_terminal",
+						"terminal_id":     req.TerminalID,
+						"reference":       req.Reference,
+						"subaccount_code": subaccountCode,
+						"amount":          req.Amount,
+						"paystack":        terminalResp,
+					})
+					return
+				}
+			}
+		}
+	}
+
+	// For Digital Terminal mode or fallback, initialize digital checkout session tied to subaccount
+	initPayload := map[string]interface{}{
+		"email":     "pos-terminal@puxbay.com",
+		"amount":    amountInSubunits,
+		"reference": req.Reference,
+		"currency":  req.Currency,
+	}
+	if subaccountCode != "" {
+		initPayload["subaccount"] = subaccountCode
+		initPayload["bearer"] = "subaccount"
+	}
+
+	payloadBytes, _ := json.Marshal(initPayload)
+	reqHttp, err := http.NewRequestWithContext(c.Request.Context(), "POST", "https://api.paystack.co/transaction/initialize", bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create digital terminal request"})
+		return
+	}
+	reqHttp.Header.Set("Authorization", "Bearer "+secretKey)
+	reqHttp.Header.Set("Content-Type", "application/json")
+
+	resp, err := h.httpClient.Do(reqHttp)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "Failed to contact Paystack: " + err.Error()})
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	var paystackResp struct {
+		Status  bool   `json:"status"`
+		Message string `json:"message"`
+		Data    struct {
+			AuthorizationURL string `json:"authorization_url"`
+			AccessCode       string `json:"access_code"`
+			Reference        string `json:"reference"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(body, &paystackResp); err != nil || !paystackResp.Status {
+		c.JSON(resp.StatusCode, gin.H{"error": "Failed to initialize digital terminal session", "details": string(body)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":            true,
+		"type":              "digital_terminal",
+		"authorization_url": paystackResp.Data.AuthorizationURL,
+		"access_code":       paystackResp.Data.AccessCode,
+		"reference":         paystackResp.Data.Reference,
+		"subaccount_code":   subaccountCode,
+		"amount":            req.Amount,
+		"currency":          req.Currency,
+	})
+}
+

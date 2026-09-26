@@ -132,6 +132,16 @@ export class PaymentMethods implements OnInit {
       badge: 'Direct Split / Payout'
     },
     {
+      provider: 'paystack_terminal',
+      name: 'Paystack Digital Terminal',
+      category: 'in_person',
+      icon: 'point_of_sale',
+      description: 'Cloud & hardware POS terminal checkout integrated directly with your tenant subaccount.',
+      color: 'text-teal-400',
+      bg: 'bg-teal-500/10 border-teal-500/20',
+      badge: 'Digital POS / Terminal'
+    },
+    {
       provider: 'cash',
       name: 'Cash Payment',
       category: 'in_person',

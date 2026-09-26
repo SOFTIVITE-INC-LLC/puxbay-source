@@ -534,6 +534,11 @@ func Setup(cfg *config.Config, db *gorm.DB, hub *websocket.Hub) *gin.Engine {
 			api.GET("/payment-methods/paystack/banks", paymentMethodHandler.ListPaystackBanks)
 			api.GET("/payment-methods/paystack/resolve-account", paymentMethodHandler.ResolvePaystackAccount)
 			api.POST("/payment-methods/paystack/create-subaccount", paymentMethodHandler.CreatePaystackSubaccount)
+			api.POST("/payment-methods/paystack/initialize-checkout", paymentMethodHandler.InitializeCheckout)
+			api.POST("/pos/initiate-paystack-checkout", paymentMethodHandler.InitializeCheckout)
+			api.GET("/payment-methods/paystack/terminals", paymentMethodHandler.ListPaystackTerminals)
+			api.POST("/payment-methods/paystack/terminal/charge", paymentMethodHandler.SendTerminalPayment)
+			api.POST("/pos/terminal/charge", paymentMethodHandler.SendTerminalPayment)
 			api.GET("/payment-methods/paystack/verify/:reference", paymentMethodHandler.VerifyTransaction)
 			api.GET("/pos/verify-payment", paymentMethodHandler.VerifyTransaction)
 
