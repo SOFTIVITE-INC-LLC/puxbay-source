@@ -104,7 +104,7 @@ export class ExportService {
    <Font ss:FontName="Segoe UI" ss:Size="10" ss:Color="#333333"/>
   </Style>
   <Style ss:ID="TitleStyle">
-   <Font ss:FontName="Segoe UI" ss:Size="16" ss:Bold="1" ss:Color="#005b96"/>
+   <Font ss:FontName="Segoe UI" ss:Size="16" ss:Bold="1" ss:Color="#2563EB"/>
    <Alignment ss:Vertical="Center"/>
   </Style>
   <Style ss:ID="SubtitleStyle">
@@ -123,10 +123,10 @@ export class ExportService {
   </Style>
   <Style ss:ID="HeaderStyle">
    <Font ss:FontName="Segoe UI" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/>
-   <Interior ss:Color="#005B96" ss:Pattern="Solid"/>
+   <Interior ss:Color="#2563EB" ss:Pattern="Solid"/>
    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
    <Borders>
-    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#03396C"/>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#1E293B"/>
    </Borders>
   </Style>
   <Style ss:ID="RowEven">
@@ -281,14 +281,14 @@ export class ExportService {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      border-bottom: 2px solid #005b96;
+      border-bottom: 2px solid #2563EB;
       padding-bottom: 12px;
       margin-bottom: 16px;
     }
     .brand-title {
       font-size: 18px;
       font-weight: 800;
-      color: #005b96;
+      color: #2563EB;
       letter-spacing: -0.02em;
     }
     .company-name {
@@ -345,7 +345,7 @@ export class ExportService {
       color: #0f172a;
     }
     .highlight .card-value {
-      color: #005b96;
+      color: #2563EB;
     }
     table {
       width: 100%;
@@ -361,14 +361,14 @@ export class ExportService {
       page-break-after: auto;
     }
     th {
-      background: #005b96;
+      background: #2563EB;
       color: #ffffff;
       font-size: 9.5px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       padding: 8px 10px;
-      border: 1px solid #005b96;
+      border: 1px solid #2563EB;
     }
     td {
       padding: 7px 10px;
@@ -419,7 +419,7 @@ export class ExportService {
       z-index: 999;
     }
     .btn {
-      background: #005b96;
+      background: #2563EB;
       color: white;
       border: none;
       padding: 6px 12px;

@@ -13,7 +13,7 @@ import { SettingsService } from '../../../core/services/settings.service';
   imports: [CommonModule, FormsModule, AppCurrencyPipe],
   templateUrl: './wallet.html',
   styles: `
-    .card-gradient { background-color: #011f4b; }
+    .card-gradient { background-color: #0F172A; }
     .glass {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(20px);

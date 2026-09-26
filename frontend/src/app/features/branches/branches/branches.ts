@@ -48,7 +48,7 @@ export class Branches implements OnInit {
     branch_type: 'retail',
     currency_code: 'GHS',
     currency_symbol: 'GH₵',
-    primary_color: '#005b96',
+    primary_color: '#2563EB',
     low_stock_threshold: 10
   });
 
@@ -101,7 +101,7 @@ export class Branches implements OnInit {
       branch_type: 'retail',
       currency_code: 'GHS',
       currency_symbol: 'GH₵',
-      primary_color: '#005b96',
+      primary_color: '#2563EB',
       low_stock_threshold: 10
     });
     this.isModalOpen.set(true);

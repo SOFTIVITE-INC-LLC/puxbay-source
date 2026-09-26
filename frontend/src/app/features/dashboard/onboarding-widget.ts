@@ -22,7 +22,7 @@ interface OnboardingStatus {
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="rounded-2xl bg-white dark:bg-[#1a1f2e] border border-slate-200 dark:border-white/[0.08] shadow-sm mb-8 overflow-hidden" *ngIf="status() && status()!.progress_percent < 100">
+    <div class="rounded-2xl bg-white dark:bg-[#121B2D] border border-slate-200 dark:border-white/[0.08] shadow-sm mb-8 overflow-hidden" *ngIf="status() && status()!.progress_percent < 100">
       <div class="p-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
           <div>
@@ -50,7 +50,7 @@ interface OnboardingStatus {
                 <div *ngIf="step.completed" class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <span class="material-symbols-outlined !text-[18px] font-bold">check</span>
                 </div>
-                <div *ngIf="!step.completed" class="w-8 h-8 rounded-full bg-white dark:bg-[#1a1f2e] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs font-black shrink-0">
+                <div *ngIf="!step.completed" class="w-8 h-8 rounded-full bg-white dark:bg-[#121B2D] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs font-black shrink-0">
                   {{ i + 1 }}
                 </div>
                 <h3 class="font-bold text-sm leading-tight" 

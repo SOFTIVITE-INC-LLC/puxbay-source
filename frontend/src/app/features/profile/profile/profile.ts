@@ -17,7 +17,7 @@ import { AlertService } from '../../../core/services/alert.service';
       66% { transform: translate(-20px, 20px) scale(0.9); }
       100% { transform: translate(0px, 0px) scale(1); }
     }
-    .animated-gradient-text { color: #005b96; }
+    .animated-gradient-text { color: #2563EB; }
     .animate-blob {
       animation: blob 7s infinite;
     }

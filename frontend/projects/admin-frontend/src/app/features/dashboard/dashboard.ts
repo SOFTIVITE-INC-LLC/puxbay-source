@@ -36,9 +36,9 @@ export class DashboardComponent implements OnInit {
         label: 'Active Tenants',
         fill: true,
         tension: 0.5,
-        borderColor: '#005b96',
-        backgroundColor: 'rgba(0, 91, 150, 0.12)',
-        pointBackgroundColor: '#005b96',
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+        pointBackgroundColor: '#2563EB',
         pointBorderColor: '#fff',
       }
     ]
@@ -95,9 +95,9 @@ export class DashboardComponent implements OnInit {
                     label: 'Active Tenants',
                     fill: true,
                     tension: 0.5,
-                    borderColor: '#005b96',
-                    backgroundColor: 'rgba(0, 91, 150, 0.12)',
-                    pointBackgroundColor: '#005b96',
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                    pointBackgroundColor: '#2563EB',
                     pointBorderColor: '#fff',
                   }
                 ]

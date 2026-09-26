@@ -35,8 +35,8 @@ export class Hero implements OnDestroy {
       ctaLabel: 'Start Free Trial',
       ctaLink: '/login',
       secondaryCtaLabel: 'Watch Demo',
-      accentColor: '#005b96',
-      overlayGradient: 'linear-gradient(135deg, rgba(1,31,75,0.82) 0%, rgba(3,57,108,0.65) 50%, rgba(0,0,0,0.25) 100%)',
+      accentColor: '#2563EB',
+      overlayGradient: 'linear-gradient(135deg, rgba(15,23,42,0.88) 0%, rgba(30,41,59,0.70) 50%, rgba(0,0,0,0.25) 100%)',
     },
     {
       id: 1,
@@ -48,8 +48,8 @@ export class Hero implements OnDestroy {
       ctaLabel: 'Explore Inventory',
       ctaLink: '/product/inventory',
       secondaryCtaLabel: 'See Features',
-      accentColor: '#03396c',
-      overlayGradient: 'linear-gradient(135deg, rgba(3,57,108,0.85) 0%, rgba(1,31,75,0.65) 50%, rgba(0,0,0,0.3) 100%)',
+      accentColor: '#0284C7',
+      overlayGradient: 'linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(37,99,235,0.45) 50%, rgba(0,0,0,0.3) 100%)',
     },
     {
       id: 2,
@@ -61,8 +61,8 @@ export class Hero implements OnDestroy {
       ctaLabel: 'Create Your Store',
       ctaLink: '/product/storefront',
       secondaryCtaLabel: 'See Examples',
-      accentColor: '#005b96',
-      overlayGradient: 'linear-gradient(135deg, rgba(1,31,75,0.75) 0%, rgba(100,151,177,0.55) 60%, rgba(0,0,0,0.2) 100%)',
+      accentColor: '#06B6D4',
+      overlayGradient: 'linear-gradient(135deg, rgba(15,23,42,0.80) 0%, rgba(6,182,212,0.40) 60%, rgba(0,0,0,0.2) 100%)',
     },
     {
       id: 3,
@@ -74,8 +74,8 @@ export class Hero implements OnDestroy {
       ctaLabel: 'Explore Analytics',
       ctaLink: '/product/analytics',
       secondaryCtaLabel: 'See Reports',
-      accentColor: '#011f4b',
-      overlayGradient: 'linear-gradient(135deg, rgba(1,31,75,0.90) 0%, rgba(3,57,108,0.60) 50%, rgba(0,0,0,0.15) 100%)',
+      accentColor: '#2563EB',
+      overlayGradient: 'linear-gradient(135deg, rgba(11,19,43,0.92) 0%, rgba(30,41,59,0.65) 50%, rgba(0,0,0,0.15) 100%)',
     },
   ];
 

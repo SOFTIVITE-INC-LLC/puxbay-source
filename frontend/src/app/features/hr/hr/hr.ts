@@ -16,7 +16,7 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, FormsModule, AppCurrencyPipe],
   templateUrl: './hr.html',
   styles: `
-    .animated-gradient-text { color: #005b96; }
+    .animated-gradient-text { color: #2563EB; }
     .glass-panel {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(16px);

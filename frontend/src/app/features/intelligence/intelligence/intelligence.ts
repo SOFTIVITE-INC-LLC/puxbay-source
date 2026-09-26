@@ -22,15 +22,15 @@ import { ToastService } from '../../../core/services/toast';
     }
 
     .shimmer-bar {
-      background: #005b96;
+      background: #2563EB;
       background-size: 1000px 100%;
       animation: shimmer 1.5s infinite;
     }
     .dark .shimmer-bar {
-      background: #005b96;
+      background: #2563EB;
       background-size: 1000px 100%;
     }
-    .animated-gradient { background-color: #011f4b; }
+    .animated-gradient { background-color: #0F172A; }
     .glass {
       background: rgba(255,255,255,0.65);
       backdrop-filter: blur(18px);

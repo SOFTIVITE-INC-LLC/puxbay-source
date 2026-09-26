@@ -74,7 +74,7 @@ import { ReceiptComponent } from '../../../shared/components/receipt/receipt.com
     }
     /* Override html5-qrcode default button styles */
     #pos-camera-scanner-reader button {
-      background: #005b96 !important;
+      background: #2563EB !important;
       border-radius: 8px !important;
       border: none !important;
       color: white !important;

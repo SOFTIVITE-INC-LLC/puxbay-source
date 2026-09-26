@@ -16,8 +16,8 @@ import { SettingsService } from '../../../core/services/settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.html',
   styles: `
-    .animated-gradient-bg { background-color: #005b96; }
-    .branch-gradient-bg { background-color: #005b96; }
+    .animated-gradient-bg { background-color: #2563EB; }
+    .branch-gradient-bg { background-color: #2563EB; }
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-6px); }

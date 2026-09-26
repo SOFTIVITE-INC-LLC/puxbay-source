@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 html, body {
-    @apply bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white antialiased;
+    @apply bg-slate-100 dark:bg-[#050811] text-slate-900 dark:text-slate-100 antialiased;
 }
 
 /* Legacy Styles */
@@ -16,11 +16,12 @@ html, body {
 }
 
 :root {
-    --brand-primary: #005b96;
-    --brand-navy: #011f4b;
-    --brand-deep: #03396c;
-    --brand-steel: #6497b1;
-    --brand-ice: #b3cde0;
+    --brand-primary: #2563EB;
+    --brand-navy: #050811;
+    --brand-deep: #0B101D;
+    --brand-steel: #0284C7;
+    --brand-ice: #06B6D4;
+    --brand-cyan: #06B6D4;
 }
 
 body {
@@ -110,65 +111,76 @@ body {
 }
 
 .toast.info {
-    background: #005b96;
+    background: #2563EB;
     color: white;
 }
 
-/* --- Global Dark Mode Overrides (for existing templates) --- */
+/* --- Global Dark Mode Elevation & Contrast Overrides --- */
 html.dark .bg-white {
-    background-color: #1e293b;
+    background-color: #121B2D !important;
 }
 
-/* slate-800 */
 html.dark .bg-slate-50 {
-    background-color: #0f172a;
+    background-color: #050811 !important;
 }
 
-/* slate-900 */
+html.dark .bg-slate-100 {
+    background-color: #0B101D !important;
+}
+
+html.dark .bg-slate-800 {
+    background-color: #121B2D !important;
+}
+
+html.dark .bg-slate-900 {
+    background-color: #050811 !important;
+}
+
+/* Glass and Card elements */
+html.dark .card,
+html.dark .glass-card,
+html.dark .glass-panel {
+    background-color: rgba(18, 27, 45, 0.90) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.60) !important;
+}
 
 /* Text Colors */
 html.dark .text-slate-900 {
     color: #f8fafc;
 }
 
-/* slate-50 */
 html.dark .text-slate-800 {
     color: #f1f5f9;
 }
 
-/* slate-100 */
 html.dark .text-slate-700 {
     color: #e2e8f0;
 }
 
-/* slate-200 */
 html.dark .text-slate-600 {
     color: #cbd5e1;
 }
 
-/* slate-300 */
 html.dark .text-slate-500 {
     color: #94a3b8;
 }
 
-/* slate-400 */
 html.dark .text-gray-900 {
     color: #f8fafc;
 }
 
-/* Borders */
+/* Borders with crisp contrast */
 html.dark .border-slate-200,
 html.dark .border-slate-300,
 html.dark .border-gray-200 {
-    border-color: #334155 !important;
-    /* slate-700 */
+    border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 /* Table Headers */
 html.dark thead.bg-slate-50,
 html.dark .bg-slate-50\/50 {
-    background-color: #334155 !important;
-    /* slate-700 */
+    background-color: #0B101D !important;
 }
 
 /* Form Inputs */
@@ -197,8 +209,8 @@ select {
 select:focus {
     outline: 2px solid transparent;
     outline-offset: 2px;
-    border-color: #005b96;
-    box-shadow: 0 0 0 3px rgba(0, 91, 150, 0.25);
+    border-color: #2563EB;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 html.dark input[type="text"]:not(.auth-input),
@@ -351,7 +363,7 @@ body.sidebar-is-collapsed .nav-label {
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #005b96;
+    background: #2563EB;
     border-radius: 0 2px 2px 0;
 }
 
@@ -360,7 +372,7 @@ body.sidebar-is-collapsed .nav-link-active::before {
 }
 
 body.sidebar-is-collapsed .nav-link-active {
-    background-color: rgba(0, 91, 150, 0.22) !important;
+    background-color: rgba(37, 99, 235, 0.22) !important;
 }
 
 .nav-link-active .material-symbols-outlined {

@@ -3,7 +3,7 @@
   "short_name": "Puxbay",
   "description": "Puxbay - The Best E-commerce Solution",
   "display": "standalone",
-  "theme_color": "#005b96",
+  "theme_color": "#0F172A",
   "background_color": "#ffffff",
   "scope": "./",
   "start_url": "/",

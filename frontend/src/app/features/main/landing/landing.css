@@ -1,9 +1,9 @@
 :root {
-  --brand: #005b96;
-  --brand-light: #6497b1;
-  --brand-dark: #03396c;
-  --brand-navy: #011f4b;
-  --brand-ice: #b3cde0;
+  --brand: #2563EB;
+  --brand-light: #0284C7;
+  --brand-dark: #1E293B;
+  --brand-navy: #0F172A;
+  --brand-ice: #06B6D4;
 }
 
 body { font-family: 'Outfit', sans-serif; }
@@ -17,25 +17,26 @@ body { font-family: 'Outfit', sans-serif; }
 
 .hero-grid-bg {
   position: absolute; inset: 0;
-  background: #005b96 1px, transparent 1px),
-    #005b96 1px, transparent 1px);
+  background: radial-gradient(#2563EB 1px, transparent 1px),
+    radial-gradient(#2563EB 1px, transparent 1px);
   background-size: 60px 60px;
+  opacity: 0.15;
   pointer-events: none;
 }
 
 .hero-glow {
   position: absolute; top: -150px; left: 50%; transform: translateX(-50%);
   width: 1200px; height: 600px;
-  background: transparent;
+  background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(37,99,235,0.05) 50%, transparent 70%);
   pointer-events: none;
 }
 
 /* ── BADGE ── */
 .badge-pill {
   display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0,91,150,0.1);
-  border: 1px solid rgba(0,91,150,0.25);
-  color: #005b96; font-size: 11px; font-weight: 700;
+  background: rgba(37,99,235,0.1);
+  border: 1px solid rgba(37,99,235,0.25);
+  color: #2563EB; font-size: 11px; font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
   padding: 5px 14px; border-radius: 9999px;
 }
@@ -47,10 +48,10 @@ body { font-family: 'Outfit', sans-serif; }
   font-weight: 800; font-size: 13px; letter-spacing: 0.04em;
   padding: 12px 28px; border-radius: 10px;
   transition: all 0.25s cubic-bezier(0.23,1,0.32,1);
-  box-shadow: 0 4px 20px rgba(0,91,150,0.35);
+  box-shadow: 0 4px 20px rgba(37,99,235,0.35);
   border: none; cursor: pointer; text-decoration: none;
 }
-.btn-primary:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,91,150,0.45); }
+.btn-primary:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,99,235,0.45); }
 
 .btn-ghost {
   display: inline-flex; align-items: center; gap: 8px;
@@ -95,7 +96,7 @@ body { font-family: 'Outfit', sans-serif; }
   height: 32px; border-radius: 8px;
   display: flex; align-items: center; padding: 0 10px; gap: 8px;
 }
-.sidebar-item.active { background: rgba(0,91,150,0.15); }
+.sidebar-item.active { background: rgba(37,99,235,0.15); }
 
 .mockup-main { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
 
@@ -134,8 +135,8 @@ body { font-family: 'Outfit', sans-serif; }
 }
 .feat-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 25px 50px rgba(0,91,150,0.12);
-  border-color: rgba(0,91,150,0.3);
+  box-shadow: 0 25px 50px rgba(37,99,235,0.12);
+  border-color: rgba(37,99,235,0.3);
 }
 
 .feat-icon {
@@ -153,7 +154,7 @@ body { font-family: 'Outfit', sans-serif; }
 .ai-section-glow {
   position: absolute; top: -100px; left: -100px;
   width: 500px; height: 500px;
-  background: transparent;
+  background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(37,99,235,0.05) 50%, transparent 70%);
   pointer-events: none;
 }
 
@@ -179,7 +180,7 @@ body { font-family: 'Outfit', sans-serif; }
 
 /* ── CTA BLOCK ── */
 .cta-block {
-  background: #011f4b;
+  background: #0F172A;
   border-radius: 24px; position: relative; overflow: hidden;
 }
 .cta-block::before {

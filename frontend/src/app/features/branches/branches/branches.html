@@ -86,16 +86,16 @@
     @for (branch of branchService.branches(); track branch.id) {
     <div
       class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-white/40 dark:border-white/5 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
-      [ngStyle]="{ 'border-top-width': '4px', 'border-top-color': branch.primary_color || '#005b96' }">
+      [ngStyle]="{ 'border-top-width': '4px', 'border-top-color': branch.primary_color || '#2563EB' }">
       <!-- Glow effect based on primary color -->
       <div
         class="absolute top-0 right-0 w-32 h-32 opacity-20 dark:opacity-10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none"
-        [ngStyle]="{ 'background-color': branch.primary_color || '#005b96' }"></div>
+        [ngStyle]="{ 'background-color': branch.primary_color || '#2563EB' }"></div>
       
       <div>
         <div class="flex justify-between items-start mb-4 sm:mb-5 relative z-10 gap-2">
           <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-bold text-xl sm:text-2xl shadow-inner text-white shrink-0"
-            [ngStyle]="{ 'background-color': branch.primary_color || '#005b96' }">
+            [ngStyle]="{ 'background-color': branch.primary_color || '#2563EB' }">
             {{ branch.name.charAt(0).toUpperCase() }}
           </div>
           <div class="flex flex-col items-end gap-1.5 sm:gap-2">

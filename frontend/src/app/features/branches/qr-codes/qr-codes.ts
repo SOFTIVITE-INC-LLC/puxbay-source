@@ -112,7 +112,7 @@ export class QrCodes implements OnInit {
     const qrUrl = type === 'kiosk' ? this.kioskQrUrl() : this.storefrontQrUrl();
     const linkUrl = type === 'kiosk' ? this.kioskLinkUrl() : this.storefrontLinkUrl();
     const icon = type === 'kiosk' ? 'shopping_cart' : 'language';
-    const color = type === 'kiosk' ? '#005b96' : '#10b981';
+    const color = type === 'kiosk' ? '#2563EB' : '#10b981';
 
     const win = window.open('', '_blank');
     if (!win) return;
